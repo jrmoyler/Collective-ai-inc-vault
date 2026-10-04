@@ -2,7 +2,7 @@
 
 JR Moyler's second brain for Collective AI Inc., live. 1,199 linked notes rendered as a 3D campus, a task board, and a floor where the team watches agents work in real time.
 
-**App:** https://collective-ai-inc-vault.vercel.app
+**App:** import this repo on Vercel once (vercel.com/new → Import `jrmoyler/collective-ai-inc-vault`; `vercel.json` sets everything, no build step). Every push to `main` redeploys.
 
 ## What you see
 
