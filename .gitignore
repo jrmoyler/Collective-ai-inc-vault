@@ -1,0 +1,7 @@
+.vault-agent
+.env
+.env.*
+node_modules/
+.vercel/
+.DS_Store
+__pycache__/

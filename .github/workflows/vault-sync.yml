@@ -1,0 +1,57 @@
+name: vault-sync
+# Keeps git and the live vault in step.
+#  - push to main that touches vault/**  -> changed notes go to the live vault (repo -> live)
+#  - every 30 minutes / manual           -> notes edited live come back into git (live -> repo)
+# Needs repository secret VAULT_SYNC_TOKEN (the repo-sync agent token).
+on:
+  push:
+    branches: [main]
+    paths: ["vault/**"]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: vault-sync
+  cancel-in-progress: false
+jobs:
+  repo-to-live:
+    if: github.event_name == 'push' && !startsWith(github.event.head_commit.message, '[vault] sync:')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - run: pip install pyyaml
+      - name: Push changed notes
+        env:
+          VAULT_SYNC_TOKEN: ${{ secrets.VAULT_SYNC_TOKEN }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          AUTHOR: ${{ github.event.head_commit.author.name }}
+        run: |
+          if [ -z "$VAULT_SYNC_TOKEN" ]; then echo "::warning::VAULT_SYNC_TOKEN is not set; skipping"; exit 0; fi
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then python3 scripts/sync.py push --as "$AUTHOR";
+          else python3 scripts/sync.py push --range "$BEFORE..$AFTER" --as "$AUTHOR"; fi
+  live-to-repo:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pyyaml
+      - name: Pull live edits
+        env:
+          VAULT_SYNC_TOKEN: ${{ secrets.VAULT_SYNC_TOKEN }}
+        run: |
+          if [ -z "$VAULT_SYNC_TOKEN" ]; then echo "::warning::VAULT_SYNC_TOKEN is not set; skipping"; exit 0; fi
+          python3 scripts/sync.py pull
+          python3 scripts/build.py || true
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "collective-vault-sync"
+            git config user.email "sync@collective-vault.app"
+            git add -A vault tasks
+            git commit -m "[vault] sync: live edits" -m "Agent: repo-sync"
+            git push
+          else
+            echo "no live changes"
+          fi

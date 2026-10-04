@@ -1,0 +1,162 @@
+---
+title: MVP — Custom Script
+tags:
+- mvp
+- vital-helix
+- complexity-high
+- arch-command-shell
+type: mvp
+owner: JR Moyler (Hataalii)
+stage: Year 4 - Series C
+source: MVP Build Guide
+status: planned
+product: Custom Script
+updated: 2026-10-04
+division: Vital Helix
+priority: Year 4 - Series C
+timeline: 90 days (5 phases)
+complexity: High
+governance: Clinical (Aegis-Review)
+brand_color: '#14B8A6'
+product_type: Personalized Medicine Platform
+module_archetype: Command Shell
+---
+# MVP — Custom Script
+
+MVP build brief for **Custom Script** (Personalized Medicine Platform), Vital Helix division. Part of [[MVP Build Guide]].
+
+> [!warning] Clinical product
+> Aegis-Review applies: clinical oversight, HIPAA/privacy, no unsupported medical claims. The guide says not to deploy medical recommendations live yet.
+
+> [!info] Division status
+> Vital Helix is a chartered division, not an operating one. The guide labels it "Year 4 - Series C"; treat that as the planned stage.
+
+| Field | Value |
+|---|---|
+| Division | [[Vital Helix Division]] |
+| Product note | [[Custom Script]] |
+| Product type | Personalized Medicine Platform |
+| Priority | Year 4 - Series C |
+| Complexity | High |
+| Stage label in guide | Year 4 - Series C |
+| Brand color | `#14B8A6` |
+| Division palette | `#083A3A` `#14B8A6` `#8B5CF6` `#ECFEFF` |
+| Timeline | 90 days in 5 phases ([[MVP 90-Day Sprint Plan]]) |
+| Module archetype | Command Shell ([[MVP Module Archetypes]]) |
+| Status | planned |
+
+## MVP objective
+
+AI-assisted personalized medication/supplement compounding with physician-reviewed formulation recommendations.
+
+## UI direction
+
+- UI vibe: Clinical credibility, calm precision, biometric intelligence, patient-safe workflows
+- Division focus: Health, Synthetic Biology and Neuro-Wellness
+- Shell: parent Collective AI shell (void black, gold, cyan) plus the division palette. See [[MVP UI Design Rules]].
+
+## Build platform
+
+HIPAA FastAPI, Claude Aegis-Review, encrypted physician portal, pharmacy API, Juris Guard FDA layer.
+
+Shared defaults (Next.js, Supabase, FastAPI, ZenFlow adapter, Stripe, n8n) are in [[MVP Shared Architecture]].
+
+## Core MVP screens and modules
+
+1. Command dashboard
+2. Item registry
+3. Workflow board
+4. AI assistant panel
+5. Analytics cards
+6. Exportable report
+7. Admin settings
+
+## Viral and UI design hooks
+
+- Clinical credibility dashboard
+- Shareable status card
+- AI recommendation panel
+- Export-ready brief
+
+## Governance and compliance flags
+
+- Aegis-Review: clinical oversight, HIPAA/privacy, no unsupported medical claims.
+- Flag group: Clinical (Aegis-Review) ([[MVP Governance Flags]])
+
+## Suggested core tables
+
+```
+custom_script_items
+custom_script_workflows
+custom_script_status_events
+custom_script_metrics
+users
+organizations
+```
+
+## 90-day build plan
+
+### Days 1-15
+- [ ] Scope
+- [ ] UX flows
+- [ ] Schema
+- [ ] Division theme
+- [ ] Data boundaries
+
+### Days 16-30
+- [ ] Auth
+- [ ] App shell
+- [ ] Main dashboard
+- [ ] Seed data
+- [ ] Empty states
+
+### Days 31-60
+- [ ] Core workflow
+- [ ] AI assistant
+- [ ] Reporting/export
+- [ ] Analytics cards
+
+### Days 61-75
+- [ ] QA
+- [ ] Accessibility
+- [ ] Permissions
+- [ ] Compliance review
+- [ ] Feedback pass
+
+### Days 76-90
+- [ ] Pilot launch
+- [ ] Content/assets
+- [ ] Onboarding docs
+- [ ] Pricing or internal rollout
+
+## Acceptance criteria
+
+From [[MVP Build QA Checklist]]:
+
+- [ ] **Legibility**: No body text below 10.5-11pt equivalent in PDF or 14px in app UI.
+- [ ] **No overlay**: No text on screenshots, art, gradients, or busy backgrounds. Text appears on solid cards/bands only.
+- [ ] **Contrast**: White or near-white cards for dark text; dark solid bands for white text. No muted text on saturated color.
+- [ ] **Division identity**: Each MVP uses parent shell plus division palette, UI vibe, icon style, and share-card identity.
+- [ ] **Compliance**: Blocked/regulated products remain simulation/admin/reporting shells until review clears deployment.
+- [ ] **Data**: Every product has owner, schema, audit log, role model, and export/report path.
+- [ ] **Launch**: Pilot with seed data, empty states, onboarding copy, and one shareable artifact per product.
+
+## Launch and pricing
+
+- Days 76-90: pilot launch, content/assets, onboarding docs, pricing or internal rollout.
+- Launch gate: pilot with seed data, empty states, onboarding copy, and one shareable artifact.
+- The guide gives no price for this MVP. Billable services for the division:
+  - Bio-Digital Twin monitoring
+  - Personalized medication formulation
+  - Cognitive performance coaching
+  - Telehealth consultations
+  - Corporate wellness
+  - Clinical research partnerships
+  - Vital Helix API access
+
+## Links
+
+- Hub: [[MVP Build Guide]]
+- Division: [[Vital Helix Division]]
+- Director agent: [[Director_Vital_Helix]]
+- Product: [[Custom Script]]
