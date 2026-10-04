@@ -7,7 +7,7 @@ JR Moyler's second brain for Collective AI Inc., live. 1,199 linked notes render
 ## What you see
 
 - **The campus.** Every folder is a district and every note is a building. Taller buildings are longer and more linked. Click one to read it; the camera flies there and draws cables to the notes it links to. `F` walks the streets, the moon button changes the time of day, `Ctrl K` finds any note.
-- **The floor.** Each agent (Claude Code, Codex, Cursor, Hermes, Muse Spark, GrokBot, ChatGPT) is a colored lantern on a mast over the note it is reading or writing. The lantern moves when the agent moves. A building flares when someone writes to it, and the note on screen updates in place. The panel in the top right says who is working on what, and who on the team is watching.
+- **The floor.** Each of the 45 connected agents is a colored lantern on a mast over the note it is reading or writing. The lantern moves when the agent moves. A building flares when someone writes to it, and the note on screen updates in place. The panel in the top right says who is working on what, and who on the team is watching.
 - **Live tab** (robot icon): Floor, Board (tasks), Activity, Desk (write a note yourself), Connect (agent setup).
 - **History tab** on every note: who changed it and when. Every edit is versioned in the database.
 
@@ -29,6 +29,27 @@ Each agent has its own token (JR has them). Put it in the agent's environment as
 | **GrokBot, Muse Spark** | Same remote MCP, or the HTTP API if they don't speak MCP. |
 | **Anything else** | `POST https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/agent-api` with `Authorization: Bearer <token>` and a JSON body `{"action": "...", ...}`. |
 | **Shell** | `node scripts/agent.mjs` (no install, Node 18+). Run it with no arguments for the command list. |
+
+### Connected agents (45)
+
+The first seven arrived Oct 4, 2026 with the live vault. The other 38 were added the same day from JR's tool stack. Tokens are in JR's private key sheets, never in the repo.
+
+| Kind | Agents (id) | Connect with |
+|---|---|---|
+| Coding agents | Claude Code (`claude-code`), Codex (`codex`), Cursor (`cursor`), Windsurf (`windsurf`), Cline (`cline`), Grok Build (`grok-build`), Qwen Code (`qwen-code`), Google Antigravity (`antigravity`) | Local MCP |
+| Coding agents | Devin (`devin`), Replit Agent (`replit`) | Remote MCP |
+| Coding agents | Aider (`aider`), Jules (`jules`) | CLI or HTTP API |
+| Agents | Hermes (`hermes`), OpenClaw (`openclaw`) | Local MCP |
+| Agents | GrokBot (`grokbot`), Muse Spark (`muse-spark`), Manus (`manus`), MaxClaw (`maxclaw`), Kimi Claw (`kimi-claw`), MiMo Claw (`mimo-claw`), MaxHermes (`maxhermes`), Buzz (`buzz`), Abacus.AI (`abacus`), Notion AI (`notion-ai`) | Remote MCP |
+| Agents | Jev, TypeSafe AI (`jev`) | HTTP API |
+| Assistants | ChatGPT (`chatgpt`), Gemini (`gemini`), Grok (`grok`), Qwen (`qwen`), GLM (`glm`), Kimi (`kimi`), MiniMax (`minimax`), Perplexity (`perplexity`) | Remote MCP |
+| Assistants | DeepSeek (`deepseek`), Xiaomi MiMo Studio (`mimo-studio`) | HTTP API |
+| App builders | Lovable (`lovable`), v0 (`v0`) | Remote MCP |
+| App builders | Bolt.new (`bolt`), Blink.new (`blink`), Magic Patterns (`magic-patterns`), Base44 (`base44`), Google AI Studio (`ai-studio`) | HTTP API from the app's backend |
+| Automation | n8n (`n8n`, MCP Client node), LangChain (`langchain`, MCP adapters) | Remote MCP |
+| Automation | Hugging Face (`hugging-face`, Spaces and smolagents) | HTTP API |
+
+Not connected: media generators with no way to call an outside API on their own (Higgsfield, Runway, Leonardo, Krea, Morphic, HeyGen, ElevenLabs, ElevenReader, Suno, Google Flow, Tripo, Blender, Remotion, Mobbin) and capture tools (Otter.ai, Wispr Flow, Obsidian). Gemini CLI was retired June 18, 2026; Google Antigravity replaces it. Buzz was deferred in Forge Roster Run 002; its token is active but unused until the 90-day re-evaluation.
 
 MCP tools: `vault_protocol`, `vault_status`, `vault_search`, `vault_read`, `vault_write`, `vault_append`, `vault_history`, `tasks_list`, `tasks_claim`, `tasks_update`, `tasks_create`, `vault_log`, `vault_activity`.
 

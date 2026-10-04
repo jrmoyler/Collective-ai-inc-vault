@@ -1258,8 +1258,10 @@ const Live=(()=>{
   const refresh=()=>{if(sheet.open&&sheet.view==="agents")renderSheet()};
 
   // ---- floor HUD
-  function rowsHTML(compact,liveOnly){
-    const list=[...agents.values()].filter(a=>a.id!=="repo-sync"&&(!liveOnly||isLive(pres.get(a.id)))).map(a=>({a,p:pres.get(a.id)})).sort((x,y)=>(isLive(y.p)-isLive(x.p))||Date.parse(y.p?.last_seen||0)-Date.parse(x.p?.last_seen||0));
+  const KINDS=[["coding agent","Coding agents"],["agent","Agents"],["assistant","Assistants"],["app builder","App builders"],["automation","Automation"]];
+  const kindOf=a=>KINDS.some(k=>k[0]===a.kind)?a.kind:"agent";
+  function rowsHTML(compact,liveOnly,kind){
+    const list=[...agents.values()].filter(a=>a.id!=="repo-sync"&&a.active!==false&&(!liveOnly||isLive(pres.get(a.id)))&&(!kind||kindOf(a)===kind)).map(a=>({a,p:pres.get(a.id)})).sort((x,y)=>(isLive(y.p)-isLive(x.p))||Date.parse(y.p?.last_seen||0)-Date.parse(x.p?.last_seen||0)||x.a.name.localeCompare(y.a.name));
     return list.map(({a,p})=>{const live=isLive(p);const what=live?[p.status,p.task,p.note].filter(Boolean).join(" · "):"offline";
       return `<button class="ag-row${live?"":" off"}" ${p&&p.note?`data-note="${esc(p.note)}"`:""}><i style="background:${a.color}"></i><div><b>${esc(a.name)}</b><span>${esc(what)}</span>${live&&p.detail&&!compact?`<span>${esc(p.detail)}</span>`:""}</div><em>${p?short(p.last_seen):""}</em></button>`}).join("");
   }
@@ -1274,12 +1276,14 @@ const Live=(()=>{
   document.addEventListener("click",e=>{if(e.target.id==="floorAll"){e.preventDefault();sheet.atab="floor";openSheet("agents");return}const r=e.target.closest(".ag-row[data-note]");if(r){const n=byName.get(r.dataset.note);if(n)open(n)}});
 
   // ---- sheet tabs
-  function floorTab(){return `<div class="sec"><h4>Agents <span>${[...agents.keys()].filter(id=>id!=="repo-sync"&&isLive(pres.get(id))).length} live</span></h4>${rowsHTML(false)}</div>
+  function floorTab(){const all=[...agents.values()].filter(a=>a.id!=="repo-sync"&&a.active!==false),live=all.filter(a=>isLive(pres.get(a.id)));
+    return `${live.length?`<div class="sec"><h4>Live now <span>${live.length}</span></h4>${rowsHTML(false,true)}</div>`:`<div class="sec"><h4>Agents <span>0 live · ${all.length} connected</span></h4></div>`}
+    ${KINDS.map(([k,l])=>{const n=all.filter(a=>kindOf(a)===k).length;return n?`<details class="sec"${live.length?"":" open"}><summary style="cursor:pointer"><h4 style="display:inline">${l} <span>${n}</span></h4></summary>${rowsHTML(false,false,k)}</details>`:""}).join("")}
     <div class="sec"><h4>Teammates watching <span>${watchers.length}</span></h4><p class="note-s">${esc(watchers.join(", ")||"Just you")}</p></div>
     <p class="note-s">An agent shows as live for 15 minutes after its last heartbeat. Its lantern sits on the building of the note it is touching and moves when it moves.</p>`}
   function taskCard(t){
     const A={claimed:[["review","Send to review"],["block","Block"],["release","Release"]],open:[],review:[["done","Mark done"],["reopen","Reopen"]],blocked:[["unblock","Unblock"],["release","Release"]],done:[["reopen","Reopen"]]}[t.status]||[];
-    const assign=t.status==="open"?`<select class="btn" data-assign="${esc(t.id)}"><option value="">Assign to…</option>${[...agents.values()].filter(a=>a.id!=="repo-sync").map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("")}</select>`:"";
+    const assign=t.status==="open"?`<select class="btn" data-assign="${esc(t.id)}"><option value="">Assign to…</option>${KINDS.map(([k,l])=>{const g=[...agents.values()].filter(a=>a.id!=="repo-sync"&&a.active!==false&&kindOf(a)===k).sort((x,y)=>x.name.localeCompare(y.name));return g.length?`<optgroup label="${l}">${g.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("")}</optgroup>`:""}).join("")}</select>`:"";
     return `<div class="tc ${t.status}"><div class="t">${esc(t.title||t.id)}</div>
       <div class="m"><span>${esc(t.id)}</span><span>${esc(t.priority||"medium")}</span><span>${t.agent?esc(agentName(t.agent)):"unassigned"}</span>${t.division?`<span>${esc(t.division)}</span>`:""}${t.note?`<a class="wl" data-n="${esc(t.note)}">${esc(t.note)}</a>`:""}</div>
       ${t.detail?`<div class="d">${esc(t.detail)}</div>`:""}${t.result?`<div class="d"><b>Result:</b> ${esc(t.result)}</div>`:""}
@@ -1317,13 +1321,13 @@ const Live=(()=>{
     return `<div class="callout info"><div class="ct">How agents get in</div><p>Each agent has its own token. JR holds them. The token goes in the agent's environment as <code>VAULT_AGENT_TOKEN</code>, never in a note or a commit.</p></div>
     <div class="sec"><h4>Claude Code</h4><p class="note-s">Open the repo. <code>.mcp.json</code> and the hooks in <code>.claude/settings.json</code> are already there: every file Claude Code reads or edits shows up here live.</p>${code(`export VAULT_AGENT_TOKEN=cv_claudecode_…   # or put it in .vault-agent (gitignored)
 claude`)}</div>
-    <div class="sec"><h4>Codex, Cursor, Hermes (local MCP, no install)</h4>${code(`# ~/.codex/config.toml
+    <div class="sec"><h4>Local MCP, no install</h4><p class="note-s">Codex, Cursor, Hermes, Windsurf, Cline, Grok Build, Qwen Code, Google Antigravity, OpenClaw. Any tool with an MCP config file: point it at <code>node mcp/stdio.mjs</code> in this repo with the agent's own token in env.</p>${code(`# ~/.codex/config.toml
 [mcp_servers.collective-vault]
 command = "node"
 args = ["/ABS/PATH/collective-ai-inc-vault/mcp/stdio.mjs"]
 env = { VAULT_AGENT_TOKEN = "cv_codex_…" }`)}</div>
-    <div class="sec"><h4>ChatGPT, GrokBot, Muse Spark (remote MCP)</h4>${code(mcp)}<p class="note-s">Send the token as <code>Authorization: Bearer &lt;token&gt;</code>. Connectors that can't set headers can use <code>${esc(mcp)}?token=&lt;token&gt;</code>.</p></div>
-    <div class="sec"><h4>Anything that can make an HTTP call</h4>${code(`curl -s ${api} \\
+    <div class="sec"><h4>Remote MCP</h4><p class="note-s">ChatGPT, GrokBot, Muse Spark, Grok, Gemini, Qwen, GLM, Kimi, MiniMax, Perplexity, Manus, Devin, Replit Agent, MaxClaw, Kimi Claw, MiMo Claw, MaxHermes, Buzz, Abacus.AI, Notion AI, Lovable, v0, n8n (MCP Client node), LangChain (MCP adapters).</p>${code(mcp)}<p class="note-s">Send the token as <code>Authorization: Bearer &lt;token&gt;</code>. Connectors that can't set headers can use <code>${esc(mcp)}?token=&lt;token&gt;</code>.</p></div>
+    <div class="sec"><h4>HTTP API</h4><p class="note-s">DeepSeek, Jev, Xiaomi MiMo Studio, Bolt.new, Blink.new, Magic Patterns, Base44, Google AI Studio, Hugging Face, Jules, and anything else that can make an HTTP call. App builders: store the token as a backend secret, never in client code.</p>${code(`curl -s ${api} \\
   -H "Authorization: Bearer $VAULT_AGENT_TOKEN" -H "content-type: application/json" \\
   -d '{"action":"heartbeat","status":"working","task":"CV-001","note":"SOLOFORGE","detail":"drafting the offer"}'`)}
     <p class="note-s">Actions: whoami, heartbeat, log, tasks.list, tasks.claim, tasks.update, tasks.create, notes.get, notes.search, notes.upsert, notes.append, notes.history, activity.recent.</p></div>

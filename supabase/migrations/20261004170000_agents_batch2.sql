@@ -1,0 +1,7 @@
+-- Applied Oct 4, 2026: 38 more agents registered (token hashes inserted out of band, like the first batch).
+-- New kinds used by the app's Floor grouping: 'coding agent', 'agent', 'assistant', 'app builder', 'automation'.
+-- windsurf, cline, aider, jules, replit, grok-build, qwen-code, antigravity, devin,
+-- manus, openclaw, maxclaw, kimi-claw, mimo-claw, maxhermes, buzz, jev, abacus, notion-ai,
+-- gemini, grok, deepseek, qwen, glm, kimi, minimax, perplexity, mimo-studio,
+-- lovable, v0, bolt, blink, magic-patterns, base44, ai-studio, n8n, langchain, hugging-face
+-- Presence rows start as status 'offline' so they do not count as live until the first heartbeat.

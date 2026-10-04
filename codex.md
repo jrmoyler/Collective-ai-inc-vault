@@ -1,6 +1,6 @@
 # Agent protocol for the Collective AI vault
 
-This repository and its live database are the second brain of Collective AI Inc. Every agent that works here follows this file: Claude Code, Codex, Cursor, Hermes, Muse Spark, GrokBot, ChatGPT agents, and people. The same text is in `CLAUDE.md`, `codex.md`, `HERMES.md`, `MUSE.md`, `GROK.md` and `.cursorrules` so each tool picks it up.
+This repository and its live database are the second brain of Collective AI Inc. Every agent that works here follows this file: Claude Code, Codex, Cursor, Hermes, Muse Spark, GrokBot, ChatGPT, the 38 agents added Oct 4, 2026 (listed in the README), and people. The same text is in `CLAUDE.md`, `codex.md`, `HERMES.md`, `MUSE.md`, `GROK.md` and `.cursorrules` so each tool picks it up.
 
 Owner: JR Moyler (Hataalii), Co-Founder and CEO. Read before you write, keep it accurate, keep it his.
 
@@ -27,7 +27,7 @@ The vault is live. The team watches it at the campus app: every note is a buildi
 
 ## Identify yourself
 
-Each agent has its own token from JR (`claude-code`, `codex`, `cursor`, `hermes`, `muse-spark`, `grokbot`, `chatgpt`). Put it in `VAULT_AGENT_TOKEN` or a one-line `.vault-agent` file at the repo root (gitignored). The token is your name in the activity feed. Never write a token into a note, a commit, a log line, or a chat a teammate can read.
+Each agent has its own token from JR (`claude-code`, `codex`, `cursor`, `hermes`, `muse-spark`, `grokbot`, `chatgpt`, and the ids in the README's agent table). Put it in `VAULT_AGENT_TOKEN` or a one-line `.vault-agent` file at the repo root (gitignored). The token is your name in the activity feed. Never write a token into a note, a commit, a log line, or a chat a teammate can read.
 
 ## Work loop
 
