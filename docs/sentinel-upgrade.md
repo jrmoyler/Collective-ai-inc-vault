@@ -49,7 +49,7 @@ The image is a design reference. The interactive `/sentinels.html` gallery rende
 
 1. Apply `20261005070000_sentinel_identity.sql` to the existing Vault project.
 2. Deploy `session-heartbeat` with JWT verification enabled.
-3. Deploy the PR frontend. In Live → Sentinel, assign the four existing team accounts. Member accounts start with the member build.
+3. Merge/deploy the PR frontend after the remaining validation gates. JR is already assigned; in Live → Sentinel, assign Devon, Ahmad and Kenza after their named accounts sign in. Member accounts start with the member build.
 4. For person-owned external tools, send `POST /functions/v1/session-heartbeat` with `Authorization: Bearer <member-auth-JWT>` and this JSON:
 
 ```json
@@ -64,8 +64,9 @@ JWTs stay in tool secrets. Do not commit them or put them in query strings. A se
 - `node --check web-src/*.js`: syntax checks, run per file in CI.
 - `python3 scripts/build_web.py`: reproducible app and reference build.
 - The generated image and deployed gallery screenshot were visually inspected. The gallery controls, JR silhouette, member armor recoloring and two Claude owner bands were checked in the cloud browser at 1349 × 926. The browser has no WebGL context; the gallery projects the same mesh geometry into SVG as a fallback. The protected Vercel preview is Ready. GitHub Actions reported a startup failure with zero jobs; CI did not run. CodeRabbit skips automatic review of draft PRs.
-- Full live identity, production database RLS, GPU rendering, mobile WebGL and physical Galaxy A15 tests remain pending until preview and the Vault database are available. Local Chromium download failed and the cloud browser cannot access the local server.
-- The Supabase project listing omitted the Vault, but direct read access by project ID succeeded. Automatic approval review rejected applying the production migration because the user requested PR work and did not explicitly approve a live schema/access-policy change. The migration and new function are prepared in this PR; they have not been applied to production. Explicit approval to apply the migration and deploy the new endpoint is required. The live baseline remains 1,199 notes and 47 registered agents (including the sync agent). JR has an owner account; Devon, Ahmad and Kenza do not yet have named team accounts to bind. Those builds are ready for owner assignment after their normal team sign-in.
+- On 2026-10-05, with explicit owner approval, the production migration was applied and `session-heartbeat` v1 deployed ACTIVE with JWT verification enabled. All three new tables have RLS enabled; their expected policies are installed, and authenticated profile updates are restricted to the palette column. An unauthenticated endpoint request returned HTTP 401.
+- The verified JR owner account is assigned the JR form with `#050A18`, `#D4A843`, `#00D9B5`. Devon, Ahmad and Kenza do not yet have named team accounts; their builds are ready for owner assignment after normal sign-in. No accounts were invented or assigned based on display-name guesses.
+- End-to-end authenticated tool sessions, GPU city rendering, mobile WebGL and physical Galaxy A15 tests remain pending. Local Chromium download failed; the cloud browser has no WebGL context. Production frontend remains unchanged until the PR is merged.
 - Existing note-link validation is unchanged. No notes, canon, tasks, passcodes, tokens or existing database records are edited by this PR.
 
 Rolling the frontend back leaves the original vault operational. New tables can remain in place; the older frontend ignores them. Do not drop the new tables as part of a frontend rollback.
