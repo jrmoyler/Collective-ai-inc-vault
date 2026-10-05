@@ -430,7 +430,7 @@ function stepAgents(dt){
   AG.forEach(m=>{
     if(!m.grp.visible)return;live=true;
     if(m.t0>=0){const k=clamp((time-m.t0)/1.5,0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.lerpVectors(m.from,m.to,e);if(!m.info.position)m.pos.y+=Math.sin(Math.PI*k)*28;if(k>=1){m.t0=-1;m.pos.copy(m.to)}m.grp.position.copy(m.pos)}
-    if(!reduced)m.legs.forEach((leg,i)=>leg.rotation.x=m.t0>=0?Math.sin(time*8+i*Math.PI)*.3:0);
+    if(!reduced)SentinelMesh.pose(m,time,m.t0>=0);
   });
   let exp=false;pulses.forEach((u,id)=>{if(u<time){pulses.delete(id);exp=true}});if(exp)applyState();
   return live||pulses.size>0;
@@ -551,6 +551,7 @@ function init(){
     skyMat=skyMaterial();skyMesh=new THREE.Mesh(new THREE.SphereGeometry(2400,32,16),skyMat);skyMesh.renderOrder=-10;skyMesh.frustumCulled=false;scene.add(skyMesh);
     bridgeGroup=new THREE.Group();scene.add(bridgeGroup);markerGroup=new THREE.Group();scene.add(markerGroup);agentGroup=new THREE.Group();scene.add(agentGroup);
     ringMesh=new THREE.Mesh(new THREE.RingGeometry(.94,1,64),new THREE.MeshBasicMaterial({color:lin("#F2B85B"),transparent:true,opacity:.85,side:THREE.DoubleSide,fog:false}));ringMesh.rotation.x=-Math.PI/2;ringMesh.visible=false;scene.add(ringMesh);
+    SentinelMesh.environment(renderer);
     mat=makeMaterial();
     const ro=new ResizeObserver(()=>resize());ro.observe(stage);
     build(null);applyMode(mode);resize();

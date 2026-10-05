@@ -84,3 +84,57 @@ Rolling the frontend back leaves the original vault operational. New tables can 
 | Mobile | The existing city responsive shell is retained; gallery media queries are present. Mobile viewport and physical device checks remain open. |
 
 ![Actual preview in the WebGL-unavailable cloud browser](sentinel-reference-preview.jpg)
+
+## Finish pass · Oct 5, 2026
+
+The Sentinels move to the concept sheet's proportions, and the vault gets a finish layer. Functionality, element IDs, data flows, tables, RLS and the API are unchanged.
+
+![Reference gallery after the finish pass](sentinel-gallery-v2.jpg)
+
+![Two Claude Code Sentinels on the Divisions MOC rooftop at dusk](sentinel-campus-v2.jpg)
+
+### Sentinel geometry
+
+| Change | Detail |
+|---|---|
+| One blueprint | `Identity.blueprint(form)` holds every part: shape, size, position, rotation and material slot. The 3D mesh and the 2D account preview are both built from it, so the two views cannot drift apart. |
+| Proportions | 5.7 m figure, eight heads tall. V-shaped chest, narrow waist, tall tapered helmet, long tapered limbs. The previous figure was about five heads tall with a box torso. |
+| Plates | Chamfered unit cube and a tapered variant replace the plain box for parts thicker than 9 cm. Thin trims stay boxes to save vertices. |
+| Identification | Visor glass with three lit slits, lit chest trims, collar line, spine and limb strips. The chest terminal carries a frame, a four-bar mark, the symbol and the owner code. |
+| Ring | Flat compass ring: lit band, 36 ticks, four chevrons. It turns slowly and pulses. |
+| Forms | JR: four-step mantle, crest, gold outer thigh plates, teal tabard. Devon: shoulder rails with caps, bridge backpack, shin rails. Ahmad: square guards, chest ledger, plum coat, forearm guards, flat helmet cap. Kenza: collar fins, helmet fin, split waist panels on each leg. Member: chest rails, wrist accents. Agent: facade ribs, antenna. |
+| Owner band | On the right forearm of person-owned tool Sentinels, lit in the owner's color. |
+| Metals | A prefiltered dusk environment (PMREM) gives the armor reflections. Built once per renderer. Without WebGL or a renderer the materials fall back to lower metalness. |
+
+### Motion
+
+`SentinelMesh.pose(model, seconds, moving)` is shared by the campus and the gallery. Moving: leg stride, counter-swinging arms, step bob. At rest: breathing, an occasional visor scan, a glow pulse and ring rotation. Each Sentinel has its own phase, so a rooftop group does not move in step. Reduced-motion users get a still figure, as before.
+
+### Budget
+
+| Measure | Before | After |
+|---|---|---|
+| Draw objects per Sentinel | 9 | 10, JR 11 (test limit 12) |
+| Vertices per Sentinel | 1,410 to 1,626 | 6,988 to 7,816 |
+| 48 agent Sentinels | 67,680 vertices | 354,432 vertices |
+| Build time, 48 Sentinels (Node, no GPU) | not measured | 248 ms |
+
+The head, both arms and both legs are each one vertex-colored mesh. A small shader patch adds emission per vertex for the lit parts. Torso armor stays merged by palette color, so the existing test that finds the armor color on a material still applies.
+
+### Gallery (`/sentinels.html`)
+
+Roster cards with the blueprint previews, orbit by drag and wheel, turntable and walk-cycle toggles, native color pickers beside the hex fields, a reset button, a specs list, shadowed plinth, three-point light and ACES tone mapping. The SVG fallback for browsers without WebGL now reads vertex colors and lit parts. Mobile turns the roster into a scrolling strip.
+
+### Vault finish layer
+
+Visual properties only: glass HUD panels with blur, consistent radii and shadows, an active-view bar on the ribbon, animated tooltips, a live dot pulse, agent labels with a pointer toward their Sentinel, a scanning loader, a sign-in gate with a perspective grid and soft glow, toast and switcher entrance motion, tab hover states, tinted callouts, striped tables, a raised primary button and themed scrollbars. The rules sit in one block before the mobile media query, so mobile layout rules still win. `prefers-reduced-motion` now stops animations as well as transitions.
+
+The Live → Sentinel tab shows the preview in a card with the 60:30:10 bar. Each hex field has a native color picker beside it. The hex field is still the value that is saved, and its save path, validation and messages are unchanged.
+
+### Validation
+
+- `npm test`: 6 of 6 pass, unchanged.
+- `node --check` on every `web-src/*.js` file.
+- `python3 scripts/build_web.py` regenerates `web/index.html` and `web/sentinels.html`.
+- Headless Chromium with SwiftShader WebGL: the gallery for all seven builds, desktop and 390 px mobile. The full campus was run against a local stub of the Supabase client loaded with the 1,199 notes from `vault/`, six agents, two members and one person-owned session. Checked: the campus at dusk, Sentinels on a rooftop, the Sentinel tab, the Home note, the light theme, mobile and the sign-in gate. The stub stayed in a scratch folder and is not committed.
+- Still open: physical GPU and Galaxy A15 checks, and an end-to-end run against the production database.

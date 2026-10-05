@@ -1,15 +1,172 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vault Sentinel references</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#050A18;color:#F5F5F5;font:16px system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:32px}h1{font-size:clamp(26px,4vw,44px);margin:0 0 12px}p{color:#8B9BAE;line-height:1.6}label{display:block;margin:16px 0}select,input,button{font:inherit;color:#F5F5F5;background:#111827;border:1px solid #8B9BAE;padding:10px;max-width:100%}select{width:100%}.layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:32px}#referenceFallback{width:100%;height:560px;border-bottom:1px solid #D4A843}#referenceFallback svg{width:100%;height:100%}canvas{display:block;width:100%;height:560px;border-bottom:1px solid #D4A843}.ratio{display:flex;height:12px;margin:16px 0}.ratio i:first-child{width:60%}.ratio i:nth-child(2){width:30%}.ratio i:last-child{width:10%}img{width:100%;height:auto;margin-top:32px}.swatches{display:flex;flex-wrap:wrap;gap:8px}small{color:#8B9BAE}@media(max-width:700px){main{padding:20px}.layout{grid-template-columns:1fr}canvas,#referenceFallback{height:420px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}</style>
-<main><h1>Vault Sentinels</h1><p>Architectural navigators for the Collective AI city. Shared agent chassis. Four personal silhouettes. Member colors and person-owned tool accents.</p>
-<div class="layout"><div><canvas id="reference" aria-label="Interactive 3D Sentinel reference"></canvas><div id="referenceFallback" hidden aria-label="Sentinel geometry reference"></div><p id="renderMode"></p></div><section><label>Build<select id="build"><option value="agent">Agent Sentinel</option><option value="jr">JR · Hataalii Architect</option><option value="devon">Devon · Builder</option><option value="ahmad">Ahmad · Steward</option><option value="kenza">Kenza · Conductor</option><option value="member">Member Navigator</option><option value="owners">Claude · two owners</option></select></label><div id="colors"></div><div class="ratio" id="ratio"></div><p id="description"></p><label><input id="rotate" type="checkbox"> Rotate reference</label><small>Live city geometry, rendered with the same mesh factory. The concept below establishes the material and silhouette direction; this runtime version uses lighter geometry for the city.</small></section></div>
-<img src="sentinel-concept.webp" alt="Concept sheet showing Agent, JR, Devon, Ahmad, Kenza and Member architectural Sentinel designs and two Claude owner bands">
-</main><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.svg"><title>Vault Sentinels</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#050A18;--panel:#0B1226;--panel2:#111A33;--line:#1E2A4A;--fg:#EEF1F8;--muted:#8B9BAE;--faint:#5A6888;--gold:#D4A843;--teal:#00D9B5;
+  --display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:radial-gradient(1200px 600px at 30% -10%,#13204a 0%,transparent 60%),radial-gradient(900px 500px at 100% 20%,#2a1f10 0%,transparent 55%),var(--bg);color:var(--fg);font:15px/1.6 var(--body);min-height:100vh}
+::selection{background:var(--gold);color:#120d02}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+main{max-width:1240px;margin:auto;padding:28px 32px 64px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:10px;font:500 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.brand i{width:10px;height:10px;background:var(--gold);box-shadow:0 0 14px var(--gold)}
+.top a{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--fg);text-decoration:none;border:1px solid var(--line);padding:8px 14px;border-radius:999px;transition:border-color .2s,background .2s}
+.top a:hover{border-color:var(--gold);background:rgba(212,168,67,.08)}
+.eyebrow{font:500 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 10px}
+h1{font:700 clamp(34px,5.4vw,64px)/1 var(--display);letter-spacing:-.025em;margin:0 0 14px;background:linear-gradient(180deg,#fff 30%,#B9C3D9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{color:var(--muted);max-width:640px;margin:0 0 28px;font-size:16px}
+.roster{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:22px}
+.roster button{font:inherit;color:var(--muted);background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:12px;padding:10px 6px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s,transform .2s,color .2s,box-shadow .2s;min-width:0}
+.roster button:hover{color:var(--fg);transform:translateY(-2px);border-color:#34446e}
+.roster button[aria-pressed="true"]{color:var(--fg);border-color:var(--c,var(--gold));box-shadow:0 0 0 1px var(--c,var(--gold)) inset,0 10px 30px -12px var(--c,var(--gold))}
+.roster .thumb{height:96px;display:grid;place-items:center}
+.roster .thumb svg{width:64px!important;height:96px}
+.roster .duo{display:flex}.roster .duo svg{width:44px!important;height:96px}
+.roster b{font:600 12.5px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.roster small{font:400 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.layout{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(280px,1fr);gap:20px;align-items:start}
+.viewer{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:radial-gradient(70% 60% at 50% 38%,#1a2750 0%,#0a1023 60%,#050A18 100%);min-height:560px}
+.viewer::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 70%,rgba(5,10,24,.65));border-radius:inherit}
+canvas{display:block;width:100%;height:600px;cursor:grab;touch-action:none}
+canvas.drag{cursor:grabbing}
+#referenceFallback{width:100%;height:600px}
+#referenceFallback svg{width:100%;height:100%}
+.vtag{position:absolute;left:20px;top:18px;z-index:2;pointer-events:none}
+.vtag .k{font:500 10.5px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--c,var(--gold))}
+.vtag h2{font:700 28px/1.1 var(--display);margin:6px 0 0;letter-spacing:-.01em}
+.vhint{position:absolute;right:18px;top:20px;z-index:2;font:400 10.5px var(--mono);letter-spacing:.08em;color:var(--faint);text-transform:uppercase}
+.vfoot{position:absolute;left:20px;right:20px;bottom:16px;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;pointer-events:none}
+.ratio-wrap{width:min(320px,70%)}
+.ratio{display:flex;height:8px;border-radius:999px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.ratio i:first-child{width:60%}.ratio i:nth-child(2){width:30%}.ratio i:last-child{width:10%}
+.legend{display:flex;justify-content:space-between;max-width:320px;font:400 10px var(--mono);letter-spacing:.06em;color:var(--muted);margin-top:6px;text-transform:uppercase}
+#renderMode{font:400 11px var(--mono);color:var(--faint);margin:10px 2px 0;min-height:1em}
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:20px}
+.panel h3{font:600 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin:0 0 10px}
+label{display:block;margin:0 0 14px;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+select,input{font:14px var(--body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;margin-top:6px;transition:border-color .2s}
+select:hover,input:hover{border-color:#34446e}
+select:focus,input:focus{outline:none;border-color:var(--gold)}
+.swatch{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;align-items:center;margin-top:6px}
+.swatch input[type=color]{height:42px;padding:3px;margin:0;cursor:pointer}
+.swatch input[type=text]{margin:0;font-family:var(--mono);letter-spacing:.04em}
+.swatch input[aria-invalid="true"]{border-color:#E5534B}
+#description{color:#C4CCDC;margin:6px 0 16px;font-size:14.5px}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0 0 18px;font-size:13px}
+dt{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding-top:2px}
+dd{margin:0;color:var(--fg)}
+.toggles{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.toggle{display:inline-flex;align-items:center;gap:8px;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:999px;cursor:pointer;color:var(--fg);text-transform:none;letter-spacing:0;font:500 13px var(--body);transition:border-color .2s}
+.toggle:hover{border-color:var(--gold)}
+.toggle input{width:auto;margin:0;accent-color:var(--gold)}
+.reset{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:border-color .2s,color .2s}
+.reset:hover{color:var(--fg);border-color:var(--gold)}
+small{color:var(--faint);display:block;margin-top:14px;font-size:12px;line-height:1.55}
+figure{margin:40px 0 0}
+figure img{width:100%;height:auto;display:block;border-radius:18px;border:1px solid var(--line)}
+figcaption{font:400 12px var(--mono);color:var(--faint);margin-top:10px;letter-spacing:.02em}
+@media(max-width:980px){.roster{grid-template-columns:repeat(4,minmax(0,1fr))}.layout{grid-template-columns:1fr}}
+@media(max-width:620px){main{padding:18px 16px 48px}.roster{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin-inline:-16px;padding:2px 16px 6px}.roster::-webkit-scrollbar{display:none}.roster button{flex:0 0 116px;scroll-snap-align:start}canvas,#referenceFallback{height:440px}.viewer{min-height:440px}.vhint{display:none}.vtag h2{font-size:22px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+</style></head><body>
+<main>
+  <div class="top"><div class="brand"><i></i>Collective AI · Vault</div><a href="./">Open the campus</a></div>
+  <p class="eyebrow">Reference · live geometry</p>
+  <h1>Vault Sentinels</h1>
+  <p class="lede">Architectural navigators for the Collective AI city. One agent chassis for the full registry, four personal silhouettes, member colors and person-owned tool bands. Every figure on this page is the same mesh the campus renders.</p>
+  <nav class="roster" id="roster" aria-label="Builds"></nav>
+  <div class="layout">
+    <div>
+      <div class="viewer" id="viewer">
+        <div class="vtag" id="vtag"><div class="k" id="vkind"></div><h2 id="vname"></h2></div>
+        <div class="vhint">Drag · rotate &nbsp; Scroll · zoom</div>
+        <canvas id="reference" aria-label="Interactive 3D Sentinel reference"></canvas>
+        <div id="referenceFallback" hidden aria-label="Sentinel geometry reference"></div>
+        <div class="vfoot"><div class="ratio-wrap"><div class="ratio" id="ratio"></div><div class="legend"><span>Body 60</span><span>Armor 30</span><span>ID 10</span></div></div></div>
+      </div>
+      <p id="renderMode"></p>
+    </div>
+    <section class="panel" aria-label="Build controls">
+      <label>Build<select id="build"><option value="agent">Agent Sentinel</option><option value="jr">JR · Hataalii Architect</option><option value="devon">Devon · Builder</option><option value="ahmad">Ahmad · Steward</option><option value="kenza">Kenza · Conductor</option><option value="member">Member Navigator</option><option value="owners">Claude · two owners</option></select></label>
+      <p id="description"></p>
+      <dl id="specs"></dl>
+      <h3>Palette</h3>
+      <div id="colors"></div>
+      <div class="toggles"><label class="toggle"><input id="rotate" type="checkbox"> Turntable</label><label class="toggle"><input id="walk" type="checkbox"> Walk cycle</label></div>
+      <button class="reset" id="reset" type="button">Reset colors</button>
+      <small>Live city geometry, rendered with the same mesh factory and pose as the campus. The concept below sets the material and silhouette direction; the runtime figure uses lighter geometry so 48 Sentinels can stand in the city at once.</small>
+    </section>
+  </div>
+  <figure><img src="sentinel-concept.webp" alt="Concept sheet showing Agent, JR, Devon, Ahmad, Kenza and Member architectural Sentinel designs and two Claude owner bands" loading="lazy"><figcaption>Concept sheet. Design reference, not a render of the runtime mesh.</figcaption></figure>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <!-- SENTINEL_MODULES -->
 <script>
-const canvas=document.querySelector('#reference'),fallback=document.querySelector('#referenceFallback');let renderer=null;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputEncoding=THREE.sRGBEncoding}catch{canvas.hidden=true;canvas.style.display='none';fallback.hidden=false;document.querySelector('#renderMode').textContent='This browser has no WebGL. Showing the same mesh geometry as SVG.'}const scene=new THREE.Scene();scene.background=new THREE.Color('#050A18');const camera=new THREE.PerspectiveCamera(32,1,.1,100);scene.add(new THREE.HemisphereLight('#D6E5FF','#151B29',1.3));const light=new THREE.DirectionalLight('#FFFFFF',2);light.position.set(4,8,7);scene.add(light);const rim=new THREE.DirectionalLight('#D4A843',1.2);rim.position.set(-5,4,-3);scene.add(rim);let models=[],selected='agent',colors=Identity.FORMS.agent.palette.slice();
+const $=s=>document.querySelector(s),canvas=$('#reference'),fallback=$('#referenceFallback'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let renderer=null;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;SentinelMesh.environment(renderer)}catch{renderer=null;canvas.hidden=true;canvas.style.display='none';fallback.hidden=false;$('#renderMode').textContent='This browser has no WebGL. Showing the same mesh geometry as SVG.'}
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(30,1,.1,200);
+scene.add(new THREE.HemisphereLight('#C9D8FF','#151B29',.7));
+const key=new THREE.DirectionalLight('#FFF3E0',2.4);key.position.set(5,9,7);key.castShadow=true;key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-6,right:6,top:8,bottom:-2,near:1,far:30});key.shadow.bias=-.0008;scene.add(key);
+const rim=new THREE.DirectionalLight('#D4A843',2);rim.position.set(-6,5,-5);scene.add(rim);
+const cool=new THREE.DirectionalLight('#6FA8FF',1.1);cool.position.set(6,3,-6);scene.add(cool);
+// Floor: a dark plinth disc, a soft accent pool and a faint survey grid.
+function pool(){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),r=g.createRadialGradient(128,128,0,128,128,128);r.addColorStop(0,'rgba(255,255,255,.55)');r.addColorStop(.45,'rgba(255,255,255,.12)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,256,256);return new THREE.CanvasTexture(c)}
+const floor=new THREE.Mesh(new THREE.CircleGeometry(7,64),new THREE.MeshStandardMaterial({color:new THREE.Color('#070B18').convertSRGBToLinear(),roughness:.85,metalness:.1}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+const glowPool=new THREE.Mesh(new THREE.PlaneGeometry(9,9),new THREE.MeshBasicMaterial({map:pool(),transparent:true,opacity:.13,depthWrite:false,color:'#D4A843'}));glowPool.rotation.x=-Math.PI/2;glowPool.position.y=.01;scene.add(glowPool);
+const grid=new THREE.GridHelper(14,28,new THREE.Color('#2A3B66').convertSRGBToLinear(),new THREE.Color('#16203D').convertSRGBToLinear());grid.position.y=.005;grid.material.transparent=true;grid.material.opacity=.45;scene.add(grid);
+let models=[],selected='agent',colors=Identity.FORMS.agent.palette.slice();
+const BUILDS={agent:{kind:'Shared chassis',traits:'Facade-ribbed chest, antenna, platform armor',insignia:'Platform code, e.g. CC, CX, GPT'},jr:{kind:'Core · owner assigned',traits:'Broad frame, four-step mantle, gold thigh plates, teal tabard',insignia:'H'},devon:{kind:'Core · owner assigned',traits:'Twin shoulder rails, bridge backpack, shin rails',insignia:'DS'},ahmad:{kind:'Core · owner assigned',traits:'Square guards, chest ledger, plum coat, forearm guards',insignia:'AM'},kenza:{kind:'Core · owner assigned',traits:'Swept collar fins, split waist panels, helmet fin',insignia:'KD'},member:{kind:'Every team account',traits:'Narrow jacket armor, paired chest rails, wrist accents',insignia:'MN'},owners:{kind:'Person-owned tool sessions',traits:'Same Claude chassis, separate owner band and code',insignia:'CLA + owner code'}};
 const descriptions={agent:'One chassis for the complete agent registry. Platform armor, terminal insignia and an owner band for person-owned sessions.',jr:'Tall athletic frame. Four stepped mantle plates, broad shoulders, split gold thigh armor. H chest insignia.',devon:'Twin upright shoulder rails and a structural bridge backpack. Teal armor and silver identification.',ahmad:'Layered chest ledger, square shoulder armor and plum forearm guards. Gold identification.',kenza:'Swept collar fins and split crimson waist panels. Rose gold identification.',member:'Narrow jacket armor, paired chest rails and personal wrist accents. Three account colors.',owners:'Two Claude Sentinels share the copper platform chassis. JR has a teal owner band; Devon has a crimson example band. Each has a distinct owner code.'};
-function draw(){models.forEach(m=>{scene.remove(m.grp);SentinelMesh.dispose(m.grp)});models=[];const specs=selected==='owners'?[{id:'claude:jr',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#00D9B5',ownerBadge:'JR'},{id:'claude:devon',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#A62C48',ownerBadge:'DS'}]:[{id:selected,form:selected,palette:colors,symbol:Identity.FORMS[selected].symbol}];specs.forEach((s,i)=>{const m=SentinelMesh.create(s);m.grp.position.x=specs.length===2?(i-.5)*4:0;m.grp.rotation.y=.45;m.info=s;scene.add(m.grp);models.push(m)});camera.position.set(0,4.2,selected==='owners'?23:17);camera.lookAt(0,2.8,0);document.querySelector('#description').textContent=descriptions[selected];document.querySelector('#ratio').innerHTML=colors.map(c=>`<i style="background:${c}"></i>`).join('')}
-function controls(){document.querySelector('#colors').innerHTML=selected==='owners'?'':colors.map((c,i)=>`<label>${['Body · 60%','Armor · 30%','Accent · 10%'][i]}<input data-color="${i}" value="${c}" maxlength="7" aria-label="${['Body','Armor','Accent'][i]} hex code"></label>`).join('');document.querySelectorAll('[data-color]').forEach(input=>input.oninput=()=>{if(Identity.HEX.test(input.value)){colors[+input.dataset.color]=input.value;draw()}})}
-document.querySelector('#build').onchange=e=>{selected=e.target.value;colors=Identity.FORMS[selected==='owners'?'agent':selected].palette.slice();controls();draw()};controls();draw();let previous=0;function svgGeometry(){const w=fallback.clientWidth,h=fallback.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();camera.updateMatrixWorld(true);scene.updateMatrixWorld(true);const triangles=[];models.forEach(model=>model.grp.traverse(o=>{if(!o.isMesh)return;const g=o.geometry,index=g.index,positions=g.attributes.position,count=index?index.count:positions.count;for(let i=0;i<count;i+=3){const vertices=[0,1,2].map(k=>new THREE.Vector3().fromBufferAttribute(positions,index?index.getX(i+k):i+k).applyMatrix4(o.matrixWorld));const center=vertices.reduce((a,v)=>a.add(v),new THREE.Vector3()).multiplyScalar(1/3),normal=new THREE.Vector3().subVectors(vertices[1],vertices[0]).cross(new THREE.Vector3().subVectors(vertices[2],vertices[0])).normalize();if(o.material.side!==THREE.DoubleSide&&normal.dot(new THREE.Vector3().subVectors(camera.position,center))<=0)continue;const projected=vertices.map(v=>v.clone().project(camera));if(projected.some(v=>v.z>1||v.z<-1))continue;const brightness=.35+.65*Math.max(0,normal.dot(new THREE.Vector3(.4,.7,.7).normalize()));const color=o.material.color.clone().multiplyScalar(brightness).convertLinearToSRGB().getStyle();triangles.push({depth:center.clone().applyMatrix4(camera.matrixWorldInverse).z,points:projected.map(v=>`${((v.x+1)*w/2).toFixed(2)},${((1-v.y)*h/2).toFixed(2)}`).join(' '),color})}}));triangles.sort((a,b)=>a.depth-b.depth);const ownerLabels=models.filter(m=>m.info.ownerBadge).map(m=>{const p=new THREE.Vector3(m.grp.position.x,5.95,0).project(camera);return `<text x="${(p.x+1)*w/2}" y="${(1-p.y)*h/2}" text-anchor="middle" fill="${m.info.ownerColor}" font-family="monospace" font-size="14">${m.info.ownerBadge} · Claude</text>`}).join('');fallback.innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Actual Sentinel geometry">${triangles.map(t=>`<polygon points="${t.points}" fill="${t.color}"/>`).join('')}${ownerLabels}</svg>`}
-function frame(t){requestAnimationFrame(frame);const w=canvas.clientWidth,h=canvas.clientHeight;if(renderer&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}if(document.querySelector('#rotate').checked&&!matchMedia('(prefers-reduced-motion: reduce)').matches)models.forEach(m=>m.grp.rotation.y+=Math.min(.05,(t-previous)/1000)*.5);previous=t;if(renderer)renderer.render(scene,camera);else if(t-(frame.lastSVG||0)>100){svgGeometry();frame.lastSVG=t}}requestAnimationFrame(frame);
-</script></html>
+const NAMES={agent:'Agent Sentinel',jr:'JR · Hataalii',devon:'Devon · Builder',ahmad:'Ahmad · Steward',kenza:'Kenza · Conductor',member:'Member Navigator',owners:'Claude · two owners'};
+const view={yaw:.42,pitch:.1,dist:13.5,goalYaw:.42,goalDist:13.5};
+function roster(){$('#roster').innerHTML=Object.keys(NAMES).map(k=>{const f=k==='owners'?'agent':k,c=(k==='owners'?['#111827','#C97B54','#00D9B5']:Identity.FORMS[f].palette)[2];
+  const art=k==='owners'?`<span class="duo">${Identity.preview({form:'agent',palette:['#111827','#C97B54','#00D9B5']})}${Identity.preview({form:'agent',palette:['#111827','#C97B54','#A62C48']})}</span>`:Identity.preview({form:f});
+  return `<button type="button" data-build="${k}" style="--c:${c}" aria-pressed="${k===selected}"><span class="thumb">${art}</span><b>${NAMES[k]}</b><small>${k==='owners'?'2 owners':Identity.FORMS[f].symbol}</small></button>`}).join('');
+  $('#roster').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#build').value=b.dataset.build;$('#build').onchange({target:$('#build')})})}
+function draw(){models.forEach(m=>{scene.remove(m.grp);SentinelMesh.dispose(m.grp)});models=[];
+  const specs=selected==='owners'?[{id:'claude:jr',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#00D9B5',ownerBadge:'JR'},{id:'claude:devon',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#A62C48',ownerBadge:'DS'}]:[{id:selected,form:selected,palette:colors,symbol:Identity.FORMS[selected].symbol}];
+  specs.forEach((s,i)=>{const m=SentinelMesh.create(s);m.grp.position.x=specs.length===2?(i-.5)*3.4:0;m.grp.rotation.y=specs.length===2?(i-.5)*-.3:0;m.grp.traverse(o=>{if(o.isMesh&&o!==m.ring&&o!==m.plate)o.castShadow=true});m.info=s;scene.add(m.grp);models.push(m)});
+  view.goalDist=selected==='owners'?17:13.5;
+  const accent=selected==='owners'?'#C97B54':colors[2];glowPool.material.color.set(accent).convertSRGBToLinear();document.documentElement.style.setProperty('--c',accent);
+  $('#description').textContent=descriptions[selected];$('#vname').textContent=NAMES[selected];$('#vkind').textContent=BUILDS[selected].kind;
+  $('#specs').innerHTML=`<dt>Silhouette</dt><dd>${BUILDS[selected].traits}</dd><dt>Insignia</dt><dd>${BUILDS[selected].insignia}</dd><dt>Palette</dt><dd>${(selected==='owners'?Identity.FORMS.agent.palette:colors).join(' · ')}</dd>`;
+  $('#ratio').innerHTML=(selected==='owners'?Identity.FORMS.agent.palette:colors).map(c=>`<i style="background:${c}"></i>`).join('');
+  document.querySelectorAll('#roster button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.build===selected))}
+function controls(){const labels=['Body · 60%','Armor · 30%','Accent · 10%'];
+  $('#colors').innerHTML=selected==='owners'?'<p style="color:var(--muted);font-size:13px;margin:0 0 14px">Owner bands use each member’s accent color. Pick a single build to edit its palette.</p>':colors.map((c,i)=>`<label>${labels[i]}<span class="swatch"><input type="color" data-picker="${i}" value="${c.toLowerCase()}" aria-label="${['Body','Armor','Accent'][i]} color picker"><input type="text" data-color="${i}" value="${c}" maxlength="7" spellcheck="false" aria-label="${['Body','Armor','Accent'][i]} hex code"></span></label>`).join('');
+  document.querySelectorAll('[data-color]').forEach(input=>input.oninput=()=>{const ok=Identity.HEX.test(input.value);input.setAttribute('aria-invalid',!ok);if(ok){colors[+input.dataset.color]=input.value.toUpperCase();document.querySelector(`[data-picker="${input.dataset.color}"]`).value=input.value.toLowerCase();draw()}});
+  document.querySelectorAll('[data-picker]').forEach(input=>input.oninput=()=>{const t=document.querySelector(`[data-color="${input.dataset.picker}"]`);t.value=input.value.toUpperCase();t.oninput()})}
+$('#build').onchange=e=>{selected=e.target.value;colors=Identity.FORMS[selected==='owners'?'agent':selected].palette.slice();controls();draw()};
+$('#reset').onclick=()=>$('#build').onchange({target:$('#build')});
+$('#rotate').checked=!reduced;$('#walk').checked=false;
+roster();controls();draw();
+// Orbit: drag to turn, wheel or pinch to zoom.
+let drag=null;canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);canvas.classList.add('drag')});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;view.goalYaw-=(e.clientX-drag.x)*.008;view.pitch=Math.max(-.15,Math.min(.6,view.pitch+(e.clientY-drag.y)*.004));drag={x:e.clientX,y:e.clientY}});
+const end=()=>{drag=null;canvas.classList.remove('drag')};canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+canvas.addEventListener('wheel',e=>{e.preventDefault();view.goalDist=Math.max(8,Math.min(26,view.goalDist*Math.exp(e.deltaY*.001)))},{passive:false});
+function placeCamera(w,h){camera.aspect=w/h;camera.position.set(Math.sin(view.yaw)*Math.cos(view.pitch)*view.dist,2.9+Math.sin(view.pitch)*view.dist,Math.cos(view.yaw)*Math.cos(view.pitch)*view.dist);camera.lookAt(0,2.75,0);camera.updateProjectionMatrix();camera.updateMatrixWorld(true)}
+function svgGeometry(){const w=fallback.clientWidth,h=fallback.clientHeight;if(!w||!h)return;placeCamera(w,h);scene.updateMatrixWorld(true);const triangles=[],light=new THREE.Vector3(.4,.7,.7).normalize();
+  models.forEach(model=>model.grp.traverse(o=>{if(!o.isMesh||!o.visible)return;const g=o.geometry,index=g.index,positions=g.attributes.position,cols=g.attributes.color,glow=g.attributes.glow,count=index?index.count:positions.count;
+    for(let i=0;i<count;i+=3){const ids=[0,1,2].map(k=>index?index.getX(i+k):i+k),vertices=ids.map(k=>new THREE.Vector3().fromBufferAttribute(positions,k).applyMatrix4(o.matrixWorld));
+      const center=vertices.reduce((a,v)=>a.add(v),new THREE.Vector3()).multiplyScalar(1/3),normal=new THREE.Vector3().subVectors(vertices[1],vertices[0]).cross(new THREE.Vector3().subVectors(vertices[2],vertices[0])).normalize();
+      if(o.material.side!==THREE.DoubleSide&&normal.dot(new THREE.Vector3().subVectors(camera.position,center))<=0)continue;
+      const projected=vertices.map(v=>v.clone().project(camera));if(projected.some(v=>v.z>1||v.z<-1))continue;
+      const base=cols?new THREE.Color(cols.getX(ids[0]),cols.getY(ids[0]),cols.getZ(ids[0])):o.material.color.clone(),lit=(glow&&glow.getX(ids[0])>.5)||(o.material.emissive&&o.material.emissiveIntensity>.5)||o.material.type==='MeshBasicMaterial';
+      const color=(lit?base:base.multiplyScalar(.35+.65*Math.max(0,normal.dot(light)))).convertLinearToSRGB().getStyle();
+      triangles.push({depth:center.clone().applyMatrix4(camera.matrixWorldInverse).z,points:projected.map(v=>`${((v.x+1)*w/2).toFixed(1)},${((1-v.y)*h/2).toFixed(1)}`).join(' '),color})}}));
+  triangles.sort((a,b)=>a.depth-b.depth);
+  const ownerLabels=models.filter(m=>m.info.ownerBadge).map(m=>{const p=new THREE.Vector3(m.grp.position.x,6.2,0).project(camera);return `<text x="${(p.x+1)*w/2}" y="${(1-p.y)*h/2}" text-anchor="middle" fill="${m.info.ownerColor}" font-family="monospace" font-size="14">${m.info.ownerBadge} · Claude</text>`}).join('');
+  fallback.innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Actual Sentinel geometry">${triangles.map(t=>`<polygon points="${t.points}" fill="${t.color}" stroke="${t.color}" stroke-width=".4"/>`).join('')}${ownerLabels}</svg>`}
+let previous=0;
+function frame(t){requestAnimationFrame(frame);const dt=Math.min(.05,(t-previous)/1000||0);previous=t;const sec=t/1000;
+  if($('#rotate').checked&&!reduced&&!drag)view.goalYaw+=dt*.35;
+  const k=reduced?1:1-Math.exp(-dt*7);view.yaw+=(view.goalYaw-view.yaw)*k;view.dist+=(view.goalDist-view.dist)*k;
+  if(!reduced)models.forEach(m=>SentinelMesh.pose(m,sec,$('#walk').checked));
+  if(renderer){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);placeCamera(w,h);renderer.render(scene,camera)}
+  else if(t-(frame.lastSVG||0)>120){svgGeometry();frame.lastSVG=t}}
+requestAnimationFrame(frame);
+</script></body></html>
