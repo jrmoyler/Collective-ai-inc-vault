@@ -1,0 +1,15 @@
+// Vault Sentinel identity. Core forms are assigned by the owner, never by a display name.
+const Identity=(()=>{
+  const HEX=/^#[0-9a-f]{6}$/i;
+  const FORMS={agent:{name:'Agent Sentinel',palette:['#111827','#C97B54','#E6E9F2'],symbol:'AI'},member:{name:'Member Navigator',palette:['#101B32','#3977C7','#E6E9F2'],symbol:'MN'},jr:{name:'Hataalii · Architect',palette:['#050A18','#D4A843','#00D9B5'],symbol:'H'},devon:{name:'Devon · Builder',palette:['#0B1830','#00A994','#CED7E0'],symbol:'DS'},ahmad:{name:'Ahmad · Steward',palette:['#191923','#75518D','#C9A84C'],symbol:'AM'},kenza:{name:'Kenza · Conductor',palette:['#151B29','#A62C48','#E7BBA0'],symbol:'KD'}};
+  function palette(p,f='member'){return Array.isArray(p)&&p.length===3&&p.every(c=>typeof c==='string'&&HEX.test(c))?p.map(c=>c.toUpperCase()):FORMS[f]?.palette.slice()||FORMS.member.palette.slice()}
+  function form(f){return Object.hasOwn(FORMS,f)?f:'member'}
+  function badge(id){let h=2166136261;for(const c of String(id)){h=Math.imul(h^c.charCodeAt(0),16777619)}return (h>>>0).toString(36).toUpperCase().padStart(7,'0')}
+  const PLATFORM={ 'claude-code':'CC',claude:'CW',codex:'CX',cursor:'CU',windsurf:'WS',cline:'CL','grok-build':'GB','qwen-code':'QC',antigravity:'AG',devin:'DV',replit:'RP',aider:'AD',jules:'JL',hermes:'HE',openclaw:'OC',grokbot:'GT','muse-spark':'MS',manus:'MA',maxclaw:'MC','kimi-claw':'KC','mimo-claw':'MM',maxhermes:'MH',buzz:'BZ',abacus:'AB','notion-ai':'NA',jev:'JV',chatgpt:'GPT',gemini:'GM',grok:'GK',qwen:'QW',glm:'GL',kimi:'KM',minimax:'MX',perplexity:'PP',deepseek:'DS','mimo-studio':'MI',lovable:'LV',v0:'V0',bolt:'BT',blink:'BK','magic-patterns':'MP',base44:'B44','ai-studio':'AS',n8n:'N8',langchain:'LC','hugging-face':'HF'};
+  function platformCode(id){return PLATFORM[id]||badge(id).slice(-4)}
+  function profile(p={}){const f=form(p.form);return {form:f,palette:palette(p.palette,f),symbol:FORMS[f].symbol}}
+  function preview(p){p=profile(p);const [a,b,c]=p.palette;const f=p.form;
+    const shoulders=f==='jr'?'M42 62L25 46L21 87L42 94 M98 62L121 55L122 88L98 94':f==='devon'?'M38 65V36H27V90H38 M102 65V36H113V90H102':f==='kenza'?'M43 68L23 42L31 91L43 97 M97 68L117 42L109 91L97 97':f==='ahmad'?'M42 64H20V95H42 M98 64H120V95H98':'M42 66L29 62L26 88L42 93 M98 66L111 62L114 88L98 93';
+    return `<svg viewBox="0 0 140 210" role="img" aria-label="${FORMS[f].name}" style="width:140px;max-width:100%"><g stroke="${c}" stroke-width="1"><path fill="${a}" d="M48 62L70 55L92 62L99 120L86 135H54L41 120Z M49 137H67V181L62 199H42L45 180Z M73 137H91L95 180L98 199H78L73 181Z M25 93H40L36 148H23Z M100 93H115L117 148H104Z"/><path fill="${b}" d="${shoulders} M55 24H85L90 49L81 59H59L50 49Z M46 73H94V108H46Z M44 121H96V133H44Z"/><path stroke="${c}" stroke-width="4" d="M57 41H83 M55 115H85 M28 133H37 M103 133H112"/><path stroke="${a}" stroke-width="2" d="M52 76V104 M58 76V104 M82 76V104 M88 76V104"/><text x="70" y="96" text-anchor="middle" fill="${c}" stroke="none" font-family="monospace" font-size="13">${FORMS[f].symbol}</text></g></svg>`}
+  return {HEX,FORMS,palette,form,badge,platformCode,profile,preview};
+})();

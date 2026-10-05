@@ -111,7 +111,7 @@ const sheet={open:false,full:false,view:"note",ntab:"note",atab:"floor"};
 function snippet(src,target){const ln=src.body.split("\n").find(l=>l.includes("[["+target))||"";return ln.replace(/\[( |x)\]/g,"").replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g,"$1").replace(/[#>*|`-]/g," ").trim().slice(0,90)}
 function renderSheet(){
   const sb=$("#sbody"),tabs=$("#stabs");
-  const T=sheet.view==="note"?[["note","Note"],["links","Links"],["outline","Outline"],["history","History"]]:[["floor","Floor"],["board","Board"],["activity","Activity"],["desk","Desk"],["connect","Connect"]];
+  const T=sheet.view==="note"?[["note","Note"],["links","Links"],["outline","Outline"],["history","History"]]:[["floor","Floor"],["board","Board"],["activity","Activity"],["desk","Desk"],["connect","Connect"],["identity","Sentinel"]];
   const act=sheet.view==="note"?sheet.ntab:sheet.atab;
   tabs.innerHTML=T.map(([k,l])=>`<button data-st="${k}" class="${k===act?"on":""}">${l}</button>`).join("");
   $("#crumb2").innerHTML=sheet.view==="note"&&cur?(cur.folder?esc(cur.folder)+" / ":"")+"<b>"+esc(cur.name)+"</b>":"<b>Live</b> · agents, tasks, desk";
@@ -217,3 +217,4 @@ document.addEventListener("keydown",e=>{
   if(e.altKey&&e.key==="ArrowLeft")goBack();else if(e.altKey&&e.key==="ArrowRight")goFwd();
   else if(e.key==="/"){e.preventDefault();openSwitcher()}
 });
+

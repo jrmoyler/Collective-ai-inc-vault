@@ -344,7 +344,7 @@ function updateLabels(){
   const cands=[],cp=camera.position;camera.getWorldDirection(_f);
   const addB=(id,cls,prio)=>{const b=B[id];if(!b)return;cands.push({x:b.cx,y:b.h+2.6,z:b.cz,t:NOTES[id].name,s:"",cls,prio,c:colorOf(NOTES[id])})};
   if(sel>=0)addB(sel,"sel",100);
-  AG.forEach(m=>{if(!m.grp.visible)return;const a=m.info;cands.push({x:m.pos.x,y:m.pos.y+12.5,z:m.pos.z,t:`${a.name} · ${a.status}`,s:a.task||"",cls:"ag",prio:110,c:a.color||"#E8A33D"})});
+  AG.forEach(m=>{if(!m.grp.visible)return;const a=m.info;cands.push({x:m.pos.x,y:m.pos.y+7,z:m.pos.z,t:`${a.name} · ${a.status}`,s:a.ownerName?`${a.ownerName} · ${a.ownerBadge}`:a.task||"",cls:"ag",prio:110,c:a.color||"#E8A33D"})});
   if(hov>=0&&hov!==sel)addB(hov,"hov",90);
   if(sel>=0){[...nbr.keys()].map(i=>({i,d:Math.hypot(B[i].cx-cp.x,B[i].cz-cp.z)})).sort((a,b)=>a.d-b.d).slice(0,13).forEach((o,k)=>addB(o.i,"",60-k))}
   const far=walk?0:cam.dist;
@@ -406,42 +406,31 @@ function setMarkers(list){
 }
 
 
-// ---------- live agents: a lantern on a mast above the building each agent is working in
+// ---------- Vault Sentinels: articulated architectural avatars, shared cached geometry.
 const AG=new Map(),pulses=new Map();let agentGroup=null,lastAgents=[];
 const LIVE_ST=["working","writing","reading","thinking","reviewing"];
+function disposeSentinel(m){SentinelMesh.dispose(m.grp);agentGroup.remove(m.grp)}
 function setAgents(list){
-  lastAgents=list||[];if(!agentGroup)return;
-  const seen=new Set();
+  lastAgents=list||[];if(!agentGroup)return;const seen=new Set(),slots=new Map();
   lastAgents.forEach(a=>{
     seen.add(a.id);const n=a.note?byName.get(a.note):null,b=n?B[n.id]:null;let m=AG.get(a.id);
-    if(!m){
-      const col=lin(a.color||"#E8A33D"),grp=new THREE.Group();
-      const mast=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1,6),new THREE.MeshBasicMaterial({color:lin("#d8dce6")}));
-      const lamp=new THREE.Mesh(new THREE.OctahedronGeometry(1.25,0),new THREE.MeshBasicMaterial({color:col}));
-      const ring=new THREE.Mesh(new THREE.RingGeometry(.86,1,48),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.9,side:THREE.DoubleSide,fog:false}));
-      ring.rotation.x=-Math.PI/2;mast.scale.y=9;mast.position.y=4.5;lamp.position.y=10.2;ring.position.y=.35;
-      grp.add(mast,lamp,ring);agentGroup.add(grp);
-      m={grp,lamp,ring,pos:new THREE.Vector3(),from:new THREE.Vector3(),to:new THREE.Vector3(),t0:-1,noteId:-1};AG.set(a.id,m);
-    }
-    m.info=a;
-    if(b){
-      const tgt=new THREE.Vector3(b.cx,b.h,b.cz);const r=Math.max(b.fw,b.fd)*.62+.8;m.ring.scale.set(r,r,r);
-      if(m.noteId!==n.id){if(m.noteId<0||!m.grp.visible)m.pos.copy(tgt);else{m.from.copy(m.pos);m.to.copy(tgt);m.t0=time}m.noteId=n.id}
-      m.grp.visible=true;
-    }else{m.grp.visible=false;m.noteId=-1}
-    m.grp.position.copy(m.pos);
+    const signature=JSON.stringify([Identity.form(a.form||'agent'),Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],a.form||'agent'),a.symbol,a.ownerColor,a.ownerBadge]);
+    if(m&&m.signature!==signature){disposeSentinel(m);AG.delete(a.id);m=null}
+    if(!m){m=SentinelMesh.create(a);agentGroup.add(m.grp);AG.set(a.id,m)}m.info=a;
+    let tgt=null;
+    if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){tgt=new THREE.Vector3(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0}
+    else if(b){const slot=slots.get(n.id)||0;slots.set(n.id,slot+1);tgt=new THREE.Vector3(b.cx+Math.cos(slot*2.4)*2.8,b.h,b.cz+Math.sin(slot*2.4)*2.8)}
+    if(tgt){if(m.noteId!==(n?.id??-2)||m.to.distanceTo(tgt)>.05){if(!m.grp.visible||m.noteId===-1){m.pos.copy(tgt);m.to.copy(tgt)}else{m.from.copy(m.pos);m.to.copy(tgt);m.t0=time}m.noteId=n?.id??-2}m.grp.visible=!(a.local&&a.position?.walking);m.ring.scale.setScalar(a.position?1.6:2.4)}else{m.grp.visible=false;m.noteId=-1}m.grp.position.copy(m.pos);
   });
-  AG.forEach((m,id)=>{if(!seen.has(id)){agentGroup.remove(m.grp);AG.delete(id)}});
-  if(iMesh)applyState();dirty=true;
+  AG.forEach((m,id)=>{if(!seen.has(id)){disposeSentinel(m);AG.delete(id)}});if(iMesh)applyState();dirty=true;
 }
 function pulse(name){const n=byName.get(name);if(!n||!B[n.id])return;pulses.set(n.id,time+6);if(iMesh)applyState()}
 function stepAgents(dt){
   let live=false;
   AG.forEach(m=>{
     if(!m.grp.visible)return;live=true;
-    if(m.t0>=0){const k=clamp((time-m.t0)/1.5,0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.lerpVectors(m.from,m.to,e);m.pos.y+=Math.sin(Math.PI*k)*28;if(k>=1){m.t0=-1;m.pos.copy(m.to)}m.grp.position.copy(m.pos)}
-    m.lamp.rotation.y+=dt*(LIVE_ST.includes(m.info.status)?1.6:.3);
-    const s=1+.12*Math.sin(time*(LIVE_ST.includes(m.info.status)?4:1.2));m.lamp.scale.set(s,s,s);
+    if(m.t0>=0){const k=clamp((time-m.t0)/1.5,0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.lerpVectors(m.from,m.to,e);if(!m.info.position)m.pos.y+=Math.sin(Math.PI*k)*28;if(k>=1){m.t0=-1;m.pos.copy(m.to)}m.grp.position.copy(m.pos)}
+    if(!reduced)m.legs.forEach((leg,i)=>leg.rotation.x=m.t0>=0?Math.sin(time*8+i*Math.PI)*.3:0);
   });
   let exp=false;pulses.forEach((u,id)=>{if(u<time){pulses.delete(id);exp=true}});if(exp)applyState();
   return live||pulses.size>0;
@@ -597,5 +586,6 @@ function rebuild(prevNames){
 }
 function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
-return {boot,skipIntro,setAgents,pulse,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
+return {boot,skipIntro,setAgents,pulse,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
 })();
+

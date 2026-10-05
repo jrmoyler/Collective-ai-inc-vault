@@ -11,9 +11,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: pip install pyyaml
+      - run: npm ci
+      - name: Sentinel identity and mesh regression tests
+        run: npm test
       - name: Links resolve
         run: python3 scripts/build.py --strict
       - name: Web build is current
-        run: python3 scripts/build_web.py && git diff --exit-code web/index.html
+        run: python3 scripts/build_web.py && git diff --exit-code web/index.html web/sentinels.html
       - name: Scripts parse
-        run: node --check scripts/agent.mjs && node --check mcp/stdio.mjs
+        run: node --check scripts/agent.mjs && node --check mcp/stdio.mjs && for f in web-src/*.js; do node --check "$f"; done
+
