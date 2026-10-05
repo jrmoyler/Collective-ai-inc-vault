@@ -60,12 +60,26 @@ JWTs stay in tool secrets. Do not commit them or put them in query strings. A se
 
 ## Validation and open gates
 
-- `npm test`: palette rejection, six distinct silhouettes, material palette propagation, bounded per-avatar draw objects, 46 agents plus two same-tool owners, and resource disposal.
+- `npm test`: six tests pass, including isolated PostgreSQL RLS checks for owner assignment, own-account writes and rejected identity spoofing; live-layer simultaneous session separation and older-schema fallback; palette rejection, six distinct silhouettes, material palette propagation, bounded per-avatar draw objects, 46 agents plus two same-tool owners, and resource disposal.
 - `node --check web-src/*.js`: syntax checks, run per file in CI.
 - `python3 scripts/build_web.py`: reproducible app and reference build.
-- The generated image was visually inspected. The live app reaches its sign-in screen in the cloud browser.
-- Full live identity, database RLS, actual rendered gallery, mobile WebGL and physical Galaxy A15 tests remain pending until preview and the Vault database are available. Local Chromium download failed and the cloud browser cannot access the local server.
-- The connected Supabase account does not include the Vault project. The previously supplied access file has team and agent access, not migration or deployment credentials. The migration and new function are prepared in this PR; they have not been applied to production.
+- The generated image and deployed gallery screenshot were visually inspected. The gallery controls, JR silhouette, member armor recoloring and two Claude owner bands were checked in the cloud browser at 1349 × 926. The browser has no WebGL context; the gallery projects the same mesh geometry into SVG as a fallback. The protected Vercel preview is Ready. GitHub Actions reported a startup failure with zero jobs; CI did not run. CodeRabbit skips automatic review of draft PRs.
+- Full live identity, production database RLS, GPU rendering, mobile WebGL and physical Galaxy A15 tests remain pending until preview and the Vault database are available. Local Chromium download failed and the cloud browser cannot access the local server.
+- The Supabase project listing omitted the Vault, but direct read access by project ID succeeded. Automatic approval review rejected applying the production migration because the user requested PR work and did not explicitly approve a live schema/access-policy change. The migration and new function are prepared in this PR; they have not been applied to production. Explicit approval to apply the migration and deploy the new endpoint is required. The live baseline remains 1,199 notes and 47 registered agents (including the sync agent). JR has an owner account; Devon, Ahmad and Kenza do not yet have named team accounts to bind. Those builds are ready for owner assignment after their normal team sign-in.
 - Existing note-link validation is unchanged. No notes, canon, tasks, passcodes, tokens or existing database records are edited by this PR.
 
 Rolling the frontend back leaves the original vault operational. New tables can remain in place; the older frontend ignores them. Do not drop the new tables as part of a frontend rollback.
+
+## Visual comparison ledger
+
+| Point | Evidence and decision |
+|---|---|
+| Palette | Midnight background and named body/armor/accent hex codes match the reference direction. Member armor edits update the geometry preview. |
+| Silhouette | JR has the stepped mantle, Devon twin rails, Ahmad square ledger and Kenza split panels. Geometry tests assert all six meshes differ. |
+| Shared-tool ownership | The deployed reference shows separate teal/crimson wrist bands on the same Claude chassis. Live-layer tests keep two account-owned sessions separate from autonomous Claude. |
+| Detail | The illustrated concept has bevels, joints and material weathering beyond the runtime mesh. This is an explicit visual limitation, not a claim of exact concept fidelity. |
+| Controls and copy | Build selection, three labeled hex inputs, 60:30:10 swatches and explanatory text are native controls. No unexpected labels were added during browser verification. |
+| Rendering | The cloud browser lacks WebGL. The reference gallery fallback was fixed and verified. GPU city rendering remains an open check. |
+| Mobile | The existing city responsive shell is retained; gallery media queries are present. Mobile viewport and physical device checks remain open. |
+
+![Actual preview in the WebGL-unavailable cloud browser](sentinel-reference-preview.jpg)

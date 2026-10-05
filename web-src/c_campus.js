@@ -420,7 +420,7 @@ function setAgents(list){
     let tgt=null;
     if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){tgt=new THREE.Vector3(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0}
     else if(b){const slot=slots.get(n.id)||0;slots.set(n.id,slot+1);tgt=new THREE.Vector3(b.cx+Math.cos(slot*2.4)*2.8,b.h,b.cz+Math.sin(slot*2.4)*2.8)}
-    if(tgt){if(m.noteId!==(n?.id??-2)||m.to.distanceTo(tgt)>.05){if(!m.grp.visible||m.noteId===-1){m.pos.copy(tgt);m.to.copy(tgt)}else{m.from.copy(m.pos);m.to.copy(tgt);m.t0=time}m.noteId=n?.id??-2}m.grp.visible=!(a.local&&a.position?.walking);m.ring.scale.setScalar(a.position?1.6:2.4)}else{m.grp.visible=false;m.noteId=-1}m.grp.position.copy(m.pos);
+    if(tgt){if(m.noteId!==(n?.id??-2)||m.to.distanceTo(tgt)>.05){if(reduced||!m.grp.visible||m.noteId===-1){m.pos.copy(tgt);m.to.copy(tgt);m.t0=-1}else{m.from.copy(m.pos);m.to.copy(tgt);m.t0=time}m.noteId=n?.id??-2}m.grp.visible=!(a.local&&a.position?.walking);m.ring.scale.setScalar(a.position?1.6:2.4)}else{m.grp.visible=false;m.noteId=-1}m.grp.position.copy(m.pos);
   });
   AG.forEach((m,id)=>{if(!seen.has(id)){disposeSentinel(m);AG.delete(id)}});if(iMesh)applyState();dirty=true;
 }

@@ -10,6 +10,7 @@ Deno.serve(async req=>{
  const {data:{user},error}=await db.auth.getUser(token);if(error||!user)return reply({error:'Member authentication required'},401);
  const member=await db.from('team_members').select('user_id').eq('user_id',user.id).maybeSingle();if(!member.data)return reply({error:'Vault access required'},403);
  let b;try{b=await req.json()}catch{return reply({error:'JSON required'},400)}
+ if(!b||typeof b!=='object'||Array.isArray(b))return reply({error:'JSON object required'},400);
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(b.session_id||''))return reply({error:'session_id must be a UUID'},400);
  const agent=await db.from('agents').select('id').eq('id',String(b.agent||'')).eq('active',true).maybeSingle();if(!agent.data)return reply({error:'Active agent required'},400);
  const statuses=['working','thinking','reading','writing','reviewing','blocked','idle','offline'];if(!statuses.includes(b.status))return reply({error:'Invalid status'},400);
