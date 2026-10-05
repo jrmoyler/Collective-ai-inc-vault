@@ -344,6 +344,7 @@ a.tag{font-family:var(--mono);font-size:.82em;color:var(--accent);background:var
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
+
 <script>
 // Notes load from Supabase after sign-in (see e_boot.js) and stay live through Realtime.
 let BASE = [];
@@ -458,7 +459,7 @@ const sheet={open:false,full:false,view:"note",ntab:"note",atab:"floor"};
 function snippet(src,target){const ln=src.body.split("\n").find(l=>l.includes("[["+target))||"";return ln.replace(/\[( |x)\]/g,"").replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g,"$1").replace(/[#>*|`-]/g," ").trim().slice(0,90)}
 function renderSheet(){
   const sb=$("#sbody"),tabs=$("#stabs");
-  const T=sheet.view==="note"?[["note","Note"],["links","Links"],["outline","Outline"],["history","History"]]:[["floor","Floor"],["board","Board"],["activity","Activity"],["desk","Desk"],["connect","Connect"]];
+  const T=sheet.view==="note"?[["note","Note"],["links","Links"],["outline","Outline"],["history","History"]]:[["floor","Floor"],["board","Board"],["activity","Activity"],["desk","Desk"],["connect","Connect"],["identity","Sentinel"]];
   const act=sheet.view==="note"?sheet.ntab:sheet.atab;
   tabs.innerHTML=T.map(([k,l])=>`<button data-st="${k}" class="${k===act?"on":""}">${l}</button>`).join("");
   $("#crumb2").innerHTML=sheet.view==="note"&&cur?(cur.folder?esc(cur.folder)+" / ":"")+"<b>"+esc(cur.name)+"</b>":"<b>Live</b> · agents, tasks, desk";
@@ -564,6 +565,58 @@ document.addEventListener("keydown",e=>{
   if(e.altKey&&e.key==="ArrowLeft")goBack();else if(e.altKey&&e.key==="ArrowRight")goFwd();
   else if(e.key==="/"){e.preventDefault();openSwitcher()}
 });
+
+
+// Vault Sentinel identity. Core forms are assigned by the owner, never by a display name.
+const Identity=(()=>{
+  const HEX=/^#[0-9a-f]{6}$/i;
+  const FORMS={agent:{name:'Agent Sentinel',palette:['#111827','#C97B54','#E6E9F2'],symbol:'AI'},member:{name:'Member Navigator',palette:['#101B32','#3977C7','#E6E9F2'],symbol:'MN'},jr:{name:'Hataalii · Architect',palette:['#050A18','#D4A843','#00D9B5'],symbol:'H'},devon:{name:'Devon · Builder',palette:['#0B1830','#00A994','#CED7E0'],symbol:'DS'},ahmad:{name:'Ahmad · Steward',palette:['#191923','#75518D','#C9A84C'],symbol:'AM'},kenza:{name:'Kenza · Conductor',palette:['#151B29','#A62C48','#E7BBA0'],symbol:'KD'}};
+  function palette(p,f='member'){return Array.isArray(p)&&p.length===3&&p.every(c=>typeof c==='string'&&HEX.test(c))?p.map(c=>c.toUpperCase()):FORMS[f]?.palette.slice()||FORMS.member.palette.slice()}
+  function form(f){return Object.hasOwn(FORMS,f)?f:'member'}
+  function badge(id){let h=2166136261;for(const c of String(id)){h=Math.imul(h^c.charCodeAt(0),16777619)}return (h>>>0).toString(36).toUpperCase().padStart(7,'0')}
+  const PLATFORM={ 'claude-code':'CC',claude:'CW',codex:'CX',cursor:'CU',windsurf:'WS',cline:'CL','grok-build':'GB','qwen-code':'QC',antigravity:'AG',devin:'DV',replit:'RP',aider:'AD',jules:'JL',hermes:'HE',openclaw:'OC',grokbot:'GT','muse-spark':'MS',manus:'MA',maxclaw:'MC','kimi-claw':'KC','mimo-claw':'MM',maxhermes:'MH',buzz:'BZ',abacus:'AB','notion-ai':'NA',jev:'JV',chatgpt:'GPT',gemini:'GM',grok:'GK',qwen:'QW',glm:'GL',kimi:'KM',minimax:'MX',perplexity:'PP',deepseek:'DS','mimo-studio':'MI',lovable:'LV',v0:'V0',bolt:'BT',blink:'BK','magic-patterns':'MP',base44:'B44','ai-studio':'AS',n8n:'N8',langchain:'LC','hugging-face':'HF'};
+  function platformCode(id){return PLATFORM[id]||badge(id).slice(-4)}
+  function profile(p={}){const f=form(p.form);return {form:f,palette:palette(p.palette,f),symbol:FORMS[f].symbol}}
+  function preview(p){p=profile(p);const [a,b,c]=p.palette;const f=p.form;
+    const shoulders=f==='jr'?'M42 62L25 46L21 87L42 94 M98 62L121 55L122 88L98 94':f==='devon'?'M38 65V36H27V90H38 M102 65V36H113V90H102':f==='kenza'?'M43 68L23 42L31 91L43 97 M97 68L117 42L109 91L97 97':f==='ahmad'?'M42 64H20V95H42 M98 64H120V95H98':'M42 66L29 62L26 88L42 93 M98 66L111 62L114 88L98 93';
+    return `<svg viewBox="0 0 140 210" role="img" aria-label="${FORMS[f].name}" style="width:140px;max-width:100%"><g stroke="${c}" stroke-width="1"><path fill="${a}" d="M48 62L70 55L92 62L99 120L86 135H54L41 120Z M49 137H67V181L62 199H42L45 180Z M73 137H91L95 180L98 199H78L73 181Z M25 93H40L36 148H23Z M100 93H115L117 148H104Z"/><path fill="${b}" d="${shoulders} M55 24H85L90 49L81 59H59L50 49Z M46 73H94V108H46Z M44 121H96V133H44Z"/><path stroke="${c}" stroke-width="4" d="M57 41H83 M55 115H85 M28 133H37 M103 133H112"/><path stroke="${a}" stroke-width="2" d="M52 76V104 M58 76V104 M82 76V104 M88 76V104"/><text x="70" y="96" text-anchor="middle" fill="${c}" stroke="none" font-family="monospace" font-size="13">${FORMS[f].symbol}</text></g></svg>`}
+  return {HEX,FORMS,palette,form,badge,platformCode,profile,preview};
+})();
+
+// Shared mesh factory used by the live city and the reference gallery.
+const SentinelMesh=(()=>{
+const lin=h=>new THREE.Color(h).convertSRGBToLinear();
+let sentinelBox=null;
+function makeSentinel(a){
+  if(!sentinelBox)sentinelBox=new THREE.BoxGeometry(1,1,1);
+  const f=Identity.form(a.form||'agent'),pal=Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],f),grp=new THREE.Group();
+  const mats=pal.map(c=>new THREE.MeshStandardMaterial({color:lin(c),roughness:.65,metalness:.35}));
+  const part=(w,h,d,x,y,z,k=0,parent=grp)=>{const o=new THREE.Mesh(sentinelBox,mats[k].clone());o.scale.set(w,h,d);o.position.set(x,y,z);parent.add(o);return o};
+  const broad=f==='jr'?1.18:f==='ahmad'?1.1:1;
+  part(1.6*broad,2.1,.85,0,3.6,0);part(1.45*broad,1.05,.96,0,3.9,.04,1);part(1.1,.35,.9,0,2.4,0,1);
+  part(.92,.85,.8,0,5.2,0,1);part(.73,.58,.05,0,5.28,.43,0);for(const x of [-.24,-.08,.08,.24])part(.045,.48,.04,x,5.28,.47,2);part(.12,.6,.62,-.53,5.2,0,0);part(.12,.6,.62,.53,5.2,0,0);
+  const legs=[];for(const side of [-1,1]){const leg=new THREE.Group();leg.position.set(side*.46,2.2,0);grp.add(leg);part(.58,1.7,.58,0,-.82,0,0,leg);part(.68,.35,.96,0,-1.75,.16,1,leg);legs.push(leg);const arm=part(.5,1.6,.6,side*1.13*broad,3.2,0);arm.rotation.z=side*.08;part(.62,.74,.72,side*1.16*broad,2.7,.03,1);part(.42,.34,.5,side*1.18*broad,2.13,0);for(let finger=0;finger<3;finger++)part(.07,.24,.18,side*1.18*broad+(finger-1)*.12,1.93,.2,0);part(.55,.22,.66,side*1.13*broad,2.85,0,2)}
+  for(const side of [-1,1]){const shoulder=part(.68,.56,.93,side*1.1*broad,4.55,0,1);if(f==='kenza'){shoulder.rotation.z=side*.5;shoulder.scale.y=1.25}if(f==='devon')part(.26,1.3,.48,side*1.17,4.8,-.18,1);if(f==='ahmad')part(.8,.8,.98,side*1.1,4.4,0,1)}
+  if(f==='jr'){for(let layer=0;layer<4;layer++){const plate=part(1.15-layer*.14,.14,1.15-layer*.08,-1.23+layer*.045,4.85+layer*.22,0,1);plate.rotation.z=-.15;}part(.42,1.3,.16,-.45,2.05,.48,1).rotation.z=-.12;part(.42,1.3,.16,.45,2.05,.48,1).rotation.z=.12;}
+  if(f==='kenza'){for(const side of [-1,1])part(.57,1,.18,side*.63,2,.47,1).rotation.z=-side*.2;}
+  if(f==='member'){part(.16,1.8,.08,-.62,3.65,.51,1);part(.16,1.8,.08,.62,3.65,.51,1)}
+  if(f==='devon')part(1.7,.3,.35,0,4.4,-.7,1);
+  if(f==='ahmad'){part(1.14,.18,.08,0,3.65,.56,2);part(1.14,.18,.08,0,4.13,.56,2)}
+  for(const x of [-.54,-.35,.35,.54])part(.055,.86,.06,x,3.9,.56,0);
+  for(const side of [-1,1]){part(.18,1.7,.14,side*.82,3.5,.42,1);part(.12,.13,.16,side*.66,4.57,.5,2)}
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle=pal[0];ctx.fillRect(0,0,256,128);ctx.fillStyle=pal[2];ctx.textAlign='center';ctx.font='bold 46px monospace';ctx.fillText(String(a.symbol||Identity.FORMS[f].symbol).slice(0,8),128,53);ctx.font='23px monospace';ctx.fillText(a.ownerBadge||Identity.badge(a.id),128,99);
+  const tex=new THREE.CanvasTexture(canvas),plate=new THREE.Mesh(new THREE.PlaneGeometry(.7,.38),new THREE.MeshBasicMaterial({map:tex}));plate.position.set(0,3.9,.59);grp.add(plate);
+  if(a.ownerColor&&Identity.HEX.test(a.ownerColor))part(.64,.3,.7,1.13*broad,3.17,0,0).material.color.copy(lin(a.ownerColor));
+  const ring=new THREE.Mesh(new THREE.RingGeometry(.86,1,24),new THREE.MeshBasicMaterial({color:lin(pal[2]),transparent:true,opacity:.65,side:THREE.DoubleSide,fog:false}));ring.rotation.x=-Math.PI/2;ring.position.y=.1;grp.add(ring);
+  const rigid=grp.children.filter(o=>o.isMesh&&o.geometry===sentinelBox);
+  const buckets=new Map();grp.updateMatrixWorld(true);
+  rigid.forEach(o=>{const key=o.material.color.getHex();if(!buckets.has(key))buckets.set(key,{material:o.material.clone(),positions:[],normals:[]});const bucket=buckets.get(key),g=sentinelBox.toNonIndexed(),normalMatrix=new THREE.Matrix3().getNormalMatrix(o.matrix);for(let i=0;i<g.attributes.position.count;i++){const v=new THREE.Vector3().fromBufferAttribute(g.attributes.position,i).applyMatrix4(o.matrix),n=new THREE.Vector3().fromBufferAttribute(g.attributes.normal,i).applyMatrix3(normalMatrix).normalize();bucket.positions.push(v.x,v.y,v.z);bucket.normals.push(n.x,n.y,n.z)}g.dispose();o.material.dispose();grp.remove(o)});
+  buckets.forEach(b=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(b.positions,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(b.normals,3));grp.add(new THREE.Mesh(g,b.material))});mats.forEach(m=>m.dispose());
+  return {grp,ring,legs,pos:new THREE.Vector3(),from:new THREE.Vector3(),to:new THREE.Vector3(),t0:-1,noteId:-1,signature:JSON.stringify([f,pal,a.symbol,a.ownerColor,a.ownerBadge])};
+}
+function dispose(grp){grp.traverse(o=>{if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose()}if(o.geometry&&o.geometry!==sentinelBox)o.geometry.dispose()})}
+return {create:makeSentinel,dispose};
+})();
 
 // =====================================================================
 // The campus. Folders are districts, notes are buildings, links are cables.
@@ -911,7 +964,7 @@ function updateLabels(){
   const cands=[],cp=camera.position;camera.getWorldDirection(_f);
   const addB=(id,cls,prio)=>{const b=B[id];if(!b)return;cands.push({x:b.cx,y:b.h+2.6,z:b.cz,t:NOTES[id].name,s:"",cls,prio,c:colorOf(NOTES[id])})};
   if(sel>=0)addB(sel,"sel",100);
-  AG.forEach(m=>{if(!m.grp.visible)return;const a=m.info;cands.push({x:m.pos.x,y:m.pos.y+12.5,z:m.pos.z,t:`${a.name} · ${a.status}`,s:a.task||"",cls:"ag",prio:110,c:a.color||"#E8A33D"})});
+  AG.forEach(m=>{if(!m.grp.visible)return;const a=m.info;cands.push({x:m.pos.x,y:m.pos.y+7,z:m.pos.z,t:`${a.name} · ${a.status}`,s:a.ownerName?`${a.ownerName} · ${a.ownerBadge}`:a.task||"",cls:"ag",prio:110,c:a.color||"#E8A33D"})});
   if(hov>=0&&hov!==sel)addB(hov,"hov",90);
   if(sel>=0){[...nbr.keys()].map(i=>({i,d:Math.hypot(B[i].cx-cp.x,B[i].cz-cp.z)})).sort((a,b)=>a.d-b.d).slice(0,13).forEach((o,k)=>addB(o.i,"",60-k))}
   const far=walk?0:cam.dist;
@@ -973,42 +1026,31 @@ function setMarkers(list){
 }
 
 
-// ---------- live agents: a lantern on a mast above the building each agent is working in
+// ---------- Vault Sentinels: articulated architectural avatars, shared cached geometry.
 const AG=new Map(),pulses=new Map();let agentGroup=null,lastAgents=[];
 const LIVE_ST=["working","writing","reading","thinking","reviewing"];
+function disposeSentinel(m){SentinelMesh.dispose(m.grp);agentGroup.remove(m.grp)}
 function setAgents(list){
-  lastAgents=list||[];if(!agentGroup)return;
-  const seen=new Set();
+  lastAgents=list||[];if(!agentGroup)return;const seen=new Set(),slots=new Map();
   lastAgents.forEach(a=>{
     seen.add(a.id);const n=a.note?byName.get(a.note):null,b=n?B[n.id]:null;let m=AG.get(a.id);
-    if(!m){
-      const col=lin(a.color||"#E8A33D"),grp=new THREE.Group();
-      const mast=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1,6),new THREE.MeshBasicMaterial({color:lin("#d8dce6")}));
-      const lamp=new THREE.Mesh(new THREE.OctahedronGeometry(1.25,0),new THREE.MeshBasicMaterial({color:col}));
-      const ring=new THREE.Mesh(new THREE.RingGeometry(.86,1,48),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.9,side:THREE.DoubleSide,fog:false}));
-      ring.rotation.x=-Math.PI/2;mast.scale.y=9;mast.position.y=4.5;lamp.position.y=10.2;ring.position.y=.35;
-      grp.add(mast,lamp,ring);agentGroup.add(grp);
-      m={grp,lamp,ring,pos:new THREE.Vector3(),from:new THREE.Vector3(),to:new THREE.Vector3(),t0:-1,noteId:-1};AG.set(a.id,m);
-    }
-    m.info=a;
-    if(b){
-      const tgt=new THREE.Vector3(b.cx,b.h,b.cz);const r=Math.max(b.fw,b.fd)*.62+.8;m.ring.scale.set(r,r,r);
-      if(m.noteId!==n.id){if(m.noteId<0||!m.grp.visible)m.pos.copy(tgt);else{m.from.copy(m.pos);m.to.copy(tgt);m.t0=time}m.noteId=n.id}
-      m.grp.visible=true;
-    }else{m.grp.visible=false;m.noteId=-1}
-    m.grp.position.copy(m.pos);
+    const signature=JSON.stringify([Identity.form(a.form||'agent'),Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],a.form||'agent'),a.symbol,a.ownerColor,a.ownerBadge]);
+    if(m&&m.signature!==signature){disposeSentinel(m);AG.delete(a.id);m=null}
+    if(!m){m=SentinelMesh.create(a);agentGroup.add(m.grp);AG.set(a.id,m)}m.info=a;
+    let tgt=null;
+    if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){tgt=new THREE.Vector3(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0}
+    else if(b){const slot=slots.get(n.id)||0;slots.set(n.id,slot+1);tgt=new THREE.Vector3(b.cx+Math.cos(slot*2.4)*2.8,b.h,b.cz+Math.sin(slot*2.4)*2.8)}
+    if(tgt){if(m.noteId!==(n?.id??-2)||m.to.distanceTo(tgt)>.05){if(reduced||!m.grp.visible||m.noteId===-1){m.pos.copy(tgt);m.to.copy(tgt);m.t0=-1}else{m.from.copy(m.pos);m.to.copy(tgt);m.t0=time}m.noteId=n?.id??-2}m.grp.visible=!(a.local&&a.position?.walking);m.ring.scale.setScalar(a.position?1.6:2.4)}else{m.grp.visible=false;m.noteId=-1}m.grp.position.copy(m.pos);
   });
-  AG.forEach((m,id)=>{if(!seen.has(id)){agentGroup.remove(m.grp);AG.delete(id)}});
-  if(iMesh)applyState();dirty=true;
+  AG.forEach((m,id)=>{if(!seen.has(id)){disposeSentinel(m);AG.delete(id)}});if(iMesh)applyState();dirty=true;
 }
 function pulse(name){const n=byName.get(name);if(!n||!B[n.id])return;pulses.set(n.id,time+6);if(iMesh)applyState()}
 function stepAgents(dt){
   let live=false;
   AG.forEach(m=>{
     if(!m.grp.visible)return;live=true;
-    if(m.t0>=0){const k=clamp((time-m.t0)/1.5,0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.lerpVectors(m.from,m.to,e);m.pos.y+=Math.sin(Math.PI*k)*28;if(k>=1){m.t0=-1;m.pos.copy(m.to)}m.grp.position.copy(m.pos)}
-    m.lamp.rotation.y+=dt*(LIVE_ST.includes(m.info.status)?1.6:.3);
-    const s=1+.12*Math.sin(time*(LIVE_ST.includes(m.info.status)?4:1.2));m.lamp.scale.set(s,s,s);
+    if(m.t0>=0){const k=clamp((time-m.t0)/1.5,0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.lerpVectors(m.from,m.to,e);if(!m.info.position)m.pos.y+=Math.sin(Math.PI*k)*28;if(k>=1){m.t0=-1;m.pos.copy(m.to)}m.grp.position.copy(m.pos)}
+    if(!reduced)m.legs.forEach((leg,i)=>leg.rotation.x=m.t0>=0?Math.sin(time*8+i*Math.PI)*.3:0);
   });
   let exp=false;pulses.forEach((u,id)=>{if(u<time){pulses.delete(id);exp=true}});if(exp)applyState();
   return live||pulses.size>0;
@@ -1164,8 +1206,9 @@ function rebuild(prevNames){
 }
 function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
-return {boot,skipIntro,setAgents,pulse,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
+return {boot,skipIntro,setAgents,pulse,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
 })();
+
 
 // =====================================================================
 // Live layer: Supabase Postgres + Realtime.
@@ -1175,6 +1218,8 @@ const Live=(()=>{
   const CFG=window.VAULT_CONFIG;
   const sb=window.supabase.createClient(CFG.url,CFG.anonKey,{auth:{persistSession:true,autoRefreshToken:true,storageKey:"cv-vault-auth"},realtime:{params:{eventsPerSecond:20}}});
   let me=null,ch=null,tasks=[],acts=[],watchers=[],agents=new Map(),pres=new Map(),pending=new Set(),rebT=0,connected=false;
+  let profiles=new Map(),members=new Map(),sessions=new Map(),people=[],positions=new Map(),identityReady=false,lastTrack=0,lastPositionSignature="",tracking=false;
+  const browserSession=crypto.randomUUID();
   const LIVE_WINDOW=15*60e3,ORDER=["claimed","review","blocked","open","done"],PRI={high:0,medium:1,low:2};
   const LIVE_ST=["working","writing","reading","thinking","reviewing","blocked"];
   const code=t=>`<div class="code"><button class="cp" type="button">Copy</button><pre><code>${esc(t)}</code></pre></div>`;
@@ -1186,7 +1231,8 @@ const Live=(()=>{
   async function member(){
     const {data:{user}}=await sb.auth.getUser();if(!user)return null;
     const {data}=await sb.from("team_members").select("display_name,role").eq("user_id",user.id).maybeSingle();
-    me=data?{id:user.id,name:data.display_name,role:data.role}:null;return me;
+    me=data?{id:user.id,name:data.display_name,role:data.role}:null;
+    if(me){const [p,m]=await Promise.all([sb.from('avatar_profiles').select('*'),sb.from('team_members').select('user_id,display_name')]);identityReady=!p.error;(p.data||[]).forEach(x=>profiles.set(x.user_id,x));(m.data||[]).forEach(x=>members.set(x.user_id,x));}return me;
   }
   async function join(name,passcode){
     const r=await fetch(CFG.url+"/functions/v1/team-join",{method:"POST",headers:{"content-type":"application/json",apikey:CFG.anonKey},body:JSON.stringify({name,passcode})});
@@ -1203,6 +1249,7 @@ const Live=(()=>{
     BASE=rows;
     const [a,p,t,ac]=await Promise.all([sb.from("agents").select("id,name,kind,color,active"),sb.from("presence").select("*"),sb.from("tasks").select("*"),sb.from("activity").select("*").order("ts",{ascending:false}).limit(60)]);
     (a.data||[]).forEach(x=>agents.set(x.id,x));(p.data||[]).forEach(x=>pres.set(x.agent,x));tasks=t.data||[];acts=ac.data||[];
+    if(identityReady){const [a,p]=await Promise.all([sb.from('agent_sessions').select('*'),sb.from('member_positions').select('*')]);(a.data||[]).forEach(x=>sessions.set(x.user_id+':'+x.session_id,x));(p.data||[]).forEach(x=>positions.set(x.user_id+':'+x.session_id,x));syncPeople()}
     rebuildNotes();
   }
 
@@ -1213,10 +1260,13 @@ const Live=(()=>{
       .on("postgres_changes",{event:"*",schema:"public",table:"tasks"},e=>{const r=e.new&&e.new.id?e.new:e.old;tasks=tasks.filter(x=>x.id!==r.id);if(e.eventType!=="DELETE")tasks.push(e.new);syncMarkers();refresh()})
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"activity"},e=>{acts.unshift(e.new);acts=acts.slice(0,80);drawFloor();refresh()})
       .on("postgres_changes",{event:"*",schema:"public",table:"presence"},e=>{if(e.new&&e.new.agent){pres.set(e.new.agent,e.new);pushAgents();drawFloor();if(sheet.open&&sheet.view==="agents"&&sheet.atab==="floor")renderSheet()}})
-      .on("presence",{event:"sync"},()=>{watchers=Object.values(ch.presenceState()).map(x=>x[0]&&x[0].name).filter(Boolean);drawFloor()})
-      .subscribe(async st=>{connected=st==="SUBSCRIBED";if(connected){stopPolling();await ch.track({name:me.name,at:Date.now()})}else if(/ERROR|TIMED_OUT|CLOSED/.test(st))startPolling();drawFloor()});
+      .on("postgres_changes",{event:"*",schema:"public",table:"avatar_profiles"},async()=>{const {data}=await sb.from('avatar_profiles').select('*');profiles=new Map((data||[]).map(p=>[p.user_id,p]));pushAgents();refresh()})
+      .on("postgres_changes",{event:"*",schema:"public",table:"agent_sessions"},e=>{const r=e.eventType==='DELETE'?e.old:e.new;const key=r.user_id+':'+r.session_id;if(e.eventType==='DELETE')sessions.delete(key);else sessions.set(key,r);pushAgents();drawFloor()})
+      .on("postgres_changes",{event:"*",schema:"public",table:"member_positions"},async e=>{const r=e.eventType==='DELETE'?e.old:e.new,key=r.user_id+':'+r.session_id;if(e.eventType==='DELETE')positions.delete(key);else positions.set(key,r);if(!members.has(r.user_id)){const [m,p]=await Promise.all([sb.from('team_members').select('user_id,display_name'),sb.from('avatar_profiles').select('*')]);(m.data||[]).forEach(x=>members.set(x.user_id,x));(p.data||[]).forEach(x=>profiles.set(x.user_id,x))}syncPeople();pushAgents();drawFloor()})
+      .subscribe(async st=>{connected=st==="SUBSCRIBED";if(connected){stopPolling();await trackSelf()}else if(/ERROR|TIMED_OUT|CLOSED/.test(st))startPolling();drawFloor()});
     setTimeout(()=>{if(!connected)startPolling()},9000);
-    setInterval(()=>{pushAgents();drawFloor()},10000);
+    setInterval(()=>{syncPeople();pushAgents();drawFloor()},10000);
+    setInterval(()=>{if(connected)trackSelf()},1000);
   }
   // Fallback for networks that block websockets: the same view, refreshed every 8 seconds.
   let pollT=0;
@@ -1227,7 +1277,7 @@ const Live=(()=>{
       const since=BASE.reduce((m,n)=>n.updated_at>m?n.updated_at:m,"1970-01-01T00:00:00Z"),lastId=acts.reduce((m,a)=>Math.max(m,a.id||0),0);
       const [n,p,t,a]=await Promise.all([sb.from("notes").select("name,folder,fm,body,version,updated_at,updated_by").gt("updated_at",since),sb.from("presence").select("*"),sb.from("tasks").select("*"),sb.from("activity").select("*").gt("id",lastId).order("id",{ascending:true})]);
       (n.data||[]).forEach(r=>onNote({eventType:"UPDATE",new:r}));
-      (p.data||[]).forEach(r=>pres.set(r.agent,r));pushAgents();
+      (p.data||[]).forEach(r=>pres.set(r.agent,r));if(identityReady){const [result,positionResult]=await Promise.all([sb.from('agent_sessions').select('*'),sb.from('member_positions').select('*')]);if(result.data)sessions=new Map(result.data.map(r=>[r.user_id+':'+r.session_id,r]));if(positionResult.data)positions=new Map(positionResult.data.map(r=>[r.user_id+':'+r.session_id,r]));syncPeople();await trackSelf()}pushAgents();
       if(t.data){tasks=t.data;syncMarkers()}
       (a.data||[]).forEach(r=>acts.unshift(r));acts=acts.slice(0,80);
       drawFloor();refresh();
@@ -1249,10 +1299,22 @@ const Live=(()=>{
     if(sheet.open&&sheet.view==="note"&&cur&&changed.includes(cur.name)){const y=$("#sbody").scrollTop;renderSheet();$("#sbody").scrollTop=y}
     pushAgents();
   }
+  function ownIdentity(id){const p=Identity.profile(profiles.get(id));return {...p,ownerName:members.get(id)?.display_name||'Member',ownerBadge:Identity.badge(id),ownerColor:p.palette[2]}}
+  function syncPeople(){people=[...positions.values()].filter(p=>members.has(p.user_id)&&Date.now()-Date.parse(p.last_seen)<60000).map(p=>({...p,userId:p.user_id,session:p.session_id,position:{x:p.x,z:p.z,yaw:p.yaw,walking:p.walking}}));watchers=[...new Set(people.map(p=>members.get(p.userId).display_name))]}
+  async function trackSelf(){
+    if(!identityReady||tracking)return;const pos=Campus.position(),tool=store.get('vault.tool.'+me.id,'');const row={user_id:me.id,session_id:browserSession,x:Math.round(pos.x*10)/10,z:Math.round(pos.z*10)/10,yaw:Math.round(pos.yaw*100)/100,walking:pos.walking,note:Campus.selectedName(),tool:agents.has(tool)?tool:null};const signature=JSON.stringify(row);
+    if(signature===lastPositionSignature&&Date.now()-lastTrack<10000)return;tracking=true;
+    try{const {error}=await sb.from('member_positions').upsert(row);if(!error){lastPositionSignature=signature;lastTrack=Date.now();positions.set(me.id+':'+browserSession,{...row,last_seen:new Date().toISOString()});syncPeople();pushAgents()}}catch{ /* Network loss is handled by polling; the city keeps rendering. */ }finally{tracking=false}
+  }
   function pushAgents(){
-    const list=[];agents.forEach(a=>{const p=pres.get(a.id);if(isLive(p)&&a.id!=="repo-sync")list.push({id:a.id,name:a.name,color:a.color,status:p.status,note:p.note,task:p.task,detail:p.detail})});
+    const list=[];agents.forEach(a=>{const p=pres.get(a.id);if(isLive(p)&&a.id!=="repo-sync")list.push({id:a.id,name:a.name,color:a.color,form:'agent',symbol:Identity.platformCode(a.id),status:p.status,note:p.note,task:p.task,detail:p.detail})});
+    people.forEach(p=>{const owner=ownIdentity(p.userId),name=owner.ownerName,tool=agents.get(p.tool);const pos=p.position;
+      if(pos&&Number.isFinite(pos.x)&&Number.isFinite(pos.z))list.push({...owner,id:'member:'+p.userId+':'+p.session,name,local:p.userId===me.id&&p.session===browserSession,status:pos.walking?'walking':'viewing',position:pos,note:p.note});
+      if(tool)list.push({...owner,id:'browser-tool:'+p.userId+':'+p.session,name:tool.name,form:'agent',palette:['#111827',tool.color||'#C97B54','#E6E9F2'],symbol:Identity.platformCode(tool.id),status:'in use',note:p.note});
+    });
+    sessions.forEach(p=>{if(!isLive(p))return;const a=agents.get(p.agent);if(!a)return;list.push({...ownIdentity(p.user_id),id:'session:'+p.user_id+':'+p.session_id,name:a.name,form:'agent',palette:['#111827',a.color||'#C97B54','#E6E9F2'],symbol:Identity.platformCode(a.id),status:p.status,note:p.note,detail:p.detail})});
     Campus.setAgents(list);
-    const n=list.length,pp=$("#agpip");if(pp)pp.hidden=!n&&!tasks.some(t=>t.status==="review");
+    const pp=$("#agpip");if(pp)pp.hidden=!list.length&&!tasks.some(t=>t.status==="review");
   }
   function syncMarkers(){Campus.setMarkers(tasks.filter(t=>t.status!=="done"&&t.note).map(t=>({note:t.note,status:t.status})))}
   const refresh=()=>{if(sheet.open&&sheet.view==="agents")renderSheet()};
@@ -1265,11 +1327,12 @@ const Live=(()=>{
     return list.map(({a,p})=>{const live=isLive(p);const what=live?[p.status,p.task,p.note].filter(Boolean).join(" · "):"offline";
       return `<button class="ag-row${live?"":" off"}" ${p&&p.note?`data-note="${esc(p.note)}"`:""}><i style="background:${a.color}"></i><div><b>${esc(a.name)}</b><span>${esc(what)}</span>${live&&p.detail&&!compact?`<span>${esc(p.detail)}</span>`:""}</div><em>${p?short(p.last_seen):""}</em></button>`}).join("");
   }
+  function sessionRows(){return [...sessions.values()].filter(isLive).map(p=>{const owner=ownIdentity(p.user_id);return `<button class="ag-row" ${p.note?`data-note="${esc(p.note)}"`:''}><i style="background:${owner.ownerColor}"></i><div><b>${esc(agentName(p.agent))} · ${esc(owner.ownerName)}</b><span>${esc(p.status)} · ${owner.ownerBadge} · ${esc(p.note||'')}</span></div><em>${short(p.last_seen)}</em></button>`}).join('')}
   function drawFloor(){
     const el=$("#floor");if(!el||!me)return;
-    const ids=[...agents.keys()].filter(id=>id!=="repo-sync"),live=ids.filter(id=>isLive(pres.get(id))).length;
+    const ids=[...agents.keys()].filter(id=>id!=="repo-sync"),live=ids.filter(id=>isLive(pres.get(id))).length,owned=[...sessions.values()].filter(isLive).length;
     el.hidden=false;
-    el.innerHTML=`<h3><span>On the floor</span><b>${connected||pollT?(live?live+" live":"quiet"):"connecting"}${pollT&&!connected?" · polling":""}</b></h3>${rowsHTML(true,true)}${ids.length-live?`<div class="watch">${ids.length-live} agents offline · <a class="wl" id="floorAll">see all</a></div>`:""}
+    el.innerHTML=`<h3><span>On the floor</span><b>${connected||pollT?(live+owned?(live+owned)+" live":"quiet"):"connecting"}${pollT&&!connected?" · polling":""}</b></h3>${rowsHTML(true,true)}${sessionRows()}${ids.length-live?`<div class="watch">${ids.length-live} agents offline · <a class="wl" id="floorAll">see all</a></div>`:""}
       <div class="ticker">${acts.slice(0,4).map(a=>`<div><b>${esc(agentName(a.actor))}</b> ${esc(a.kind)} ${esc(a.note||a.text||"")}</div>`).join("")||"<div>No activity yet</div>"}</div>
       <div class="watch">Watching now: ${esc(watchers.join(", ")||me.name)}</div>`;
   }
@@ -1277,10 +1340,10 @@ const Live=(()=>{
 
   // ---- sheet tabs
   function floorTab(){const all=[...agents.values()].filter(a=>a.id!=="repo-sync"&&a.active!==false),live=all.filter(a=>isLive(pres.get(a.id)));
-    return `${live.length?`<div class="sec"><h4>Live now <span>${live.length}</span></h4>${rowsHTML(false,true)}</div>`:`<div class="sec"><h4>Agents <span>0 live · ${all.length} connected</span></h4></div>`}
+    return `${live.length?`<div class="sec"><h4>Live now <span>${live.length}</span></h4>${rowsHTML(false,true)}${sessionRows()}</div>`:`<div class="sec"><h4>Agents <span>0 live · ${all.length} connected</span></h4></div>`}
     ${KINDS.map(([k,l])=>{const n=all.filter(a=>kindOf(a)===k).length;return n?`<details class="sec"${live.length?"":" open"}><summary style="cursor:pointer"><h4 style="display:inline">${l} <span>${n}</span></h4></summary>${rowsHTML(false,false,k)}</details>`:""}).join("")}
     <div class="sec"><h4>Teammates watching <span>${watchers.length}</span></h4><p class="note-s">${esc(watchers.join(", ")||"Just you")}</p></div>
-    <p class="note-s">An agent shows as live for 15 minutes after its last heartbeat. Its lantern sits on the building of the note it is touching and moves when it moves.</p>`}
+    <p class="note-s">An agent shows as live for 15 minutes after its last heartbeat. Its Sentinel stands on the building of the note it is touching and moves when it moves.</p>`}
   function taskCard(t){
     const A={claimed:[["review","Send to review"],["block","Block"],["release","Release"]],open:[],review:[["done","Mark done"],["reopen","Reopen"]],blocked:[["unblock","Unblock"],["release","Release"]],done:[["reopen","Reopen"]]}[t.status]||[];
     const assign=t.status==="open"?`<select class="btn" data-assign="${esc(t.id)}"><option value="">Assign to…</option>${KINDS.map(([k,l])=>{const g=[...agents.values()].filter(a=>a.id!=="repo-sync"&&a.active!==false&&kindOf(a)===k).sort((x,y)=>x.name.localeCompare(y.name));return g.length?`<optgroup label="${l}">${g.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("")}</optgroup>`:""}).join("")}</select>`:"";
@@ -1340,10 +1403,22 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
   function render(tab){
     if(!me)return"<p class='note-s'>Sign in first.</p>";
     return `<div class="who"><span class="live ${connected||pollT?"on":""}"><i></i>${connected?"live":pollT?"polling every 8s":"connecting"}</span><span>Signed in as ${esc(me.name)}${me.role==="owner"?" (owner)":""}</span></div>`+
-      (tab==="board"?board():tab==="activity"?activity():tab==="desk"?desk():tab==="connect"?connect():floorTab());
+      (tab==="identity"?identityTab():tab==="board"?board():tab==="activity"?activity():tab==="desk"?desk():tab==="connect"?connect():floorTab());
   }
   async function logHuman(kind,text,note,task){await sb.from("activity").insert({actor:me.name,actor_kind:"human",kind,text:text||null,note:note||null,task:task||null})}
+  function coreAssignments(){return me.role==='owner'&&identityReady?`<details class="sec"><summary>Assign the four personal builds</summary><p class="note-s">Select the account for each person. Only the vault owner can assign these builds.</p>${['jr','devon','ahmad','kenza'].map(f=>`<label style="display:block;margin:12px 0">${esc(Identity.FORMS[f].name)}<select class="btn" data-core="${f}"><option value="">Choose account</option>${[...members.values()].map(m=>`<option value="${esc(m.user_id)}" ${profiles.get(m.user_id)?.form===f?'selected':''}>${esc(m.display_name)}</option>`).join('')}</select></label>`).join('')}</details>`:''}
+  function identityTab(){
+    const p=ownIdentity(me.id);
+    return `${coreAssignments()}<h2>Your Vault Sentinel</h2><div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap"><div id="identityPreview">${Identity.preview(p)}</div><div><h3>${esc(Identity.FORMS[p.form].name)}</h3><p>${esc(p.ownerName)} · ${p.ownerBadge}</p><p class="note-s">60% body · 30% armor · 10% insignia and owner band.</p></div></div>
+    <div class="frm">${['Body · 60%','Armor · 30%','Accent · 10%'].map((label,i)=>`<label>${label}<input data-palette="${i}" value="${p.palette[i]}" maxlength="7" pattern="#[0-9A-Fa-f]{6}" aria-label="${label} hex code"></label>`).join('')}<button class="btn pri" id="identitySave" ${identityReady?'':'disabled'}>Save colors</button><p class="note-s">${identityReady?'Colors are saved to your account and visible to the team.':'Account colors need the Sentinel database migration. The existing vault remains available.'}</p>
+    <label>Tool you are using<select id="identityTool"><option value="">None</option>${[...agents.values()].filter(a=>a.active!==false&&a.id!=='repo-sync').map(a=>`<option value="${esc(a.id)}" ${store.get('vault.tool.'+me.id,'')===a.id?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label><p class="note-s">Shows a separate tool Sentinel at your selected note with your owner band. Autonomous agents keep their own identity.</p></div>`;
+  }
   function bind(root){
+    root.querySelectorAll('[data-core]').forEach(select=>select.onchange=async()=>{if(!select.value)return;select.disabled=true;const {error}=await sb.rpc('assign_core_sentinel',{target:select.value,core_form:select.dataset.core});select.disabled=false;if(error){toast('Could not assign build: '+error.message);return}const {data}=await sb.from('avatar_profiles').select('*');if(data)profiles=new Map(data.map(p=>[p.user_id,p]));pushAgents();refresh();toast('Personal build assigned')});
+    const colors=[...root.querySelectorAll('[data-palette]')];const preview=()=>{const values=colors.map(x=>x.value);if(values.every(x=>Identity.HEX.test(x)))root.querySelector('#identityPreview').innerHTML=Identity.preview({...ownIdentity(me.id),palette:values})};colors.forEach(x=>x.oninput=preview);
+    const save=root.querySelector('#identitySave');if(save)save.onclick=async()=>{const values=colors.map(x=>x.value);if(!values.every(x=>Identity.HEX.test(x))){toast('Use three hex codes such as #D4A843');return}save.disabled=true;let result;if(profiles.has(me.id))result=await sb.from('avatar_profiles').update({palette:values}).eq('user_id',me.id);else result=await sb.from('avatar_profiles').insert({user_id:me.id,palette:values});save.disabled=false;if(result.error){toast('Could not save colors: '+result.error.message);return}profiles.set(me.id,{...ownIdentity(me.id),user_id:me.id,palette:values});pushAgents();toast('Sentinel colors saved')};
+    const tool=root.querySelector('#identityTool');if(tool)tool.onchange=()=>{store.set('vault.tool.'+me.id,tool.value);if(connected)trackSelf()};
+
     const nt=root.querySelector("#ntGo");if(nt)nt.onclick=async()=>{
       const title=root.querySelector("#ntTitle").value.trim();if(!title){toast("Give the task a title");return}
       const note=root.querySelector("#ntNote").value.trim();if(note&&!byName.has(note)){toast("No note has that exact name");return}
@@ -1387,6 +1462,7 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
   return {session,member,join,loadAll,subscribe,render,bind,history,pushAgents,syncMarkers,drawFloor,signOut,me:()=>me};
 })();
 
+
 // ---------- boot: sign in, load the live vault, raise the campus
 (async function boot(){
   const gate=$("#gate");
@@ -1407,6 +1483,7 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
     catch(err){$("#gErr").textContent=err.message||String(err);b.disabled=false;b.textContent="Enter the campus"}
   });
 })();
+
 
 </script>
 </body></html>
