@@ -17,6 +17,9 @@ const Live=(()=>{
   const short=ts=>{const d=Date.parse(ts);if(!d)return"";const s=(Date.now()-d)/1000;if(s<60)return Math.max(1,Math.round(s))+"s";if(s<3600)return Math.round(s/60)+"m";if(s<86400)return Math.round(s/3600)+"h";return String(ts).slice(5,10)};
   const isLive=p=>p&&p.status!=="offline"&&Date.now()-Date.parse(p.last_seen)<LIVE_WINDOW;
   const agentName=id=>agents.get(id)?.name||id;
+  // week_xp is only reset when an actor earns XP, so a row from an earlier week reads as 0 this week (Monday, UTC).
+  const weekStart=()=>{const d=new Date();d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)};
+  const weekly=r=>r.week_start===weekStart()?r:{...r,week_xp:0};
 
   async function session(){const {data}=await sb.auth.getSession();return data.session}
   async function member(){
@@ -40,7 +43,7 @@ const Live=(()=>{
     BASE=rows;
     const [a,p,t,ac]=await Promise.all([sb.from("agents").select("id,name,kind,color,active"),sb.from("presence").select("*"),sb.from("tasks").select("*"),sb.from("activity").select("*").order("ts",{ascending:false}).limit(60)]);
     (a.data||[]).forEach(x=>agents.set(x.id,x));(p.data||[]).forEach(x=>pres.set(x.agent,x));tasks=t.data||[];acts=ac.data||[];
-    const st=await sb.from('agent_stats').select('*');playReady=!st.error;stats=new Map((st.data||[]).map(r=>[r.actor,r]));pushLevels();
+    const st=await sb.from('agent_stats').select('*');playReady=!st.error;stats=new Map((st.data||[]).map(r=>[r.actor,weekly(r)]));pushLevels();
     if(identityReady){const [a,p]=await Promise.all([sb.from('agent_sessions').select('*'),sb.from('member_positions').select('*')]);(a.data||[]).forEach(x=>sessions.set(x.user_id+':'+x.session_id,x));(p.data||[]).forEach(x=>positions.set(x.user_id+':'+x.session_id,x));syncPeople()}
     rebuildNotes();
   }
@@ -51,7 +54,7 @@ const Live=(()=>{
       .on("postgres_changes",{event:"*",schema:"public",table:"notes"},onNote)
       .on("postgres_changes",{event:"*",schema:"public",table:"tasks"},e=>{const r=e.new&&e.new.id?e.new:e.old;const was=tasks.find(x=>x.id===r.id);tasks=tasks.filter(x=>x.id!==r.id);if(e.eventType!=="DELETE")tasks.push(e.new);if(e.new&&e.new.status==="done"&&was&&was.status!=="done")onDone(e.new);syncMarkers();refresh()})
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"activity"},e=>{acts.unshift(e.new);acts=acts.slice(0,80);onActivity(e.new);drawFloor();refresh()})
-      .on("postgres_changes",{event:"*",schema:"public",table:"agent_stats"},e=>{if(e.new&&e.new.actor){const prev=stats.get(e.new.actor);stats.set(e.new.actor,e.new);onStats(e.new,prev)}})
+      .on("postgres_changes",{event:"*",schema:"public",table:"agent_stats"},e=>{if(e.new&&e.new.actor){const prev=stats.get(e.new.actor);stats.set(e.new.actor,weekly(e.new));onStats(e.new,prev)}})
       .on("postgres_changes",{event:"*",schema:"public",table:"presence"},e=>{if(e.new&&e.new.agent){pres.set(e.new.agent,e.new);pushAgents();drawFloor();if(sheet.open&&sheet.view==="agents"&&sheet.atab==="floor")renderSheet()}})
       .on("postgres_changes",{event:"*",schema:"public",table:"avatar_profiles"},async()=>{const {data}=await sb.from('avatar_profiles').select('*');profiles=new Map((data||[]).map(p=>[p.user_id,p]));pushAgents();refresh()})
       .on("postgres_changes",{event:"*",schema:"public",table:"agent_sessions"},e=>{const r=e.eventType==='DELETE'?e.old:e.new;const key=r.user_id+':'+r.session_id;if(e.eventType==='DELETE')sessions.delete(key);else sessions.set(key,r);pushAgents();drawFloor()})
@@ -72,7 +75,7 @@ const Live=(()=>{
       (n.data||[]).forEach(r=>onNote({eventType:"UPDATE",new:r}));
       (p.data||[]).forEach(r=>pres.set(r.agent,r));if(identityReady){const [result,positionResult]=await Promise.all([sb.from('agent_sessions').select('*'),sb.from('member_positions').select('*')]);if(result.data)sessions=new Map(result.data.map(r=>[r.user_id+':'+r.session_id,r]));if(positionResult.data)positions=new Map(positionResult.data.map(r=>[r.user_id+':'+r.session_id,r]));syncPeople();await trackSelf()}pushAgents();
       if(t.data){const doneNow=t.data.filter(x=>x.status==='done'&&tasks.some(y=>y.id===x.id&&y.status!=='done'));tasks=t.data;doneNow.forEach(onDone);syncMarkers()}
-      if(playReady){const st=await sb.from('agent_stats').select('*');(st.data||[]).forEach(r=>{const prev=stats.get(r.actor);stats.set(r.actor,r);if(!prev||prev.xp!==r.xp)onStats(r,prev)})}
+      if(playReady){const st=await sb.from('agent_stats').select('*');(st.data||[]).forEach(r=>{const prev=stats.get(r.actor);stats.set(r.actor,weekly(r));if(!prev||prev.xp!==r.xp)onStats(r,prev)})}
       (a.data||[]).forEach(onActivity);
       (a.data||[]).forEach(r=>acts.unshift(r));acts=acts.slice(0,80);
       drawFloor();refresh();
