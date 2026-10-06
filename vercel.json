@@ -43,6 +43,29 @@
           "value": "no-cache"
         }
       ]
+    },
+    {
+      "source": "/icon-(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/mcp",
+      "destination": "https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/vault-mcp"
+    },
+    {
+      "source": "/mcp/(.*)",
+      "destination": "https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/vault-mcp/$1"
+    },
+    {
+      "source": "/api",
+      "destination": "https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/agent-api"
     }
   ]
 }
