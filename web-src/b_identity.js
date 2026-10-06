@@ -13,6 +13,9 @@ const Identity=(()=>{
   // Units are meters on a 5.7 m figure, eight heads tall. +z faces forward.
   // k: 0 body (60%), 1 armor (30%), 2 accent, lit (10%), 3 owner band, lit, 4 joint, 5 accent cloth, 6 visor glass.
   // Slots: torso is rigid; head, arms and legs are articulated around their pivots.
+  // Cosmetic tier: 0 below level 3, 1 from 3, 2 from 6 (aura ring), 3 from 10, 4 from 20.
+  const TIERS=['Plain','Trimmed','Haloed','Crested','Ascendant'];
+  const tier=l=>{l=l|0;return l>=20?4:l>=10?3:l>=6?2:l>=3?1:0};
   const BROAD={jr:1.12,ahmad:1.08,devon:1.04,kenza:.97,member:.95,agent:1};
   function blueprint(f,opt={}){
     f=form(f);const b=BROAD[f],parts=[],S=[-1,1],lvl=Math.max(0,Math.min(30,opt.level|0));
@@ -81,8 +84,35 @@ const Identity=(()=>{
     for(let i=0;i<Math.min(5,lvl);i++)T('box',.16,.022,.04,-.74*b,4.98-.065*i,.26,2,-.28);  // rank chevrons, left pauldron
     if(lvl>=10)H('bevel',.05,.3,.46,0,1.02,-.06,1);                                        // level 10: helmet crest
     if(lvl>=20)for(const s of S)T('bevel',.05,.5,.05,s*.56*b,5.3,-.1,2);                   // level 20: twin aerials
+    // ---- fidelity pass: face, plating, hinge caps and back hardware. 'cap' is a short cylinder on the x axis.
+    H('bevel',.4,.07,.14,0,.77,.2,1);                                                      // brow ridge over the visor
+    for(const s of S){H('box',.03,.42,.05,s*.165,.52,.235,4);H('cap',.08,.16,.16,s*.265,.5,-.02,4);H('box',.02,.05,.05,s*.31,.5,-.02,2)}  // visor frame, comm pods with lit dots
+    H('box',.27,.022,.012,0,.6,.27,2);                                                     // face glow: eye line across the slits
+    for(let i=0;i<3;i++)H('box',.16-.03*i,.016,.02,0,.23-.032*i,.255,4);                  // chin vents
+    H('bevel',.38,.18,.1,0,.3,-.25,1,0,.3);                                                // rear neck guard
+    T('bevel',.1,.26,.06,0,3.93,.37,1);                                                    // sternum plate under the terminal
+    for(const s of S){T('bevel',.42*b,.1,.2,s*.3*b,4.69,.2,1,s*.16);                       // clavicle plates
+      for(let i=0;i<3;i++){const y=4.42-.16*i;T('box',.03,.12,.22,s*(.42+.16*(y-3.7))*b,y,.04,4,-s*.16)}  // side rib vents
+      T('cap',.06,.24,.24,s*.44*b,2.95,0,4)}                                               // hip hinge caps
+    for(let i=0;i<3;i++)T('bevel',.22-.03*i,.08,.08,0,3.8-.12*i,-.24,1);                    // lower spine plates
+    T('bevel',.34,.42,.16,0,4.3,-.56,4);T('box',.12,.26,.03,0,4.3,-.645,2);                // power core with lit cell
+    T('bevel',.3,.26,.08,0,2.96,.27,1,0,.1);                                               // pelvis front plate
+    for(const s of S){const A=add('arm'+side(s)),L=add('leg'+side(s));
+      A('bevel',.33,.2,.35,s*.1,-.2,0,1,-s*.12);                                           // deltoid cap
+      A('cap',.05,.17,.17,s*.27,-.84,0,4);A('box',.012,.06,.06,s*.297,-.84,0,2);           // elbow hinge, lit pin
+      A('bevel',.29,.24,.31,s*.08,-.98,.02,1);A('bevel',.3,.1,.3,s*.08,-1.56,.02,1);        // forearm top plate and wrist cuff
+      A('bevel',.17,.06,.1,s*.08,-1.85,.1,1);                                              // knuckle guard
+      L('bevel',.24,.38,.06,s*.05,-.12,.22,1,0,-.12);                                      // tasset
+      L('cap',.05,.2,.2,s*.14,-1.24,0,4);L('box',.012,.06,.06,s*.168,-1.24,0,2);           // knee hinge, lit pin
+      L('bevel',.24,.6,.1,0,-1.75,-.2,1);L('bevel',.16,.14,.12,0,-2.86,-.22,1)}            // calf plate, heel spur
+    // ---- cosmetic tier from level: more lit trim per tier; the mesh adds the aura ring from tier 2.
+    const tr=tier(lvl);
+    if(tr>=1){for(const s of S)T('box',.4*b,.02,.03,s*.74*b,4.86,.305,2,-s*.26);T('box',.7*b,.02,.03,0,3.24,.285,2)}  // pauldron edge lights, belt line
+    if(tr>=2){for(const s of S){T('box',.2,.025,.03,s*.085,3.99,.405,2,s*.45);add('leg'+side(s))('box',.2,.02,.02,0,-1.36,.25,2)}}  // chest chevron, knee lights
+    if(tr>=3)for(const s of S){T('bevel',.04,.7,.3,s*.22,4.62,-.62,1,-s*.25,-.2);T('box',.02,.6,.02,s*.235,4.62,-.78,2,-s*.25,-.2);H('box',.02,.2,.02,s*.2,.66,.2,2)}  // back fins with lit edges, temple lights
+    if(tr>=4){for(const s of S){add('arm'+side(s))('box',.31,.02,.32,s*.08,-1.62,.02,2);add('leg'+side(s))('box',.02,.7,.02,s*.13,-1.86,.19,2)}T('box',.03,.36,.02,0,3.68,-.29,2)}  // gauntlet rings, shin rails, lit spine
     const pivots={head:[0,4.78,0],armL:[-.74*b,4.62,0],armR:[.74*b,4.62,0],legL:[-.26*b,2.95,0],legR:[.26*b,2.95,0]};
-    return {form:f,broad:b,parts,pivots,terminal:{x:0,y:4.3,z:.38,w:.42,h:.295}};
+    return {form:f,broad:b,tier:tr,parts,pivots,terminal:{x:0,y:4.3,z:.38,w:.42,h:.295}};
   }
 
   // ---- Colors for the seven material slots, derived from the three account colors.
@@ -120,5 +150,5 @@ const Identity=(()=>{
     {id:'week-watch',name:'Week Watch',what:'Seven-day streak',test:(c,s)=>(s.best_streak|0)>=7},
     {id:'luminary',name:'Luminary',what:'Reach level 9',test:(c,s)=>level(s.xp)>=9}];
   const achievements=s=>ACHIEVEMENTS.map(a=>({...a,done:!!(s&&a.test(s.counters||{},s))}));
-  return {HEX,FORMS,palette,form,badge,platformCode,profile,preview,blueprint,tones,mix,level,nextAt,title,TITLES,achievements,ACHIEVEMENTS};
+  return {HEX,FORMS,palette,form,badge,platformCode,profile,preview,blueprint,tones,mix,level,nextAt,title,TITLES,tier,TIERS,achievements,ACHIEVEMENTS};
 })();
