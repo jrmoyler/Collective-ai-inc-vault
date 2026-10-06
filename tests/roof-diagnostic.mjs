@@ -16,7 +16,7 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-a
 const results=[];
 const thematic=JSON.parse(fs.readFileSync(new URL('../docs/source-district-definitions.json',import.meta.url),'utf8')).map(d=>({...d,kind:'thematic'}));
 for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],['mobile',{width:390,height:844},true]]){
- const page=await browser.newPage({viewport,colorScheme:'dark',reducedMotion:reduced?'reduce':'no-preference',...(name==='mobile'?{hasTouch:true,isMobile:true,deviceScaleFactor:2}:{})});const errors=[],warnings=[];page.on('requestfailed',r=>console.log(name,'RESOURCE',r.url(),r.failure()?.errorText));
+ const page=await browser.newPage({viewport,reducedMotion:reduced?'reduce':'no-preference',...(name==='mobile'?{hasTouch:true,isMobile:true,deviceScaleFactor:2}:{})});const errors=[],warnings=[];page.on('requestfailed',r=>console.log(name,'RESOURCE',r.url(),r.failure()?.errorText));
  page.on('pageerror',e=>{errors.push(e.message);console.log(name,'PAGEERROR',e.message)});page.on('console',m=>{if(m.type()==='error')errors.push(m.text());else if(m.type()==='warning')warnings.push(m.text())});
  await page.addInitScript(({notes,reduced})=>{
   localStorage.setItem('vault.title.cutscene','false');localStorage.setItem('vault.sound','false');localStorage.setItem('vault.quality',reduced?'low':'high');
@@ -33,44 +33,12 @@ for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],
  console.log(name,'entering');await page.getByRole('button',{name:'Enter the Vault',exact:true}).click({timeout:10000});console.log(name,'entered');
  // Software WebGL compiles the full city on CPU; this is a functional bound, not a frame-time claim.
  await page.waitForSelector('#districtNavigator',{timeout:90000});await page.waitForFunction(()=>Campus.ok(),{timeout:30000});
- console.log(name,'campus ready');await page.evaluate(()=>{Campus.skipIntro();Campus.debug().setClock(13);});await page.waitForTimeout(3000);
+ console.log(name,'campus ready');await page.evaluate(()=>{Campus.skipIntro();Campus.cycleTime();});await page.waitForTimeout(3000);
  const campus=await page.evaluate(()=>({notes:NOTES.length,districts:Campus.districts().length,gpu:Campus.ok(),drawCalls:Campus.renderer().info.render.calls,audio:VaultAudio.status(),versions:VaultEngine.versions,landmarks:Campus.debug().landmarks.length,buildings:Campus.buildings().filter(Boolean).length}));
  await page.screenshot({path:new URL(name+'-world.png',out).pathname});
- // Frame a deterministic evidence camera; software WebGL timing is not a fly-animation benchmark.
- if(name==='desktop'){await page.evaluate(()=>{const p=Campus.debug().landmarks.find(x=>x.folder==='17 - Synergy Nodes');if(p)Campus.flyAt(p.x,p.z,p.y+(p.height||0)*.45,36,.65)});await page.evaluate(()=>{const d=Campus.debug();Object.assign(d.cam,d.goal);Campus.pause(false)});await page.waitForTimeout(1000);await page.screenshot({path:new URL(name+'-landmark.png',out).pathname});}
- // Phones: the floor starts folded, a thematic district can be flown to, walked and moved through with the touch stick.
- let touch=null;
- if(name==='mobile'){
-  const floorFolded=await page.evaluate(()=>document.getElementById('floor').classList.contains('min'));
-  await page.evaluate(()=>{document.getElementById('plate').hidden=true;document.querySelector('.brief')?.remove()});
-  await page.locator('.chip2[data-top="13 - Learning and Curriculum"]').tap({force:true});
-  await page.locator('#districtBanner button[data-act="walk"]').waitFor({timeout:10000});
-  await page.locator('#districtBanner button[data-act="walk"]').tap({force:true});
-  await page.waitForFunction(()=>Campus.position().walking,{timeout:10000});
-  const start=await page.evaluate(()=>Campus.position());const pad=await page.locator('#joy').boundingBox();
-  const cdp=await page.context().newCDPSession(page);const cx=pad.x+pad.width/2,cy=pad.y+pad.height/2;
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:cx,y:cy}]});
-  for(let i=0;i<12;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:cx+(i%2),y:cy-50}]});await page.waitForTimeout(100)}
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-  const end=await page.evaluate(()=>Campus.position());
-  touch={floorFolded,walked:Math.hypot(end.x-start.x,end.z-start.z)};
-  await page.screenshot({path:new URL(name+'-walk.png',out).pathname});
-  await page.evaluate(()=>Campus.toggleWalk());
- }
- await page.getByRole('button',{name:'Open district navigator'}).click({force:true});await page.getByText('District progress saved to your account.',{exact:true}).waitFor();
- const districtCount=await page.locator('.journey-nav button').count();
- await page.getByRole('button',{name:'Shortlist this district',exact:true}).click();await page.getByRole('button',{name:'Remove from district shortlist',exact:true}).waitFor();
- await page.locator('.journey-nav button[data-folder="11 - Physical AI"]').click();await page.getByRole('heading',{name:'Physical systems lab',exact:true}).waitFor();
- await page.getByRole('searchbox',{name:'Search notes in 11 - Physical AI'}).fill('Wearable');
- await page.screenshot({path:new URL(name+'-district.png',out).pathname});
- await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('.journey-dialog').open);
- await page.evaluate(()=>open(NOTES.find(n=>n.name.startsWith('District Handbook —'))));
- await page.waitForTimeout(500);await page.getByRole('button',{name:'Close reader',exact:true}).count().then(async n=>{if(n)await page.getByRole('button',{name:'Close reader',exact:true}).click()});
- const reader=await page.evaluate(()=>({inlineTransform:document.getElementById('sheet').style.transform,hasContent:document.getElementById('sbody').textContent.length>100,viewportX:window.scrollX,viewportY:window.scrollY}));
- const travel=await page.evaluate(()=>Campus.districts().map(d=>{Campus.flyDistrict(d.top);const target=Campus.debug().goal;const flew=Number.isFinite(target.tx)&&Number.isFinite(target.tz);const walked=Campus.walkDistrict(d.top);const p=Campus.position();return{district:d.top,flew,walked:walked&&p.walking&&Number.isFinite(p.x)&&Number.isFinite(p.z)}}));
- if(name==='desktop'){await page.evaluate(()=>{Campus.overview();Campus.debug().setClock(22)});await page.waitForTimeout(1500);await page.screenshot({path:new URL(name+'-night.png',out).pathname})}
- results.push({name,viewport,reduced,travel,title:await page.title(),campus,districtCount,saved,reader,touch,errors,warnings});await page.close();
-}
-await browser.close();server.close();fs.writeFileSync(new URL('results.json',out),JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2));console.log('Evidence directory:',out.pathname);
-if(results.some(r=>r.errors.length||r.travel.length!==19||r.travel.some(d=>!d.flew||!d.walked)||r.districtCount!==19||r.campus.districts!==19||r.campus.landmarks!==19||r.campus.buildings!==r.campus.notes||!r.campus.gpu||r.reader.inlineTransform||r.reader.viewportX||r.reader.viewportY||(r.name==='mobile'&&!(r.touch?.floorFolded&&r.touch.walked>1))))process.exitCode=1;
 
+ await page.evaluate(()=>{Campus.renderer().shadowMap.enabled=false;Campus.scene().traverse(o=>{if(o.material)o.material.needsUpdate=true})});await page.waitForTimeout(500);await page.screenshot({path:'/tmp/vault-no-shadow.png'});
+ await page.evaluate(()=>{Campus.scene().traverse(o=>{if(o.geometry?.parameters?.width===14000)o.visible=false})});await page.waitForTimeout(500);await page.screenshot({path:'/tmp/vault-no-water.png'});
+ console.log('AB',out.pathname);break;
+}
+await browser.close();server.close();

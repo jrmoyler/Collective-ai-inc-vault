@@ -30,7 +30,7 @@ input,select,textarea{font:inherit;color:var(--fg)}
 .rb[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:44px;top:50%;transform:translateY(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--fg);font-size:12px;padding:3px 8px;border-radius:6px;white-space:nowrap;z-index:30;pointer-events:none}
 /* explorer drawer */
 .side{position:absolute;left:48px;top:0;bottom:0;width:280px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:7;transform:translateX(-102%);transition:transform .22s ease}
-.side.open{transform:none}
+.side.open{transform:none;z-index:21}
 .vaulthead{padding:14px 14px 10px;border-bottom:1px solid var(--line)}
 .vaulthead h1{font-family:var(--display);font-size:15px;margin:0;letter-spacing:.01em;display:flex;align-items:center;gap:8px}
 .vaulthead h1 i{width:9px;height:9px;background:var(--accent);display:inline-block}
@@ -66,7 +66,7 @@ input,select,textarea{font:inherit;color:var(--fg)}
 .lbl.hov{background:#fff;color:#10131f}
 .hudtop{position:absolute;left:14px;top:12px;right:14px;display:flex;align-items:center;gap:6px;pointer-events:none}
 .hudtop>*{pointer-events:auto}
-.hudbtn{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;background:var(--hud);border:1px solid var(--line);color:var(--muted)}
+.hudbtn{flex:none;width:32px;height:32px;border-radius:7px;display:grid;place-items:center;background:var(--hud);border:1px solid var(--line);color:var(--muted)}
 .hudbtn:hover{color:var(--fg);border-color:var(--accent)}
 .hudbtn:disabled{opacity:.4;cursor:default}
 .hudbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -99,8 +99,9 @@ input,select,textarea{font:inherit;color:var(--fg)}
 .nogl b{display:block;color:var(--fg);font-family:var(--display);font-size:18px;margin-bottom:6px}
 .loading{position:absolute;inset:0;display:grid;place-items:center;background:#0b0f1d;color:#9aa3bd;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;z-index:3;transition:opacity .6s}
 /* sheet */
-.sheet{position:absolute;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:6;transform:translateX(102%);transition:transform .26s ease,width .22s ease;box-shadow:-18px 0 40px rgba(0,0,0,.28)}
-.sheet.open{transform:none}
+.sheet{position:absolute;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:20;transform:translateX(102%);transition:transform .26s ease,width .22s ease;box-shadow:-18px 0 40px rgba(0,0,0,.28)}
+.sheet:not(.open){visibility:hidden;pointer-events:none}
+.sheet.open{transform:none;visibility:visible;pointer-events:auto}
 .sheet.full{width:calc(100% - 48px)}
 .shead{display:flex;align-items:center;gap:4px;padding:8px 10px 8px 12px;border-bottom:1px solid var(--line);min-height:46px;box-sizing:border-box}
 .shead .crumb2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);font-size:11px;color:var(--faint);padding:0 6px}
@@ -391,7 +392,7 @@ a.wl{transition:border-color .15s,color .15s}
 .league tr.me td{background:var(--accent-soft)}
 .league i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:0}
 .league tr:first-child td:first-child{color:var(--accent);font-weight:700}
-.brief{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(520px,calc(100% - 32px));background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:14px;padding:12px 44px 12px 16px;z-index:45;display:grid;gap:2px;box-shadow:0 20px 50px -14px rgba(0,0,0,.6);animation:vtoast .4s var(--ease) both}
+.brief{position:fixed;left:50%;bottom:calc(66px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(520px,calc(100% - 32px));background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:14px;padding:12px 44px 12px 16px;z-index:45;display:grid;gap:2px;box-shadow:0 20px 50px -14px rgba(0,0,0,.6);animation:vtoast .4s var(--ease) both}
 .brief .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 .brief b{font-family:var(--display);font-size:16px}
 .brief span{font-size:12.5px;color:var(--muted)}
@@ -445,7 +446,7 @@ button,a,.chip2{touch-action:manipulation}
   .floor.min{width:auto}
   .chips{left:8px;right:8px;bottom:8px}
   .chip2{padding:8px 12px;font-size:12.5px}
-  .brief{box-sizing:border-box;left:8px;right:8px;width:auto;transform:none;animation-name:vrise;bottom:calc(var(--rbh) + 56px);padding:10px 40px 10px 12px}
+  .brief{box-sizing:border-box;left:8px;right:8px;width:auto;transform:none;animation-name:vrise;bottom:calc(var(--rbh) + 64px);padding:10px 40px 10px 12px}
   .brief b{font-size:15px}
   .dbanner,.dbanner.in{top:auto;bottom:56px;left:8px;right:8px;width:auto;transform:none;animation-name:vrise}
   .stage.walking .dbanner{top:56px;bottom:auto}
@@ -471,26 +472,53 @@ button,a,.chip2{touch-action:manipulation}
   .mini,.hint{display:none}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .props{grid-template-columns:90px minmax(0,1fr)}
-  .plate{top:auto;bottom:8px;left:8px;right:8px;width:auto;max-height:26vh;overflow:auto;padding:10px 36px 10px 12px}
+  .plate{top:auto;bottom:66px;left:8px;right:8px;width:auto;max-height:26vh;overflow:auto;padding:10px 36px 10px 12px}
   .plate h2{font-size:17px}
   .plate p{margin:2px 0 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .stage.walking .plate{display:none}
+  /* Reserve separate lanes for navigation, live floor and district actions. */
+  :root{--rbh:calc(54px + env(safe-area-inset-bottom,0px))}
+  .ribbon{box-sizing:border-box;min-height:var(--rbh);gap:0}
+  .rb{width:44px;height:44px;flex:1;max-width:52px;min-width:0}
+  .hudbtn{width:44px;height:44px}
+  .hudtop{top:max(6px,env(safe-area-inset-top,0px))}
+  .crumb{flex:1}
+  .chip2{min-height:44px;box-sizing:border-box}
+  .plate .x,.dbanner .x{width:40px;height:40px;top:0;right:0}
+  .floor,.floor.min{box-sizing:border-box;top:58px}
+  .floor h3{min-height:28px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .dbanner,.dbanner.in,.stage.walking .dbanner{top:108px;bottom:auto;max-height:calc(100% - 320px);overflow:auto;overscroll-behavior:contain}
+  .dbanner .btn{min-height:40px}
+  .stage:has(.floor:not(.min):not([hidden])) .dbanner{visibility:hidden;pointer-events:none}
+  .stage:has(.dbanner:not([hidden])) .plate{visibility:hidden;pointer-events:none}
+  .shead .ib{width:40px;height:44px}
+  .tree .file,.tree .fold>button{min-height:40px;box-sizing:border-box}
+  .sheet,.side{overscroll-behavior:contain}
+  body:has(.brief) .stage:not(.walking) .plate{visibility:hidden;pointer-events:none}
 }
+@media (max-width:760px) and (max-height:540px){
+  .plate{max-height:calc(100% - 130px)}
+  .dbanner,.dbanner.in,.stage.walking .dbanner{top:58px;right:8px;left:auto;width:min(320px,55%);max-height:calc(100% - 116px)}
+  .floor,.floor.min{left:8px;right:auto;max-width:38%;max-height:28%}
+  .stage.walking.touch .joy{width:96px;height:96px;left:16px;bottom:18px}
+  .stage.walking.touch .lookhint{display:none}
+}
+body:has(.sheet.open) .brief,body:has(#wd.on) .brief{visibility:hidden;pointer-events:none}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style></head><body>
 
 <div class="app" id="app">
   <nav class="ribbon" aria-label="Views">
-    <button class="rb" id="rbCampus" data-tip="Campus overview (R)"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 20V9l5-3v14M10 20V4l6 3v13M16 20v-8l3 1v7"/></svg></button>
-    <button class="rb" id="rbSwitch" data-tip="Find a note (Ctrl K)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
-    <button class="rb" id="rbTree" data-tip="Explorer"><svg viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
-    <button class="rb" id="rbHome" data-tip="Home note"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
-    <button class="rb dsk" id="rbToday" data-tip="Today's note"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></button>
-    <button class="rb dsk" id="rbRandom" data-tip="Random note"><svg viewBox="0 0 24 24"><path d="M4 7h3l10 10h3M4 17h3l3-3M14 10l3-3h3M18 4l2 3-2 3M18 14l2 3-2 3"/></svg></button>
-    <button class="rb" id="rbAgents" data-tip="Live: agents, tasks, desk"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V4M9 13h.01M15 13h.01M9 16h6"/></svg><i class="pip" id="agpip" hidden></i></button>
+    <button class="rb" id="rbCampus" data-tip="Campus overview (R)" aria-label="Campus overview (R)"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 20V9l5-3v14M10 20V4l6 3v13M16 20v-8l3 1v7"/></svg></button>
+    <button class="rb" id="rbSwitch" data-tip="Find a note (Ctrl K)" aria-label="Find a note (Ctrl K)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+    <button class="rb" id="rbTree" data-tip="Explorer" aria-label="Explorer"><svg viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+    <button class="rb" id="rbHome" data-tip="Home note" aria-label="Home note"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
+    <button class="rb dsk" id="rbToday" data-tip="Today's note" aria-label="Today's note"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></button>
+    <button class="rb dsk" id="rbRandom" data-tip="Random note" aria-label="Random note"><svg viewBox="0 0 24 24"><path d="M4 7h3l10 10h3M4 17h3l3-3M14 10l3-3h3M18 4l2 3-2 3M18 14l2 3-2 3"/></svg></button>
+    <button class="rb" id="rbAgents" data-tip="Live: agents, tasks, desk" aria-label="Live: agents, tasks, desk"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V4M9 13h.01M15 13h.01M9 16h6"/></svg><i class="pip" id="agpip" hidden></i></button>
     <div style="flex:1" class="dsk"></div>
-    <button class="rb" id="rbWalk" data-tip="Walk the streets (F)"><svg viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.8"/><path d="M9 21l2-6-2-3 2-5 3 2 3 1M11 15l4 2 1 4M10 8l-3 3"/></svg></button>
-    <button class="rb" id="rbTime" data-tip="Time of day"><svg viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button>
+    <button class="rb" id="rbWalk" data-tip="Walk the streets (F)" aria-label="Walk the streets (F)"><svg viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.8"/><path d="M9 21l2-6-2-3 2-5 3 2 3 1M11 15l4 2 1 4M10 8l-3 3"/></svg></button>
+    <button class="rb" id="rbTime" data-tip="Time of day" aria-label="Time of day"><svg viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button>
   </nav>
   <aside class="side" id="side" aria-label="File explorer">
     <div class="vaulthead"><h1><i></i>Collective AI</h1><small id="vstat"></small></div>
@@ -549,6 +577,7 @@ button,a,.chip2{touch-action:manipulation}
 <script src="vendor/supabase.js"></script>
 <script src="vendor/vault-libraries.js"></script>
 <script src="config.js"></script>
+
 
 <script>
 // Notes load from Supabase after sign-in (see e_boot.js) and stay live through Realtime.
@@ -711,7 +740,7 @@ function open(n,push=true){
   sheet.view="note";sheet.ntab="note";
   $("#back").disabled=$("#sBack").disabled=hpos<=0;$("#fwd").disabled=$("#sFwd").disabled=hpos>=hist.length-1;
   document.querySelectorAll(".file.on").forEach(f=>f.classList.remove("on"));
-  const fe=document.querySelector(`.file[data-id="${n.id}"]`);if(fe){fe.classList.add("on");let p=fe.parentElement;while(p&&p.id!=="tree"){if(p.classList.contains("fold"))p.classList.remove("closed");p=p.parentElement}fe.scrollIntoView({block:"nearest"})}
+  const fe=document.querySelector(`.file[data-id="${n.id}"]`);if(fe){fe.classList.add("on");let p=fe.parentElement;while(p&&p.id!=="tree"){if(p.classList.contains("fold"))p.classList.remove("closed");p=p.parentElement}const tree=$("#tree"),fr=fe.getBoundingClientRect(),tr=tree.getBoundingClientRect();if(fr.top<tr.top)tree.scrollTop+=fr.top-tr.top;else if(fr.bottom>tr.bottom)tree.scrollTop+=fr.bottom-tr.bottom}
   store.set("vault.last",n.name);
   Campus.focus(n);$("#plate").hidden=true;
   openSheet("note");updateCrumb();
@@ -1556,8 +1585,8 @@ const Identity=(()=>{
 })();
 
 // Shared mesh factory used by the live city and the reference gallery.
-// Geometry comes from Identity.blueprint. Every plate is merged into five rigid-skinned meshes, one per surface
-// (body, armor, lit trim, joints, visor glass), driven by one 15-bone skeleton. A Sentinel costs 8 draw calls:
+// Geometry comes from Identity.blueprint. Every plate is merged into five skinned meshes, one per surface
+// (body, armor, lit trim, joints, visor glass), driven by one 15-bone skeleton. Armor is rigid; cape weights blend across the waist. A Sentinel costs 8 draw calls:
 // the five surfaces, the chest terminal, the compass ring and the aura ring (hidden below tier 2).
 // Props for a status (hologram slate, thought orbs, lift beam, data link) are added on demand and disposed with the figure.
 // Surface detail: tileable textures in assets/sentinels/ are sampled triplanar in bind-pose space, so the merged meshes need
@@ -1638,7 +1667,7 @@ function environment(renderer){
 // Common pieces: bind-pose position and normal for triplanar detail and the visor scan; a fresnel rim weighted toward
 // top edges; status-driven glow.
 const V_HEAD='attribute float glow;\nattribute float cloth;\nuniform float uTime;\nuniform float uSway;\nvarying float vGlow;\nvarying float vCloth;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
-const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vLocal=position;vLocalN=normal;\n\tfloat hem=smoothstep(4.35,2.55,position.y)*cloth;\n\ttransformed.x+=sin(uTime*1.7+position.x*1.8)*0.11*hem*uSway;\n\ttransformed.z+=sin(uTime*1.15+position.y)*0.045*hem*uSway;';
+const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vLocal=position;vLocalN=normal;\n\tfloat hem=(1.0-smoothstep(2.55,4.35,position.y))*cloth;\n\ttransformed.x+=sin(uTime*1.7+position.x*1.8)*0.11*hem*uSway;\n\ttransformed.z+=sin(uTime*1.15+position.y)*0.045*hem*uSway;';
 const F_HEAD=`uniform vec3 uRim;uniform float uRimGain;uniform float glowGain;uniform float uTime;uniform float uScan;uniform float uCircuit;
 uniform sampler2D tDetail;uniform sampler2D tCircuit;uniform sampler2D tIri;uniform float uTexOn;uniform float uIriOn;
 varying float vGlow;varying float vCloth;varying vec3 vLocal;varying vec3 vLocalN;
@@ -1666,7 +1695,7 @@ function surface(kind,U,opts){
 \tvec3 seamD=abs(fract(seamP-0.5)-0.5);vec3 seams=vec3(1.0)-smoothstep(vec3(0.015),vec3(0.015)+seamW,seamD);
 \tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.03':'0.012'}*(1.0-vCloth);
 \tdiffuseColor.rgb*=1.0-machining*0.22;
-\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(1.02,0.94,0.82)*(0.9+0.14*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);`);
+\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*(0.9+0.14*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);`);
     f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=mix(clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0),0.94,vCloth);');
     let em=RIM;
     if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
@@ -1705,13 +1734,16 @@ function put(t,geo,q,origin,col,glow,shade,bone){
   _m.compose(_p.set(origin[0]+q.x,origin[1]+q.y,origin[2]+q.z),_q.setFromEuler(_e.set(q.rx||0,0,q.rz||0)),_s.set(q.w,q.h,q.d));_n.getNormalMatrix(_m);
   const P=geo.attributes.position,N=geo.attributes.normal,E=geo.attributes.edge;
   for(let i=0;i<P.count;i++){const ly=P.getY(i),k=shade*(E.getX(i)?1.13:1)*(glow?1:.9+.2*(ly+.5));
-    _v.fromBufferAttribute(P,i).applyMatrix4(_m);t.pos.push(_v.x,_v.y,_v.z);_v.fromBufferAttribute(N,i).applyMatrix3(_n).normalize();t.nrm.push(_v.x,_v.y,_v.z);
-    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.cloth.push(q.k===5?1:0);t.bone.push(bone,0,0,0)}
+    _v.fromBufferAttribute(P,i).applyMatrix4(_m);t.pos.push(_v.x,_v.y,_v.z);const worldY=_v.y;_v.fromBufferAttribute(N,i).applyMatrix3(_n).normalize();t.nrm.push(_v.x,_v.y,_v.z);
+    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.cloth.push(q.k===5?1:0);// Blend the cape over the waist instead of breaking it into independently rotating slabs.
+    // Helmet fabric and the front tabard retain their rigid attachment.
+    if(q.k===5&&q.slot==='torso'&&q.z<0){const u=Math.max(0,Math.min(1,(worldY-3.05)/1.3)),w=u*u*(3-2*u);t.bone.push(HIPS,SPINE,0,0);t.weight.push(1-w,w,0,0)}
+    else{t.bone.push(bone,0,0,0);t.weight.push(1,0,0,0)}}
 }
-function geometryOf(t){const g=new THREE.BufferGeometry(),n=t.glow.length,w=new Float32Array(n*4);for(let i=0;i<n;i++)w[i*4]=1;
+function geometryOf(t){const g=new THREE.BufferGeometry(),w=new Float32Array(t.weight);
   g.setAttribute('position',new THREE.Float32BufferAttribute(t.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(t.nrm,3));g.setAttribute('color',new THREE.Float32BufferAttribute(t.col,3));
   g.setAttribute('glow',new THREE.Float32BufferAttribute(t.glow,1));g.setAttribute('cloth',new THREE.Float32BufferAttribute(t.cloth,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(t.bone,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(w,4));
-  g.computeBoundingSphere();g.boundingSphere.radius*=1.35;return g}
+  g.computeBoundingSphere();g.boundingSphere.radius+=2.5;return g}
 function terminal(a,f,pal){
   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=180;const ctx=canvas.getContext('2d');
   ctx.fillStyle=pal[0];ctx.fillRect(0,0,256,180);ctx.fillStyle=pal[2];
@@ -1733,8 +1765,8 @@ function makeSentinel(a){
   // Each plate gets its own shade (0.86 to 1.08) so neighboring panels read as separate pieces of metal.
   bp.parts.forEach((q,i)=>{
     const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
-    const shade=lit?1:.86+.22*hash(seed+i),col=q.k===5?tone[q.k].clone().lerp(lin('#C4A574'),.42):(kind==='armor'?white:tone[q.k]),origin=bp.pivots[q.slot]||[0,0,0];
-    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],bone:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
+    const shade=lit?1:.86+.22*hash(seed+i),col=kind==='armor'?white:tone[q.k],origin=bp.pivots[q.slot]||[0,0,0];
+    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],bone:[],weight:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
   });
   // bones in bind pose (no rotation), positioned relative to their parent
   const bones=BONES.map(name=>{const b=new THREE.Bone();b.name=name;return b});
@@ -1742,7 +1774,7 @@ function makeSentinel(a){
   grp.updateMatrixWorld(true);const skeleton=new THREE.Skeleton(bones),I=new THREE.Matrix4();
   const env=ENV?{envMap:ENV}:{},MATS={
     body:()=>surface('body',U,{roughness:.88,metalness:.02,envMapIntensity:.35,...env}),
-    armor:()=>surface('armor',U,{color:tone[1],roughness:.74,metalness:.05,envMapIntensity:.4,...env}),
+    armor:()=>surface('armor',U,{color:tone[1],roughness:.43,metalness:.55,envMapIntensity:.65,...env}),
     trim:()=>surface('trim',U,{roughness:.45,metalness:.04}),
     joint:()=>surface('joint',U,{roughness:.9,metalness:.02,envMapIntensity:.25,...env}),
     visor:()=>surface('visor',U,{roughness:.18,metalness:.12,...(ENV?{envMap:ENV,envMapIntensity:.35}:{})})};
@@ -1863,11 +1895,12 @@ const NOOPT={};
 function pose(m,t,status,opt){
   opt=opt||NOOPT;status=typeof status==='boolean'?(status?'walking':m.status||'idle'):(status||m.status||'idle');
   const a=m.anim;if(!a)return;const red=reducedNow(),ph=m.phase,T=a.T,S=a.S,V=a.V,P=a.P;
+  if(!Number.isFinite(t))return;
   let dt=t-a.t;const first=a.t<0||dt<0||dt>1;if(first)dt=1/60;a.t=t;
   if(m.pendingEmote){if(!red)emote(m,m.pendingEmote,t);m.pendingEmote=null}
   const moving=status==='walking';
   // ground speed from the figure's own travel; falls back to opt.speed for the gallery treadmill
-  const gx=m.grp.position.x,gz=m.grp.position.z;let v=first?0:Math.hypot(gx-a.px,gz-a.pz)/dt;a.px=gx;a.pz=gz;if(v>40)v=0;
+  const gx=m.grp.position.x,gz=m.grp.position.z;let v=first||dt<=0?0:Math.hypot(gx-a.px,gz-a.pz)/dt;a.px=gx;a.pz=gz;if(v>40)v=0;
   if(moving){const want=v>.3?v:(opt.speed!=null?opt.speed:(m.walkSpeed||3.4));a.speed+=(want-a.speed)*(first?1:rate(dt,4))}
   a.walkW+=((moving&&!red?1:0)-a.walkW)*(first?1:rate(dt,7));
   // status pose through a slightly underdamped spring: transitions settle with a small overshoot
@@ -1942,10 +1975,11 @@ function pose(m,t,status,opt){
 function emote(m,name,t){m.emote=name;m.emoteT=t;if(m.anim&&name==='levelup')m.anim.flash=Math.max(m.anim.flash,.01)}
 function dispose(grp){const g=shared();grp.traverse(o=>{if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose()}if(o.geometry&&!g.set.has(o.geometry))o.geometry.dispose();if(o.skeleton&&o.skeleton.boneTexture){o.skeleton.boneTexture.dispose();o.skeleton.boneTexture=null}})}
 // Cost of one figure: draw calls (visible meshes), vertices, materials and bones.
-function stats(m){let draws=0,verts=0,mats=0;m.grp.traverse(o=>{if(o.isMesh){mats++;if(o.visible){draws++;verts+=o.geometry.attributes.position.count}}});return {draws,verts,materials:mats,bones:m.bones?m.bones.length:0}}
+function stats(m){let draws=0,verts=0,mats=0;m.grp.traverse(o=>{if(o.isMesh){mats++;let visible=true;for(let p=o;p;p=p.parent)if(!p.visible){visible=false;break}if(visible){draws++;verts+=o.geometry.attributes.position.count}}});return {draws,verts,materials:mats,bones:m.bones?m.bones.length:0}}
 function textures(base){if(base&&TEX.state==='idle')TEX.base=base;return {state:TEX.state,base:TEX.base}}
 return {create:makeSentinel,dispose,pose,emote,prop,environment,BUSY,STATUSES,EMOTES,stats,textures,reducedMotion,tier:l=>Identity.tier(l)};
 })();
+
 
 
 // Interpretive knowledge landmarks, not blueprints for the six physical campus districts.
@@ -1954,7 +1988,7 @@ return {create:makeSentinel,dispose,pose,emote,prop,environment,BUSY,STATUSES,EM
 // Evidence: b_districts.js purpose/kit + current loaded notes; visual style reference:
 // docs/district-upgrade-evidence/desktop-world.jpg. No exact-image reconstruction claim.
 const DistrictAssets=(()=>{
-  const contract=Object.freeze({kind:'interpretive',reference:'docs/district-upgrade-evidence/desktop-world.jpg',authority:'AGENTS.md',maxDrawCalls:4,streetObstacles:0});
+  const contract=Object.freeze({kind:'interpretive',reference:'docs/district-upgrade-evidence/desktop-world.jpg',authority:'AGENTS.md',maxDrawCalls:3,streetObstacles:0});
   function recipe(theme){
     const parts=[];
     const add=(name,shape,size,p,material='metal',r=[0,0,0])=>parts.push({name,shape,size,p,material,r});
@@ -2008,6 +2042,65 @@ const DistrictAssets=(()=>{
         for(let i=0;i<3;i++){const a=i*Math.PI*2/3,x=Math.cos(a)*2.2,z=Math.sin(a)*2.2;cylinder('division-node-'+i,[.9,1.1,1.3],[x,1, z],'stone');ring('division-link-'+i,.83,1.72,'accent',[Math.PI/2,0,0],[x,1.72,z]);const b=(i+1)*Math.PI*2/3,xx=Math.cos(b)*2.2,zz=Math.sin(b)*2.2,len=Math.hypot(xx-x,zz-z);box('shared-engagement-'+i,[len,.12,.16],[(x+xx)/2,1.3,(z+zz)/2],'metal',[0,-Math.atan2(zz-z,xx-x),0])}cylinder('engagement-core',[.35,.45,2.2],[0,1.4,0],'accent');ring('mandate-crown',.58,2.5);break;
       default: return [];
     }
+    // The working exhibit sits inside a district-specific piece of architecture.
+    // These are navigable knowledge landmarks, not additional company facilities.
+    parts.forEach(p=>p.p[1]+=.48);
+    box('terrace-shadow-course',[9.2,.18,7.2],[0,.09,0],'metal');
+    box('terrace-stone-course',[9,.3,7],[0,.33,0],'stone');
+    for(let i=0;i<3;i++)box('arrival-stair-'+i,[3.6,.12, .35],[0,.06+i*.12,4.05-i*.35],'stone');
+    for(const x of [-4.25,4.25])box('recessed-edge-light-'+x,[.035,.035,6.4],[x,.497,0],'accent');
+    // Each setting has its own skyline. None places a collider in a street.
+    const portal=(name,x,z,h,w,angle=0)=>{
+      for(const side of [-1,1])box(name+'-jamb-'+side,[.17,h,.22],[x+Math.cos(angle)*side*w/2,.48+h/2,z-Math.sin(angle)*side*w/2],'stone',[0,angle,0]);
+      box(name+'-lintel',[w+.17,.19,.24],[x,.48+h,z],'metal',[0,angle,0]);
+      box(name+'-light',[w-.2,.035,.04],[x,.36+h,z+.13],'accent',[0,angle,0]);
+    };
+    const fins=(name,count,h,z,spread=7)=>{for(let i=0;i<count;i++){const x=-spread/2+i*spread/(count-1);box(name+'-'+i,[.14,h,.45],[x,.48+h/2,z],'stone');box(name+'-cap-'+i,[.17,.06,.49],[x,.51+h,z],'metal')}};
+    const arc=(name,r,y,start,end,count)=>{for(let i=0;i<count;i++){const a=start+(end-start)*i/(count-1),x=Math.cos(a)*r,z=Math.sin(a)*r;box(name+'-rib-'+i,[.13,y,.35],[x,.48+y/2,z],'stone',[0,-a,0]);box(name+'-crown-'+i,[.2,.045,.39],[x,.51+y,z],'accent',[0,-a,0])}};
+    switch(theme){
+      case 'navigation':
+        arc('atlas-colonnade',3.15,2.4,Math.PI,Math.PI*2,11);portal('atlas-entry',0,2.7,2.7,3.1);break;
+      case 'council':
+        arc('council-chamber',3.4,3.6,Math.PI*.95,Math.PI*2.05,13);box('council-entablature',[7.5,.24,.8],[0,4.18,-2.4],'stone');break;
+      case 'foundry':
+        for(const z of [-2.3,2.3])portal('compute-vault-'+z,0,z,5.2,7.2);for(const x of [-3.6,3.6])box('foundry-trunk-'+x,[.12,.18,4.6],[x,5.74,0],'accent');break;
+      case 'workshop':
+        portal('workshop-service-frame',0,-2.5,4.5,7.5);for(let i=0;i<5;i++)box('sawtooth-roof-'+i,[1.22,.12,2],[-2.7+i*1.35,5.1,-1.9],'metal',[0,0,.18]);break;
+      case 'commons':
+        for(const x of [-3.7,3.7]){box('commons-bench-'+x,[.65,.5,4],[x,.76,0],'stone');box('commons-back-'+x,[.12,.7,4],[x+(x<0?-.27:.27),1.12,0],'metal')}
+        portal('commons-pergola',0,-2.8,3.6,7.5);for(let i=0;i<9;i++)box('pergola-louver-'+i,[.25,.12,2],[-3.6+i*.9,4.2,-1.9],'metal');break;
+      case 'control':
+        fins('operations-screen-wall',9,3.8,-2.5);box('operations-brow',[7.8,.26,1.2],[0,4.42,-2.1],'metal');for(const x of [-3.8,3.8])box('operations-wing-'+x,[.2,2.1,2],[x,1.53,-1.2],'stone');break;
+      case 'chamber':
+        portal('treasury-outer-portal',0,-1.8,5.0,7.5);portal('treasury-inner-portal',0,-1.5,4.55,6.65);for(const x of [-3.7,3.7])box('treasury-buttress-'+x,[.5,2.7,3.5],[x,1.83,.2],'stone');break;
+      case 'atelier':
+        for(let i=0;i<4;i++)box('atelier-floating-roof-'+i,[1.55,.1,2.7],[-2.7+i*1.8,4.8+i*.12,-1.6],'stone',[0,0,.1]);for(const x of [-3.7,3.7])box('atelier-thin-support-'+x,[.12,4.6,.14],[x,2.78,-2.7],'metal');break;
+      case 'observatory':
+        arc('observatory-windbreak',3.3,1.65,Math.PI*.85,Math.PI*2.15,15);for(const x of [-3.4,3.4])box('instrument-bench-'+x,[.7,.55,2.4],[x,.76,.9],'stone');break;
+      case 'yard':
+        for(const x of [-3.7,3.7]){box('yard-service-rail-'+x,[.12,.15,6],[x,.58,0],'metal');for(let i=0;i<6;i++)box('yard-sleeper-'+x+'-'+i,[.55,.07,.2],[x,.49,-2.5+i],'stone')}
+        portal('delivery-yard-gate',0,-2.7,3.8,7.5);break;
+      case 'stacks':
+        portal('archive-portico-back',0,-2.7,4.7,7.6);portal('archive-portico-front',0,2.6,4.7,7.6);for(let i=0;i<7;i++)box('archive-roof-rib-'+i,[.18,.25,5.6],[-3.5+i*7/6,5.27,0],'stone');break;
+      case 'lab':
+        for(const x of [-3.5,3.5])portal('lab-calibration-frame-'+x,x,0,4.7,5.2,Math.PI/2);box('lab-overhead-sensor',[7.2,.2,.6],[0,5.24,-2.3],'metal');break;
+      case 'log':
+        arc('chronicle-radial-wall',3.4,2.1,Math.PI,Math.PI*2,13);for(let i=0;i<7;i++)box('chronicle-date-step-'+i,[.5,.12+i*.09,1],[-3+i, .54+i*.045,2.6],i===3?'accent':'stone');break;
+      case 'integrations':
+        for(const x of [-3.7,3.7]){portal('gateway-side-'+x,x,0,4.6,4.7,Math.PI/2);box('gateway-conduit-'+x,[.12,.1,4.8],[x,5.21,0],'accent')}
+        box('gateway-crosslink',[7.6,.25,.4],[0,5.25,-2.4],'metal');break;
+      case 'academy':
+        for(let i=0;i<3;i++)portal('academy-learning-arch-'+i,0,-2.8+i*.45,4.5-i*.17,7.6-i*.35);break;
+      case 'governance':
+        for(const x of [-3.6,3.6]){box('review-pier-'+x,[.6,4.8,.65],[x,2.88,-2.4],'stone');box('review-capital-'+x,[.95,.22,.95],[x,5.36,-2.4],'metal')}
+        box('review-pediment',[8,.35,1],[0,5.62,-2.4],'stone');break;
+      case 'delivery':
+        fins('delivery-loading-screen',7,2.2,-2.6);for(const x of [-3.9,3.9])box('delivery-bay-marker-'+x,[.15,3.4,.3],[x,2.18,2.4],'accent');break;
+      case 'infrastructure':
+        for(let i=0;i<3;i++)portal('utility-pipe-bridge-'+i,0,-2.5+i*.45,4.3+i*.12,7.8);for(const x of [-3.9,3.9])box('utility-service-bank-'+x,[.6,1.25,3.4],[x,1.105,.5],'stone');break;
+      case 'synergy':
+        for(let i=0;i<3;i++){const a=i*Math.PI*2/3,x=Math.cos(a)*3.2,z=Math.sin(a)*3.2;portal('synergy-participant-'+i,x,z,3.7,1.5,-a+Math.PI/2)}break;
+    }
     return parts;
   }
   function geometry(part){const s=part.size;switch(part.shape){case'box':return new THREE.BoxGeometry(...s);case'cylinder':return new THREE.CylinderGeometry(s[0],s[1],s[2],16);case'torus':return new THREE.TorusGeometry(s[0],s[1],6,32);default:throw new Error('Unsupported landmark part')}}
@@ -2017,12 +2110,21 @@ const DistrictAssets=(()=>{
     districts.forEach(d=>{
       const identity=typeof Districts!=='undefined'?Districts.get(d.top):null;if(!identity)return;
       const choices=buildings.filter(b=>b&&notes[b.id]&&(Districts.worldTop?Districts.worldTop(notes[b.id]):notes[b.id].top)===d.top).sort((a,b)=>{const ta=a.tiers.at(-1),tb=b.tiers.at(-1);return tb.w*tb.d-ta.w*ta.d});
-      const anchor=choices[0];if(!anchor)return;const roof=anchor.tiers.at(-1),scale=Math.min(roof.w/9,roof.d/8,1.65);
-      const sources=Districts.landmarks(d.top,notes).map(n=>n.name);
-      const record={folder:d.top,title:identity.title,theme:identity.theme,noteId:anchor.id,sourceNotes:sources,x:roof.x,y:roof.y1+.04,z:roof.z,scale,partCount:0};records.push(record);
-      recipe(identity.theme).forEach(part=>{
+      const anchor=choices[0];if(!anchor)return;const roof=anchor.tiers.at(-1);
+      // Derive the fit from transformed geometry, including rotated supports and torus tubes.
+      // A fixed nominal footprint silently clips the larger architectural settings.
+      const assembly=recipe(identity.theme).map(part=>{
         const raw=geometry(part),geo=raw.index?raw.toNonIndexed():raw;if(geo!==raw)raw.dispose();
-        const obj=new THREE.Object3D();obj.position.set(...part.p);obj.rotation.set(...part.r);obj.updateMatrix();geo.applyMatrix4(obj.matrix);geo.scale(scale,scale,scale);geo.translate(record.x,record.y,record.z);
+        const obj=new THREE.Object3D();obj.position.set(...part.p);obj.rotation.set(...part.r);obj.updateMatrix();geo.applyMatrix4(obj.matrix);geo.computeBoundingBox();return {part,geo};
+      });
+      if(!assembly.length)return;
+      const bounds=new THREE.Box3();assembly.forEach(p=>bounds.union(p.geo.boundingBox));
+      const width=2*Math.max(Math.abs(bounds.min.x),Math.abs(bounds.max.x)),depth=2*Math.max(Math.abs(bounds.min.z),Math.abs(bounds.max.z));
+      const scale=Math.min(roof.w/(width+.5),roof.d/(depth+.5),1.65);
+      const sources=Districts.landmarks(d.top,notes).map(n=>n.name);
+      const record={folder:d.top,title:identity.title,theme:identity.theme,noteId:anchor.id,sourceNotes:sources,x:roof.x,y:roof.y1+.04,z:roof.z,scale,height:bounds.max.y*scale,partCount:0};records.push(record);
+      assembly.forEach(({part,geo})=>{
+        geo.scale(scale,scale,scale);geo.translate(record.x,record.y,record.z);
         const color=new THREE.Color(part.material==='accent'?d.color:colors[part.material]).convertSRGBToLinear();
         if(!buckets.has(part.material))buckets.set(part.material,[]);buckets.get(part.material).push({geo,color,record,name:part.name});record.partCount++;
       });
@@ -2042,6 +2144,7 @@ const DistrictAssets=(()=>{
   function dispose(group){if(!group)return;group.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}});if(group.parent)group.parent.remove(group)}
   return Object.freeze({contract,recipe,build,hit,dispose});
 })();
+
 
 // =====================================================================
 // The campus. Folders are districts, notes are buildings, links are cables.
@@ -2092,10 +2195,12 @@ const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 
 // Key states. "auto" blends between them from the real sun elevation (see SOL below); the three named ones are the manual presets.
 // haze: horizon band colour. moon: moonlight colour used as the "sun" light when the sun is down.
+// Daylight calibrated at city overview distance: retain surface contrast through haze.
+// Night/dusk exposure and district palette stay independent of this midday key.
 const MODES={
   dusk:{top:"#0f1733",mid:"#3a4577",bot:"#8a6a86",haze:"#c98a6e",sun:"#ff9a4d",sunI:3.6,dir:[.74,.3,.46],hSky:"#6f7fba",hGnd:"#3a2d3c",hI:.95,fog:"#6c5b7c",fogD:.00062,exp:1.1,win:1.5,ui:"dark",stars:.25,bloom:.55,cloud:.62,csh:.12},
   night:{top:"#03050d",mid:"#0b1230",bot:"#1b2650",haze:"#243052",sun:"#8fa8ff",sunI:.35,dir:[.5,.36,.5],hSky:"#283252",hGnd:"#0a0c16",hI:.7,fog:"#0a1024",fogD:.00105,exp:1.2,win:2.1,ui:"dark",stars:1,bloom:1,cloud:.4,csh:0},
-  day:{top:"#6ea4d6",mid:"#d7e7f4",bot:"#f6efe2",haze:"#f4e6cf",sun:"#fff6d8",sunI:2.5,dir:[.38,.78,.36],hSky:"#e7f1fb",hGnd:"#7ea15c",hI:.85,fog:"#e7f0e4",fogD:.00042,exp:1.02,win:.34,ui:"light",stars:0,bloom:.28,cloud:.28,csh:.16},
+  day:{top:"#6ea4d6",mid:"#d7e7f4",bot:"#f6efe2",haze:"#f4e6cf",sun:"#fff6d8",sunI:1.8,dir:[.38,.78,.36],hSky:"#e7f1fb",hGnd:"#7ea15c",hI:.65,fog:"#e7f0e4",fogD:.00018,exp:.92,win:.34,ui:"light",stars:0,bloom:.28,cloud:.28,csh:.16},
   dawn:{top:"#2a3a6e",mid:"#7a86b4",bot:"#e2a98c",haze:"#f0b08a",sun:"#ffc08a",sunI:2.6,dir:[.74,.3,.46],hSky:"#8c9ccc",hGnd:"#4a3d3c",hI:.9,fog:"#9a8a98",fogD:.0007,exp:1.05,win:1.0,ui:"dark",stars:.1,bloom:.4,cloud:.58,csh:.15}
 };
 const MODE_ORDER=["auto","dusk","night","day"];
@@ -2692,6 +2797,30 @@ function gableGeometry(){
   g.computeVertexNormals();
   return g;
 }
+// Local roof details stay within the crown footprint; they never alter walking collision.
+function crownDetails(t,style){
+  const parts=[],add=(x,y,z,sx,sy,sz,kind)=>parts.push({x,y,z,sx,sy,sz,kind});
+  const edge=.16,base=t.y1+.14;
+  // A cut stone coping protects each terrace, with a deliberate opening at its front.
+  add(t.x,base,t.z-t.d*.46,t.w*.94,.28,edge,"stone");
+  [-1,1].forEach(side=>add(t.x+side*t.w*.46,base,t.z,edge,.28,t.d*.94,"stone"));
+  if(style===1){
+    // Twin photovoltaic rafts and their raised service spine.
+    [-1,1].forEach(side=>add(t.x+side*t.w*.23,t.y1+.42,t.z,t.w*.34,.18,t.d*.68,"solar"));
+    add(t.x,t.y1+.38,t.z,t.w*.07,.48,t.d*.76,"metal");
+  }else if(style===3){
+    // Civic lantern: four bronze uprights beneath a floating pavilion cap.
+    [-1,1].forEach(x=>[-1,1].forEach(z=>add(t.x+x*t.w*.23,t.y1+1,t.z+z*t.d*.23,.12,2,.12,"metal")));
+    add(t.x,t.y1+2.05,t.z,t.w*.64,.18,t.d*.64,"metal");
+    add(t.x,t.y1+.2,t.z,t.w*.46,.22,t.d*.46,"solar");
+  }else{
+    // Stacked observatory crown, with a dark clerestory beneath its overhang.
+    add(t.x,t.y1+.55,t.z,t.w*.6,1.1,t.d*.6,"solar");
+    add(t.x,t.y1+1.15,t.z,t.w*.76,.16,t.d*.76,"metal");
+  }
+  return parts;
+}
+function pitchedRoofHeight(rise,depth,offset){return rise*Math.max(0,1-2*Math.abs(offset)/depth)}
 function instMesh(geo,mat,list,shadow){const m=new THREE.InstancedMesh(geo,mat,Math.max(1,list.length));m.count=list.length;const o=new THREE.Object3D();
   list.forEach((p,i)=>{o.position.set(p.x,p.y||0,p.z);o.rotation.set(p.rx||0,p.ry||0,0);o.scale.set(p.sx||1,p.sy||1,p.sz||1);o.updateMatrix();m.setMatrixAt(i,o.matrix);if(p.c)m.setColorAt(i,p.c)});
   m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.castShadow=!!shadow;m.receiveShadow=true;m.frustumCulled=false;return m}
@@ -2747,18 +2876,26 @@ function buildDecor(){
   const pl=[];DIST.forEach(d=>[[d.x+1.2,d.z+1.2],[d.x+d.w-1.2,d.z+1.2],[d.x+1.2,d.z+d.d-1.2],[d.x+d.w-1.2,d.z+d.d-1.2]].forEach(([x,z])=>{if(okCell(x,z,0))pl.push({x,z})}));
   const plG=new THREE.BoxGeometry(2.2,.7,2.2);plG.translate(0,.35,0);decor.add(instMesh(plG,M.planter,pl,false));
   decor.add(instMesh(canG,M.canopy,pl.map((p,i)=>({x:p.x,y:.3,z:p.z,sx:1,sy:.55,sz:1,c:tc.setHSL(.27,.4,.38).clone()})),false));
-  // pitched clay roofs on every ordinary note. Landmark notes keep the authored assembly.
+  // District-specific crowns and pitched roofs. Landmark notes keep their authored assembly.
+  const authoredRoofs=new Set(districtAssets?.userData.records.map(r=>r.noteId)||[]);
+  B.forEach(b=>{if(b){b.roofClearance=b.h;b.roofSupports=[];b.authoredRoof=false}});
+  (districtAssets?.userData.records||[]).forEach(r=>{if(B[r.noteId]){B[r.noteId].roofClearance=r.y+(r.height||0);B[r.noteId].authoredRoof=true}});
+  const crownStone=[],crownMetal=[],crownSolar=[];
   const gables=[],chimneys=[],ms=[],clay=lin("#9a3e28"),tint=new THREE.Color();
   B.forEach(b=>{
-    if(!b||districtAssets?.userData.records.some(r=>r.noteId===b.id))return;
+    if(!b||authoredRoofs.has(b.id))return;
     const t=b.tiers[b.tiers.length-1];
     if(Math.min(t.w,t.d)<2.2)return;
     const along=t.w>=t.d,span=along?t.w:t.d,depth=along?t.d:t.w,rise=Math.min(4.6,Math.max(1.15,depth*.55));
     const col=(typeof Districts!=="undefined"?Districts.get(b.worldTop)?.color:null)||FOLDER_COLORS[b.worldTop]||"#9a3e28";
+    if(b.h>=15&&[1,3,4].includes(b.style)){
+      crownDetails(t,b.style).forEach(p=>{p.id=b.id;p.c=p.kind==="metal"?lin(col).lerp(lin("#b8ab8c"),.65):undefined;(p.kind==="stone"?crownStone:p.kind==="solar"?crownSolar:crownMetal).push(p)});
+      return;
+    }
     gables.push({id:b.id,x:t.x,y:t.y1,z:t.z,ry:along?0:Math.PI/2,sx:span*1.04,sy:rise,sz:depth*1.06,c:clay.clone().lerp(tint.copy(lin(col)),.28)});
     const nm=NOTES[b.id].name;
     if(R(nm+"ch")>.38){const ox=(R(nm+"cx")-.5)*span*.45,oz=(R(nm+"cz")-.5)*depth*.2,ch=.7+R(nm+"chh")*.9;
-      chimneys.push({id:b.id,x:t.x+(along?ox:oz),y:t.y1+rise*.62,z:t.z+(along?oz:-ox),sx:.42,sy:ch,sz:.42})}
+      chimneys.push({id:b.id,x:t.x+(along?ox:oz),y:t.y1+pitchedRoofHeight(rise,depth,oz)-.06,z:t.z+(along?oz:-ox),sx:.42,sy:ch,sz:.42})}
     if(b.h>28&&R(nm+"m")>.55){const mh=3+R(nm+"mh")*4;ms.push({id:b.id,x:t.x,y:t.y1+rise,z:t.z,sx:1,sy:mh,sz:1});halo.push(t.x,t.y1+rise+mh+.15,t.z);hTh.push(R(nm+"ph"));hK.push(1)}
   });
   if(!DMAT.thatch)DMAT.thatch=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:0});
@@ -2768,10 +2905,19 @@ function buildDecor(){
   const chimneyMesh=instMesh(chimG,DMAT.brick,chimneys,false);
   const mastG=new THREE.CylinderGeometry(.06,.12,1,5);mastG.translate(0,.5,0);
   const mastMesh=instMesh(mastG,M.mast,ms,false);
-  roofProps.add(gableMesh,chimneyMesh,mastMesh);
+  const crownG=new THREE.BoxGeometry(1,1,1);
+  const stoneMesh=instMesh(crownG,M.planter,crownStone,HI),metalMesh=instMesh(crownG.clone(),M.hvac,crownMetal,HI),solarMesh=instMesh(crownG.clone(),M.solar,crownSolar,false);
+  roofProps.add(gableMesh,chimneyMesh,mastMesh,stoneMesh,metalMesh,solarMesh);
+  // Track actual geometry bounds, not the building's original rectangular base.
+  [gables,chimneys,ms].forEach(list=>list.forEach(p=>{B[p.id].roofClearance=Math.max(B[p.id].roofClearance,p.y+p.sy)}));
+  [crownStone,crownMetal,crownSolar].forEach(list=>list.forEach(p=>{B[p.id].roofClearance=Math.max(B[p.id].roofClearance,p.y+p.sy*.5)}));
+  gables.forEach(p=>B[p.id].roofSupports.push({...p,kind:"gable"}));
+  chimneys.forEach(p=>B[p.id].roofSupports.push({...p,kind:"box",top:p.y+p.sy}));
+  ms.forEach(p=>B[p.id].roofSupports.push({...p,sx:.24,sz:.24,kind:"box",top:p.y+p.sy}));
+  [crownStone,crownMetal,crownSolar].forEach(list=>list.forEach(p=>B[p.id].roofSupports.push({...p,kind:"box",top:p.y+p.sy*.5})));
   roofAnim=[];
   const track=(mesh,list)=>list.forEach((p,i)=>roofAnim.push({mesh,i,id:p.id,x:p.x,y:p.y||0,z:p.z,ry:p.ry||0,sx:p.sx||1,sy:p.sy||1,sz:p.sz||1}));
-  track(gableMesh,gables);track(chimneyMesh,chimneys);track(mastMesh,ms);
+  track(gableMesh,gables);track(chimneyMesh,chimneys);track(mastMesh,ms);track(stoneMesh,crownStone);track(metalMesh,crownMetal);track(solarMesh,crownSolar);
   writeRoofs();
   roofProps.visible=true;
   const hg=new THREE.BufferGeometry();hg.setAttribute("position",new THREE.Float32BufferAttribute(halo,3));hg.setAttribute("aTh",new THREE.Float32BufferAttribute(hTh,1));hg.setAttribute("aKind",new THREE.Float32BufferAttribute(hK,1));
@@ -2789,7 +2935,11 @@ function makeWater(){
     fragmentShader:"uniform vec3 uSky;uniform vec3 uSunCol;uniform float uSide;varying vec3 vW;\n#include <common>\n#include <fog_pars_fragment>\n"+SH_DECL+NOISE_GLSL+`
 float wh(vec2 p){return vn(p*0.09+uTime*vec2(0.035,0.02))*0.6+vn(p*0.23-uTime*vec2(0.02,0.045))*0.4;}
 void main(){
-  vec2 p=vW.xz;float e=0.8;
+  vec2 p=vW.xz;
+  // No sea fragments under the island: the very large water triangles otherwise
+  // compete with the ground depth at overview distances on software/mobile GPUs.
+  if(max(abs(p.x),abs(p.y))<uSide*0.5)discard;
+  float e=0.8;
   vec3 N=normalize(vec3(wh(p-vec2(e,0.0))-wh(p+vec2(e,0.0)),0.55,wh(p-vec2(0.0,e))-wh(p+vec2(0.0,e))));
   vec3 V=normalize(cameraPosition-vW);
   float fres=0.03+0.97*pow(1.0-max(dot(N,V),0.0),5.0);
@@ -2871,7 +3021,8 @@ function bridgeMat(col){
     fragmentShader:"uniform float time;uniform float prog;uniform vec3 col;varying vec2 vUv;void main(){if(vUv.x>prog)discard;float d=0.62+0.38*sin(vUv.x*80.0-time*2.4);gl_FragColor=vec4(col*(0.55+d*0.75),1.0);\n#include <tonemapping_fragment>\n#include <encodings_fragment>\n}"});
   return bridgeMats[col]=m;
 }
-function topOf(id){const b=B[id];return new THREE.Vector3(b.cx,b.h+.2,b.cz)}
+function rooftopAnchor(b){const t=b.tiers[b.tiers.length-1];return{x:t.x,z:t.z,y:Math.max(t.y1,b.roofClearance||t.y1)+.25,w:t.w,d:t.d}}
+function topOf(id){const r=rooftopAnchor(B[id]);return new THREE.Vector3(r.x,r.y,r.z)}
 function buildBridges(){
   clearBridges();if(sel<0)return;
   const n=NOTES[sel],b=B[sel];
@@ -2992,7 +3143,13 @@ function updateLabels(){
   });
   if(Campus.labelCands&&Campus.labelCands.length)cands.push(...Campus.labelCands);
   cands.sort((a,b)=>b.prio-a.prio);
-  const taken=[];let used=0;
+  const taken=[],viewport=stage.getBoundingClientRect();let used=0;
+  // Reserve only real HUD rectangles so NPC labels remain useful near the horizon.
+  ["#hint","#mini","#chips","#floor","#plate"].forEach(selector=>{
+    const el=$(selector);if(!el||el.hidden||!el.getClientRects().length)return;
+    const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
+    taken.push([r.left-viewport.left-6,r.top-viewport.top-6,r.right-viewport.left+6,r.bottom-viewport.top+6]);
+  });
   cands.forEach(c=>{
     _v.set(c.x-cp.x,c.y-cp.y,c.z-cp.z);if(_v.dot(_f)<2)return;
     _v.set(c.x,c.y,c.z).project(camera);if(Math.abs(_v.x)>1.02||Math.abs(_v.y)>1.02)return;
@@ -3109,7 +3266,37 @@ function sight(a,b){const d=Math.hypot(b[0]-a[0],b[1]-a[1]),k=Math.ceil(d/(NAV.c
 const AG=new Map(),pulses=new Map(),bubbles=new Map(),floaters=[],bursts=[];let agentGroup=null,lastAgents=[],levels=new Map();
 const LIVE_ST=["working","writing","reading","thinking","reviewing"];
 function disposeSentinel(m){SentinelMesh.dispose(m.grp);agentGroup.remove(m.grp);if(m.link){m.link.geometry.dispose();m.link.material.dispose();agentGroup.remove(m.link)}}
-function roofSlot(n,slot,count){const b=B[n.id],r=Math.min(Math.max(b.fw,b.fd)*.5-1.2,2.8+count*.3);const a=slot*(2*Math.PI/Math.max(count,1))+hash01(NOTES[n.id].name)*6;return new THREE.Vector3(b.cx+Math.cos(a)*Math.max(.8,r),b.h,b.cz+Math.sin(a)*Math.max(.8,r))}
+function roofSurfaceAt(b,x,z){
+  let y=b.tiers[b.tiers.length-1].y1;
+  (b.roofSupports||[]).forEach(p=>{
+    const dx=x-p.x,dz=z-p.z,c=Math.cos(p.ry||0),s=Math.sin(p.ry||0),lx=c*dx-s*dz,lz=s*dx+c*dz;
+    if(Math.abs(lx)>p.sx/2||Math.abs(lz)>p.sz/2)return;
+    y=Math.max(y,p.kind==="gable"?p.y+pitchedRoofHeight(p.sy,p.sz,lz):p.top);
+  });
+  return y;
+}
+function roofSlot(n,slot,count){
+  const b=B[n.id],roof=rooftopAnchor(b),a=slot*(2*Math.PI/Math.max(count,1))+hash01(NOTES[n.id].name)*6;
+  let x,z;
+  if(b.authoredRoof){
+    // Authored geometry is fitted inside a padded crown. Use its uncovered perimeter.
+    const c=Math.cos(a),s=Math.sin(a),edge=Math.max(Math.abs(c),Math.abs(s));
+    x=roof.x+c/edge*Math.max(.01,roof.w*.5-.01);z=roof.z+s/edge*Math.max(.01,roof.d*.5-.01);
+  }else{
+    const radius=Math.max(.12,Math.min(roof.w,roof.d)*.5-.65);
+    x=roof.x+Math.cos(a)*radius;z=roof.z+Math.sin(a)*radius;
+  }
+  return new THREE.Vector3(x,roofSurfaceAt(b,x,z),z);
+}
+function stepRoofSurface(m,dt){
+  const dx=m.roof.x-m.pos.x,dz=m.roof.z-m.pos.z,d=Math.hypot(dx,dz),step=Math.min(d,dt*6);
+  if(d>.001){m.pos.x+=dx/d*step;m.pos.z+=dz/d*step;m.grp.rotation.y=Math.atan2(dx,dz)}
+  const growth=growthOf(m.home.id);
+  m.roof.y=roofSurfaceAt(m.home,m.roof.x,m.roof.z)*growth;
+  // Sample support along the whole crossing, including ridges between two low slots.
+  m.pos.y=roofSurfaceAt(m.home,m.pos.x,m.pos.z)*growth;
+  m.grp.position.copy(m.pos);return d>.08;
+}
 function setAgents(list){
   lastAgents=list||[];if(!agentGroup)return;const seen=new Set(),counts=new Map();
   lastAgents.forEach(a=>{if(a.note&&!a.position){const n=byName.get(a.note);if(n&&B[n.id])counts.set(n.id,(counts.get(n.id)||0)+1)}});
@@ -3118,7 +3305,7 @@ function setAgents(list){
     seen.add(a.id);const n=a.note?byName.get(a.note):null,b=n?B[n.id]:null;let m=AG.get(a.id);
     const level=a.level??levels.get(a.levelKey||a.id)??0;
     const signature=JSON.stringify([Identity.form(a.form||'agent'),Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],a.form||'agent'),a.symbol,a.ownerColor,a.ownerBadge,level]);
-    if(m&&m.signature!==signature){const keep={pos:m.pos.clone(),noteId:m.noteId,path:m.path,leg:m.leg,phaseName:m.phaseName,lift:m.lift};disposeSentinel(m);AG.delete(a.id);m=null;m=SentinelMesh.create({...a,level});Object.assign(m,keep);agentGroup.add(m.grp);AG.set(a.id,m)}
+    if(m&&m.signature!==signature){const keep={pos:m.pos.clone(),noteId:m.noteId,path:m.path,leg:m.leg,phaseName:m.phaseName,lift:m.lift,home:m.home,roof:m.roof,pathT:m.pathT,from:m.from?.clone()};disposeSentinel(m);AG.delete(a.id);m=null;m=SentinelMesh.create({...a,level});Object.assign(m,keep);agentGroup.add(m.grp);AG.set(a.id,m)}
     if(!m){m=SentinelMesh.create({...a,level});agentGroup.add(m.grp);AG.set(a.id,m);m.phaseName='new'}
     m.info=a;
     if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){
@@ -3135,7 +3322,8 @@ function setAgents(list){
           else{m.path=route(from.x,from.z,b.door.x,b.door.z);m.phaseName='street';m.pos.set(from.x,0,from.z)}
           m.leg=0;m.pathT=time}
         m.noteId=n.id;m.roof=tgt;m.home=b;
-      }else if(m.phaseName==='roof'){m.roof=tgt;if(m.pos.distanceTo(tgt)>.05)m.pos.lerp(tgt,.2)}
+      }
+      m.home=b;m.roof=tgt;
       m.grp.visible=true;m.ring.scale.setScalar(2.2);
     }else{m.grp.visible=false;m.noteId=-1;m.path=null;m.phaseName='new'}
     m.grp.position.copy(m.pos);
@@ -3168,10 +3356,10 @@ function stepAgents(dt){
       const speed=Math.max(14,pathLength(m.path,m.pos)/14)*dt;let left=speed;
       while(left>0&&m.leg<m.path.length){const [tx,tz]=m.path[m.leg];const dx=tx-m.pos.x,dz=tz-m.pos.z,d=Math.hypot(dx,dz);if(d<=left){m.pos.x=tx;m.pos.z=tz;left-=d;m.leg++}else{m.pos.x+=dx/d*left;m.pos.z+=dz/d*left;const yaw=Math.atan2(dx,dz);m.grp.rotation.y+=(((yaw-m.grp.rotation.y+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI)*Math.min(1,dt*10);left=0}}
       m.pos.y=0;m.grp.position.copy(m.pos);
-      if(m.leg>=m.path.length){m.phaseName='lift';m.pathT=time;m.lift={from:0,to:m.home.h,x:m.pos.x,z:m.pos.z,h:m.home.h}}
+      if(m.leg>=m.path.length){m.phaseName='lift';m.pathT=time;m.lift={from:0,to:m.roof.y,x:m.pos.x,z:m.pos.z,h:m.roof.y}}
       SentinelMesh.pose(m,time,'walking');return}
-    if(m.phaseName==='lift'){const k=clamp((time-m.pathT)/Math.max(.9,m.lift.h/20),0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.y=m.lift.h*e;m.grp.position.copy(m.pos);SentinelMesh.pose(m,time,'lifting',{beam:m.lift.h,beamBase:0});if(k>=1){m.phaseName='roof';m.pathT=time;m.from.copy(m.pos);m.pos.y=m.home.h}return}
-    if(m.phaseName==='roof'&&m.roof){const d=m.pos.distanceTo(m.roof);if(d>.08){const step=Math.min(d,dt*6);m.pos.lerp(m.roof,step/d);m.grp.position.copy(m.pos);const dx=m.roof.x-m.pos.x,dz=m.roof.z-m.pos.z;if(d>.4)m.grp.rotation.y=Math.atan2(dx,dz);SentinelMesh.pose(m,time,'walking');return}
+    if(m.phaseName==='lift'){const k=clamp((time-m.pathT)/Math.max(.9,m.lift.h/20),0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.y=m.lift.h*e;m.grp.position.copy(m.pos);SentinelMesh.pose(m,time,'lifting',{beam:m.lift.h,beamBase:0});if(k>=1){m.phaseName='roof';m.pathT=time;m.from.copy(m.pos);m.pos.y=m.roof.y}return}
+    if(m.phaseName==='roof'&&m.roof){if(stepRoofSurface(m,dt)){SentinelMesh.pose(m,time,'walking');return}
       if(!onRoof.has(m.noteId))onRoof.set(m.noteId,[]);onRoof.get(m.noteId).push(m)}
     if(a.position)status=a.position.walking?'walking':'viewing';
     if(a.local)status='viewing';
@@ -3421,6 +3609,7 @@ return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,foc
     // testing only: pin the local clock to a decimal hour (null restores the real clock) and recompute the sky
     setClock:h=>{SOL.clockOverride=h==null?null:+h;if(C.ok)applyMode("auto")}})};
 })();
+
 
 
 
@@ -3740,13 +3929,16 @@ const Guides=(()=>{
 #wd .wd-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-family:var(--mono);font-size:10.5px;color:var(--wmut);letter-spacing:.03em}
 #wd .wd-foot kbd{font-family:inherit;color:var(--wfg);border:1px solid var(--wline);border-radius:4px;padding:0 4px;margin-right:3px}
 #wd .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-#gPrompt{--c:#E8A33D;position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);z-index:29;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;background:rgba(9,12,22,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb,var(--c) 60%,transparent);color:#EEF0F6;font-family:var(--display);font-size:13.5px;opacity:0;transition:opacity .2s,transform .25s;box-shadow:0 10px 28px -10px var(--c)}
+#gPrompt{--c:#E8A33D;position:fixed;left:50%;bottom:calc(130px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);z-index:29;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;background:rgba(9,12,22,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb,var(--c) 60%,transparent);color:#EEF0F6;font-family:var(--display);font-size:13.5px;opacity:0;transition:opacity .2s,transform .25s;box-shadow:0 10px 28px -10px var(--c)}
 #gPrompt.on{opacity:1;transform:translate(-50%,0)}
-#gPrompt kbd{width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--c);color:#0B1020;font-family:var(--mono);font-weight:700;font-size:12px}
+body:has(.brief) #gPrompt{bottom:calc(230px + env(safe-area-inset-bottom,0px))}
+body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;pointer-events:none}
+#gPrompt kbd{flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--c);color:#0B1020;font-family:var(--mono);font-weight:700;font-size:12px}
 #gPrompt small{color:#97A0BA;font-family:var(--mono);font-size:10.5px}
 @media (hover:none){#gPrompt kbd{font-size:0}#gPrompt kbd::before{content:"●";font-size:11px}}
 @media (max-width:760px){
- #gPrompt{left:auto;right:10px;bottom:calc(52px + env(safe-area-inset-bottom,0px));max-width:min(230px,calc(100vw - 160px));transform:none;font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ #gPrompt{left:auto;right:10px;bottom:calc(var(--rbh) + 64px);max-width:min(230px,calc(100vw - 160px));transform:none;font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ body:has(.brief) #gPrompt{bottom:calc(var(--rbh) + 210px)}
  #gPrompt.on{transform:none}
  #gPrompt span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  #gPrompt small{display:none}
@@ -4048,6 +4240,7 @@ const Guides=(()=>{
   return {boot,render,bind,answer,reply,list,openFor,talk,close,ledger,current,CHIPS,isTalking:()=>D.open,still};
 })();
 (function(){const t=setInterval(()=>{if(typeof Campus!=="undefined"&&Campus.ok()){clearInterval(t);Guides.boot()}},300)})();
+
 
 // =====================================================================
 // Live layer: Supabase Postgres + Realtime.
@@ -4465,7 +4658,7 @@ const Journey = (() => {
     search.oninput=()=>{filter.query=search.value;filter.limit=40;renderResults()};content.append(search,controls,count,list);renderResults();
     nav.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.folder===selected));const def=Districts.get(b.dataset.folder);b.textContent=(def?.title||b.dataset.folder)+' · '+Districts.notesFor(b.dataset.folder,notes()).length;b.title=b.dataset.folder});
   }
-  function close(){if(dialog?.open)dialog.close();opener?.focus()}
+  function close(){if(dialog?.open)dialog.close();opener?.focus({preventScroll:true})}
   function show(folder){boot();if(Districts.get(folder))selected=folder;opener=document.activeElement;draw();if(!dialog.open)dialog.showModal();dialog.querySelector('.journey-close').focus();persist('visit')}
   function renderNav(){
     if(!nav)return;nav.replaceChildren();Districts.all.forEach(d=>{const b=button(d.title||d.folder,()=>{selected=d.folder;draw();persist('visit');dialog.scrollTop=0;b.scrollIntoView({block:'nearest',inline:'center'})});b.dataset.folder=d.folder;b.title=d.folder;b.setAttribute('aria-pressed',String(d.folder===selected));nav.append(b)});
@@ -4476,7 +4669,7 @@ const Journey = (() => {
     document.head.append(style);dialog=node('dialog',undefined,'journey-dialog');dialog.setAttribute('aria-labelledby','journey-title');
     const header=node('div',undefined,'journey-header');const title=node('h2','District navigator');title.id='journey-title';header.append(title,button('Close',close));header.lastChild.classList.add('journey-close');
     const layout=node('div',undefined,'journey-layout');nav=node('nav',undefined,'journey-nav');nav.setAttribute('aria-label','Knowledge districts');content=node('section',undefined,'journey-content');
-    renderNav();layout.append(nav,content);dialog.append(header,layout);dialog.addEventListener('close',()=>opener?.focus());dialog.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();close()}});document.body.append(dialog);loadCatalog();
+    renderNav();layout.append(nav,content);dialog.append(header,layout);dialog.addEventListener('close',()=>opener?.focus({preventScroll:true}));dialog.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();close()}});document.body.append(dialog);loadCatalog();
   }
   return {boot,show,close,loadCatalog,refresh:()=>{if(dialog?.open)draw()}};
 })();

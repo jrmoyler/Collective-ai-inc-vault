@@ -156,7 +156,7 @@ function draw(){models.forEach(m=>{scene.remove(m.grp);SentinelMesh.dispose(m.gr
   $('#ratio').innerHTML=(selected==='owners'?Identity.FORMS.agent.palette:colors).map(c=>`<i style="background:${c}"></i>`).join('');
   document.querySelectorAll('#roster button').forEach(b=>b.setAttribute('aria-pressed',mode==='single'&&b.dataset.build===selected));cost()}
 function cost(){if(!models.length)return;const s=SentinelMesh.stats(models[0]),tx=SentinelMesh.textures().state;
-  $('#cost').innerHTML=`<dt>Draw calls</dt><dd>${s.draws} per figure</dd><dt>Vertices</dt><dd>${s.verts.toLocaleString()}</dd><dt>Skeleton</dt><dd>${s.bones} bones, rigid skinning</dd><dt>Detail maps</dt><dd>${tx==='ready'?'Loaded':tx==='loading'?'Loading':tx==='failed'?'Unavailable, code-only shading':'Code-only shading'}</dd>`}
+  $('#cost').innerHTML=`<dt>Draw calls</dt><dd>${s.draws} per figure</dd><dt>Vertices</dt><dd>${s.verts.toLocaleString()}</dd><dt>Skeleton</dt><dd>${s.bones} bones, blended cape</dd><dt>Detail maps</dt><dd>${tx==='ready'?'Loaded':tx==='loading'?'Loading':tx==='failed'?'Unavailable, code-only shading':'Code-only shading'}</dd>`}
 function controls(){const labels=['Body · 60%','Armor · 30%','Accent · 10%'];
   $('#colors').innerHTML=selected==='owners'||mode==='lineup'?'<p style="color:var(--muted);font-size:13px;margin:0 0 14px">Pick a single build to edit its palette.</p>':colors.map((c,i)=>`<label>${labels[i]}<span class="swatch"><input type="color" data-picker="${i}" value="${c.toLowerCase()}" aria-label="${['Body','Armor','Accent'][i]} color picker"><input type="text" data-color="${i}" value="${c}" maxlength="7" spellcheck="false" aria-label="${['Body','Armor','Accent'][i]} hex code"></span></label>`).join('');
   document.querySelectorAll('[data-color]').forEach(input=>input.oninput=()=>{const ok=Identity.HEX.test(input.value);input.setAttribute('aria-invalid',!ok);if(ok){colors[+input.dataset.color]=input.value.toUpperCase();document.querySelector(`[data-picker="${input.dataset.color}"]`).value=input.value.toLowerCase();draw()}});
@@ -212,4 +212,5 @@ function frame(t){requestAnimationFrame(frame);const real=Math.min(.05,(t-previo
 requestAnimationFrame(frame);
 if(Q.get('emote'))setTimeout(()=>models.forEach(m=>SentinelMesh.emote(m,Q.get('emote'),clock)),Number(Q.get('emoteDelay')||400));
 </script></body></html>
+
 

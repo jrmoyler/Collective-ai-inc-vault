@@ -31,3 +31,22 @@ test('roof landmarks fit their note footprints and keep street navigation unchan
  }
  assert.equal(assets.contract.streetObstacles,0);assets.dispose(group);
 });
+
+
+test('architectural settings fit compact and narrow roofs after rotated parts are transformed',()=>{
+ const narrow=buildings.map((b,i)=>({...b,tiers:[{...b.tiers[0],w:i%2?2.1:18,d:i%2?14:2.4}]}));
+ const group=assets.build(districts,narrow,notes);
+ assert.equal(group.userData.records.length,19);
+ assert.ok(group.children.length<=assets.contract.maxDrawCalls);
+ for(const mesh of group.children){const a=mesh.geometry.attributes.position;
+  for(const range of mesh.userData.landmarkRanges){const roof=narrow[range.record.noteId].tiers[0];
+   for(let i=range.first*3;i<range.last*3;i++){
+    assert.ok(Number.isFinite(a.getX(i))&&Number.isFinite(a.getY(i))&&Number.isFinite(a.getZ(i)));
+    assert.ok(Math.abs(a.getX(i)-roof.x)<roof.w/2,range.record.theme+' narrow width');
+    assert.ok(Math.abs(a.getZ(i)-roof.z)<roof.d/2,range.record.theme+' narrow depth');
+    assert.ok(a.getY(i)>=roof.y1,range.record.theme+' above roof');
+   }
+  }
+ }
+ assets.dispose(group);
+});

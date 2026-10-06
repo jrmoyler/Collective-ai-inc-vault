@@ -47,10 +47,12 @@ const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 
 // Key states. "auto" blends between them from the real sun elevation (see SOL below); the three named ones are the manual presets.
 // haze: horizon band colour. moon: moonlight colour used as the "sun" light when the sun is down.
+// Daylight calibrated at city overview distance: retain surface contrast through haze.
+// Night/dusk exposure and district palette stay independent of this midday key.
 const MODES={
   dusk:{top:"#0f1733",mid:"#3a4577",bot:"#8a6a86",haze:"#c98a6e",sun:"#ff9a4d",sunI:3.6,dir:[.74,.3,.46],hSky:"#6f7fba",hGnd:"#3a2d3c",hI:.95,fog:"#6c5b7c",fogD:.00062,exp:1.1,win:1.5,ui:"dark",stars:.25,bloom:.55,cloud:.62,csh:.12},
   night:{top:"#03050d",mid:"#0b1230",bot:"#1b2650",haze:"#243052",sun:"#8fa8ff",sunI:.35,dir:[.5,.36,.5],hSky:"#283252",hGnd:"#0a0c16",hI:.7,fog:"#0a1024",fogD:.00105,exp:1.2,win:2.1,ui:"dark",stars:1,bloom:1,cloud:.4,csh:0},
-  day:{top:"#6ea4d6",mid:"#d7e7f4",bot:"#f6efe2",haze:"#f4e6cf",sun:"#fff6d8",sunI:2.5,dir:[.38,.78,.36],hSky:"#e7f1fb",hGnd:"#7ea15c",hI:.85,fog:"#e7f0e4",fogD:.00042,exp:1.02,win:.34,ui:"light",stars:0,bloom:.28,cloud:.28,csh:.16},
+  day:{top:"#6ea4d6",mid:"#d7e7f4",bot:"#f6efe2",haze:"#f4e6cf",sun:"#fff6d8",sunI:1.8,dir:[.38,.78,.36],hSky:"#e7f1fb",hGnd:"#7ea15c",hI:.65,fog:"#e7f0e4",fogD:.00018,exp:.92,win:.34,ui:"light",stars:0,bloom:.28,cloud:.28,csh:.16},
   dawn:{top:"#2a3a6e",mid:"#7a86b4",bot:"#e2a98c",haze:"#f0b08a",sun:"#ffc08a",sunI:2.6,dir:[.74,.3,.46],hSky:"#8c9ccc",hGnd:"#4a3d3c",hI:.9,fog:"#9a8a98",fogD:.0007,exp:1.05,win:1.0,ui:"dark",stars:.1,bloom:.4,cloud:.58,csh:.15}
 };
 const MODE_ORDER=["auto","dusk","night","day"];
@@ -647,6 +649,30 @@ function gableGeometry(){
   g.computeVertexNormals();
   return g;
 }
+// Local roof details stay within the crown footprint; they never alter walking collision.
+function crownDetails(t,style){
+  const parts=[],add=(x,y,z,sx,sy,sz,kind)=>parts.push({x,y,z,sx,sy,sz,kind});
+  const edge=.16,base=t.y1+.14;
+  // A cut stone coping protects each terrace, with a deliberate opening at its front.
+  add(t.x,base,t.z-t.d*.46,t.w*.94,.28,edge,"stone");
+  [-1,1].forEach(side=>add(t.x+side*t.w*.46,base,t.z,edge,.28,t.d*.94,"stone"));
+  if(style===1){
+    // Twin photovoltaic rafts and their raised service spine.
+    [-1,1].forEach(side=>add(t.x+side*t.w*.23,t.y1+.42,t.z,t.w*.34,.18,t.d*.68,"solar"));
+    add(t.x,t.y1+.38,t.z,t.w*.07,.48,t.d*.76,"metal");
+  }else if(style===3){
+    // Civic lantern: four bronze uprights beneath a floating pavilion cap.
+    [-1,1].forEach(x=>[-1,1].forEach(z=>add(t.x+x*t.w*.23,t.y1+1,t.z+z*t.d*.23,.12,2,.12,"metal")));
+    add(t.x,t.y1+2.05,t.z,t.w*.64,.18,t.d*.64,"metal");
+    add(t.x,t.y1+.2,t.z,t.w*.46,.22,t.d*.46,"solar");
+  }else{
+    // Stacked observatory crown, with a dark clerestory beneath its overhang.
+    add(t.x,t.y1+.55,t.z,t.w*.6,1.1,t.d*.6,"solar");
+    add(t.x,t.y1+1.15,t.z,t.w*.76,.16,t.d*.76,"metal");
+  }
+  return parts;
+}
+function pitchedRoofHeight(rise,depth,offset){return rise*Math.max(0,1-2*Math.abs(offset)/depth)}
 function instMesh(geo,mat,list,shadow){const m=new THREE.InstancedMesh(geo,mat,Math.max(1,list.length));m.count=list.length;const o=new THREE.Object3D();
   list.forEach((p,i)=>{o.position.set(p.x,p.y||0,p.z);o.rotation.set(p.rx||0,p.ry||0,0);o.scale.set(p.sx||1,p.sy||1,p.sz||1);o.updateMatrix();m.setMatrixAt(i,o.matrix);if(p.c)m.setColorAt(i,p.c)});
   m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.castShadow=!!shadow;m.receiveShadow=true;m.frustumCulled=false;return m}
@@ -702,18 +728,26 @@ function buildDecor(){
   const pl=[];DIST.forEach(d=>[[d.x+1.2,d.z+1.2],[d.x+d.w-1.2,d.z+1.2],[d.x+1.2,d.z+d.d-1.2],[d.x+d.w-1.2,d.z+d.d-1.2]].forEach(([x,z])=>{if(okCell(x,z,0))pl.push({x,z})}));
   const plG=new THREE.BoxGeometry(2.2,.7,2.2);plG.translate(0,.35,0);decor.add(instMesh(plG,M.planter,pl,false));
   decor.add(instMesh(canG,M.canopy,pl.map((p,i)=>({x:p.x,y:.3,z:p.z,sx:1,sy:.55,sz:1,c:tc.setHSL(.27,.4,.38).clone()})),false));
-  // pitched clay roofs on every ordinary note. Landmark notes keep the authored assembly.
+  // District-specific crowns and pitched roofs. Landmark notes keep their authored assembly.
+  const authoredRoofs=new Set(districtAssets?.userData.records.map(r=>r.noteId)||[]);
+  B.forEach(b=>{if(b){b.roofClearance=b.h;b.roofSupports=[];b.authoredRoof=false}});
+  (districtAssets?.userData.records||[]).forEach(r=>{if(B[r.noteId]){B[r.noteId].roofClearance=r.y+(r.height||0);B[r.noteId].authoredRoof=true}});
+  const crownStone=[],crownMetal=[],crownSolar=[];
   const gables=[],chimneys=[],ms=[],clay=lin("#9a3e28"),tint=new THREE.Color();
   B.forEach(b=>{
-    if(!b||districtAssets?.userData.records.some(r=>r.noteId===b.id))return;
+    if(!b||authoredRoofs.has(b.id))return;
     const t=b.tiers[b.tiers.length-1];
     if(Math.min(t.w,t.d)<2.2)return;
     const along=t.w>=t.d,span=along?t.w:t.d,depth=along?t.d:t.w,rise=Math.min(4.6,Math.max(1.15,depth*.55));
     const col=(typeof Districts!=="undefined"?Districts.get(b.worldTop)?.color:null)||FOLDER_COLORS[b.worldTop]||"#9a3e28";
+    if(b.h>=15&&[1,3,4].includes(b.style)){
+      crownDetails(t,b.style).forEach(p=>{p.id=b.id;p.c=p.kind==="metal"?lin(col).lerp(lin("#b8ab8c"),.65):undefined;(p.kind==="stone"?crownStone:p.kind==="solar"?crownSolar:crownMetal).push(p)});
+      return;
+    }
     gables.push({id:b.id,x:t.x,y:t.y1,z:t.z,ry:along?0:Math.PI/2,sx:span*1.04,sy:rise,sz:depth*1.06,c:clay.clone().lerp(tint.copy(lin(col)),.28)});
     const nm=NOTES[b.id].name;
     if(R(nm+"ch")>.38){const ox=(R(nm+"cx")-.5)*span*.45,oz=(R(nm+"cz")-.5)*depth*.2,ch=.7+R(nm+"chh")*.9;
-      chimneys.push({id:b.id,x:t.x+(along?ox:oz),y:t.y1+rise*.62,z:t.z+(along?oz:-ox),sx:.42,sy:ch,sz:.42})}
+      chimneys.push({id:b.id,x:t.x+(along?ox:oz),y:t.y1+pitchedRoofHeight(rise,depth,oz)-.06,z:t.z+(along?oz:-ox),sx:.42,sy:ch,sz:.42})}
     if(b.h>28&&R(nm+"m")>.55){const mh=3+R(nm+"mh")*4;ms.push({id:b.id,x:t.x,y:t.y1+rise,z:t.z,sx:1,sy:mh,sz:1});halo.push(t.x,t.y1+rise+mh+.15,t.z);hTh.push(R(nm+"ph"));hK.push(1)}
   });
   if(!DMAT.thatch)DMAT.thatch=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:0});
@@ -723,10 +757,19 @@ function buildDecor(){
   const chimneyMesh=instMesh(chimG,DMAT.brick,chimneys,false);
   const mastG=new THREE.CylinderGeometry(.06,.12,1,5);mastG.translate(0,.5,0);
   const mastMesh=instMesh(mastG,M.mast,ms,false);
-  roofProps.add(gableMesh,chimneyMesh,mastMesh);
+  const crownG=new THREE.BoxGeometry(1,1,1);
+  const stoneMesh=instMesh(crownG,M.planter,crownStone,HI),metalMesh=instMesh(crownG.clone(),M.hvac,crownMetal,HI),solarMesh=instMesh(crownG.clone(),M.solar,crownSolar,false);
+  roofProps.add(gableMesh,chimneyMesh,mastMesh,stoneMesh,metalMesh,solarMesh);
+  // Track actual geometry bounds, not the building's original rectangular base.
+  [gables,chimneys,ms].forEach(list=>list.forEach(p=>{B[p.id].roofClearance=Math.max(B[p.id].roofClearance,p.y+p.sy)}));
+  [crownStone,crownMetal,crownSolar].forEach(list=>list.forEach(p=>{B[p.id].roofClearance=Math.max(B[p.id].roofClearance,p.y+p.sy*.5)}));
+  gables.forEach(p=>B[p.id].roofSupports.push({...p,kind:"gable"}));
+  chimneys.forEach(p=>B[p.id].roofSupports.push({...p,kind:"box",top:p.y+p.sy}));
+  ms.forEach(p=>B[p.id].roofSupports.push({...p,sx:.24,sz:.24,kind:"box",top:p.y+p.sy}));
+  [crownStone,crownMetal,crownSolar].forEach(list=>list.forEach(p=>B[p.id].roofSupports.push({...p,kind:"box",top:p.y+p.sy*.5})));
   roofAnim=[];
   const track=(mesh,list)=>list.forEach((p,i)=>roofAnim.push({mesh,i,id:p.id,x:p.x,y:p.y||0,z:p.z,ry:p.ry||0,sx:p.sx||1,sy:p.sy||1,sz:p.sz||1}));
-  track(gableMesh,gables);track(chimneyMesh,chimneys);track(mastMesh,ms);
+  track(gableMesh,gables);track(chimneyMesh,chimneys);track(mastMesh,ms);track(stoneMesh,crownStone);track(metalMesh,crownMetal);track(solarMesh,crownSolar);
   writeRoofs();
   roofProps.visible=true;
   const hg=new THREE.BufferGeometry();hg.setAttribute("position",new THREE.Float32BufferAttribute(halo,3));hg.setAttribute("aTh",new THREE.Float32BufferAttribute(hTh,1));hg.setAttribute("aKind",new THREE.Float32BufferAttribute(hK,1));
@@ -744,7 +787,11 @@ function makeWater(){
     fragmentShader:"uniform vec3 uSky;uniform vec3 uSunCol;uniform float uSide;varying vec3 vW;\n#include <common>\n#include <fog_pars_fragment>\n"+SH_DECL+NOISE_GLSL+`
 float wh(vec2 p){return vn(p*0.09+uTime*vec2(0.035,0.02))*0.6+vn(p*0.23-uTime*vec2(0.02,0.045))*0.4;}
 void main(){
-  vec2 p=vW.xz;float e=0.8;
+  vec2 p=vW.xz;
+  // No sea fragments under the island: the very large water triangles otherwise
+  // compete with the ground depth at overview distances on software/mobile GPUs.
+  if(max(abs(p.x),abs(p.y))<uSide*0.5)discard;
+  float e=0.8;
   vec3 N=normalize(vec3(wh(p-vec2(e,0.0))-wh(p+vec2(e,0.0)),0.55,wh(p-vec2(0.0,e))-wh(p+vec2(0.0,e))));
   vec3 V=normalize(cameraPosition-vW);
   float fres=0.03+0.97*pow(1.0-max(dot(N,V),0.0),5.0);
@@ -826,7 +873,8 @@ function bridgeMat(col){
     fragmentShader:"uniform float time;uniform float prog;uniform vec3 col;varying vec2 vUv;void main(){if(vUv.x>prog)discard;float d=0.62+0.38*sin(vUv.x*80.0-time*2.4);gl_FragColor=vec4(col*(0.55+d*0.75),1.0);\n#include <tonemapping_fragment>\n#include <encodings_fragment>\n}"});
   return bridgeMats[col]=m;
 }
-function topOf(id){const b=B[id];return new THREE.Vector3(b.cx,b.h+.2,b.cz)}
+function rooftopAnchor(b){const t=b.tiers[b.tiers.length-1];return{x:t.x,z:t.z,y:Math.max(t.y1,b.roofClearance||t.y1)+.25,w:t.w,d:t.d}}
+function topOf(id){const r=rooftopAnchor(B[id]);return new THREE.Vector3(r.x,r.y,r.z)}
 function buildBridges(){
   clearBridges();if(sel<0)return;
   const n=NOTES[sel],b=B[sel];
@@ -947,7 +995,13 @@ function updateLabels(){
   });
   if(Campus.labelCands&&Campus.labelCands.length)cands.push(...Campus.labelCands);
   cands.sort((a,b)=>b.prio-a.prio);
-  const taken=[];let used=0;
+  const taken=[],viewport=stage.getBoundingClientRect();let used=0;
+  // Reserve only real HUD rectangles so NPC labels remain useful near the horizon.
+  ["#hint","#mini","#chips","#floor","#plate"].forEach(selector=>{
+    const el=$(selector);if(!el||el.hidden||!el.getClientRects().length)return;
+    const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
+    taken.push([r.left-viewport.left-6,r.top-viewport.top-6,r.right-viewport.left+6,r.bottom-viewport.top+6]);
+  });
   cands.forEach(c=>{
     _v.set(c.x-cp.x,c.y-cp.y,c.z-cp.z);if(_v.dot(_f)<2)return;
     _v.set(c.x,c.y,c.z).project(camera);if(Math.abs(_v.x)>1.02||Math.abs(_v.y)>1.02)return;
@@ -1064,7 +1118,37 @@ function sight(a,b){const d=Math.hypot(b[0]-a[0],b[1]-a[1]),k=Math.ceil(d/(NAV.c
 const AG=new Map(),pulses=new Map(),bubbles=new Map(),floaters=[],bursts=[];let agentGroup=null,lastAgents=[],levels=new Map();
 const LIVE_ST=["working","writing","reading","thinking","reviewing"];
 function disposeSentinel(m){SentinelMesh.dispose(m.grp);agentGroup.remove(m.grp);if(m.link){m.link.geometry.dispose();m.link.material.dispose();agentGroup.remove(m.link)}}
-function roofSlot(n,slot,count){const b=B[n.id],r=Math.min(Math.max(b.fw,b.fd)*.5-1.2,2.8+count*.3);const a=slot*(2*Math.PI/Math.max(count,1))+hash01(NOTES[n.id].name)*6;return new THREE.Vector3(b.cx+Math.cos(a)*Math.max(.8,r),b.h,b.cz+Math.sin(a)*Math.max(.8,r))}
+function roofSurfaceAt(b,x,z){
+  let y=b.tiers[b.tiers.length-1].y1;
+  (b.roofSupports||[]).forEach(p=>{
+    const dx=x-p.x,dz=z-p.z,c=Math.cos(p.ry||0),s=Math.sin(p.ry||0),lx=c*dx-s*dz,lz=s*dx+c*dz;
+    if(Math.abs(lx)>p.sx/2||Math.abs(lz)>p.sz/2)return;
+    y=Math.max(y,p.kind==="gable"?p.y+pitchedRoofHeight(p.sy,p.sz,lz):p.top);
+  });
+  return y;
+}
+function roofSlot(n,slot,count){
+  const b=B[n.id],roof=rooftopAnchor(b),a=slot*(2*Math.PI/Math.max(count,1))+hash01(NOTES[n.id].name)*6;
+  let x,z;
+  if(b.authoredRoof){
+    // Authored geometry is fitted inside a padded crown. Use its uncovered perimeter.
+    const c=Math.cos(a),s=Math.sin(a),edge=Math.max(Math.abs(c),Math.abs(s));
+    x=roof.x+c/edge*Math.max(.01,roof.w*.5-.01);z=roof.z+s/edge*Math.max(.01,roof.d*.5-.01);
+  }else{
+    const radius=Math.max(.12,Math.min(roof.w,roof.d)*.5-.65);
+    x=roof.x+Math.cos(a)*radius;z=roof.z+Math.sin(a)*radius;
+  }
+  return new THREE.Vector3(x,roofSurfaceAt(b,x,z),z);
+}
+function stepRoofSurface(m,dt){
+  const dx=m.roof.x-m.pos.x,dz=m.roof.z-m.pos.z,d=Math.hypot(dx,dz),step=Math.min(d,dt*6);
+  if(d>.001){m.pos.x+=dx/d*step;m.pos.z+=dz/d*step;m.grp.rotation.y=Math.atan2(dx,dz)}
+  const growth=growthOf(m.home.id);
+  m.roof.y=roofSurfaceAt(m.home,m.roof.x,m.roof.z)*growth;
+  // Sample support along the whole crossing, including ridges between two low slots.
+  m.pos.y=roofSurfaceAt(m.home,m.pos.x,m.pos.z)*growth;
+  m.grp.position.copy(m.pos);return d>.08;
+}
 function setAgents(list){
   lastAgents=list||[];if(!agentGroup)return;const seen=new Set(),counts=new Map();
   lastAgents.forEach(a=>{if(a.note&&!a.position){const n=byName.get(a.note);if(n&&B[n.id])counts.set(n.id,(counts.get(n.id)||0)+1)}});
@@ -1073,7 +1157,7 @@ function setAgents(list){
     seen.add(a.id);const n=a.note?byName.get(a.note):null,b=n?B[n.id]:null;let m=AG.get(a.id);
     const level=a.level??levels.get(a.levelKey||a.id)??0;
     const signature=JSON.stringify([Identity.form(a.form||'agent'),Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],a.form||'agent'),a.symbol,a.ownerColor,a.ownerBadge,level]);
-    if(m&&m.signature!==signature){const keep={pos:m.pos.clone(),noteId:m.noteId,path:m.path,leg:m.leg,phaseName:m.phaseName,lift:m.lift};disposeSentinel(m);AG.delete(a.id);m=null;m=SentinelMesh.create({...a,level});Object.assign(m,keep);agentGroup.add(m.grp);AG.set(a.id,m)}
+    if(m&&m.signature!==signature){const keep={pos:m.pos.clone(),noteId:m.noteId,path:m.path,leg:m.leg,phaseName:m.phaseName,lift:m.lift,home:m.home,roof:m.roof,pathT:m.pathT,from:m.from?.clone()};disposeSentinel(m);AG.delete(a.id);m=null;m=SentinelMesh.create({...a,level});Object.assign(m,keep);agentGroup.add(m.grp);AG.set(a.id,m)}
     if(!m){m=SentinelMesh.create({...a,level});agentGroup.add(m.grp);AG.set(a.id,m);m.phaseName='new'}
     m.info=a;
     if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){
@@ -1090,7 +1174,8 @@ function setAgents(list){
           else{m.path=route(from.x,from.z,b.door.x,b.door.z);m.phaseName='street';m.pos.set(from.x,0,from.z)}
           m.leg=0;m.pathT=time}
         m.noteId=n.id;m.roof=tgt;m.home=b;
-      }else if(m.phaseName==='roof'){m.roof=tgt;if(m.pos.distanceTo(tgt)>.05)m.pos.lerp(tgt,.2)}
+      }
+      m.home=b;m.roof=tgt;
       m.grp.visible=true;m.ring.scale.setScalar(2.2);
     }else{m.grp.visible=false;m.noteId=-1;m.path=null;m.phaseName='new'}
     m.grp.position.copy(m.pos);
@@ -1123,10 +1208,10 @@ function stepAgents(dt){
       const speed=Math.max(14,pathLength(m.path,m.pos)/14)*dt;let left=speed;
       while(left>0&&m.leg<m.path.length){const [tx,tz]=m.path[m.leg];const dx=tx-m.pos.x,dz=tz-m.pos.z,d=Math.hypot(dx,dz);if(d<=left){m.pos.x=tx;m.pos.z=tz;left-=d;m.leg++}else{m.pos.x+=dx/d*left;m.pos.z+=dz/d*left;const yaw=Math.atan2(dx,dz);m.grp.rotation.y+=(((yaw-m.grp.rotation.y+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI)*Math.min(1,dt*10);left=0}}
       m.pos.y=0;m.grp.position.copy(m.pos);
-      if(m.leg>=m.path.length){m.phaseName='lift';m.pathT=time;m.lift={from:0,to:m.home.h,x:m.pos.x,z:m.pos.z,h:m.home.h}}
+      if(m.leg>=m.path.length){m.phaseName='lift';m.pathT=time;m.lift={from:0,to:m.roof.y,x:m.pos.x,z:m.pos.z,h:m.roof.y}}
       SentinelMesh.pose(m,time,'walking');return}
-    if(m.phaseName==='lift'){const k=clamp((time-m.pathT)/Math.max(.9,m.lift.h/20),0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.y=m.lift.h*e;m.grp.position.copy(m.pos);SentinelMesh.pose(m,time,'lifting',{beam:m.lift.h,beamBase:0});if(k>=1){m.phaseName='roof';m.pathT=time;m.from.copy(m.pos);m.pos.y=m.home.h}return}
-    if(m.phaseName==='roof'&&m.roof){const d=m.pos.distanceTo(m.roof);if(d>.08){const step=Math.min(d,dt*6);m.pos.lerp(m.roof,step/d);m.grp.position.copy(m.pos);const dx=m.roof.x-m.pos.x,dz=m.roof.z-m.pos.z;if(d>.4)m.grp.rotation.y=Math.atan2(dx,dz);SentinelMesh.pose(m,time,'walking');return}
+    if(m.phaseName==='lift'){const k=clamp((time-m.pathT)/Math.max(.9,m.lift.h/20),0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.y=m.lift.h*e;m.grp.position.copy(m.pos);SentinelMesh.pose(m,time,'lifting',{beam:m.lift.h,beamBase:0});if(k>=1){m.phaseName='roof';m.pathT=time;m.from.copy(m.pos);m.pos.y=m.roof.y}return}
+    if(m.phaseName==='roof'&&m.roof){if(stepRoofSurface(m,dt)){SentinelMesh.pose(m,time,'walking');return}
       if(!onRoof.has(m.noteId))onRoof.set(m.noteId,[]);onRoof.get(m.noteId).push(m)}
     if(a.position)status=a.position.walking?'walking':'viewing';
     if(a.local)status='viewing';
@@ -1376,5 +1461,6 @@ return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,foc
     // testing only: pin the local clock to a decimal hour (null restores the real clock) and recompute the sky
     setClock:h=>{SOL.clockOverride=h==null?null:+h;if(C.ok)applyMode("auto")}})};
 })();
+
 
 

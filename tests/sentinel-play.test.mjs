@@ -6,7 +6,9 @@ import {PGlite} from '@electric-sql/pglite';
 test('play migration awards XP through triggers only, keeps streaks and messages, and blocks client writes',async()=>{
  const db=new PGlite();
  try{
-  await db.exec(`create role anon;create role authenticated;create schema auth;
+  // Supabase uses UTC; PGlite otherwise inherits the host's database timezone.
+  // The migration compares activity UTC dates with task current_date.
+  await db.exec(`set timezone = 'UTC';create role anon;create role authenticated;create schema auth;
    create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
    grant usage on schema auth to authenticated;grant usage on schema public to authenticated;
    create table public.team_members(user_id uuid primary key,display_name text,role text default 'member');
@@ -41,3 +43,4 @@ test('play migration awards XP through triggers only, keeps streaks and messages
   await assert.rejects(()=>db.exec(`select award_xp('JR','human',1000,null,null,current_date)`),/permission denied/);
  }finally{await db.close()}
 });
+

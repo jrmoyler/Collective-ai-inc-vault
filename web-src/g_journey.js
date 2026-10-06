@@ -79,7 +79,7 @@ const Journey = (() => {
     search.oninput=()=>{filter.query=search.value;filter.limit=40;renderResults()};content.append(search,controls,count,list);renderResults();
     nav.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.folder===selected));const def=Districts.get(b.dataset.folder);b.textContent=(def?.title||b.dataset.folder)+' · '+Districts.notesFor(b.dataset.folder,notes()).length;b.title=b.dataset.folder});
   }
-  function close(){if(dialog?.open)dialog.close();opener?.focus()}
+  function close(){if(dialog?.open)dialog.close();opener?.focus({preventScroll:true})}
   function show(folder){boot();if(Districts.get(folder))selected=folder;opener=document.activeElement;draw();if(!dialog.open)dialog.showModal();dialog.querySelector('.journey-close').focus();persist('visit')}
   function renderNav(){
     if(!nav)return;nav.replaceChildren();Districts.all.forEach(d=>{const b=button(d.title||d.folder,()=>{selected=d.folder;draw();persist('visit');dialog.scrollTop=0;b.scrollIntoView({block:'nearest',inline:'center'})});b.dataset.folder=d.folder;b.title=d.folder;b.setAttribute('aria-pressed',String(d.folder===selected));nav.append(b)});
@@ -90,7 +90,7 @@ const Journey = (() => {
     document.head.append(style);dialog=node('dialog',undefined,'journey-dialog');dialog.setAttribute('aria-labelledby','journey-title');
     const header=node('div',undefined,'journey-header');const title=node('h2','District navigator');title.id='journey-title';header.append(title,button('Close',close));header.lastChild.classList.add('journey-close');
     const layout=node('div',undefined,'journey-layout');nav=node('nav',undefined,'journey-nav');nav.setAttribute('aria-label','Knowledge districts');content=node('section',undefined,'journey-content');
-    renderNav();layout.append(nav,content);dialog.append(header,layout);dialog.addEventListener('close',()=>opener?.focus());dialog.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();close()}});document.body.append(dialog);loadCatalog();
+    renderNav();layout.append(nav,content);dialog.append(header,layout);dialog.addEventListener('close',()=>opener?.focus({preventScroll:true}));dialog.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();close()}});document.body.append(dialog);loadCatalog();
   }
   return {boot,show,close,loadCatalog,refresh:()=>{if(dialog?.open)draw()}};
 })();

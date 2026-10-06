@@ -314,13 +314,16 @@ const Guides=(()=>{
 #wd .wd-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-family:var(--mono);font-size:10.5px;color:var(--wmut);letter-spacing:.03em}
 #wd .wd-foot kbd{font-family:inherit;color:var(--wfg);border:1px solid var(--wline);border-radius:4px;padding:0 4px;margin-right:3px}
 #wd .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-#gPrompt{--c:#E8A33D;position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);z-index:29;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;background:rgba(9,12,22,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb,var(--c) 60%,transparent);color:#EEF0F6;font-family:var(--display);font-size:13.5px;opacity:0;transition:opacity .2s,transform .25s;box-shadow:0 10px 28px -10px var(--c)}
+#gPrompt{--c:#E8A33D;position:fixed;left:50%;bottom:calc(130px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);z-index:29;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;background:rgba(9,12,22,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb,var(--c) 60%,transparent);color:#EEF0F6;font-family:var(--display);font-size:13.5px;opacity:0;transition:opacity .2s,transform .25s;box-shadow:0 10px 28px -10px var(--c)}
 #gPrompt.on{opacity:1;transform:translate(-50%,0)}
-#gPrompt kbd{width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--c);color:#0B1020;font-family:var(--mono);font-weight:700;font-size:12px}
+body:has(.brief) #gPrompt{bottom:calc(230px + env(safe-area-inset-bottom,0px))}
+body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;pointer-events:none}
+#gPrompt kbd{flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--c);color:#0B1020;font-family:var(--mono);font-weight:700;font-size:12px}
 #gPrompt small{color:#97A0BA;font-family:var(--mono);font-size:10.5px}
 @media (hover:none){#gPrompt kbd{font-size:0}#gPrompt kbd::before{content:"●";font-size:11px}}
 @media (max-width:760px){
- #gPrompt{left:auto;right:10px;bottom:calc(52px + env(safe-area-inset-bottom,0px));max-width:min(230px,calc(100vw - 160px));transform:none;font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ #gPrompt{left:auto;right:10px;bottom:calc(var(--rbh) + 64px);max-width:min(230px,calc(100vw - 160px));transform:none;font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ body:has(.brief) #gPrompt{bottom:calc(var(--rbh) + 210px)}
  #gPrompt.on{transform:none}
  #gPrompt span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  #gPrompt small{display:none}
@@ -622,3 +625,4 @@ const Guides=(()=>{
   return {boot,render,bind,answer,reply,list,openFor,talk,close,ledger,current,CHIPS,isTalking:()=>D.open,still};
 })();
 (function(){const t=setInterval(()=>{if(typeof Campus!=="undefined"&&Campus.ok()){clearInterval(t);Guides.boot()}},300)})();
+

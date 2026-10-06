@@ -12,6 +12,8 @@ jobs:
         with: { node-version: 22 }
       - run: pip install pyyaml
       - run: npm ci
+      - name: Install browser for interaction and HUD regression tests
+        run: npx playwright install --with-deps chromium
       - name: Sentinel identity and mesh regression tests
         run: npm test
       - name: Links resolve
@@ -20,3 +22,4 @@ jobs:
         run: python3 scripts/build_web.py && git diff --exit-code web/index.html web/sentinels.html
       - name: Scripts parse
         run: node --check scripts/agent.mjs && node --check mcp/stdio.mjs && for f in web-src/*.js; do node --check "$f"; done
+

@@ -1,6 +1,6 @@
 // Shared mesh factory used by the live city and the reference gallery.
-// Geometry comes from Identity.blueprint. Every plate is merged into five rigid-skinned meshes, one per surface
-// (body, armor, lit trim, joints, visor glass), driven by one 15-bone skeleton. A Sentinel costs 8 draw calls:
+// Geometry comes from Identity.blueprint. Every plate is merged into five skinned meshes, one per surface
+// (body, armor, lit trim, joints, visor glass), driven by one 15-bone skeleton. Armor is rigid; cape weights blend across the waist. A Sentinel costs 8 draw calls:
 // the five surfaces, the chest terminal, the compass ring and the aura ring (hidden below tier 2).
 // Props for a status (hologram slate, thought orbs, lift beam, data link) are added on demand and disposed with the figure.
 // Surface detail: tileable textures in assets/sentinels/ are sampled triplanar in bind-pose space, so the merged meshes need
@@ -81,7 +81,7 @@ function environment(renderer){
 // Common pieces: bind-pose position and normal for triplanar detail and the visor scan; a fresnel rim weighted toward
 // top edges; status-driven glow.
 const V_HEAD='attribute float glow;\nattribute float cloth;\nuniform float uTime;\nuniform float uSway;\nvarying float vGlow;\nvarying float vCloth;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
-const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vLocal=position;vLocalN=normal;\n\tfloat hem=smoothstep(4.35,2.55,position.y)*cloth;\n\ttransformed.x+=sin(uTime*1.7+position.x*1.8)*0.11*hem*uSway;\n\ttransformed.z+=sin(uTime*1.15+position.y)*0.045*hem*uSway;';
+const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vLocal=position;vLocalN=normal;\n\tfloat hem=(1.0-smoothstep(2.55,4.35,position.y))*cloth;\n\ttransformed.x+=sin(uTime*1.7+position.x*1.8)*0.11*hem*uSway;\n\ttransformed.z+=sin(uTime*1.15+position.y)*0.045*hem*uSway;';
 const F_HEAD=`uniform vec3 uRim;uniform float uRimGain;uniform float glowGain;uniform float uTime;uniform float uScan;uniform float uCircuit;
 uniform sampler2D tDetail;uniform sampler2D tCircuit;uniform sampler2D tIri;uniform float uTexOn;uniform float uIriOn;
 varying float vGlow;varying float vCloth;varying vec3 vLocal;varying vec3 vLocalN;
@@ -109,7 +109,7 @@ function surface(kind,U,opts){
 \tvec3 seamD=abs(fract(seamP-0.5)-0.5);vec3 seams=vec3(1.0)-smoothstep(vec3(0.015),vec3(0.015)+seamW,seamD);
 \tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.03':'0.012'}*(1.0-vCloth);
 \tdiffuseColor.rgb*=1.0-machining*0.22;
-\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(1.02,0.94,0.82)*(0.9+0.14*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);`);
+\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*(0.9+0.14*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);`);
     f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=mix(clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0),0.94,vCloth);');
     let em=RIM;
     if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
@@ -148,13 +148,16 @@ function put(t,geo,q,origin,col,glow,shade,bone){
   _m.compose(_p.set(origin[0]+q.x,origin[1]+q.y,origin[2]+q.z),_q.setFromEuler(_e.set(q.rx||0,0,q.rz||0)),_s.set(q.w,q.h,q.d));_n.getNormalMatrix(_m);
   const P=geo.attributes.position,N=geo.attributes.normal,E=geo.attributes.edge;
   for(let i=0;i<P.count;i++){const ly=P.getY(i),k=shade*(E.getX(i)?1.13:1)*(glow?1:.9+.2*(ly+.5));
-    _v.fromBufferAttribute(P,i).applyMatrix4(_m);t.pos.push(_v.x,_v.y,_v.z);_v.fromBufferAttribute(N,i).applyMatrix3(_n).normalize();t.nrm.push(_v.x,_v.y,_v.z);
-    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.cloth.push(q.k===5?1:0);t.bone.push(bone,0,0,0)}
+    _v.fromBufferAttribute(P,i).applyMatrix4(_m);t.pos.push(_v.x,_v.y,_v.z);const worldY=_v.y;_v.fromBufferAttribute(N,i).applyMatrix3(_n).normalize();t.nrm.push(_v.x,_v.y,_v.z);
+    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.cloth.push(q.k===5?1:0);// Blend the cape over the waist instead of breaking it into independently rotating slabs.
+    // Helmet fabric and the front tabard retain their rigid attachment.
+    if(q.k===5&&q.slot==='torso'&&q.z<0){const u=Math.max(0,Math.min(1,(worldY-3.05)/1.3)),w=u*u*(3-2*u);t.bone.push(HIPS,SPINE,0,0);t.weight.push(1-w,w,0,0)}
+    else{t.bone.push(bone,0,0,0);t.weight.push(1,0,0,0)}}
 }
-function geometryOf(t){const g=new THREE.BufferGeometry(),n=t.glow.length,w=new Float32Array(n*4);for(let i=0;i<n;i++)w[i*4]=1;
+function geometryOf(t){const g=new THREE.BufferGeometry(),w=new Float32Array(t.weight);
   g.setAttribute('position',new THREE.Float32BufferAttribute(t.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(t.nrm,3));g.setAttribute('color',new THREE.Float32BufferAttribute(t.col,3));
   g.setAttribute('glow',new THREE.Float32BufferAttribute(t.glow,1));g.setAttribute('cloth',new THREE.Float32BufferAttribute(t.cloth,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(t.bone,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(w,4));
-  g.computeBoundingSphere();g.boundingSphere.radius*=1.35;return g}
+  g.computeBoundingSphere();g.boundingSphere.radius+=2.5;return g}
 function terminal(a,f,pal){
   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=180;const ctx=canvas.getContext('2d');
   ctx.fillStyle=pal[0];ctx.fillRect(0,0,256,180);ctx.fillStyle=pal[2];
@@ -176,8 +179,8 @@ function makeSentinel(a){
   // Each plate gets its own shade (0.86 to 1.08) so neighboring panels read as separate pieces of metal.
   bp.parts.forEach((q,i)=>{
     const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
-    const shade=lit?1:.86+.22*hash(seed+i),col=q.k===5?tone[q.k].clone().lerp(lin('#C4A574'),.42):(kind==='armor'?white:tone[q.k]),origin=bp.pivots[q.slot]||[0,0,0];
-    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],bone:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
+    const shade=lit?1:.86+.22*hash(seed+i),col=kind==='armor'?white:tone[q.k],origin=bp.pivots[q.slot]||[0,0,0];
+    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],bone:[],weight:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
   });
   // bones in bind pose (no rotation), positioned relative to their parent
   const bones=BONES.map(name=>{const b=new THREE.Bone();b.name=name;return b});
@@ -185,7 +188,7 @@ function makeSentinel(a){
   grp.updateMatrixWorld(true);const skeleton=new THREE.Skeleton(bones),I=new THREE.Matrix4();
   const env=ENV?{envMap:ENV}:{},MATS={
     body:()=>surface('body',U,{roughness:.88,metalness:.02,envMapIntensity:.35,...env}),
-    armor:()=>surface('armor',U,{color:tone[1],roughness:.74,metalness:.05,envMapIntensity:.4,...env}),
+    armor:()=>surface('armor',U,{color:tone[1],roughness:.43,metalness:.55,envMapIntensity:.65,...env}),
     trim:()=>surface('trim',U,{roughness:.45,metalness:.04}),
     joint:()=>surface('joint',U,{roughness:.9,metalness:.02,envMapIntensity:.25,...env}),
     visor:()=>surface('visor',U,{roughness:.18,metalness:.12,...(ENV?{envMap:ENV,envMapIntensity:.35}:{})})};
@@ -306,11 +309,12 @@ const NOOPT={};
 function pose(m,t,status,opt){
   opt=opt||NOOPT;status=typeof status==='boolean'?(status?'walking':m.status||'idle'):(status||m.status||'idle');
   const a=m.anim;if(!a)return;const red=reducedNow(),ph=m.phase,T=a.T,S=a.S,V=a.V,P=a.P;
+  if(!Number.isFinite(t))return;
   let dt=t-a.t;const first=a.t<0||dt<0||dt>1;if(first)dt=1/60;a.t=t;
   if(m.pendingEmote){if(!red)emote(m,m.pendingEmote,t);m.pendingEmote=null}
   const moving=status==='walking';
   // ground speed from the figure's own travel; falls back to opt.speed for the gallery treadmill
-  const gx=m.grp.position.x,gz=m.grp.position.z;let v=first?0:Math.hypot(gx-a.px,gz-a.pz)/dt;a.px=gx;a.pz=gz;if(v>40)v=0;
+  const gx=m.grp.position.x,gz=m.grp.position.z;let v=first||dt<=0?0:Math.hypot(gx-a.px,gz-a.pz)/dt;a.px=gx;a.pz=gz;if(v>40)v=0;
   if(moving){const want=v>.3?v:(opt.speed!=null?opt.speed:(m.walkSpeed||3.4));a.speed+=(want-a.speed)*(first?1:rate(dt,4))}
   a.walkW+=((moving&&!red?1:0)-a.walkW)*(first?1:rate(dt,7));
   // status pose through a slightly underdamped spring: transitions settle with a small overshoot
@@ -385,8 +389,9 @@ function pose(m,t,status,opt){
 function emote(m,name,t){m.emote=name;m.emoteT=t;if(m.anim&&name==='levelup')m.anim.flash=Math.max(m.anim.flash,.01)}
 function dispose(grp){const g=shared();grp.traverse(o=>{if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose()}if(o.geometry&&!g.set.has(o.geometry))o.geometry.dispose();if(o.skeleton&&o.skeleton.boneTexture){o.skeleton.boneTexture.dispose();o.skeleton.boneTexture=null}})}
 // Cost of one figure: draw calls (visible meshes), vertices, materials and bones.
-function stats(m){let draws=0,verts=0,mats=0;m.grp.traverse(o=>{if(o.isMesh){mats++;if(o.visible){draws++;verts+=o.geometry.attributes.position.count}}});return {draws,verts,materials:mats,bones:m.bones?m.bones.length:0}}
+function stats(m){let draws=0,verts=0,mats=0;m.grp.traverse(o=>{if(o.isMesh){mats++;let visible=true;for(let p=o;p;p=p.parent)if(!p.visible){visible=false;break}if(visible){draws++;verts+=o.geometry.attributes.position.count}}});return {draws,verts,materials:mats,bones:m.bones?m.bones.length:0}}
 function textures(base){if(base&&TEX.state==='idle')TEX.base=base;return {state:TEX.state,base:TEX.base}}
 return {create:makeSentinel,dispose,pose,emote,prop,environment,BUSY,STATUSES,EMOTES,stats,textures,reducedMotion,tier:l=>Identity.tier(l)};
 })();
+
 
