@@ -320,7 +320,8 @@ const Guides=(()=>{
 #gPrompt small{color:#97A0BA;font-family:var(--mono);font-size:10.5px}
 @media (hover:none){#gPrompt kbd{font-size:0}#gPrompt kbd::before{content:"●";font-size:11px}}
 @media (max-width:760px){
- #gPrompt{bottom:calc(58px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 20px);font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ #gPrompt{left:auto;right:10px;bottom:calc(52px + env(safe-area-inset-bottom,0px));max-width:min(230px,calc(100vw - 160px));transform:none;font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ #gPrompt.on{transform:none}
  #gPrompt span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  #gPrompt small{display:none}
  #wd{bottom:calc(8px + env(safe-area-inset-bottom,0px));width:calc(100% - 16px)}

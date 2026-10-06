@@ -471,7 +471,7 @@ button,a,.chip2{touch-action:manipulation}
   .mini,.hint{display:none}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .props{grid-template-columns:90px minmax(0,1fr)}
-  .plate{top:auto;bottom:calc(var(--rbh) + 8px);left:8px;right:8px;width:auto;max-height:26vh;overflow:auto;padding:10px 36px 10px 12px}
+  .plate{top:auto;bottom:8px;left:8px;right:8px;width:auto;max-height:26vh;overflow:auto;padding:10px 36px 10px 12px}
   .plate h2{font-size:17px}
   .plate p{margin:2px 0 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .stage.walking .plate{display:none}
@@ -2072,7 +2072,7 @@ const FOG_GLSL=p=>`#ifdef USE_FOG
  gl_FragColor.rgb=mix(gl_FragColor.rgb,mix(fogColor,uSunFog,sa*0.8),ff);}
 #endif`;
 let districtAssets=null;
-let decor=null,roofProps=null,drones=null,motes=null,lampHalo=null,water=null,lastAmb=0;
+let decor=null,roofProps=null,roofAnim=[],drones=null,motes=null,lampHalo=null,water=null,lastAmb=0;
 const _c1=new THREE.Color(),_c2=new THREE.Color();
 const cam={tx:0,ty:0,tz:0,yaw:.5,pitch:.62,dist:700},goal=Object.assign({},cam);
 const shiftNow={x:0,y:0},shiftGoal={x:0,y:0};
@@ -2353,7 +2353,7 @@ function makeMaterial(){
   vec3 base=tex*(0.42+vBCol*3.4)*mix(1.0,0.9,top)*seam;
   base*=mix(1.0,1.6,coping)*(1.0+0.4*bev)*ao*cloudSh(vWPos.xz)*mix(1.0,0.72,uNight);
   float dayL=1.0-uNight;
-  float timber=max(smoothstep(0.455,0.5,abs(fract(u*0.38)-0.5)),smoothstep(0.47,0.5,abs(fract(vWPos.y*0.28)-0.5)));
+  float timber=max(smoothstep(0.40,0.48,abs(fract(u/2.5)-0.5)),smoothstep(0.44,0.49,abs(fract(vWPos.y/3.3)-0.5)));
   vec3 plaster=mix(vec3(0.84,0.76,0.64),vBTint.rgb,0.26);
   vec3 wallDay=mix(plaster,vec3(0.30,0.16,0.08),timber*0.92);
   base=mix(base,wallDay,dayL*0.88*wall);
@@ -2361,8 +2361,8 @@ function makeMaterial(){
   // glass: punched windows, the lobby, and on curtain-wall towers most of the face
   float glassM=max(w,lw);
   float reflM=wall*max(glassM,glassV*0.55*solid*(1.0-lobbyZ));
-  glassM*=mix(1.0,0.34,dayL);
-  reflM*=mix(1.0,0.18,dayL);
+  glassM*=mix(1.0,0.2,dayL);
+  reflM*=mix(1.0,0.08,dayL);
   diffuseColor.rgb=mix(base,vec3(0.010,0.013,0.024),glassM*mix(0.7,1.0,wk));
   roughnessFactor=mix(roughnessFactor,mix(0.42,0.6,step(0.5,variant)),wall);
   metalnessFactor=mix(metalnessFactor,0.35*step(1.5,variant)+0.12*glassV,wall);
@@ -2425,6 +2425,13 @@ function buildInstances(prev){
   inst.forEach((it,i)=>{const t=it.t;boxes.set([t.x-t.w/2,t.y0,t.z-t.d/2,t.x+t.w/2,t.y1,t.z+t.d/2],i*6);boxB[i]=it.b.id});
 }
 function ease(x){x=clamp(x,0,1);return 1-Math.pow(1-x,3)}
+function growthOf(id){if(introStart<0||!growth||growth[id]>=1)return 1;return ease((time-introStart-(delay?delay[id]:0))/1.15)}
+function writeRoofs(){
+  if(!roofAnim.length)return;
+  const o=new THREE.Object3D(),seen=new Set();
+  for(const r of roofAnim){const gg=growthOf(r.id);o.position.set(r.x,r.y*gg,r.z);o.rotation.set(0,r.ry,0);o.scale.set(r.sx,Math.max(.001,r.sy*gg),r.sz);o.updateMatrix();r.mesh.setMatrixAt(r.i,o.matrix);seen.add(r.mesh)}
+  seen.forEach(m=>{m.instanceMatrix.needsUpdate=true});
+}
 function writeMatrices(){
   const a=iMesh.instanceMatrix.array;
   for(let i=0;i<inst.length;i++){
@@ -2434,6 +2441,7 @@ function writeMatrices(){
     a[o]=t.w;a[o+1]=0;a[o+2]=0;a[o+3]=0;a[o+4]=0;a[o+5]=Math.max(.001,(t.y1-t.y0)*gg);a[o+6]=0;a[o+7]=0;a[o+8]=0;a[o+9]=0;a[o+10]=t.d;a[o+11]=0;a[o+12]=t.x;a[o+13]=t.y0*gg;a[o+14]=t.z;a[o+15]=1;
   }
   iMesh.instanceMatrix.needsUpdate=true;
+  writeRoofs();
 }
 function applyState(){
   const st=iMesh.geometry.attributes.aState,arr=st.array;
@@ -2731,30 +2739,37 @@ function buildDecor(){
   const plG=new THREE.BoxGeometry(2.2,.7,2.2);plG.translate(0,.35,0);decor.add(instMesh(plG,M.planter,pl,false));
   decor.add(instMesh(canG,M.canopy,pl.map((p,i)=>({x:p.x,y:.3,z:p.z,sx:1,sy:.55,sz:1,c:tc.setHSL(.27,.4,.38).clone()})),false));
   // pitched clay roofs on every ordinary note. Landmark notes keep the authored assembly.
-  const gables=[],chimneys=[],ms=[],clay=new THREE.Color("#9a3e28"),tint=new THREE.Color();
+  const gables=[],chimneys=[],ms=[],clay=lin("#9a3e28"),tint=new THREE.Color();
   B.forEach(b=>{
     if(!b||districtAssets?.userData.records.some(r=>r.noteId===b.id))return;
     const t=b.tiers[b.tiers.length-1];
     if(Math.min(t.w,t.d)<2.2)return;
-    const along=t.w>=t.d,span=along?t.w:t.d,depth=along?t.d:t.w,rise=Math.min(3.1,Math.max(.85,depth*.42));
+    const along=t.w>=t.d,span=along?t.w:t.d,depth=along?t.d:t.w,rise=Math.min(4.6,Math.max(1.15,depth*.55));
     const col=(typeof Districts!=="undefined"?Districts.get(b.worldTop)?.color:null)||FOLDER_COLORS[b.worldTop]||"#9a3e28";
-    gables.push({x:t.x,y:t.y1,z:t.z,ry:along?0:Math.PI/2,sx:span*1.04,sy:rise,sz:depth*1.06,c:clay.clone().lerp(tint.set(col),.28)});
+    gables.push({id:b.id,x:t.x,y:t.y1,z:t.z,ry:along?0:Math.PI/2,sx:span*1.04,sy:rise,sz:depth*1.06,c:clay.clone().lerp(tint.copy(lin(col)),.28)});
     const nm=NOTES[b.id].name;
     if(R(nm+"ch")>.38){const ox=(R(nm+"cx")-.5)*span*.45,oz=(R(nm+"cz")-.5)*depth*.2,ch=.7+R(nm+"chh")*.9;
-      chimneys.push({x:t.x+(along?ox:oz),y:t.y1+rise*.62,z:t.z+(along?oz:-ox),sx:.42,sy:ch,sz:.42})}
-    if(b.h>28&&R(nm+"m")>.55){const mh=3+R(nm+"mh")*4;ms.push({x:t.x,y:t.y1+rise,z:t.z,sy:mh});halo.push(t.x,t.y1+rise+mh+.15,t.z);hTh.push(R(nm+"ph"));hK.push(1)}
+      chimneys.push({id:b.id,x:t.x+(along?ox:oz),y:t.y1+rise*.62,z:t.z+(along?oz:-ox),sx:.42,sy:ch,sz:.42})}
+    if(b.h>28&&R(nm+"m")>.55){const mh=3+R(nm+"mh")*4;ms.push({id:b.id,x:t.x,y:t.y1+rise,z:t.z,sx:1,sy:mh,sz:1});halo.push(t.x,t.y1+rise+mh+.15,t.z);hTh.push(R(nm+"ph"));hK.push(1)}
   });
   if(!DMAT.thatch)DMAT.thatch=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:0});
-  roofProps.add(instMesh(gableGeometry(),DMAT.thatch,gables,HI));
+  if(!DMAT.brick)DMAT.brick=new THREE.MeshStandardMaterial({color:lin("#7a4030"),roughness:.94,metalness:0});
+  const gableMesh=instMesh(gableGeometry(),DMAT.thatch,gables,HI);
   const chimG=new THREE.BoxGeometry(1,1,1);chimG.translate(0,.5,0);
-  roofProps.add(instMesh(chimG,M.planter,chimneys,false));
-  const mastG=new THREE.CylinderGeometry(.06,.12,1,5);mastG.translate(0,.5,0);roofProps.add(instMesh(mastG,M.mast,ms,false));
+  const chimneyMesh=instMesh(chimG,DMAT.brick,chimneys,false);
+  const mastG=new THREE.CylinderGeometry(.06,.12,1,5);mastG.translate(0,.5,0);
+  const mastMesh=instMesh(mastG,M.mast,ms,false);
+  roofProps.add(gableMesh,chimneyMesh,mastMesh);
+  roofAnim=[];
+  const track=(mesh,list)=>list.forEach((p,i)=>roofAnim.push({mesh,i,id:p.id,x:p.x,y:p.y||0,z:p.z,ry:p.ry||0,sx:p.sx||1,sy:p.sy||1,sz:p.sz||1}));
+  track(gableMesh,gables);track(chimneyMesh,chimneys);track(mastMesh,ms);
+  writeRoofs();
+  roofProps.visible=true;
   const hg=new THREE.BufferGeometry();hg.setAttribute("position",new THREE.Float32BufferAttribute(halo,3));hg.setAttribute("aTh",new THREE.Float32BufferAttribute(hTh,1));hg.setAttribute("aKind",new THREE.Float32BufferAttribute(hK,1));
   lampHalo=new THREE.Points(hg,M.halo);lampHalo.frustumCulled=false;decor.add(lampHalo);
   // quay: a stone kerb where the plan meets the water
   const q=GSIDE/2,qm=DMAT.quay||(DMAT.quay=new THREE.MeshStandardMaterial({color:lin("#3b3d42"),roughness:.8}));
   [[0,-q,GSIDE+2.4,2.4],[0,q,GSIDE+2.4,2.4],[-q,0,2.4,GSIDE],[q,0,2.4,GSIDE]].forEach(([x,z,w,d])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,2.2,d),qm);m.position.set(x,-1,z);m.receiveShadow=true;decor.add(m)});
-  roofProps.visible=introStart<0;
   return lamps;
 }
 function makeWater(){
@@ -3299,7 +3314,7 @@ function frame(t){
   frameHooks.forEach(f=>{if(f(dt,time))dirty=true});
   // ambient life (clouds, water, motes, drones, blinking masts) keeps the frame going at up to 30 fps on its own
   if(AMB&&!dirty&&time-lastAmb>=1/30)dirty=true;
-  if(roofProps)roofProps.visible=introStart<0;
+  if(roofProps)roofProps.visible=true;
   if(!dirty)return;
   dirty=false;lastAmb=time;
   if(AMB||introRun)SH.uTime.value=time;
@@ -3722,7 +3737,8 @@ const Guides=(()=>{
 #gPrompt small{color:#97A0BA;font-family:var(--mono);font-size:10.5px}
 @media (hover:none){#gPrompt kbd{font-size:0}#gPrompt kbd::before{content:"●";font-size:11px}}
 @media (max-width:760px){
- #gPrompt{bottom:calc(58px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 20px);font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ #gPrompt{left:auto;right:10px;bottom:calc(52px + env(safe-area-inset-bottom,0px));max-width:min(230px,calc(100vw - 160px));transform:none;font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ #gPrompt.on{transform:none}
  #gPrompt span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  #gPrompt small{display:none}
  #wd{bottom:calc(8px + env(safe-area-inset-bottom,0px));width:calc(100% - 16px)}
