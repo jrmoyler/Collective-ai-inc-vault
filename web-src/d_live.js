@@ -324,6 +324,6 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
   async function history(name){const {data}=await sb.from("note_revisions").select("version,edited_by,edited_at").eq("name",name).order("edited_at",{ascending:false}).limit(30);return (data||[]).map(r=>({...r,edited_by:agentName(r.edited_by)}))}
   async function signOut(){await sb.auth.signOut();location.reload()}
   if(typeof open==='function'){const _open=open;open=function(n,push){_open(n,push);Sound.tick()}}
-  return {session,member,join,loadAll,subscribe,render,bind,history,pushAgents,syncMarkers,drawFloor,signOut,brief,me:()=>me,debug:()=>({onStats,onDone,onActivity,levelUp,stats})};
+  return {session,member,join,loadAll,subscribe,render,bind,history,pushAgents,syncMarkers,drawFloor,signOut,brief,me:()=>me,snapshot:()=>({tasks:[...tasks],acts:[...acts],agents:[...agents.values()],presence:[...pres.values()],stats:[...stats.values()]}),debug:()=>({onStats,onDone,onActivity,levelUp,stats})};
 })();
 

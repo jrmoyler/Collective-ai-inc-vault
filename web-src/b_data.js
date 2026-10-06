@@ -107,16 +107,17 @@ function home(){
 }
 
 // ---------- reader sheet
-const sheet={open:false,full:false,view:"note",ntab:"note",atab:"floor"};
+const sheet={open:false,full:false,view:"note",ntab:"note",atab:"floor",gtab:"ask"};
 function snippet(src,target){const ln=src.body.split("\n").find(l=>l.includes("[["+target))||"";return ln.replace(/\[( |x)\]/g,"").replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g,"$1").replace(/[#>*|`-]/g," ").trim().slice(0,90)}
 function renderSheet(){
   const sb=$("#sbody"),tabs=$("#stabs");
-  const T=sheet.view==="note"?[["note","Note"],["links","Links"],["outline","Outline"],["history","History"]]:[["floor","Floor"],["ranks","Ranks"],["board","Board"],["activity","Activity"],["desk","Desk"],["connect","Connect"],["identity","Sentinel"]];
-  const act=sheet.view==="note"?sheet.ntab:sheet.atab;
+  const T=sheet.view==="note"?[["note","Note"],["links","Links"],["outline","Outline"],["history","History"]]:sheet.view==="guide"?[["ask","Ask"],["map","Map"],["work","Work"]]:[["floor","Floor"],["ranks","Ranks"],["board","Board"],["activity","Activity"],["desk","Desk"],["connect","Connect"],["identity","Sentinel"]];
+  const act=sheet.view==="note"?sheet.ntab:sheet.view==="guide"?(sheet.gtab||"ask"):sheet.atab;
   tabs.innerHTML=T.map(([k,l])=>`<button data-st="${k}" class="${k===act?"on":""}">${l}</button>`).join("");
-  $("#crumb2").innerHTML=sheet.view==="note"&&cur?(cur.folder?esc(cur.folder)+" / ":"")+"<b>"+esc(cur.name)+"</b>":"<b>Live</b> · agents, tasks, desk";
+  $("#crumb2").innerHTML=sheet.view==="note"&&cur?(cur.folder?esc(cur.folder)+" / ":"")+"<b>"+esc(cur.name)+"</b>":sheet.view==="guide"?"<b>"+esc(typeof Guides!=="undefined"&&Guides.current()?Guides.current().name:"District")+"</b> · Guide":"<b>Live</b> · agents, tasks, desk";
   $("#sBack").disabled=hpos<=0;$("#sFwd").disabled=hpos>=hist.length-1;
   if(sheet.view==="agents"){sb.innerHTML=`<div class="pane">${Live.render(sheet.atab)}</div>`;Live.bind(sb);return}
+  if(sheet.view==="guide"){sb.innerHTML=`<div class="pane">${typeof Guides!=="undefined"?Guides.render(sheet.gtab||"ask"):""}</div>`;if(typeof Guides!=="undefined")Guides.bind(sb);sb.scrollTop=0;return}
   const n=cur;if(!n){sb.innerHTML="";return}
   if(sheet.ntab==="note"){sb.innerHTML=`<article class="doc" id="doc">${n.body.trim()==="{{HOME}}"?home():props(n)+md(n.body,n)}</article>`}
   else if(sheet.ntab==="links"){
@@ -147,7 +148,7 @@ function openSheet(view){if(view)sheet.view=view;sheet.open=true;renderSheet();s
 function closeSheet(){sheet.open=false;sheet.full=false;syncSheet()}
 $("#sClose").onclick=closeSheet;
 $("#sFull").onclick=()=>{sheet.full=!sheet.full;syncSheet()};
-$("#stabs").addEventListener("click",e=>{const b=e.target.closest("button[data-st]");if(!b)return;if(sheet.view==="note")sheet.ntab=b.dataset.st;else sheet.atab=b.dataset.st;renderSheet()});
+$("#stabs").addEventListener("click",e=>{const b=e.target.closest("button[data-st]");if(!b)return;if(sheet.view==="note")sheet.ntab=b.dataset.st;else if(sheet.view==="guide")sheet.gtab=b.dataset.st;else sheet.atab=b.dataset.st;renderSheet()});
 
 // ---------- open a note: read it and fly to it
 function open(n,push=true){
