@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#EF4444'
 status: operating
-updated: 2026-10-04
+updated: 2026-10-06
 director: BASTION
 division_no: 11
 ---
@@ -313,3 +313,117 @@ From the [[Physical AI Wearables Agent Spec]]. Devices: [[Wearables Agent Spec �
 | OA-W05 SOC Intelligence Terminal (Edge Terminal) | [[Network Anomaly Detection Agent]], [[Aegis Protocol Guardian]], [[Physical Security Task Agent]], [[SOC Incident Commander Task Agent]] |
 
 Agents: [[Aegis Protocol Guardian]], [[Knowledge Keeper (Device Agent)]], [[Physical Security Task Agent]], [[Network Anomaly Detection Agent]], [[Spatial Intelligence Task Agent]], [[Evidence Integrity Task Agent]], [[SOC Incident Commander Task Agent]]
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Obsidian Arc. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (8)
+◆ 24/7 SOC monitoring for Collective AI divisions and
+enterprise clients
+◆ Cyber threat intelligence and attack surface monitoring
+◆ Penetration testing and red team exercises
+◆ Physical security system design and monitoring
+◆ Security awareness training and phishing simulation
+◆ Privacy compliance engineering (GDPR, CCPA, HIPAA)
+◆ Incident response and breach remediation
+◆ Security architecture review and hardening
+TECHNOLOGY STACK (14 tools)
+◆ Splunk / Elastic SIEM — security event management
+◆ Palo Alto XSOAR / Tines — security orchestration and
+automation
+◆ CrowdStrike — threat intelligence and endpoint
+protection
+◆ VirusTotal API — file and URL threat analysis
+◆ AlienVault OTX — open threat exchange
+◆ Metasploit / Cobalt Strike — penetration testing
+framework
+◆ Burp Suite — web application security testing
+◆ GoPhish — phishing simulation
+◆ Shodan / Censys — attack surface monitoring
+◆ OpenCV — video analytics for physical security
+◆ Verkada / Milestone VMS — physical security camera
+management
+◆ OneTrust — consent and privacy management
+◆ MISP — threat intelligence sharing platform
+◆ ZenFlow / Claude API — AI-assisted threat analysis
+REVENUE MODEL
+SOC-as-a-service contracts + penetration testing
+project fees + security platform licensing + training
+subscriptions
+SYNERGY NODES
+Ghost Protocol ◆ Aegis Forge ◆ Signal Court
+```
+
+### Specialist delivery owners
+[[Obsidian Arc — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 10 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:eaa4d6505d097c089963 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Obsidian Arc status is **operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** October 20, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services (The 9 Pillars)
+Directorate 1: Digital Sovereignty (Cyber & Privacy)
+* 1. "Blackbox VPN": A decentralized, AI-routed network layer. Unlike standard VPNs, Blackbox splits data packets across multiple nodes, making user activity mathematically untraceable, even to ISPs.
+* 2. "Trace ID": A quantum-resistant digital identity vault built on Quantum Ledger. It allows users to verify their identity (for banking, voting, or building access) using Zero-Knowledge Proofs, meaning they can prove they are authorized without revealing their private data.
+* 3. "Deepfake Shield": An active media authentication tool for Nexus Labs creators and high-profile clients. It cryptographically "watermarks" real content and instantly flags AI-generated voice or video impersonations to prevent fraud and reputation damage.
+Directorate 2: Active Overwatch (Predictive Intelligence)
+* 4. "The Watchtower": The AI brain that sits on top of existing CCTV networks. Powered by ZenFlow, it analyzes behavioral patterns in real-time (e.g., spotting a weapon before it is brandished, identifying hostile gait analysis) to trigger pre-crime alerts.
+* 5. "Arc Intel": A predictive crime mapping dashboard for smart cities and campuses. It ingests historical data, weather patterns, and social sentiment to forecast high-risk zones, allowing security teams to deploy resources before an incident occurs.
+* 6. "Sentry Drones": Autonomous aerial response units housed in "Terra Axis" properties. When "The Watchtower" detects a breach, a Sentry Drone automatically deploys to track the intruder and stream live video to law enforcement, removing the delay of human dispatch.
+Directorate 3: Kinetic Defense (Physical Hardening)
+* 7. "The Iron Gate": Next-generation access control. We replace keycards with "passive biometric" entry. The system recognizes authorized personnel by their face, gait, and heartbeat signature, creating a frictionless but impenetrable barrier.
+* 8. "Lockdown OS": A centralized facility management system for schools and offices. In an active threat scenario, it instantly compartmentalizes a building—locking specific blast doors, strobing lights to disorient intruders, and lighting escape paths for civilians.
+* 9. "SafeZone": Modular, architectural panic pods designed for Terra Axis homes and executive offices. These are ballistically hardened, airtight, and equipped with independent comms, serving as the ultimate last line of defense.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+Target Market
+* The Ecosystem (Internal): Securing Collective AI's own server farms, offices, and personnel.
+* Enterprise & Tech: Corporate campuses requiring IP protection and physical safety.
+* High-Net-Worth Individuals: Clients of Quantum Ledger who need physical protection for their digital wealth.
+* Smart Cities: Municipalities looking to upgrade from "recording crime" to "preventing crime."
+Competitive Advantage
+* Unified Defense: Most competitors offer either cybersecurity (CrowdStrike) or physical security (ADT/Brinks). Obsidian Arc offers both.
+* Predictive AI: Integration with ZenFlow gives us superior predictive capabilities compared to "dumb" hardware providers.
+```
+
+## Delivery ownership
+- [[Obsidian Arc Division]]
+- [[002 — Divisions MOC]]
+- [[Obsidian Arc — Complete Specialist Roster]]
+
+## Source
+- [Obsidian Arc Business Plan](https://docs.google.com/document/d/1EqF8JIIyWFom5tJBldZVsF09GsrDutaqZvUl2ZS--iE/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Obsidian Arc Business Plan](https://docs.google.com/document/d/1EqF8JIIyWFom5tJBldZVsF09GsrDutaqZvUl2ZS--iE/edit?usp=drivesdk)
+
+<!-- drive-expansion:63c26ad953a31613e41b -->
+
+## Source interface and operating records
+
+- [[API-17 Obsidian Arc Threat Intelligence API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:6be399e7adaef913caa2 -->

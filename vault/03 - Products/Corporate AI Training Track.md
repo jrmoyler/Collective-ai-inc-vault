@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Hybrid Living
 ---
 # Corporate AI Training Track
@@ -42,3 +42,29 @@ MVP brief: [[MVP — Corporate AI Training Track]] (from [[MVP Build Guide]])
 **Build / creation platform.** Atlas LMS with enterprise admin panel. White-label configuration via platform settings. SCORM export for client LMS integration. Reporting via custom analytics dashboard.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Hybrid Living is operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** B2B Service Product
+
+Enterprise-licensed version of Hybrid Living's curriculum. Deployed for corporate L&D; teams. Custom-branded, role-specific pathways,
+admin dashboard, and reporting.
+
+### Source build platform
+Atlas LMS with enterprise admin panel. White-label configuration via platform settings. SCORM export for client LMS integration. Reporting via
+custom analytics dashboard.
+
+### Ownership
+- [[Hybrid Living Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 9; Corporate AI Training Track product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:1bb1cae8142f9c190d32 -->

@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: VectorShift
 ---
 # Ground Vector Fleet
@@ -42,3 +42,29 @@ MVP brief: [[MVP — Ground Vector Fleet]] (from [[MVP Build Guide]])
 **Build / creation platform.** ROS2 (Robot Operating System) for autonomous navigation. PyTorch for CV/perception models. SLAM via Cartographer / RTAB-Map. Fleet management in custom FastAPI backend. Real-time monitoring via React dashboard.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. VectorShift is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Autonomous Ground Vehicle Fleet
+
+Autonomous ground delivery vehicle fleet for urban last-mile logistics. SLAM navigation, object detection, real-time route optimization, fleet
+management, and human oversight interface.
+
+### Source build platform
+ROS2 (Robot Operating System) for autonomous navigation. PyTorch for CV/perception models. SLAM via Cartographer / RTAB-Map. Fleet
+management in custom FastAPI backend. Real-time monitoring via React dashboard.
+
+### Ownership
+- [[VectorShift Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 30; Ground Vector Fleet product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:22ccdc83efb2984a9682 -->

@@ -8,7 +8,7 @@ type: agent-blueprint
 model: claude-sonnet-5-5
 owner: JR Moyler (Hataalii)
 status: planned
-updated: 2026-10-04
+updated: 2026-10-06
 codename: CADUCEUS
 division: Vital Helix
 clearance: Aegis-Review
@@ -57,3 +57,14 @@ Full system prompt: [[CADUCEUS — God Prompt]] (from the ZenFlow God Prompt Lib
 - Clearance: Level 4 — HIPAA-Compliant Health Data Access with Clinical Review Enforcement
 - Aegis: Aegis-Review MANDATORY for all health outputs — cl…
 - Activation order: 13 of 21
+
+## Complete source roster
+[[Vital Helix — Complete Specialist Roster]] holds all 30 source specialist role definitions, prompts, tool stacks and creation platforms. These are reference specifications; the live registry determines which agents are provisioned.
+
+## Source
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk) — Division 06. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk)
+
+<!-- drive-expansion:fb5b43fe76fa4de99de6 -->

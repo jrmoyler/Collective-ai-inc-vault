@@ -8,7 +8,7 @@ type: agent-blueprint
 model: claude-sonnet-5-5
 owner: JR Moyler (Hataalii)
 status: planned
-updated: 2026-10-04
+updated: 2026-10-06
 codename: WAYFARER
 division: Nomad Nexus
 clearance: Aegis-Review
@@ -57,3 +57,14 @@ Full system prompt: [[WAYFARER — God Prompt]] (from the ZenFlow God Prompt Lib
 - Clearance: Level 3 — Nomad Platform and Community Data Access
 - Aegis: Aegis-Review — Visa and legal information outputs …
 - Activation order: 19 of 21
+
+## Complete source roster
+[[Nomad Nexus — Complete Specialist Roster]] holds all 30 source specialist role definitions, prompts, tool stacks and creation platforms. These are reference specifications; the live registry determines which agents are provisioned.
+
+## Source
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk) — Division 18. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk)
+
+<!-- drive-expansion:a62438df22d386a360c0 -->

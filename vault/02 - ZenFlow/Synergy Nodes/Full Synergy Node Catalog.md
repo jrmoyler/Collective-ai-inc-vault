@@ -8,7 +8,7 @@ type: hub
 owner: JR Moyler (Hataalii)
 source: Full Synergy Node Catalog
 status: reference
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # Full Synergy Node Catalog
 
@@ -118,3 +118,362 @@ Every division takes part in at least one node; all 20 are routed through [[SYN-
 - [[001 — ZenFlow MOC]]
 
 > Digital nodes generate the revenue. Physical nodes make the intelligence operational. Together they are the complete Collective AI operating system — 40 nodes, 20 divisions, one mission. (Catalog closing line)
+
+## Drive source audit — original catalog edition
+
+> [!info] Source edition scope
+> This is a comparison against the original Drive document, not a new deployment claim. The current catalog and linked item notes above remain in place. Source source-phase revenue figures and hardware costs are targets/estimates. Current canonical division numbers, Director Codenames, [[Agent Tier Registry]] and [[Civic Core Fiduciary Veto]] override older labels/authority. Different wearable editions have different scopes; retain each edition rather than combine their item counts.
+
+### Source-defined scope
+```text
+COLLECTIVE AI INC
+Full Synergy Node Catalog
+20 Digital Market Execution Nodes ✦ 20 Physical Hardware Fusion Nodes
+The complete reference for every Synergy Node in the Collective AI ecosystem — both the digital market execution units that drive revenue and
+the physical hardware fusion nodes that make the intelligence layer tangible. 40 nodes total. 4 digital build phases. 5 physical build phases. One
+operating system.
+Digital Nodes: 20 cross-division market execution platforms · Total ARR potential: $200M+ · Phase 1–4 sequence
+Physical Nodes: 20 cross-division hardware fusion devices · Total build cost: ~$52K–$80K · Phase 1–5 sequence
+Author: John-Ross Moyler · Co-Founder & CEO, Collective AI Inc · Columbus, Ohio
+© 2026 Collective AI Inc. All rights reserved. Confidential.COLLECTIVE AI INC SYNERGY NODE CATALOG ✦ CONFIDENTIAL
+Architecting a Humane Future™ · © 2026 Collective AI Inc. 2
+MASTER NODE INDEX
+All 40 Synergy Nodes at a Glance
+Two parallel architectures run simultaneously. Digital nodes are market execution units — they generate revenue. Physical
+nodes are hardware fusion devices — they make intelligence operational. Both are governed by ZenFlow, Aegis Protocol, and
+Knowledge Keeper.
+DIGITAL NODES — 20 MARKET EXECUTION UNITS
+Node Name Divisions
+Phas
+e
+ARR Target
+D-01 RESONANCE MEDIA
+Nexus Labs + Signal Velocity +
+ZenFlow
+1 $2–5M ARR by Year 2
+D-02 ASCENSION CAMPUS Hybrid Living + ZenFlow + Nexus Labs 1 $3–8M ARR by Year 2
+D-03
+QUANTUM COMMERCE
+GRID
+Quantum Ledger + Signal Velocity +
+ZenFlow
+1 $5–12M ARR by Year 2
+D-04 ORACLE RELAY ZenFlow + Signal Velocity + Juris Guard 1 $4–10M ARR by Year 2
+D-05 KINETIC SCHOLAR Kinetic Edge + Hybrid Living + ZenFlow 1 $2–6M ARR by Year 2
+D-06 FOUNDER ARK
+The Collective + Quantum Ledger +
+ZenFlow
+2 $3–8M ARR by Year 3
+D-07 SIGNAL COURT Juris Guard + Obsidian Arc + ZenFlow 2 $5–15M ARR by Year 3
+D-08 GHOST PROTOCOL Obsidian Arc + ZenFlow + Binary Loom 2 $8–20M ARR by Year 3
+D-09 AEGIS FORGE Obsidian Arc + Juris Guard + ZenFlow 2 $4–12M ARR by Year 3
+D-10 BLACKBOX CITADEL
+ZenFlow + Obsidian Arc + Quantum
+Ledger
+2 $5–15M ARR by Year 3
+D-11 MYTHOS Nexus Labs + ZenFlow + Binary Loom 3 $3–10M ARR by Year 4
+D-12 NOMAD MARKET
+Nomad Nexus + Terra Axis + Quantum
+Ledger
+3 $4–12M ARR by Year 4
+D-13 BIOSOVEREIGN Vital Helix + Eon Core + ZenFlow 3 $6–18M ARR by Year 5
+D-14 TERRAMIND Terra Axis + Gaia Synthesis + ZenFlow 3 $3–10M ARR by Year 4
+D-15 SOVEREIGN ASSETS
+Quantum Ledger + Terra Axis + Juris
+Guard
+3 $5–15M ARR by Year 4
+D-16 CIVILIZATION TWIN ZenFlow + Binary Loom + Aether Link 4 $20–100M ARR by Year 6+
+D-17 CIVIC NERVOUS SYSTEM Civic Core + Aether Link + ZenFlow 4 Impact metric: communities served, not ARR
+D-18 EDEN LOGISTICS
+Vector Shift + Gaia Synthesis + Aether
+Link
+4 $5–20M ARR by Year 6+
+D-19 MECHA ORCHARD
+Animus Prime + Gaia Synthesis +
+ZenFlow
+4 $10–50M ARR by Year 7+
+D-20 MOMENTUM VOYAGES
+Vector Shift + Nomad Nexus + Aether
+Link
+4 $10–40M ARR by Year 6+COLLECTIVE AI INC SYNERGY NODE CATALOG ✦ CONFIDENTIAL
+Architecting a Humane Future™ · © 2026 Collective AI Inc. 3
+PHYSICAL NODES — 20 HARDWARE FUSION DEVICES
+SYN-ID Name Divisions
+Phas
+e
+Est. Build
+SYN-01 SENTINEL GUARDIAN Obsidian Arc + ZenFlow 2 ~$750–$1,000
+SYN-02
+APEX RECOVERY
+STATION
+Kinetic Edge + Vital Helix 2 ~$480–$650
+SYN-03
+TERRA GAIA SURVEY
+DRONE
+Terra Axis + Gaia Synthesis 4 ~$1,200–$1,800
+SYN-04 HERALD CAMPUS KIOSK Hybrid Living + Civic Core 3 ~$420–$580
+SYN-05
+RESONANCE
+COMPLIANCE RIG
+Nexus Labs + Juris Guard 2 ~$380–$520
+SYN-06 AETHER RELAY DRONE Vector Shift + Aether Link 4 ~$1,400–$2,000 (Aegis-Hold until flight tests)
+SYN-07 AURUM BIOSIGNAL BAND Quantum Ledger + Vital Helix 2 ~$280–$380
+SYN-08 PRIME SHEPHERD ROVER Animus Prime + Vector Shift 3 ~$1,800–$2,600 (Aegis-Hold)
+SYN-09
+COGNARA CONSULTING
+KIT
+Cognara Mind + The C
+```
+
+### Existing named coverage verified against extracted source
+- [[Aegis Protocol]]
+- [[Aegis Protocol Guardian]]
+- [[Agent Health Monitor]]
+- [[Apex System]]
+- [[Bio-Digital Twin]]
+- [[Cohort Manager Task Agent]]
+- [[Collective Times]]
+- [[Creator Nexus]]
+- [[D-01 Resonance Media]]
+- [[D-02 Ascension Campus]]
+- [[D-04 Oracle Relay]]
+- [[D-05 Kinetic Scholar]]
+- [[D-06 Founder Ark]]
+- [[D-07 Signal Court]]
+- [[D-08 Ghost Protocol]]
+- [[D-09 Aegis Forge]]
+- [[D-10 Blackbox Citadel]]
+- [[D-11 Mythos]]
+- [[D-12 Nomad Market]]
+- [[D-13 BioSovereign]]
+- [[D-14 TerraMind]]
+- [[D-15 Sovereign Assets]]
+- [[D-16 Civilization Twin]]
+- [[D-17 Civic Nervous System]]
+- [[D-18 Eden Logistics]]
+- [[D-19 Mecha Orchard]]
+- [[D-20 Momentum Voyages]]
+- [[Director_Operations]]
+- [[Evidence Integrity Task Agent]]
+- [[Full Synergy Node Catalog]]
+
+### Closing source build/governance instructions
+```text
+ switch, all 30 Mac mini nodes
+■ Raspberry Pi 5 8GB ×2 — division health display controller + voice shell controller
+■ Whisplay HAT ×2 — 20-division cycling health panel + voice query display
+■ ReSpeaker 4-Mic Array v2.0 — far-field ZENITH voice interface (Foundry-floor range)
+■ CyberPower Rackmount UPS 1500VA — network + NAS + Mac mini power protection
+■ Sonnet RackMac mini — clean Mac mini cluster mount in rack
+■ LILYGO T-Beam Meshtastic — mesh bridge, Foundry gateway node for all physical devices
+AGENTS & WORKFLOWS
+ZenFlow Agents n8n Workflows
+■ ZenFlow ZENITH Overseer Agent — Tier 1 (cross-portfolio
+command)
+■ ZenFlow Agent Health Monitor — fires every 15 min, all 30 nodes
+■ All 20 Division Director Agents (routed through this tower) ■ Aegis Safety Review Queue — master incident router, all divisions
++ physical
+■ ZenFlow Knowledge Keeper (primary Vault) ■ Portfolio Revenue Dashboard Sync — weekly executive summary
+■ ZenFlow Aegis Protocol Guardian (master queue — all physical +
+software flags)
+■ Cross-Division Intelligence Request Router — ZENITH routes to
+correct division
+■ Director_Operations Agent (150 n8n workflow health) ■ Daily Agent Performance Digest
+■ ZenFlow Agent Health Monitor (30-Mac cluster + 600-agent
+lattice)
+DIVISION CONTRIBUTIONS
+ZenFlow ZENITH Overseer host, Knowledge Keeper Vault, Aegis master queue, agent API gateway, mesh bridgeCOLLECTIVE AI INC SYNERGY NODE CATALOG ✦ CONFIDENTIAL
+Architecting a Humane Future™ · © 2026 Collective AI Inc. 41
+All 20 Divisions Each division's Director Agent is permanently hosted and routed through this tower
+Build Outcome: The physical Overseer — every division visible, every agent reachable,
+every node monitored. The Foundry's single source of truth.
+Est. Budget: ~$12,000–$18,000 (Phase 5 —
+Foundry command infrastructure)COLLECTIVE AI INC SYNERGY NODE CATALOG ✦ CONFIDENTIAL
+Architecting a Humane Future™ · © 2026 Collective AI Inc. 42
+Digital nodes generate the revenue. Physical nodes make the intelligence operational. Together they are the
+complete Collective AI operating system — 40 nodes, 20 divisions, one mission.
+COLLECTIVE AI INC · Architecting a Humane Future™ · Columbus, Ohio · 2026 · Confidential
+
+```
+
+## Source
+- [Collective_AI_Full_Synergy_Node_Catalog.pdf](https://drive.google.com/file/d/1Oi5pSsWu1IYFDs92UnQSlnbXlIaTzI7n/view?usp=drivesdk) — opening scope and closing governance/build notes; full text compared against existing item names. Reviewed 2026-10-06.
+
+### Source records
+- [Collective_AI_Full_Synergy_Node_Catalog.pdf](https://drive.google.com/file/d/1Oi5pSsWu1IYFDs92UnQSlnbXlIaTzI7n/view?usp=drivesdk)
+
+<!-- drive-expansion:2a54e71638f18043bb41 -->
+
+## Drive source audit — original catalog edition
+
+> [!info] Source edition scope
+> This is a comparison against the original Drive document, not a new deployment claim. The current catalog and linked item notes above remain in place. Source source-phase revenue figures and hardware costs are targets/estimates. Current canonical division numbers, Director Codenames, [[Agent Tier Registry]] and [[Civic Core Fiduciary Veto]] override older labels/authority. Different wearable editions have different scopes; retain each edition rather than combine their item counts.
+
+### Source-defined scope
+```text
+Collective AI Inc · Physical Synergy Nodes v2 · Cross-Division Hardware Fusions · Page 1
+COLLECTIVE AI INC
+PHYSICAL SYNERGY NODES
+v2 — Cross-Division Hardware Fusion Catalog
+Each Synergy Node is a single physical device that serves 2 or more divisions simultaneously.
+Hardware from the Foundry catalog. Intelligence from the 120-tool stack. Fusion by design.
+Owner JR Moyler / Hataalii — Collective AI Inc
+Classification Private Operating Blueprint
+Total Nodes 20 cross-division Synergy Nodes
+Division Pairs 39 unique division appearances across 20 nodes
+Design Rule Every node = 2+ divisions sharing hardware, data flow, and physical function
+Hardware Source Physical AI Foundry Catalog (2025–2026)
+Safety Gate Aegis-Hold — all physical autonomy staged
+Architecting a Humane FutureCollective AI Inc · Physical Synergy Nodes v2 · Cross-Division Hardware Fusions · Page 2
+TABLE OF CONTENTS
+SYN-01 SENTINEL GUARDIAN Obsidian Arc + ZenFlow Phase 2
+SYN-02 APEX RECOVERY STATION Kinetic Edge + Vital Helix Phase 2
+SYN-03 TERRA GAIA SURVEY DRONE Terra Axis + Gaia Synthesis Phase 4
+SYN-04 HERALD CAMPUS KIOSK Hybrid Living + Civic Core Phase 3
+SYN-05 RESONANCE COMPLIANCE RIG Nexus Labs + Juris Guard Phase 2
+SYN-06 AETHER RELAY DRONE Vector Shift + Aether Link Phase 4
+SYN-07 AURUM BIOSIGNAL BAND Quantum Ledger + Vital Helix Phase 2
+SYN-08 PRIME SHEPHERD ROVER Animus Prime + Vector Shift Phase 3
+SYN-09 COGNARA CONSULTING KIT Cognara Mind + The Collective Phase 2
+SYN-10 GAIA FIELD ROVER Gaia Synthesis + Vector Shift Phase 3
+SYN-11 NEXUS SIGNAL BROADCAST NODE Nexus Labs + Signal Velocity Phase 2
+SYN-12 NOMAD INTELLIGENCE KIT Nomad Nexus + ZenFlow Phase 2
+SYN-13 BINARY FORGE STATION Binary Loom + Animus Prime Phase 1
+SYN-14 TERRA HABITAT SENTINEL Terra Axis + Obsidian Arc Phase 2
+SYN-15 SIGNAL COHORT BADGE Signal Velocity + Hybrid Living Phase 2
+SYN-16 CIVIC BABEL KIOSK Civic Core + Aether Link Phase 3
+SYN-17 EON PERFORMANCE LAB Eon Core + Kinetic Edge Phase 3
+SYN-18 QUANTUM SIGNAL TERMINAL Quantum Ledger + Signal Velocity Phase 2
+SYN-19 VITAL NEURO WRISTBAND Vital Helix + Cognara Mind Phase 2
+SYN-20 ZENITH ORCHESTRATION TOWER ZenFlow + ALL 20 DIVISIONS Phase 5Collective AI Inc · Physical Synergy Nodes v2 · Cross-Division Hardware Fusions · Page 3
+DIVISION FUSION MAP
+Every division's first cross-division hardware product appears below. Read across any row to find all nodes where
+that division contributes hardware and intelligence.
+ZenFlow SYN-01 SYN-12 SYN-20
+The Collective SYN-09
+Hybrid Living SYN-04 SYN-15
+Nexus Labs SYN-05 SYN-11
+Terra Axis SYN-03 SYN-14
+Vital Helix SYN-02 SYN-07 SYN-19
+Binary Loom SYN-13
+Quantum Ledger SYN-07 SYN-18
+Kinetic Edge SYN-02 SYN-17
+Obsidian Arc SYN-01 SYN-14
+Civic Core SYN-04 SYN-16
+Aether Link SYN-06 SYN-16
+Gaia Synthesis SYN-03 SYN-10
+Vector Shift SYN-06 SYN-08 SYN-10
+Animus Prime SYN-08 SYN-13
+Juris Guard SYN-05
+Signal Velocity SYN-11 SYN-15 SYN-18
+Nomad Nexus SYN-12
+Eon Core SYN-17
+Cognara Mind SYN-09 SYN-19Collective AI Inc · Physical Synergy Nodes v2 · Cross-Division Hardware Fusions · Page 4
+SYN-01
+SENTINEL GUARDIAN
+When the network and the room share one set of eyes.
+Phase 2
+Obsidian Arc
+ZenFlow
+WHY THESE DIVISIONS FUSE
+Obsidian Arc generates physical threat events. ZenFlow governs software agent safety. This node unifies both under a single
+Aegis Protocol queue — a person in a restricted zone and a rogue agent output are treated as the same class of event and
+resolved through the same human-review workflow.
+Product Description
+A mounted perception mast that feeds both the Obsidian Arc security layer and the ZenFlow Aegis Protocol simultaneously.
+LiDAR + depth camera classify physical events (zone breach, unknown person, forced entry) and inject them directly into the
+ZenFlow /v1/aegis queue alongside software agent fla
+```
+
+### Existing named coverage verified against extracted source
+- [[AI Tutor Task Agent]]
+- [[Aegis Protocol]]
+- [[Aegis Protocol Guardian]]
+- [[Aether Link Mesh Extension Task Agent]]
+- [[Agent Health Monitor]]
+- [[Apex System]]
+- [[Apex System Performance Agent]]
+- [[Behavioral Pattern Analysis Agent]]
+- [[Bio-Digital Twin]]
+- [[Client Intelligence Task Agent]]
+- [[Cognitive Coach Task Agent]]
+- [[Cohort Manager Task Agent]]
+- [[Collective Times]]
+- [[Collective Times Content Writer Task Agent]]
+- [[Creator Nexus]]
+- [[Creator Nexus Brief Generator]]
+- [[Creator Track]]
+- [[Digital Equity Initiative]]
+- [[Director_Operations]]
+- [[Evidence Integrity Task Agent]]
+- [[Ground Vector]]
+- [[Ground Vector Navigation Agent]]
+- [[Habit Architecture Agent]]
+- [[Knowledge Keeper]]
+- [[Learning Path Agent]]
+- [[Natural Script]]
+- [[Network Anomaly Detection Agent]]
+- [[P.E.T.E.E.R.]]
+- [[P.E.T.E.E.R. Framework]]
+- [[Physical Security Task Agent]]
+
+### Closing source build/governance instructions
+```text
+t I2S 3W Stereo Speaker Bonnet + stereo speakers
+(ZENITH audio response)
+• Pi M.2 HAT+ + 2TB NVMe (local agent cache + n8n workflow
+state)
+• CyberPower Rackmount UPS 1500VA (network + NAS + Mac
+mini power protection)
+• Sonnet RackMac mini (clean Mac mini cluster mount in rack)
+• Rack + PDU + patch panel + Cat6A cable management
+• LILYGO T-Beam Meshtastic (mesh bridge — Foundry gateway
+node for all physical devices)
+Agents, APIs & Workflows
+• ZenFlow ZENITH Overseer Agent — Tier 1 (cross-portfolio command, all
+20 division directors)
+• All 20 Division Director Agents (AXIS/ZenFlow, and all 19 division
+directors — routed here)
+• ZenFlow Knowledge Keeper (primary Vault — all 600 agent interactions
+indexed)
+• ZenFlow Aegis Protocol Guardian (master queue — all physical +
+software flags centralized)
+• Director_Operations Agent (150 n8n workflow health monitoring)
+• ZenFlow Agent Health Monitor (30-Mac cluster + 600-agent lattice
+status)
+• ZenFlow API: all endpoints (/v1/agents, /v1/aegis, /v1/knowledge,
+/v1/orchestrate)
+• Anthropic claude-opus-4-6 (ZENITH: highest-priority reasoning —
+cross-portfolio decisions)
+• All MCPs: ZenFlow Internal, Notion, Slack, GitHub, Sentry, n8n,
+Blockscout, LSEG, FactSet, HuggingFace, Cloudinary, Airtable, Google
+Drive, Gmail, Figma, Vercel
+• n8n: All 150 workflows monitored and triggerable via ZENITH voice
+interface
+• n8n: ZenFlow Agent Health Monitor (master cluster health — fires every
+15 min)
+• n8n: Aegis Safety Review Queue (master incident router — all divisions
++ physical)
+• n8n: Portfolio Revenue Dashboard Sync (weekly executive summary)
+• n8n: Cross-Division Intelligence Request Router (ZENITH routes to
+correct division cluster)
+Division Contributions
+ZenFlow ZENITH Overseer host, Knowledge Keeper Vault, Aegis master queue, agent API gateway
+All 20 divisions Each division's Director Agent is permanently hosted and routed through this towerCollective AI Inc · Physical Synergy Nodes v2 · Cross-Division Hardware Fusions · Page 24
+Build Outcome
+The physical Collective AI Overseer — 30-node cluster, 600 agents, 150
+workflows, all 20 divisions visible and reachable from one rack.
+~$5,000–$8,000
+(core rack;
+excludes 30 Mac
+mini fleet)
+
+```
+
+## Source
+- [Collective_AI_Physical_Synergy_Nodes_v2 (1).pdf](https://drive.google.com/file/d/1UnPZlu10G_F9MOdPMoqqwwxpucXv9SRA/view?usp=drivesdk) — opening scope and closing governance/build notes; full text compared against existing item names. Reviewed 2026-10-06.
+
+### Source records
+- [Collective_AI_Physical_Synergy_Nodes_v2 (1).pdf](https://drive.google.com/file/d/1UnPZlu10G_F9MOdPMoqqwwxpucXv9SRA/view?usp=drivesdk)
+
+<!-- drive-expansion:b0d0cb6587d44a63e188 -->

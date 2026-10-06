@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#22D3EE'
 status: chartered
-updated: 2026-10-04
+updated: 2026-10-06
 director: TALOS
 division_no: 9
 ---
@@ -303,3 +303,102 @@ From the [[Physical AI Wearables Agent Spec]]. Devices: [[Wearables Agent Spec �
 | AP-W05 Embodied AI Control Wearable (Wearable) | [[Teleoperation Mapping Task Agent]], [[Aegis Protocol Guardian]], [[LeRobot Training Data Collector]], [[Knowledge Keeper (Device Agent)]] |
 
 Agents: [[Aegis Protocol Guardian]], [[Knowledge Keeper (Device Agent)]], [[Prime Shell Agent]], [[Speech Synthesis Task Agent]], [[Vision Perception Task Agent]], [[Titan Arm Agent]], [[LeRobot Teleoperation Task Agent]], [[Manipulation Training Data Collector]], [[Dexterous Hand Task Agent]], [[Grasp Planning Agent]], [[Mobile Navigation Task Agent]], [[Obstacle Avoidance Agent]], [[Field Telemetry Task Agent]], [[Teleoperation Mapping Task Agent]], [[LeRobot Training Data Collector]]
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Animus Prime. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (7)
+◆ Titan industrial robot installation and commissioning
+◆ Industrial robot operator training and certification
+◆ Field service and maintenance for deployed robot
+installations
+◆ Robot integration consulting for manufacturing operations
+◆ Agricultural robotics deployment and field testing
+◆ Custom robot configuration for specific industrial
+applications
+◆ Robot fleet management for enterprise clients
+TECHNOLOGY STACK (12 tools)
+◆ ROS2 — robot operating system for all Animus Prime
+platforms
+◆ NVIDIA Isaac Sim — robot simulation and training
+environment
+◆ PyTorch — ML for perception, locomotion, and
+manipulation
+◆ YOLOv8 — real-time object detection for robot perception
+◆ C++ — real-time control system development
+◆ SLAM algorithms (Cartographer, RTAB-Map) — robot
+localization
+◆ Natural Script (Binary Loom) — NL robot programming
+interface
+◆ FastAPI — robot management backend
+◆ React — operator and fleet management dashboards
+◆ PostgreSQL — fleet registry and performance data
+◆ OTA update infrastructure — secure firmware distribution
+◆ ISO 10218 certification framework — safety compliance
+REVENUE MODEL
+Robot hardware sales + software licensing + fleet
+management SaaS + field service contracts + robotics
+consulting
+SYNERGY NODES
+Titan Works
+```
+
+### Specialist delivery owners
+[[Animus Prime — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 15 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:3849b71da0e66d41e758 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Animus Prime status is **chartered, not operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** October 20, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services (The Integrated Pillars)
+Directorate 1: The Titan Directorate (Heavy Industry)
+* 1. "The Titan Arm": A universal robotic manufacturing system used in our own factories. It is a multi-axis arm capable of 3D printing concrete, welding steel, and assembling other robots. It is the "machine that builds machines."
+* 2. "Atlas Frame": A standardized, modular chassis system. This single hardware core can be fitted with heavy treads (for construction), wheels (for logistics), or rotors (for heavy-lift drones), streamlining our supply chain across Vector Shift and Gaia Synthesis.
+* 3. "Macro-Build": Large-scale, autonomous mobile printers. Deployed to Terra Axis sites, these massive units can 3D-print the concrete foundations and walls of a home in 24 hours, reducing construction costs by 40%.
+Directorate 2: The Prime Directorate (Social & Humanoid)
+* 4. "Prime Unit 1": A general-purpose humanoid assistant designed for human-centric environments. Bipedal and agile, it can climb stairs, open doors, and navigate cluttered homes to perform tasks like laundry, cleaning, and cooking.
+* 5. "Mimic Face": The interface of empathy. A high-resolution, micro-actuated silicone face capable of displaying complex human emotions (joy, concern, curiosity). Powered by ZenFlow, it reads the user's emotional state and mirrors it, breaking the "uncanny valley."
+* 6. "Soft Touch": Proprietary haptic sensors in the robot’s hands. This technology allows a Prime Unit to crush a rock or hold an egg without breaking it, enabling it to safely care for infants or the elderly in Vital Helix clinics.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+Target Market
+* Construction Firms: Leasing "Macro-Build" units for rapid development.
+* Healthcare Systems: Using "Prime Units" as orderlies and patient companions.
+* Wealthy Households: Purchasing "Prime Units" as live-in assistants.
+* Disaster Relief: Deploying "Atlas Frames" into fire or flood zones (via Civic Core) where humans cannot go.
+Competitive Advantage
+* The "Brain-Body" Connection: Competitors like Boston Dynamics build great bodies but lack a "mind." Competitors like OpenAI have a great "mind" but no body. Animus Prime has both, thanks to ZenFlow.
+* Versatility: We are the only company building both the factory robot (Titan) and the home robot (Prime) on the same underlying OS.
+```
+
+## Delivery ownership
+- [[Animus Prime Division]]
+- [[002 — Divisions MOC]]
+- [[Animus Prime — Complete Specialist Roster]]
+
+## Source
+- [Animus Prime Business Plan](https://docs.google.com/document/d/1umY4gnFV3WNLspEmAagIBXJSK_H2yulo3TYPDT1cz3s/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Animus Prime Business Plan](https://docs.google.com/document/d/1umY4gnFV3WNLspEmAagIBXJSK_H2yulo3TYPDT1cz3s/edit?usp=drivesdk)
+
+<!-- drive-expansion:a1549173e31081ba8b5c -->

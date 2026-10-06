@@ -8,7 +8,7 @@ type: product
 owner: JR Moyler (Hataalii)
 source: Master Product Catalog
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Gaia Synthesis
 product_type: Environmental Service Platform
 ---
@@ -32,3 +32,29 @@ Environmental sensor integration. Python treatment optimization models. Regulato
 
 ## MVP plan
 - [[MVP — Bioremediation Management Platform]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Gaia Synthesis is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Environmental Service Platform
+
+Management platform for bioremediation projects using engineered organisms to remediate contaminated soil and water. Treatment
+progress monitoring, condition optimization, and regulatory reporting.
+
+### Source build platform
+Environmental sensor integration. Python treatment optimization models. Regulatory report generation via Claude API. Project management in
+Notion + Airtable.
+
+### Ownership
+- [[Gaia Synthesis Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 29; Bioremediation Management Platform product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:6db88efbe6fc5797e787 -->

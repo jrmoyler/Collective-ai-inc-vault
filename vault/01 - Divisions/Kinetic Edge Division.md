@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#16A34A'
 status: chartered
-updated: 2026-10-04
+updated: 2026-10-06
 director: PODIUM
 division_no: 12
 ---
@@ -291,3 +291,127 @@ From the [[Physical AI Wearables Agent Spec]]. Devices: [[Wearables Agent Spec �
 | KE-W05 Scout Intelligence Terminal (Edge Terminal) | [[Scout Intelligence Agent]], [[Research Director]], [[Knowledge Keeper (Device Agent)]], [[Prospect Profile Generator Task Agent]] |
 
 Agents: [[Knowledge Keeper (Device Agent)]], [[Research Director]], [[Apex System Performance Agent]], [[Injury Risk Monitor Task Agent]], [[Biomechanical Analysis Task Agent]], [[Coaching Cue Dispatch Task Agent]], [[TeamOS Coaching Agent]], [[Voice Observation Task Agent]], [[Recovery Intelligence Task Agent]], [[Athlete Recovery Alert Agent]], [[Vital Helix Integration Task Agent]], [[Scout Intelligence Agent]], [[Prospect Profile Generator Task Agent]]
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Kinetic Edge. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (6)
+◆ Elite athlete performance monitoring and AI coaching
+◆ Team analytics and coaching intelligence for professional
+sports organizations
+◆ Consumer AI training plan generation and coaching
+◆ Sports performance consulting for teams and athletes
+◆ Sports science research synthesis and protocol
+development
+◆ MiroFish analytics for prediction market intelligence
+TECHNOLOGY STACK (12 tools)
+◆ Catapult / STATSports / Polar APIs — professional
+athlete wearable data
+◆ MediaPipe — computer vision for movement analysis
+◆ Statsperform / Opta API — professional sports
+performance data
+◆ ESPN API / The Odds API — sports data and prediction
+markets
+◆ Apple Health / Google Fit — consumer wearable
+integration
+◆ ZenFlow / Claude API — AI coaching and tactical
+analysis
+◆ Supabase — athlete and team data backend
+◆ React Native — mobile app development
+◆ Next.js — web platform development
+◆ Stripe — subscription billing
+◆ PubMed API — sports science research monitoring
+◆ Custom CV pipeline — video analysis for coaching
+REVENUE MODEL
+Apex System enterprise licensing (pro
+teams/organizations) + Kinetic IQ consumer
+subscriptions + consulting + prediction analytics
+SYNERGY NODES
+Kinetic Scholar
+```
+
+### Specialist delivery owners
+[[Kinetic Edge — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 09 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:486e05dfbcb469a1b4b0 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Kinetic Edge status is **chartered, not operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** October 20, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services
+Kinetic Edge will serve the entire athletic ecosystem through a comprehensive, three-pillar product suite, all powered by ZenFlow's AI and infused with an elite athletic perspective.
+* "The Apex System": AI Performance Coach Our B2C subscription platform for serious amateur and professional athletes. The Apex System integrates with wearable data and user input to act as a 24/7 AI coach, providing dynamic, personalized plans for training, nutrition, recovery, and mental preparedness, all while using predictive analytics to mitigate injury risk.
+* "TeamOS": The Command Center for Teams Our B2B SaaS platform for sports teams and organizations (from high school to pro). TeamOS provides coaches and trainers with a unified dashboard to monitor every athlete's physiological load, readiness, and performance trends. It automates reporting, flags potential overtraining, and uses our AI to offer strategic insights for game planning.
+* "Kinetic IQ": The Intelligent Fan Experience Our B2C fan engagement platform designed to deepen the viewing experience. Kinetic IQ will offer interactive, AI-driven pre-game analysis, real-time insights during broadcasts, and personalized content that helps fans understand the deeper strategy of the sports they love.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+4.1 Target Market Our product suite is designed to capture three key segments of the multi-billion dollar sports industry:
+* Serious Amateur & Professional Athletes: The core users for our premium "Apex System" B2C subscription.
+* Sports Teams & Organizations: The B2B customers for our "TeamOS" SaaS platform, including high schools, colleges, and professional leagues.
+* Modern Sports Fans: The B2C users for our "Kinetic IQ" engagement platform, targeting a new generation of fans who crave deeper, data-driven insights.
+4.2 Competitive Landscape We compete with a range of point solutions across the sports tech landscape.
+* Wearables & Fitness Apps (Whoop, Oura, Strava): Excellent at data collection, but lack a deep, holistic coaching intelligence layer.
+* Professional Analytics Platforms (Catapult, Hudl): Powerful tools for elite teams, but are often complex, expensive, and disconnected from individual athlete wellness off the field.
+* Media Companies (ESPN, Bleacher Report): Provide excellent commentary, but lack a truly interactive, personalized fan engagement platform.
+Our Competitive Advantage: Our advantage is our integrated ecosystem. No competitor connects the athlete, the team, and the fan on a single, intelligent platform. Our AI, powered by ZenFlow, transforms raw data into personalized coaching. Our authenticity, driven by Devon Scott's professional experience, ensures our products are built with a credible, athlete-first perspective that generic tech companies cannot replicate.
+```
+
+### Source section 3
+```text
+5.0 Go-to-Market & Monetization Strategy
+5.1 Go-to-Market Strategy Our strategy is an "Athlete-First" model built on authenticity. We will partner with a small group of influential professional athletes, including our co-founder Devon Scott, to be our founding brand ambassadors. Their authentic use of The Apex System will provide unparalleled credibility and drive initial adoption. For TeamOS, we will use a direct sales approach, leveraging these athlete relationships to open doors with teams and organizations. Kinetic IQ will be promoted by Nexus Labs and our athlete partners to build a community of intelligent fans.
+5.2 Monetization Model
+* The Apex System: Premium B2C Subscription ($19/month).
+* TeamOS: Tiered B2B SaaS Subscription based on team size, starting at $100 per athlete, per year.
+* Kinetic IQ: Freemium model with a premium tier ($5/month) for advanced analytics and features.
+```
+
+### Source section 4
+```text
+6.0 Role Within Collective AI
+Kinetic Edge is the Human Performance Lab of the Collective AI ecosystem.
+* Data & R&D: It will provide a unique and powerful source of biometric and performance data, which can help train more advanced AI models for ZenFlow and inform new educational programs for Hybrid Living.
+* Community & Health: It will partner with Civic Core to design community sports and wellness programs.
+* Content & Storytelling: It will be a major content source for Nexus Labs, providing the stories of athletes and teams to create compelling documentaries and podcasts.
+```
+
+## Delivery ownership
+- [[Kinetic Edge Division]]
+- [[002 — Divisions MOC]]
+- [[Kinetic Edge — Complete Specialist Roster]]
+
+## Source
+- [Kinetic Edge: Business Plan (Final & Complete)](https://docs.google.com/document/d/12pyLeAWEXy522vKhlAIbZYxIA9ywYt-qwn9dEJHSMhM/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Kinetic Edge: Business Plan (Final & Complete)](https://docs.google.com/document/d/12pyLeAWEXy522vKhlAIbZYxIA9ywYt-qwn9dEJHSMhM/edit?usp=drivesdk)
+
+<!-- drive-expansion:a6c615e7c9cf9871d253 -->
+
+## Source interface and operating records
+
+- [[API-05 Apex Performance API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:2de9dced7615b774f18f -->

@@ -8,7 +8,7 @@ type: agent-blueprint
 model: claude-sonnet-5-5
 owner: JR Moyler (Hataalii)
 status: planned
-updated: 2026-10-04
+updated: 2026-10-06
 codename: TALOS
 division: Animus Prime
 clearance: Aegis-Review
@@ -57,3 +57,14 @@ Full system prompt: [[TALOS — God Prompt]] (from the ZenFlow God Prompt Librar
 - Clearance: Level 4 — Robotics Platform and Manufacturing Partner Access
 - Aegis: Aegis-Hold for all robot deployment decisions — sa…
 - Activation order: 17 of 21
+
+## Complete source roster
+[[Animus Prime — Complete Specialist Roster]] holds all 30 source specialist role definitions, prompts, tool stacks and creation platforms. These are reference specifications; the live registry determines which agents are provisioned.
+
+## Source
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk) — Division 15. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk)
+
+<!-- drive-expansion:341c29b6bcc3ddcb4b58 -->

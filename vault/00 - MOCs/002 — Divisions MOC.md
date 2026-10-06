@@ -4,7 +4,7 @@ tags:
 - moc
 type: moc
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # Divisions MOC
 
@@ -45,3 +45,5 @@ updated: 2026-10-04
 - [[Hearth Nexus Division]]
 
 Gate: [[Division Activation Scorecard]]
+
+- [[District Handbook — Division council]] — district work kit and source-grounded records.

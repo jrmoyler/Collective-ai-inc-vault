@@ -1,0 +1,70 @@
+[
+  {
+    "name": "desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "reduced": false,
+    "title": "Collective AI Vault",
+    "campus": {
+      "notes": 1220,
+      "districts": 13,
+      "gpu": true,
+      "drawCalls": 1,
+      "audio": {
+        "unlocked": true,
+        "enabled": false,
+        "loaded": 7,
+        "voices": 0,
+        "district": ""
+      },
+      "versions": {
+        "anime": "4.5.0",
+        "babylon": "9.29.0"
+      }
+    },
+    "districtCount": 13,
+    "saved": 3,
+    "reader": {
+      "inlineTransform": "",
+      "hasContent": true
+    },
+    "errors": [],
+    "warnings": []
+  },
+  {
+    "name": "mobile",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "reduced": true,
+    "title": "Collective AI Vault",
+    "campus": {
+      "notes": 1220,
+      "districts": 13,
+      "gpu": true,
+      "drawCalls": 78,
+      "audio": {
+        "unlocked": true,
+        "enabled": false,
+        "loaded": 7,
+        "voices": 0,
+        "district": ""
+      },
+      "versions": {
+        "anime": "4.5.0",
+        "babylon": "9.29.0"
+      }
+    },
+    "districtCount": 13,
+    "saved": 3,
+    "reader": {
+      "inlineTransform": "",
+      "hasContent": true
+    },
+    "errors": [],
+    "warnings": []
+  }
+]

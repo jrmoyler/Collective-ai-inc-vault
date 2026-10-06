@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#CBD5E1'
 status: chartered
-updated: 2026-10-04
+updated: 2026-10-06
 director: CONVOY
 division_no: 18
 ---
@@ -327,3 +327,107 @@ From the [[Physical AI Wearables Agent Spec]]. Devices: [[Wearables Agent Spec �
 | VS-W05 Flight Ops Wearable (Wearable) | [[Sky Vector Flight Agent]], [[Aegis Protocol Guardian]], [[Field Telemetry Task Agent]] |
 
 Agents: [[Aegis Protocol Guardian]], [[Knowledge Keeper (Device Agent)]], [[Agent Health Monitor]], [[Obstacle Avoidance Agent]], [[Field Telemetry Task Agent]], [[Sky Vector Flight Agent]], [[Ground Vector Navigation Agent]], [[Logistics Tracker Task Agent]], [[Mesh Relay Flight Agent]], [[Aether Link Mesh Extension Task Agent]]
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for VectorShift. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (6)
+◆ Last-mile autonomous delivery for retail and logistics
+clients
+◆ Aerial drone delivery for medical, pharmaceutical, and
+high-priority cargo
+◆ Enterprise logistics API integration and supply chain
+automation
+◆ Route optimization consulting for logistics operations
+◆ Autonomous vehicle fleet management services
+◆ City pilot program management for municipal mobility
+TECHNOLOGY STACK (13 tools)
+◆ ROS2 — autonomous robot operating system
+◆ ArduPilot / PX4 — drone flight control firmware
+◆ FAA DroneZone API — airspace compliance
+◆ OR-Tools — logistics route optimization
+◆ Google Maps / HERE Maps API — routing data
+◆ TomTom API — real-time traffic data
+◆ OpenWeatherMap API — weather-aware operations
+◆ Mapbox — real-time tracking visualization
+◆ TimescaleDB — fleet telemetry time-series database
+◆ PyTorch — perception and CV models
+◆ WebSocket — real-time fleet status updates
+◆ DJI SDK — drone hardware management
+◆ Stripe — logistics billing
+REVENUE MODEL
+Per-delivery fees + fleet-as-a-service contracts + route
+intelligence SaaS + enterprise integration fees
+SYNERGY NODES
+Logistic Nexus
+```
+
+### Specialist delivery owners
+[[VectorShift — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 14 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:f2497287a846646219d1 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current VectorShift status is **chartered, not operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** October 20, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services (The 6 Pillars)
+Directorate 1: Ground Vector (Logistics & Freight)
+* 1. "Shift Haul": An AI retrofitting suite that transforms standard semi-trucks into semi-autonomous convoys. This technology allows for "platooning," where a lead truck (human-driven) is followed by 2-3 autonomous trucks, drastically reducing fuel consumption and labor costs for long-haul highway routes.
+* 2. "Vector Load": A marketplace algorithm that instantly matches shippers with empty truck space. It functions as the "AirBnB for Cargo," ensuring no Vector Shift vehicle ever drives an empty mile.
+* 3. "The Shift Hub": Automated transition yards located on the outskirts of major cities. Here, "Shift Haul" highway trucks autonomously hand off cargo to smaller, electric delivery vans (or drones) for the "last mile" into the city, keeping heavy semi-trucks out of urban centers.
+Directorate 2: Sky Vector (Aerial Mobility)
+* 4. "Flux Drone": A fleet of heavy-lift, autonomous VTOL (Vertical Take-Off and Landing) drones. Designed for high-priority payloads, these drones bypass traffic to deliver medical supplies (blood/organs), critical manufacturing parts, or Nexus Labs equipment with speed and precision.
+* 5. "Sky Lane OS": The "Air Traffic Control" for the lower atmosphere. This software layer manages low-altitude airspace, preventing collisions between drones and creating safe "virtual highways" through urban canyons.
+* 6. "Verti-Port": Modular, automated landing pads installed on the roofs of Terra Axis commercial and residential buildings. These act as the physical nodes for the network, offering automated battery swapping and secure cargo lockers for drone deliveries.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+Target Market
+* Logistics Giants: Partnering with companies (e.g., FedEx, DHL) to handle their "middle mile" autonomy.
+* Healthcare Systems: Rapid delivery of labs and emergency supplies via Flux Drones.
+* Industrial Manufacturers: Just-in-time delivery of parts via Shift Haul.
+* E-Commerce: Enabling <30 minute delivery for premium goods.
+Competitive Advantage
+* Multi-Modal Handoff: Competitors like Waymo (trucks) and Zipline (drones) are disconnected. Vector Shift owns the handoff at "The Shift Hub," moving goods from truck to drone seamlessly.
+* Infrastructure Ownership: Because we own the buildings (Terra Axis), we have inherent rights to build the landing pads ("Verti-Ports") that other drone companies struggle to permit.
+```
+
+## Delivery ownership
+- [[VectorShift Division]]
+- [[002 — Divisions MOC]]
+- [[VectorShift — Complete Specialist Roster]]
+
+## Source
+- [Vector Shift Business Plan](https://docs.google.com/document/d/1fSmKnHYBmqTLZ4i0HqwbKsCg8hwAK3CpTHHbp0KPZo8/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Vector Shift Business Plan](https://docs.google.com/document/d/1fSmKnHYBmqTLZ4i0HqwbKsCg8hwAK3CpTHHbp0KPZo8/edit?usp=drivesdk)
+
+<!-- drive-expansion:b05b67614f05a8b30973 -->
+
+## Source interface and operating records
+
+- [[API-14 VectorShift Route Optimization API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:394d609884d8d28dc8bf -->

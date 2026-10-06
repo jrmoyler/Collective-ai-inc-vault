@@ -52,7 +52,7 @@ const Live=(()=>{
   function subscribe(){
     ch=sb.channel("vault-live",{config:{presence:{key:me.id}}})
       .on("postgres_changes",{event:"*",schema:"public",table:"notes"},onNote)
-      .on("postgres_changes",{event:"*",schema:"public",table:"tasks"},e=>{const r=e.new&&e.new.id?e.new:e.old;const was=tasks.find(x=>x.id===r.id);tasks=tasks.filter(x=>x.id!==r.id);if(e.eventType!=="DELETE")tasks.push(e.new);if(e.new&&e.new.status==="done"&&was&&was.status!=="done")onDone(e.new);syncMarkers();refresh()})
+      .on("postgres_changes",{event:"*",schema:"public",table:"tasks"},e=>{const r=e.new&&e.new.id?e.new:e.old;const was=tasks.find(x=>x.id===r.id);tasks=tasks.filter(x=>x.id!==r.id);if(e.eventType!=="DELETE")tasks.push(e.new);if(e.new&&e.new.status==="done"&&was&&was.status!=="done")onDone(e.new);syncMarkers();refresh();if(typeof Journey!=='undefined')Journey.refresh()})
       .on("postgres_changes",{event:"INSERT",schema:"public",table:"activity"},e=>{acts.unshift(e.new);acts=acts.slice(0,80);onActivity(e.new);drawFloor();refresh()})
       .on("postgres_changes",{event:"*",schema:"public",table:"agent_stats"},e=>{if(e.new&&e.new.actor){const prev=stats.get(e.new.actor);stats.set(e.new.actor,weekly(e.new));onStats(e.new,prev)}})
       .on("postgres_changes",{event:"*",schema:"public",table:"presence"},e=>{if(e.new&&e.new.agent){pres.set(e.new.agent,e.new);pushAgents();drawFloor();if(sheet.open&&sheet.view==="agents"&&sheet.atab==="floor")renderSheet()}})
@@ -118,11 +118,7 @@ const Live=(()=>{
   const refresh=()=>{if(sheet.open&&sheet.view==="agents")renderSheet()};
 
   // ---- play layer: XP, levels, messages, celebrations, sound
-  const Sound=(()=>{let ctx=null;const on=()=>store.get("vault.sound",true);
-    const ac=()=>{if(!on())return null;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume()}catch{return null}return ctx};
-    const tone=(f,t0,len,type="sine",gain=.08)=>{const c=ac();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,c.currentTime+t0);g.gain.setValueAtTime(0,c.currentTime+t0);g.gain.linearRampToValueAtTime(gain,c.currentTime+t0+.012);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+t0+len);o.connect(g).connect(c.destination);o.start(c.currentTime+t0);o.stop(c.currentTime+t0+len+.05)};
-    return {on,set:v=>store.set("vault.sound",!!v),tick:()=>tone(880,0,.08,"triangle",.03),chime:()=>{tone(660,0,.18,"sine",.05);tone(990,.09,.22,"sine",.04)},done:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,i*.09,.3,"triangle",.06))},levelup:()=>{[392,523,659,784,1047,1319].forEach((f,i)=>tone(f,i*.1,.5,"sine",.07));tone(196,0,1.2,"sine",.05)},say:()=>{tone(740,0,.07,"square",.015);tone(880,.08,.07,"square",.015)}};
-  })();
+  const Sound={on:()=>store.get("vault.sound",true),set:v=>{store.set("vault.sound",!!v);if(typeof VaultAudio!=="undefined")VaultAudio.setEnabled(v)},tick:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.play('ui')},chime:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('write')},done:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('complete')},levelup:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('level')},say:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('say')}};
   function pushLevels(){const m=new Map();stats.forEach((r,k)=>m.set(k,Identity.level(r.xp)));if(Campus.setLevels)Campus.setLevels(m)}
   // every Sentinel id that stands for an actor: the autonomous agent, a person's walkers, and their owned tool sessions
   const sentinelIds=actor=>{const ids=[];if(agents.has(actor))ids.push(actor);members.forEach((mm,uid)=>{if(mm.display_name===actor)people.forEach(p=>{if(p.userId===uid)ids.push('member:'+uid+':'+p.session)})});sessions.forEach((p,key)=>{if(p.agent===actor&&isLive(p))ids.push('session:'+key)});return ids};
@@ -329,4 +325,5 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
   if(typeof open==='function'){const _open=open;open=function(n,push){_open(n,push);Sound.tick()}}
   return {session,member,join,loadAll,subscribe,render,bind,history,pushAgents,syncMarkers,drawFloor,signOut,brief,me:()=>me,snapshot:()=>({tasks:[...tasks],acts:[...acts],agents:[...agents.values()],presence:[...pres.values()],stats:[...stats.values()]}),debug:()=>({onStats,onDone,onActivity,levelUp,stats})};
 })();
+
 

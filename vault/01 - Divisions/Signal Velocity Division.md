@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#F43F5E'
 status: operating
-updated: 2026-10-04
+updated: 2026-10-06
 director: CATALYST
 division_no: 17
 ---
@@ -300,3 +300,282 @@ Five body-worn devices from the [[Wearable Catalog]]. All are prototypes staged 
 | [[Live Room Ear Cue]] | ear cue | ~$110-$180 | Cue-only device; no hidden audience capture. |
 | [[Influencer Key Tile]] | pocket tile | ~$75-$130 | Manual marker only. |
 | [[Conversion Sleeve Cue]] | sleeve module | ~$105-$170 | No manipulative covert prompts; internal staff only. |
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Signal Velocity. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (10)
+◆ Portfolio-wide growth strategy and channel allocation
+◆ Paid media campaign management (Meta, Google,
+LinkedIn, TikTok, programmatic)
+◆ Conversion rate optimization for division websites and
+funnels
+◆ SEO strategy and implementation for all divisions
+◆ Email marketing and lifecycle automation
+◆ Influencer and creator partnership management
+◆ Account-based marketing (ABM) for B2B divisions
+◆ Revenue forecasting and marketing attribution
+◆ Brand advertising strategy and execution
+◆ External growth marketing services for enterprise clients
+TECHNOLOGY STACK (18 tools)
+◆ Meta Ads API — Facebook and Instagram advertising
+◆ Google Ads API — search and display advertising
+◆ LinkedIn Campaign Manager API — B2B advertising
+◆ TikTok Ads API — short-form video advertising
+◆ The Trade Desk — programmatic advertising DSP
+◆ Northbeam / Triple Whale — multi-touch attribution
+◆ Ahrefs API — SEO research and monitoring
+◆ Google Search Console API — organic search
+performance
+◆ VWO / Optimizely — A/B testing platform
+◆ Hotjar — heatmaps and session recordings
+◆ Klaviyo — email marketing for consumer divisions
+◆ HubSpot — CRM and email for B2B divisions
+◆ Beehiiv — newsletter platform
+◆ BigQuery / Snowflake — analytics data warehouse
+◆ dbt — data transformation
+◆ Tableau / Looker — analytics dashboards
+◆ n8n — marketing automation workflows
+◆ Grin / AspireIQ — influencer management
+REVENUE MODEL
+Portfolio-internal growth service + external enterprise
+growth marketing retainers + performance-based
+agency fees
+SYNERGY NODES
+Resonance Media ◆ Oracle Relay ◆ Quantum Commerce Grid
+```
+
+### Specialist delivery owners
+[[Signal Velocity — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 17 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:af587bf85209a9368980 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Signal Velocity status is **operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** May 10, 2026
+
+### Source section 1
+```text
+3.0 Products & Services
+
+
+### 3.1 VelocityOS: Growth Operating System
+
+
+VelocityOS is the command layer for multi-channel campaign execution. It doesn't replace ad platforms — it sits above them, orchestrating spend and creative rotation intelligently.
+
+
+Core capabilities:
+- Multi-channel campaign orchestration (Meta, Google, TikTok, programmatic, email, SMS)
+- AI-driven creative rotation — automatically tests variants and surfaces winning creative before fatigue sets in
+- ZenFlow-powered audience segmentation engine (behavioral clustering, LTV prediction, churn risk scoring)
+- Budget allocation optimizer (reallocates spend in real time based on live ROAS and CAC signals)
+- Weekly growth sprint framework with automated performance debriefs
+
+
+### 3.2 SignalBoard: Attribution & Analytics Platform
+
+
+SignalBoard is the single source of revenue truth. It unifies data from every channel into one attribution model and builds the analytical foundation for scaling decisions.
+
+
+Core capabilities:
+- Multi-touch attribution modeling (data-driven, position-based, and time-decay models, client-selectable)
+- Cross-channel analytics unification (Meta Ads, Google Ads, TikTok Ads, programmatic, organic, email)
+- Custom dashboard builder with client-defined KPI views
+- Cohort analysis engine (tracks customer behavior from acquisition through LTV)
+- Real-time revenue pulse view (live revenue tracking against daily, weekly, and monthly targets)
+
+
+### 3.3 AdForge: AI Creative & Media Buying
+
+
+AdForge automates the creative pipeline from brief to performance-tested asset, and manages media buying through AI-driven bidding strategy.
+
+
+Core capabilities:
+- AI creative generation pipeline: brief input → concept → copy → visual → A/B test — in under 2 hours
+- Media buying automation (bid strategy AI, audience lookalike expansion, placement optimization)
+- Creative fatigue detection: monitors engagement decay at the signal level (swipe rate, watch time, CTR trend) before ROAS drops
+- Performance-triggered creative refresh: automatically queues new variants when fatigue thresholds are hit
+- Human review layer built into every creative before live deployment
+
+
+### 3.4 PulseFeed: Revenue Intelligence
+
+
+PulseFeed is the early warning system. It surfaces the signals that predict revenue movement before that movement shows up in standard dashboards.
+
+
+Core capabilities:
+- Real-time revenue pulse (hourly revenue tracking vs. forecast)
+- Anomaly detection (flags unusual spend, conversion drop, or traffic source shift within hours, not days)
+- Channel correlation analysis (shows when a decline in one channel is being masked by performance in another)
+- Weekly signal digest delivered to growth operators and leadership
+
+
+---
+
+
+## 4.0 Market Analysis
+
+
+### Target Market
+
+
+- DTC Brands: eCommerce companies spending $50K+ per month on paid acquisition who need attribution clarity and creative velocity to stay profitable at scale.
+- FinTech & SaaS: Subscription businesses where LTV modeling and churn-informed growth strategy directly determine whether CAC is rational.
+- EdTech Platforms: Education companies with seasonal acquisition patterns that require precise budget allocation and creative rotation.
+- Agencies and Growth Teams: External growth operators who white-label SignalBoard and VelocityOS for their own client portfolios.
+
+
+### Competitive Landscape
+
+
+- Attribution Point Solutions (Northbeam, Triple Whale, Rockerbox): Strong single-channel attribution tools but siloed from creative production and media buying optimization.
+- Agency Services: Traditional media buying agencies are human-speed, not machine-speed, and carry high margins with limited transparency.
+- Marketing Cloud Platforms (Adobe, Salesforce): Enterprise-grade but built for brand management, not performance growth. Overkill for SMBs; not built for the pace modern growth teams operate at.
+
+
+### Competitive Advantage
+
+
+- Portfolio Data Advantage: Signal Velocity's models are trained on live data from 20 active business units across multiple verticals. No external agency has this breadth of proprietary performance data informing their recommendations.
+- Full-Stack Growth: VelocityOS + SignalBoard + AdForge is the only unified platform combining attribution, creative production, and media buying in one system at this price tier.
+- Speed: AdForge creative cycles measured in hours, not weeks. Creative fatigue detection weeks ahead of competitors. Real-time intelligence versus weekly reporting.
+
+
+---
+
+
+## 5.0 Go-to-Market & Monetization Strategy
+
+
+### Phase 1 — Internal Portfolio (Year 2, Months 1–6)
+
+
+Run growth operations for Nexus Labs, Hybrid Living, and Kinetic Edge. Build performance case studies, refine the attribution model on real multi-channel spend, and prove the ROI before any external sales pitch.
+
+
+### Phase 2 — External Launch (Year 2, Months 7–12)
+
+
+Open SignalBoard and AdForge to external clients through a product-led growth motion — free trial of PulseFeed with upgrade path to full VelocityOS. Target DTC brands and growth-stage SaaS companies with $20K–$200K/month in paid acquisition spend.
+
+
+### Phase 3 — Agency & Enterprise Channel (Year 3+)
+
+
+Build an agency channel program where growth agencies white-label SignalBoard and VelocityOS. Add enterprise contracts for companies requiring custom attribution modeling and dedicated growth agent clusters.
+
+
+### Pricing Model
+
+
+- Starter: SignalBoard analytics + PulseFeed intel — $1,500/month
+- Growth: VelocityOS + SignalBoard + AdForge creative automation — $5,500/month
+- Scale: Full suite + dedicated growth agent cluster + quarterly strategy retainer — custom pricing
+
+
+---
+
+
+## 6.0 Role Within Collective AI
+
+
+Signal Velocity is not just a product — it's the growth infrastructure that proves every other Collective AI division can acquire customers efficiently. Every external marketing dollar spent across the portfolio runs through Signal Velocity's intelligence layer.
+
+
+Key cross-division dependencies:
+- Nexus Labs: Content performance intelligence and creator audience acquisition
+- Hybrid Living: Enrollment funnel optimization and cohort-based LTV modeling
+- Kinetic Edge: Athlete sponsorship analytics and fan acquisition strategy
+- Quantum Ledger: Financial modeling of CAC:LTV ratios for all Quantum products
+- The Collective: Consulting clients receive growth system audits and Signal Velocity deployment support
+
+
+---
+
+
+## 7.0 Financial Plan
+
+
+### Funding
+
+
+Signal Velocity is a Year 2 division, capitalized through Collective AI's Series A round.
+
+
+### Revenue Projections
+
+
+- Year 2: $210,000 (internal portfolio management fees + 8 external Growth-tier clients)
+- Year 3: $1,100,000 (agency channel launch, 60 active accounts, first enterprise contracts)
+- Year 4: $3,800,000 (full agency network, enterprise scale, AdForge standalone product launch)
+
+
+### Revenue Streams
+
+
+- SaaS Subscriptions: Monthly recurring revenue from Starter and Growth tiers
+- Enterprise Contracts: Annual agreements with custom attribution modeling and dedicated agent clusters
+- Agency White-Label Licensing: Per-seat fees for agencies deploying SignalBoard and VelocityOS for their own clients
+- Media Buying Management: Performance-based management fees on client paid acquisition spend
+
+
+### Cost Structure
+
+
+- Year 2 Burn: ~$380,000 (2 growth engineers, 1 media buying specialist, ZenFlow API costs, ad platform integration infrastructure)
+- Path to Profitability: Year 3, driven by agency channel volume and enterprise contract average contract value
+
+
+---
+
+
+## 8.0 Visual Identity
+
+
+- Division Name: Signal Velocity
+- Brand Line: "Revenue at the Speed of Data."
+- Logo Concept: A radar/satellite dish form — simplified to clean geometry — with a bolt of signal light firing outward from the dish face toward the upper right. Kinetic. Feels like something is always transmitting.
+- Color Palette: Signal Black #050810 (60%) / Velocity Dark #0B0F1E (30%) / Electric Cyan #06B6D4 (10%) / Signal White #F1F5F9
+- Typeface: Tracked white caps, condensed weight. Wordmark: "SIGNAL VELOCITY."
+- Tone: Data made kinetic. The speed of intelligence applied to revenue. Dark, precise, always moving. No soft edges — every visual should feel like a dashboard that's already converting.
+
+```
+
+## Delivery ownership
+- [[Signal Velocity Division]]
+- [[002 — Divisions MOC]]
+- [[Signal Velocity — Complete Specialist Roster]]
+
+## Source
+- [Signal Velocity: Business Plan (Final & Complete)](https://docs.google.com/document/d/1LzJWrZqnNR1RoWQebze_J2c2ib0yr8vqh5S4t2KzTFQ/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Signal Velocity: Business Plan (Final & Complete)](https://docs.google.com/document/d/1LzJWrZqnNR1RoWQebze_J2c2ib0yr8vqh5S4t2KzTFQ/edit?usp=drivesdk)
+
+<!-- drive-expansion:adcfbdd6d953ec414ff3 -->
+
+## Source interface and operating records
+
+- [[API-10 Signal Velocity Growth API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:babff86814a26b5aaa62 -->

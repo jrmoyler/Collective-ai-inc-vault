@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Vital Helix
 ---
 # Neuro-Pulse
@@ -45,3 +45,29 @@ MVP brief: [[MVP — Neuro-Pulse]] (from [[MVP Build Guide]])
 > Per the catalog, all health and longevity recommendations from Vital Helix and Eon Core require clinical oversight before delivery. Aegis-Review is mandatory. See [[Aegis Protocol]].
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Vital Helix is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Neuro-Wellness Platform
+
+Brain health and cognitive performance platform. EEG-informed protocols, cognitive training, sleep architecture optimization, and
+neuroinflammation monitoring. AI coaching via ZenFlow agent layer.
+
+### Source build platform
+React Native mobile app. ZenFlow / Claude API for AI coaching. EEG hardware integration via Muse/OpenBCI APIs. Sleep data via Oura/Whoop.
+Cognitive assessments via custom battery in Supabase.
+
+### Ownership
+- [[Vital Helix Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 14; Neuro-Pulse product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:e33dadb94184c6c3ea70 -->

@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#C9A84C'
 status: chartered
-updated: 2026-10-04
+updated: 2026-10-06
 director: CANOPY
 division_no: 8
 ---
@@ -305,3 +305,117 @@ Five body-worn devices from the [[Wearable Catalog]]. All are prototypes staged 
 
 > [!warning] Clinical oversight
 > Health-related devices here are research/wellness only. Clinical review for any health claim; Aegis review before production.
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Gaia Synthesis. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (8)
+◆ Urban and vertical farm AI optimization and management
+◆ Precision agriculture consulting and platform deployment
+◆ Environmental monitoring network installation and
+management
+◆ Carbon credit generation and carbon market participation
+support
+◆ Bioremediation project management
+◆ Agricultural drone fleet operations and aerial data
+collection
+◆ Climate resilience strategy for agricultural operations
+◆ Regenerative agriculture transition consulting
+TECHNOLOGY STACK (13 tools)
+◆ Planet / Sentinel-2 API — satellite imagery for crop
+monitoring
+◆ MQTT — IoT sensor communication protocol
+◆ AWS IoT Core — cloud IoT sensor management
+◆ InfluxDB — time-series database for environmental data
+◆ PostGIS / QGIS — spatial agricultural data management
+◆ ArduPilot / DJI SDK — drone fleet management
+◆ Grafana — environmental and farm monitoring
+dashboards
+◆ Python (NumPy, SciPy) — agronomic modeling and
+analysis
+◆ Claude API — crop and environmental recommendations
+◆ Mapbox — geographic visualization
+◆ Verra / Gold Standard Registry API — carbon credit
+documentation
+◆ Stripe — platform and marketplace payments
+◆ n8n — agricultural data pipeline automation
+REVENUE MODEL
+Platform SaaS (precision ag + urban farming) + carbon
+credit facilitation fees + environmental consulting +
+direct market transaction fees
+SYNERGY NODES
+Eco Engine
+```
+
+### Specialist delivery owners
+[[Gaia Synthesis — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 13 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:209675f2606940eaf198 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Gaia Synthesis status is **chartered, not operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** October 20, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services (The Integrated Pillars)
+Directorate 1: Urban Integration (The Eden Matrix)
+* 1. "The Living Wall": Modular, AI-managed hydroponic systems installed in the lobbies, hallways, and rooftops of Terra Axis properties. These aren't just decorative; they grow fresh leafy greens, herbs, and air-purifying plants, managed entirely by ZenFlow.
+* 2. "Matrix Towers": Dedicated "Farm Floors" in our skyscrapers that utilize high-density aeroponics to grow calorie-dense crops (potatoes, rice, soy) inside the city limits, reducing the "food mile" to zero.
+* 3. "Nutri-Mist": Our proprietary delivery system that uses ultrasonic fog to deliver nutrients directly to plant roots, using 95% less water than traditional soil farming.
+Directorate 2: Field Regeneration (Agron Pulse)
+* 4. "The Swarm": A fleet of small, autonomous solar-powered rovers. Unlike heavy tractors that crush soil, these light robots patrol fields 24/7 to prune, weed, and harvest individual plants with surgical precision, eliminating the need for chemical herbicides.
+* 5. "Pulse Sensors": A network of biodegradable "smart spikes" dropped into the soil. They form a real-time neural network that monitors N-P-K levels, moisture, and fungal health, allowing ZenFlow to dictate the exact hydration needed for every square meter.
+* 6. "Terra-Seed": Genetically edited seeds designed to thrive in hostile environments. We are engineering crops that can grow in saline (salty) soil or arid deserts, reclaiming wastelands for agriculture.
+Directorate 3: Molecular Genesis (The Bio-Foundry)
+* 7. "Synth-Protein": Large-scale bioreactors that cultivate real meat and dairy proteins (cellular agriculture) from animal cells, without slaughtering livestock. This provides the taste and nutrition of meat with 99% less land use and greenhouse gases.
+* 8. "Algae Loop": Bio-reactive panels installed on the exteriors of buildings. They use algae to "eat" urban CO2 pollution and convert it into biofuel or protein-rich biomass for animal feed.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+Target Market
+* Terra Axis Residents: Providing a "Farm-to-Table" subscription included in their rent.
+* Municipalities: Selling "Algae Loop" systems to clean city air.
+* Global Food Brands: Licensing "Synth-Protein" to burger chains and grocery stores.
+* Farmers: Leasing "The Swarm" robotics as a service (RaaS).
+Competitive Advantage
+* Full Stack Ecology: Competitors do only vertical farming (Plenty) or only plant-based meat (Beyond Meat). Gaia Synthesis does both, plus field robotics. We control the entire calorie stack.
+* Zero Waste Loop: Our waste (from the city) becomes food (for the Algae), which becomes fuel (for the Swarm).
+```
+
+## Delivery ownership
+- [[Gaia Synthesis Division]]
+- [[002 — Divisions MOC]]
+- [[Gaia Synthesis — Complete Specialist Roster]]
+
+## Source
+- [Gaia Synthesis Business Plan](https://docs.google.com/document/d/1UjqKfoTx55RuLO5s3wnHmUZYLG8i4LNWl7BCJRUoz-o/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Gaia Synthesis Business Plan](https://docs.google.com/document/d/1UjqKfoTx55RuLO5s3wnHmUZYLG8i4LNWl7BCJRUoz-o/edit?usp=drivesdk)
+
+<!-- drive-expansion:468b6eed1fb86325639d -->
+
+## Source interface and operating records
+
+- [[API-13 Gaia Field Sensor API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:dca45ffc063993b6f528 -->

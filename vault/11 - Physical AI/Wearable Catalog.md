@@ -9,7 +9,7 @@ type: hub
 owner: JR Moyler (Hataalii)
 source: Wearable Catalog
 entries: 105
-updated: 2026-10-04
+updated: 2026-10-06
 cost_low_total: 10890
 cost_high_total: 17910
 ---
@@ -279,3 +279,326 @@ Division note: [[Cognara Mind Division]]
 - [[Design System Bible v3]]
 - [[002 — Divisions MOC]]
 - [[003 — Products MOC]]
+
+## Drive source audit — original catalog edition
+
+> [!info] Source edition scope
+> This is a comparison against the original Drive document, not a new deployment claim. The current catalog and linked item notes above remain in place. Source source-phase revenue figures and hardware costs are targets/estimates. Current canonical division numbers, Director Codenames, [[Agent Tier Registry]] and [[Civic Core Fiduciary Veto]] override older labels/authority. Different wearable editions have different scopes; retain each edition rather than combine their item counts.
+
+### Source-defined scope
+```text
+COLLECTIVE AI INC WEARABLE CATALOG
+PRIVATE OPERATING BLUEPRINT Page 1
+COLLECTIVE AI INC
+WEARABLE PRODUCT CATALOG
+Parent Company + All 20 Divisions - Branded Wearable Hardware Spec
+Owner JR Moyler / Hataalii - Collective AI Inc
+Classification Private Operating Blueprint
+Entities 1 Parent Company + 20 Divisions = 21 sections
+Products 105 total products - 5 per entity
+Hardware Source Collective AI Physical AI Foundry Catalog and Build Spec
+Safety Gate Aegis-Hold for physical autonomy; Aegis-Review for regulated outputs
+Brand System Dark backgrounds, one division accent, restrained amber-gold parentage
+Prototype to working product - one build spec per product, one section per entity.COLLECTIVE AI INC WEARABLE CATALOG
+PRIVATE OPERATING BLUEPRINT Page 2
+TABLE OF CONTENTS
+Parent company and all 20 divisions, formatted as hardware spec sections with themed names and
+complete implementation fields.
+SECTION ENTITY PRODUCTS
+PARENT COLLECTIVE AI INC 5 products
+D-01 ZENFLOW 5 products
+D-02 THE COLLECTIVE 5 products
+D-03 HYBRID LIVING 5 products
+D-04 NEXUS LABS 5 products
+D-05 TERRA AXIS 5 products
+D-06 VITAL HELIX 5 products
+D-07 BINARY LOOM 5 products
+D-08 QUANTUM LEDGER 5 products
+D-09 KINETIC EDGE 5 products
+D-10 OBSIDIAN ARC 5 products
+D-11 CIVIC CORE 5 products
+D-12 AETHER LINK 5 products
+D-13 GAIA SYNTHESIS 5 products
+D-14 VECTOR SHIFT 5 products
+D-15 ANIMUS PRIME 5 products
+D-16 JURIS GUARD 5 products
+D-17 SIGNAL VELOCITY 5 products
+D-18 NOMAD NEXUS 5 products
+D-19 EON CORE 5 products
+D-20 COGNARA MIND 5 productsCOLLECTIVE AI INC WEARABLE CATALOG
+PRIVATE OPERATING BLUEPRINT Page 3
+OPERATING FORMAT
+This catalog mirrors the Physical AI Build Spec structure: one entity section, product code, themed
+name, purpose, hardware stack, signals/outputs, agents/APIs, workflow, industrial design, safety
+gate, outcome and budget.
+Spec Format Section header -> product page -> hardware -> signals -> agents/APIs -> workflow -> industrial design -> safety
+gate -> budget.
+Naming Rule Names follow department brand language and avoid cloned product labels across divisions.
+Brand Rule Dark primary surface, one division accent, quiet parentage mark, clean spec-card layout.
+Build Rule Every product must be registered with identity, VLAN/network class, owner, logs, power profile, update policy
+and shutdown behavior.COLLECTIVE AI INC WEARABLE CATALOG
+PRIVATE OPERATING BLUEPRINT Page 4
+PARENT
+COLLECTIVE AI INC
+Parent Company - Architecting a Humane Future
+CODE PRODUCT FORM FACTOR
+P-W01 Crown Signal Ring Smart Ring
+P-W02 Architect Medallion Pendant Pendant
+P-W03 Aegis Key Fob Key Fob
+P-W04 Founder Ear Cue Ear Cue
+P-W05 Portfolio Smart Lapel Pin Lapel Pin
+Brand Application: deep navy shell, restrained amber-gold authority mark and electric-teal live-state line. This section uses the department accent
+and avoids cloned product naming across the portfolio.COLLECTIVE AI INC WEARABLE CATALOG
+PRIVATE OPERATING BLUEPRINT Page 5
+P-W01 CROWN SIGNAL RING
+Founder-grade haptic authority ring for portfolio alerts and Aegis approvals.
+Division COLLECTIVE AI INC
+Form Factor Smart Ring
+Purpose Wearable smart ring that turns COLLECTIVE AI INC workflows into tactile, logged, body-adjacent interactions.
+Est. Budget ~$65-$120
+Hardware Stack - Adafruit Feather nRF52840 Sense or XIAO ESP32S3 Sense
+- DRV2605L haptic controller + coin vibration motor
+- micro LiPo cell + PowerBoost 1000 charging path
+- NFC tag insert for identity pairing
+- TPU inner band + PETG/PLA-CF outer shell
+Signals / Outputs - BLE identity ping
+- haptic approval/cue pattern
+- tap/gesture event
+- NFC proximity handoff
+- battery and firmware status
+Agents / APIs ZENITH Master Overseer; Aegis Command Agent; Knowledge Keeper
+ZenFlow /v1/knowledge/write; device registry; local Mac mini; NAS sync; MQTT/BLE event bus
+Workf
+```
+
+### Existing named coverage verified against extracted source
+- [[Aegis Key Fob]]
+- [[Android Control Ring]]
+- [[Apex Shoe Pod]]
+- [[Architect Medallion]]
+- [[Atlas Learner Pendant]]
+- [[Civic Access Ring]]
+- [[Cohort Focus Clip]]
+- [[Creator Medallion]]
+- [[Creator Nexus]]
+- [[Creator Nexus Vault Agent]]
+- [[Founder Ear Cue]]
+- [[Knowledge Keeper]]
+- [[Physical AI Build Spec]]
+- [[Prime Gesture Glove]]
+- [[Quantum Alpha]]
+- [[Quantum Alpha Signal Agent]]
+- [[Reaction Arm Band]]
+- [[Signal Ring]]
+- [[Wearable Catalog]]
+
+### Closing source build/governance instructions
+```text
+/BLE event bus
+Workflow Pair over BLE to the COGNARA MIND Mac mini profile, write event metadata to Knowledge
+Keeper, then sync session artifacts to the NAS when the device docks.
+Industrial Design cognara-rose neural-bloom accent, soft edges and intimate behavioral-science language;
+compact serviceable enclosure; visible charge state; 4-point parentage mark placed quietly on
+the lower shell.
+Safety Gate Aegis-Review for biometric, legal, financial, security or public-service decisions; Aegis-Clear for
+routine capture, reminders and device telemetry.
+Build Rule: every physical AI product receives identity, network segment, owner, logs, power profile, update policy and shutdown behavior before
+field use.COLLECTIVE AI INC WEARABLE CATALOG
+PRIVATE OPERATING BLUEPRINT Page 129
+CM-W05 MINDOS LAPEL PIN
+Behavioral lab pin for participant flow, consent state and prompt markers.
+Division COGNARA MIND
+Form Factor Lapel Pin
+Purpose Wearable lapel pin that turns COGNARA MIND workflows into tactile, logged, body-adjacent interactions.
+Est. Budget ~$80-$155
+Hardware Stack - Seeed XIAO ESP32S3 Sense
+- Circuit Playground Bluefruit
+- DRV2605L haptic controller
+- PowerBoost 1000 + LiPo
+- custom TPU/PETG clip-on shell
+Signals / Outputs - BLE event
+- button/capture marker
+- motion/environment sample
+- haptic confirmation
+- battery status
+Agents / APIs BehaviorForge Agent; Drift Index Agent; Knowledge Keeper
+ZenFlow /v1/knowledge/write; device registry; local Mac mini; NAS sync; MQTT/BLE event bus
+Workflow Pair over BLE to the COGNARA MIND Mac mini profile, write event metadata to Knowledge
+Keeper, then sync session artifacts to the NAS when the device docks.
+Industrial Design cognara-rose neural-bloom accent, soft edges and intimate behavioral-science language;
+compact serviceable enclosure; visible charge state; 4-point parentage mark placed quietly on
+the lower shell.
+Safety Gate Aegis-Review for biometric, legal, financial, security or public-service decisions; Aegis-Clear for
+routine capture, reminders and device telemetry.
+Build Rule: every physical AI product receives identity, network segment, owner, logs, power profile, update policy and shutdown behavior before
+field use.
+
+```
+
+## Source
+- [Collective_AI_Wearable_Catalog-1.pdf](https://drive.google.com/file/d/1xk1SifxzNjwlQVlcZkQ2xn624op7WF-S/view?usp=drivesdk) — opening scope and closing governance/build notes; full text compared against existing item names. Reviewed 2026-10-06.
+
+### Source records
+- [Collective_AI_Wearable_Catalog-1.pdf](https://drive.google.com/file/d/1xk1SifxzNjwlQVlcZkQ2xn624op7WF-S/view?usp=drivesdk)
+
+<!-- drive-expansion:3a451a81bff6bf94c2d7 -->
+
+## Drive source audit — original catalog edition
+
+> [!info] Source edition scope
+> This is a comparison against the original Drive document, not a new deployment claim. The current catalog and linked item notes above remain in place. Source source-phase revenue figures and hardware costs are targets/estimates. Current canonical division numbers, Director Codenames, [[Agent Tier Registry]] and [[Civic Core Fiduciary Veto]] override older labels/authority. Different wearable editions have different scopes; retain each edition rather than combine their item counts.
+
+### Source-defined scope
+```text
+COLLECTIVE AI INC - INTERNAL HARDWARE CATALOG Page 1
+COLLECTIVE AI INC
+WEARABLE CATALOG
+Parent Company + 20 Divisions - 105 body-worn physical AI products
+Scope Parent company + 20 divisions. Five distinct hardware products per entity. 105 catalog
+entries total.
+Design System Dark backgrounds, restrained amber authority, division accent colors, high-contrast
+product cards, and no text over images.
+Source
+Hardware
+Collective AI Physical AI Foundry hardware: Raspberry Pi, Jetson, BLE microcontrollers,
+cameras, audio, haptics, LoRa, fabrication, power, racks, storage, and safety equipment.
+Safety Gate Physical autonomy remains staged under Aegis-Hold until testing, human review,
+logging, and deployment safety checks are complete.
+Private operating blueprint - prototype catalog - generated for JR Moyler / HataaliiCOLLECTIVE AI INC - INTERNAL HARDWARE CATALOG Page 2
+Operating Standard
+• This catalog expands beyond badges and wrist monitors into rings, pendants, ear cues, garment modules, shoe/boot pods, smart
+gloves, body patches, shoulder clips, lanyards, key tokens, and pocket control objects.
+• All entries are designed as auditable physical AI endpoints: each has a body-worn form factor, a power profile, a BLE/NFC/mesh
+identity path, a data workflow, and an Aegis safety rule.
+• Product concepts intentionally avoid duplicate names and duplicate product roles across the parent company and the 20
+divisions. Shared electronics are reused only as standardized internal platforms.
+• Clinical, legal, civic, financial, behavioral, security, and robotics-adjacent products are scoped as prototype/research/control
+devices unless explicitly cleared by the relevant review workflow.
+Catalog Overview
+Entity 5 Non-Repeating Product Concepts
+Collective AI Inc Sovereign Command Ring, Architect Medallion, Aegis Key Fob, Founder Ear Cue, Portfolio Pulse
+Lanyard
+ZenFlow ZENITH Oracle Ring, Synapse Temple Clip, Prompt Stone Pocket Puck, Agent Spine Clip, Router Palm
+Band
+The Collective Client Signal Ring, Strategy Lapel Pin, Advisor Ear Cue, Deal Table Touch Token, Consultant Sleeve
+Module
+Hybrid Living Atlas Learner Pendant, Cohort Focus Clip, Instructor Gesture Ring, Study Habit Key, Lab Safety Ear
+Cue
+Nexus Labs Creator Medallion, Resonance Ear Clip, Scene Marker Ring, Studio Shoulder Pod, Edit Flow Palm Strap
+Terra Axis Surveyor Shoulder Clip, Blueprint Ring, Hardhat Sensor Clip, Open-House Key Token, StructSense
+Belt Pod
+Vital Helix Helix Recovery Patch, Neuro Calm Ear Cue, BioCore Pendant, Posture Spine Strip, Clinic Smart
+Lanyard
+Binary Loom Builder Command Ring, Firmware Key Puck, Cable Tech Sleeve Pod, Debug Palm Strap, Build Lens
+Clip
+Quantum Ledger Aurum Risk Ring, Alpha Ear Cue, Ledger Cold Key Token, Volatility Chest Patch, Options Desk Touch
+Token
+Kinetic Edge Apex Shoe Pod, Reaction Arm Band, Core Belt Pod, Coach Cue Ring, Agility Ankle Band
+Obsidian Arc Sentinel Panic Ring, Blackbox Body Clip, Access Key Fob, Threat Ear Cue, Watch Post Shoulder Pod
+Civic Core Civic Help Pendant, Volunteer Key Token, Neighborhood Safety Clip, Listening Circle Stone, Civic
+Access Ring
+Aether Link Signal Ring, Mesh Ear Cue, Relay Lanyard, Truth Lens Glass Clip, Comms Key Beacon
+Gaia Synthesis Soil Steward Boot Pod, Greenhouse Pendant, Harvester Glove Controller, Climate Hat Clip, Eco
+Survey Ring
+Vector Shift Route Commander Ring, Fleet Shoulder Clip, Cargo Key Tag, Pilot Ear Cue, Yard Safety Arm Band
+Animus Prime Prime Gesture Glove, Android Control Ring, Teleop Forearm Sleeve, Machine Vision Head Clip,
+Companion Voice Pendant
+Juris Guard Counsel Ring, Privilege Lanyard, Deposition Ear Cue, Evidence Chain Fob, Clause Marker Pen Clip
+Signal Velocity Launch Ring, Creator CTA Pendant, Live Room Ear Cue, Influencer Key Tile, Conversion Sleeve Cue
+Nomad Nexus Comp
+```
+
+### Existing named coverage verified against extracted source
+- [[Access Key Fob]]
+- [[Advisor Ear Cue]]
+- [[Aegis Key Fob]]
+- [[Agent Spine Clip]]
+- [[Agility Ankle Band]]
+- [[Alpha Ear Cue]]
+- [[Android Control Ring]]
+- [[Apex Shoe Pod]]
+- [[Apex System]]
+- [[Architect Medallion]]
+- [[Atlas Learner Pendant]]
+- [[Attention Ear Cue]]
+- [[Aurum Risk Ring]]
+- [[BioCore Pendant]]
+- [[Blackbox Body Clip]]
+- [[Blueprint Ring]]
+- [[Build Lens Clip]]
+- [[Builder Command Ring]]
+- [[Cable Tech Sleeve Pod]]
+- [[Cargo Key Tag]]
+- [[Civic Access Ring]]
+- [[Civic Help Pendant]]
+- [[Clause Marker Pen Clip]]
+- [[Client Signal Ring]]
+- [[Climate Hat Clip]]
+- [[Clinic Smart Lanyard]]
+- [[Coach Cue Ring]]
+- [[Cognitive Load Collar Clip]]
+- [[Cohort Focus Clip]]
+- [[Comms Key Beacon]]
+
+### Closing source build/governance instructions
+```text
+ty Gate User-owned private logs.
+Hardware
+Stack
+Circuit Playground Bluefruit, haptic, NFC, LiPo,
+rounded shell.
+Signals /
+Outputs
+Tap category, haptic receipt, BLE.
+Agents /
+APIs
+Cognara self-observation workflow. Industrial
+Design
+Smooth rose-black pocket stone.COLLECTIVE AI INC - INTERNAL HARDWARE CATALOG Page 46
+Cognitive Load Collar Clip COLLAR CLIP
+Form Factor collar clip Budget ~$100-$165
+Purpose Collar clip that uses motion/context proxies to
+prompt breaks and focus resets.
+Safety Gate No diagnostic mental-health claims.
+Hardware
+Stack
+Nano 33 BLE Sense, DRV2605L, LiPo, TPU
+collar clip.
+Signals /
+Outputs
+Motion variance proxy, haptic break cue, BLE.
+Agents /
+APIs
+Cognara workload workflow, Knowledge
+Keeper.
+Industrial
+Design
+Rose collar clip with matte-soft finish.COLLECTIVE AI INC - INTERNAL HARDWARE CATALOG Page 47
+Build Governance and Source Notes
+Built from the uploaded Collective AI Physical AI Build Spec and Physical AI Foundry blueprint, especially the sections describing the
+Foundry hardware source catalog, BLE wearables, edge compute, fabrication tools, power systems, audio/camera modules, and
+governance rule that physical systems remain staged under Aegis-Hold. Brand treatment follows the uploaded Design System Bible:
+dark backgrounds, restrained gold, division accents, Space-Grotesk-like sans-serif hierarchy, and no text over images.
+Rule Operating Requirement
+Identity Every device receives a device ID, owner, division, firmware version, physical label, and registry
+entry before deployment.
+Network Unknown or experimental devices start on VLAN 80 Quarantine. Production devices move only
+after Binary Loom QA and Aegis review.
+Data Sensitive client, health, legal, civic, financial, and behavioral data stays local/encrypted unless a
+reviewed workflow permits export.
+Power LiPo and battery systems require fire-safe charging, thermal monitoring where possible, and
+labeled storage.
+Autonomy Drones, robots, actuation benches, and safety-critical systems remain human-supervised and
+e-stop protected.
+Brand Parent assets use Deep Navy, Amber Gold, Electric Teal, Bright White, Muted Silver, and dark
+card surfaces. Division assets use one division accent.
+
+```
+
+## Source
+- [Collective_AI_Wearable_Catalog.pdf](https://drive.google.com/file/d/1zQ4bisAvF8XewdVNsU7MiFjjqRr6qpum/view?usp=drivesdk) — opening scope and closing governance/build notes; full text compared against existing item names. Reviewed 2026-10-06.
+
+### Source records
+- [Collective_AI_Wearable_Catalog.pdf](https://drive.google.com/file/d/1zQ4bisAvF8XewdVNsU7MiFjjqRr6qpum/view?usp=drivesdk)
+
+<!-- drive-expansion:45e5d69debffe6ab36c3 -->

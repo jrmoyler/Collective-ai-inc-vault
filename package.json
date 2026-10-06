@@ -5,18 +5,30 @@
   "description": "Collective AI second brain: live 3D vault, agent API, MCP servers and git mirror",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "python3 scripts/build_web.py",
+    "build": "node scripts/build_vendor.mjs && python3 scripts/build_web.py",
     "check": "python3 scripts/build.py --strict",
     "mcp": "node mcp/stdio.mjs",
     "agent": "node scripts/agent.mjs",
     "pull": "python3 scripts/sync.py pull",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "build:vendor": "node scripts/build_vendor.mjs",
+    "test:browser": "node tests/browser-smoke.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "esbuild": "0.25.12",
+    "playwright": "1.56.1",
     "three": "^0.128.0"
+  },
+  "dependencies": {
+    "@babylonjs/core": "9.29.0",
+    "@supabase/supabase-js": "2.117.2",
+    "animejs": "4.5.0"
   }
 }

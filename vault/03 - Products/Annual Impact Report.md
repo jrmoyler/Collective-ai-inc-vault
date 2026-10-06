@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Civic Core
 ---
 # Annual Impact Report
@@ -46,3 +46,29 @@ Catalog name: **Civic Core Annual Impact Report**
 > The catalog states that [[Stanley Constant]] holds an independent veto on all Civic Core decisions. That veto was removed on Oct 1, 2026. See [[Civic Core Fiduciary Veto]].
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Civic Core is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Reporting Document
+
+Annual public accountability document. Program outcomes, financial stewardship, donor impact, and community stories. Required by
+Stanley Constant for distribution.
+
+### Source build platform
+Data aggregation via Airtable. Report designed in Canva / Adobe InDesign. Generated as PDF via reportlab or design export. Published on Civic
+Core website.
+
+### Ownership
+- [[Civic Core Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 24; Annual Impact Report product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:ce257fcd547f33725b1f -->

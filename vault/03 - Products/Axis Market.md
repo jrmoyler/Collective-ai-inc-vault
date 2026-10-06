@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: building
-updated: 2026-10-04
+updated: 2026-10-06
 division: Terra Axis
 ---
 # Axis Market
@@ -42,3 +42,29 @@ MVP brief: [[MVP — Axis Market]] (from [[MVP Build Guide]])
 **Build / creation platform.** Next.js frontend. Supabase + PostgreSQL backend. MLS data integration via Bridge API. Claude API for listing intelligence. Stripe for transaction facilitation.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Terra Axis is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Real Estate Marketplace
+
+AI-curated real estate marketplace connecting investors, buyers, and renters with AI-qualified listings. Predictive pricing, neighborhood
+intelligence, and deal-flow matching.
+
+### Source build platform
+Next.js frontend. Supabase + PostgreSQL backend. MLS data integration via Bridge API. Claude API for listing intelligence. Stripe for transaction
+facilitation.
+
+### Ownership
+- [[Terra Axis Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 12; Axis Market product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:5ae8f470db3ac3e0091a -->

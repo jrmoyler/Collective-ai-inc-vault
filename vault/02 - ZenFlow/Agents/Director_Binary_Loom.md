@@ -8,7 +8,7 @@ type: agent-blueprint
 model: claude-sonnet-5-5
 owner: JR Moyler (Hataalii)
 status: active
-updated: 2026-10-04
+updated: 2026-10-06
 codename: NIMBUS
 division: Binary Loom
 clearance: Aegis-Review
@@ -57,3 +57,14 @@ Full system prompt: [[NIMBUS — God Prompt]] (from the ZenFlow God Prompt Libra
 - Clearance: Level 5 — Full Infrastructure Access Across All 20 Divisions
 - Aegis: Aegis-Review — Infrastructure changes affecting mu…
 - Activation order: 3 of 21
+
+## Complete source roster
+[[Binary Loom — Complete Specialist Roster]] holds all 30 source specialist role definitions, prompts, tool stacks and creation platforms. These are reference specifications; the live registry determines which agents are provisioned.
+
+## Source
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk) — Division 07. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk)
+
+<!-- drive-expansion:f7b1b9f0042bdb93b178 -->

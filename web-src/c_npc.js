@@ -17,8 +17,9 @@ const Guides=(()=>{
   const wrap=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
   const clamp=(v,a,b)=>v<a?a:v>b?b:v;
   const district=top=>Campus.districts().find(d=>d.top===top)||null;
-  const notesIn=top=>NOTES.filter(n=>n.top===top);
-  const inDistrict=(top,name)=>{const n=name&&byName.get(name);return !!n&&n.top===top};
+  const worldTop=n=>typeof Districts!=="undefined"?Districts.worldTop(n):n.top;
+  const notesIn=top=>NOTES.filter(n=>worldTop(n)===top);
+  const inDistrict=(top,name)=>{const n=name&&byName.get(name);return !!n&&worldTop(n)===top};
   const clean=s=>String(s).replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g,"$1").replace(/[#>*|`_]/g," ").replace(/\s+/g," ").trim();
   const link=n=>`<a class="wl" data-n="${esc(n.name)}">${esc(n.name)}</a>`;
   const snap=()=>{try{return Live.snapshot()}catch(e){return {tasks:[],acts:[],agents:[],presence:[],stats:[]}}};
@@ -41,7 +42,8 @@ const Guides=(()=>{
       robe:top(new THREE.CylinderGeometry(.62,1,1,20,1,true)),
       hem:top(new THREE.CylinderGeometry(1,1,1,20,1,true)),
       mantle:top(new THREE.CylinderGeometry(.56,.94,1,20,1,true)),
-      cape:top(new THREE.BoxGeometry(1,1,.035)),
+      // Tailored cloth with scalloped shoulders and a folded cross section, built once.
+      cape:(()=>{const p=[],idx=[],w=12,h=10;for(let y=0;y<=h;y++)for(let x=0;x<=w;x++){const u=x/w,v=y/h,edge=Math.abs(u-.5)*2;p.push((u-.5)*(1-.12*(1-v)),-v+.055*edge*edge*(1-v),Math.sin(u*Math.PI*6)*.045*(.35+.65*v)+v*v*.075)}for(let y=0;y<h;y++)for(let x=0;x<w;x++){const a=y*(w+1)+x,b=a+w+1;idx.push(a,b,a+1,b,b+1,a+1)}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(p,3));g.setIndex(idx);g.computeVertexNormals();return g})(),
       strip:new THREE.BoxGeometry(1,1,1),
       hood:new THREE.SphereGeometry(.5,16,10,Math.PI*.85,Math.PI*1.3,0,Math.PI*.64),
       peak:new THREE.ConeGeometry(.26,.8,10,1,true),
@@ -108,6 +110,8 @@ const Guides=(()=>{
     // quest marker
     const mk=new THREE.Group();mk.position.y=8.05;mk.scale.setScalar(1.5);const dia=mesh(K.marker,K.gold,0,0,0,1,1.7,1);dia.castShadow=false;mk.add(dia);const ring=mesh(K.markerRing,K.gold,0,-.62,0);ring.rotation.x=Math.PI/2;ring.castShadow=false;mk.add(ring);
     const halo=new THREE.Sprite(K.goldGlow);halo.scale.setScalar(2.2);mk.add(halo);mk.visible=false;root.add(mk);
+    // Layered collar and fasteners create a readable guild silhouette without touching personal identities.
+    for(const side of [-1,1]){const clasp=mesh(K.gem,K.metal,side*.48,4.65,.43,.32,.44,.25);root.add(clasp);root.add(mesh(K.strip,M.trim,side*.48,4.65,.49,.025,.15,.018));}
     g.marker=mk;g.markerDia=dia;g.markerRing=ring;g.markerGlow=halo;
     m.grp.add(root);m.head.add(cap);g.kitRoot=root;g.cap=cap;g.trim=M.trim;
   }
@@ -228,7 +232,7 @@ const Guides=(()=>{
           if(g.gest==="present"){A[0].rotation.x+=(-.95-A[0].rotation.x)*k;A[0].rotation.z+=(-.5-A[0].rotation.z)*k;A[1].rotation.x+=(-.95-A[1].rotation.x)*k;A[1].rotation.z+=(.5-A[1].rotation.z)*k}
           else if(g.gest==="point"){A[1].rotation.x+=(-1.5-A[1].rotation.x)*k;A[1].rotation.z+=(.12-A[1].rotation.z)*k;m.head.rotation.x-=.08*k}
           else if(g.gest==="bow"){m.head.rotation.x+=.5*k;A[0].rotation.x+=(.18-A[0].rotation.x)*k;A[1].rotation.x+=(.18-A[1].rotation.x)*k}}}
-      if(speaking){const p=.5+.5*Math.sin(time*14);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=1.1+.9*p}else g.trim.emissiveIntensity=1.1;
+      if(speaking&&!reduced){const p=.5+.5*Math.sin(time*7);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=1.1+.9*p}else g.trim.emissiveIntensity=1.1;
       // cloth and props
       if(g.cape){const sw=reduced?0:Math.sin(time*1.1+m.phase)*.035,tr=clamp(Math.abs(g.yawVel)*.25,0,.5),side=clamp(-g.yawVel*.15,-.25,.25);
         g.cape[0].rotation.x=.2+sw+tr;g.cape[1].rotation.x=.05+sw*1.4+tr*.5;g.cape[2].rotation.x=.04+sw*1.8;g.cape[0].rotation.z=side;g.cape[1].rotation.z=side*.6}
@@ -489,7 +493,7 @@ const Guides=(()=>{
   }
 
   // ---- answers. Every answer is computed from loaded data; nothing is guessed. Each returns {text, html, gest}.
-  const CHIPS=["What is this district","What's new","Who is working here","Open tasks"];
+  const CHIPS=["What is this district","What's new","Who is working here","Open tasks","Recommend my next task","Connect my tools"];
   const noteBtn=(n,sub)=>`<button class="bl" type="button" data-n="${esc(n.name)}"><b>${esc(n.name)}</b><small>${sub}</small></button>`;
   function overviewR(top,d){
     const ns=notesIn(top),mocs=ns.filter(n=>n.fm.type==="moc"),types={};ns.forEach(n=>{const t=n.fm.type||"untyped";types[t]=(types[t]||0)+1});
@@ -514,6 +518,15 @@ const Guides=(()=>{
     if(!ts.length)return {text:"No open task points at a note in this district.",html:"",gest:"nod"};
     const open=ts.filter(isOpen).length;
     return {text:`${plural(ts.length,"task")} not done here, ${open} open. Highest bounty first.`,html:ts.map(t=>`<button class="bl" type="button" data-n="${esc(t.note)}"><b>${esc(t.title||t.id)} <em class="bounty">+${BOUNTY[t.priority]||80} XP</em></b><small>${esc(t.id)} · ${esc(t.status)}${t.agent?" · "+esc(agentName(t.agent)):" · unassigned"} · ${esc(t.note)}</small></button>`).join(""),gest:"present"};
+  }
+  function nextWorkR(top){
+    const tasks=snap().tasks.filter(t=>isOpen(t)&&inDistrict(top,t.note)).sort((a,b)=>(BOUNTY[b.priority]||80)-(BOUNTY[a.priority]||80)||String(a.id).localeCompare(String(b.id)));
+    if(!tasks.length)return {text:"No unclaimed task is open here. Review recent changes or ask another district's Warden.",html:chips(),gest:"nod"};
+    const t=tasks[0];return {text:`Start with ${t.title||t.id}. It is ${t.priority||"medium"} priority. Read its linked note before claiming it in the task board.`,html:noteBtn({name:t.note},`${esc(t.id)} · ${esc(t.status)} · +${BOUNTY[t.priority]||80} XP on completion`),gest:"point"};
+  }
+  function toolsR(top){
+    const ns=notesIn(top).filter(n=>/mcp|connector|integration|tool registry|agent api|onboarding/i.test(n.name)).slice(0,6);
+    return {text:"Your tools join through the vault's agent API or MCP connection. Follow the connection notes for identity and access. Never paste credentials into a note or floor chat.",html:ns.length?ns.map(n=>noteBtn(n,esc(n.folder||""))).join(""):"<p>Connection setup is in the Live and onboarding panels. This district has no matching connection note.</p>",gest:"present"};
   }
   function landmarksR(top,d){
     const Bld=Campus.buildings(),tall=notesIn(top).filter(n=>Bld[n.id]).map(n=>({n,h:Bld[n.id].h,deg:n.out.size+n.back.size})).sort((a,b)=>b.h-a.h||b.deg-a.deg).slice(0,6);
@@ -542,12 +555,14 @@ const Guides=(()=>{
     let m;
     if(m=ql.match(/^(?:where(?:'s| is| are)?|find|take me to|go to|show me|fly to)\s+(.+?)\??$/)){
       const want=m[1].replace(/^(the|a)\s+/,"");const r=best(top,want)[0]||NOTES.map(n=>({n,s:n.name.toLowerCase().includes(want)?1:0})).find(r=>r.s);
-      if(r){setTimeout(()=>{if(D.open)close(false);open(r.n)},D.open?900:60);return {text:`${r.n.name} is ${r.n.top===top?"in this district":"in "+r.n.top}. Flying there.`,html:"",gest:"point"}}
+      if(r){setTimeout(()=>{if(D.open)close(false);open(r.n)},D.open?900:60);return {text:`${r.n.name} is ${worldTop(r.n)===top?"in this district":"in "+worldTop(r.n)}. Flying there.`,html:"",gest:"point"}}
       return {text:`I do not have a note called “${want}”. Try one of these.`,html:chips(),gest:"nod"};
     }
     if(/what(?:'s| is)? (?:this|the) (?:district|place|area)|about (?:this|the) district|what is here|what'?s here/.test(ql))return overviewR(top,d);
     if(/what'?s new|new here|recent|changed|updated|latest/.test(ql))return whatsNewR(top);
     if(/who(?:'s| is)?\s*(?:working|here|around|standing)|anyone (?:here|working)|working here/.test(ql))return whoHereR(top);
+    if(/recommend|next task|start working|where (?:should|can) i start/.test(ql))return nextWorkR(top);
+    if(/connect|integration|\bmcp\b|my tools|tool setup/.test(ql))return toolsR(top);
     if(/open tasks?|tasks?\b|commissions?|to-?do|work here|what needs doing/.test(ql))return openTasksR(top);
     if(/landmark|tallest|biggest/.test(ql))return landmarksR(top,d);
     const rs=best(top,q).slice(0,5);

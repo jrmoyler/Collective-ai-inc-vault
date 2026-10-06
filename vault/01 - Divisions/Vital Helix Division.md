@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#14B8A6'
 status: chartered
-updated: 2026-10-04
+updated: 2026-10-06
 director: CADUCEUS
 division_no: 6
 ---
@@ -302,3 +302,118 @@ Five body-worn devices from the [[Wearable Catalog]]. All are prototypes staged 
 
 ## Device agents
 No Vital Helix devices in the [[Physical AI Wearables Agent Spec]]. Kinetic Edge's Recovery Intelligence Node runs the [[Vital Helix Integration Task Agent]], which cross-references recovery data with the Vital Helix API. The Apex Motion Cage's [[Injury Risk Monitor Task Agent]] logs Vital Helix integration requests for recovery protocol generation.
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Vital Helix. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (7)
+◆ Bio-Digital Twin health monitoring and simulation
+◆ Personalized medication formulation
+(physician-supervised)
+◆ Cognitive performance and brain health coaching
+◆ Telehealth consultations with licensed physicians
+◆ Corporate wellness programs using Bio-Digital Twin
+infrastructure
+◆ Clinical research partnerships for health protocol
+validation
+◆ Vital Helix API access for health data integration partners
+TECHNOLOGY STACK (12 tools)
+◆ Apple Health / Google Fit API — wearable data
+integration
+◆ Oura / Whoop / Garmin APIs — advanced biometric
+wearable data
+◆ LabCorp / Quest / Function Health API — lab result
+integration
+◆ 23andMe / Nebula Genomics API — genomic data
+integration
+◆ Daily.co / Agora — HIPAA-compliant video telehealth
+◆ Muse / OpenBCI — EEG hardware for Neuro-Pulse
+◆ ZenFlow / Claude API — AI health intelligence and
+coaching
+◆ Supabase (HIPAA-compliant config) — patient data
+backend
+◆ Stripe — subscription and payment processing
+◆ Calendly — telehealth appointment scheduling
+◆ n8n — health data pipeline automation
+◆ Juris Guard Integration — FDA and HIPAA compliance
+layer
+REVENUE MODEL
+Subscription plans (consumer + corporate) + telehealth
+consultation fees + Custom Script formulation fees +
+API licensing
+SYNERGY NODES
+Vital Chain ◆ Kinetic Scholar
+```
+
+### Specialist delivery owners
+[[Vital Helix — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 06 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:70fca103d4c143ab9f6a -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Vital Helix status is **chartered, not operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** October 20, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services (The Integrated Pillars)
+Directorate 1: The Bio-Twin (Longevity & Data)
+* 1. "Vital OS": The dashboard for your life. It hosts your "Bio-Digital Twin"—a living, cloud-based replica of your biology. ZenFlow runs millions of simulations on your Twin daily to predict potential failures (heart attacks, cancer) years in advance, offering preventative micro-adjustments to diet and lifestyle.
+* 2. "Span Clinics": Physical regeneration hubs located in Terra Axis developments. These are not hospitals, but "optimization centers" offering cryotherapy, hyperbaric oxygen, and gene therapy to slow cellular aging.
+Directorate 2: The Neural Guard (Diagnostics & Mental Health)
+* 3. "Triage AI": The universal doctor. A diagnostic engine available 24/7 via app and Civic Core kiosks. It reads X-rays, analyzes symptoms, and listens to coughs to diagnose physical ailments with higher accuracy than human GPs.
+* 4. "Neuro-Pulse": The mental health revolution. An AI-powered "Active Therapist" that uses voice analysis and biometric data (from wearables) to detect anxiety or depression spikes in real-time. It provides immediate cognitive behavioral coaching, guided meditation, and "Soundscapes" via Aether Link to chemically balance the brain before a crisis occurs.
+* 5. "Rapid Rx": The fulfillment layer. Once Triage AI or Neuro-Pulse determines a need, a Vector Shift drone drops the precise medication (or supplements) at the user's door within 30 minutes.
+Directorate 3: The Helix Forge (Synthetic Biology)
+* 6. "Custom Script": The end of generic pills. We place 3D molecular printers in pharmacies that print medication tailored to the user's specific DNA and metabolic rate, maximizing efficacy and eliminating side effects.
+* 7. "Organ Foundry": A long-term R&D initiative focused on 3D bioprinting replacement tissues (skin, cartilage, and eventually complex organs) using the patient's own stem cells, eliminating rejection risks and waiting lists.
+* 8. "CRISPR Shield": A gene-editing therapy service for adults. It acts as a "software patch" for your DNA, correcting genetic predispositions to diseases like high cholesterol or hereditary cancers.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+Target Market
+* "Optimizers": Biohackers and athletes (via Kinetic Edge) paying for Vital OS.
+* Mental Health Sector: Providing Neuro-Pulse to universities and corporations to combat burnout.
+* Chronic Patients: Using Custom Script to manage complex conditions.
+* Developing Nations: Using Triage AI for low-cost primary care.
+Competitive Advantage
+* Holistic Data: Competitors have either your medical records (Epic) or your fitness data (Apple). Vital Helix has both, plus your Mental Health data, creating a complete picture.
+* Active vs. Passive: Traditional therapy waits for you to schedule an appointment. "Neuro-Pulse" reaches out to you when it senses distress.
+```
+
+## Delivery ownership
+- [[Vital Helix Division]]
+- [[002 — Divisions MOC]]
+- [[Vital Helix — Complete Specialist Roster]]
+
+## Source
+- [Vital Helix Business Plan](https://docs.google.com/document/d/1qEsEcwHa0qlfVANNBv0FI6akoDkPNnKk_f6ewU1omTA/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Vital Helix Business Plan](https://docs.google.com/document/d/1qEsEcwHa0qlfVANNBv0FI6akoDkPNnKk_f6ewU1omTA/edit?usp=drivesdk)
+
+<!-- drive-expansion:301c3c820d1790c3d589 -->
+
+## Source interface and operating records
+
+- [[API-08 Bio-Digital Twin API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:bdc301da524f7efcf5e9 -->

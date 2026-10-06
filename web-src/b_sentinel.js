@@ -93,6 +93,9 @@ const RIM=`{vec3 vd=normalize(vViewPosition);float fr=pow(1.0-max(dot(normal,vd)
 // kind: body | armor | joint | trim | visor
 function surface(kind,U,opts){
   const m=new THREE.MeshStandardMaterial({vertexColors:true,skinning:true,...opts});
+  // r128 standard materials already enable derivatives; expose an extension request
+  // for versions that read material.extensions without assuming it exists.
+  m.extensions={...(m.extensions||{}),derivatives:true};
   const detail=kind==='armor'?TEX.plating:kind==='trim'||kind==='visor'?null:TEX.carbon,scale=kind==='armor'?.9:3.2,amt=kind==='armor'?.85:kind==='joint'?.5:.55;
   m.onBeforeCompile=s=>{
     Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn});
@@ -100,7 +103,12 @@ function surface(kind,U,opts){
     let f=s.fragmentShader;
     f=f.replace('#include <color_fragment>',`#include <color_fragment>
 \tfloat sDetail=uTexOn>0.5?triplanar(tDetail,vLocal,vLocalN,${scale.toFixed(2)}):0.55;
-\tdiffuseColor.rgb*=mix(1.0,0.5+0.92*sDetail,uTexOn*${amt.toFixed(2)});`);
+\tdiffuseColor.rgb*=mix(1.0,0.5+0.92*sDetail,uTexOn*${amt.toFixed(2)});
+\t// Fine machined lines use derivative filtering to avoid distant shimmer. No texture download required.
+\tvec3 seamP=vLocal*${kind==='armor'?'9.0':'28.0'};vec3 seamW=fwidth(seamP)+vec3(0.003);
+\tvec3 seamD=abs(fract(seamP-0.5)-0.5);vec3 seams=vec3(1.0)-smoothstep(vec3(0.015),vec3(0.015)+seamW,seamD);
+\tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.055':'0.025'};
+\tdiffuseColor.rgb*=1.0-machining;`);
     f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0);');
     let em=RIM;
     if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
@@ -113,7 +121,7 @@ function surface(kind,U,opts){
 \t totalEmissiveRadiance+=uRim*(0.22+band*0.7)*glowGain;}`;
     f=f.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\t'+em);
     s.fragmentShader=F_HEAD+f};
-  m.customProgramCacheKey=()=>'sentinel-'+kind;return m;
+  m.customProgramCacheKey=()=>'sentinel-machined-v2-'+kind;return m;
 }
 
 // ---- skeleton. Rigid skinning: each plate follows one bone, so armor never smears.
@@ -380,3 +388,4 @@ function stats(m){let draws=0,verts=0,mats=0;m.grp.traverse(o=>{if(o.isMesh){mat
 function textures(base){if(base&&TEX.state==='idle')TEX.base=base;return {state:TEX.state,base:TEX.base}}
 return {create:makeSentinel,dispose,pose,emote,prop,environment,BUSY,STATUSES,EMOTES,stats,textures,reducedMotion,tier:l=>Identity.tier(l)};
 })();
+

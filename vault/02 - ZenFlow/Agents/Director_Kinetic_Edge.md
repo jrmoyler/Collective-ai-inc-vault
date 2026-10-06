@@ -8,7 +8,7 @@ type: agent-blueprint
 model: claude-sonnet-5-5
 owner: JR Moyler (Hataalii)
 status: planned
-updated: 2026-10-04
+updated: 2026-10-06
 codename: PODIUM
 division: Kinetic Edge
 clearance: Aegis-Review
@@ -57,3 +57,14 @@ Full system prompt: [[PODIUM — God Prompt]] (from the ZenFlow God Prompt Libra
 - Clearance: Level 3 — Athlete Data Access with Privacy Enforcement
 - Aegis: Aegis-Clear for standard performance content; Aegi…
 - Activation order: 11 of 21
+
+## Complete source roster
+[[Kinetic Edge — Complete Specialist Roster]] holds all 30 source specialist role definitions, prompts, tool stacks and creation platforms. These are reference specifications; the live registry determines which agents are provisioned.
+
+## Source
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk) — Division 09. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk)
+
+<!-- drive-expansion:59ed0aa699c93190334a -->

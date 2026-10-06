@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#0EA5E9'
 status: operating
-updated: 2026-10-04
+updated: 2026-10-06
 director: MENTOR
 division_no: 3
 ---
@@ -305,3 +305,120 @@ From the [[Physical AI Wearables Agent Spec]]. Devices: [[Wearables Agent Spec �
 | HL-W05 Field Learning Kit (Field Kit) | [[AI Tutor Task Agent]], [[P.E.T.E.E.R. Assessment Task Agent]], [[Knowledge Keeper (Device Agent)]] |
 
 Agents: [[Knowledge Keeper (Device Agent)]], [[Transcription Task Agent]], [[AI Tutor Task Agent]], [[Learning Path Agent]], [[Cohort Manager Task Agent]], [[Curriculum Synthesis Task Agent]], [[Nexus Labs Content Relay Task Agent]], [[P.E.T.E.E.R. Assessment Task Agent]]
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Hybrid Living. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (6)
+◆ AI curriculum design and delivery for individuals and
+enterprises
+◆ Corporate AI training program licensing
+◆ Civic Core scholarship coordination for underserved
+learners
+◆ P.E.T.E.E.R. framework licensing to educational
+institutions
+◆ Community management and content programming for
+Focus Flow Skool
+◆ Creator Track mentorship and cohort facilitation
+TECHNOLOGY STACK (13 tools)
+◆ Skool — community platform (Focus Flow)
+◆ Teachable / Thinkific — LMS fallback and marketplace
+distribution
+◆ Vimeo — video hosting for course content
+◆ Notion — curriculum development and internal
+documentation
+◆ Circle.so — alternative community features
+◆ CapCut / DaVinci Resolve — course video production
+◆ Nano Banana 2 — AI image generation for course assets
+◆ Kling — AI video production for course content
+◆ Lyria 3 — AI audio/music for course media
+◆ Stripe — course payment processing
+◆ ConvertKit / Klaviyo — student email marketing and
+nurture
+◆ Zapier / n8n — enrollment and progress automation
+◆ ZenFlow — pedagogical simulation layer for interactive
+learning
+REVENUE MODEL
+Course sales + subscription membership + corporate
+licensing + certification fees
+SYNERGY NODES
+Ascension Campus ◆ Kinetic Scholar
+```
+
+### Specialist delivery owners
+[[Hybrid Living — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 03 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:4c1fc85393211237bbc7 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Hybrid Living status is **operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** October 20, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services
+Hybrid Living will develop and deploy a comprehensive, multi-layered educational ecosystem. Our products and services are designed to be fully integrated, creating a seamless and powerful learning journey for every type of user.
+3.1 P.E.T.E.E.R.: The Core Intelligence Engine P.E.T.E.E.R. (Personalized Educational Tutor with Embodied Experiential Reasoning) is our proprietary, next-generation Intelligent Tutoring System (ITS). It is the core AI "brain" that powers the entire Hybrid Living ecosystem, providing a deeply personalized and adaptive learning experience grounded in pedagogical models and built on a transparent, ethical "Glass Box" architecture.
+3.2 "Atlas": The Personalized Learning Platform Atlas is our flagship SaaS platform, the user-facing body that delivers the intelligence of P.E.T.E.E.R. It is the central hub for all our educational offerings and the home of the Hybrid Living Academy.
+3.3 "Hybrid Living Academy": The Premier Learning Experience Delivered exclusively through the Atlas platform, the Academy offers comprehensive 4-12 week courses taught by dynamic AI Avatar Professors. Each course comes complete with integrated e-textbooks, interactive quizzes, adaptive study guides, and a suite of digital tools.
+3.4 "Future-Ready": The Dynamic Curriculum "Future-Ready" is our proprietary, modular curriculum. A key component is the "Creator Track," which embodies our vertical integration value, teaching learners the practical skills to build their own custom AI tools.
+3.5 "Momentum": The Upskilling & Retraining Service "Momentum" is our high-touch service layer that leverages our platform and curriculum to deliver targeted upskilling programs for corporations, individuals, and entrepreneurs.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+4.1 Target Market Our go-to-market strategy targets three distinct customer segments:
+* Education Institutions (K-12 & Higher Ed)
+* Corporate Learning & Development (L&D)
+* Individual Lifelong Learners (D2C)
+4.2 Competitive Landscape We compete against MOOC Platforms (Coursera), Corporate Learning Platforms (Skillsoft), and Niche AI Tutoring Startups (Khanmigo). Our competitive advantage is our fully integrated, intelligent ecosystem. Our proprietary AI engine, P.E.T.E.E.R., provides a depth of personalization competitors cannot match, and our "Creator Track" bridges the gap between passive learning and active creation.
+```
+
+### Source section 3
+```text
+5.0 Go-to-Market Strategy
+5.1 Marketing & Sales
+* For Education Institutions: A Pilot Program Initiative to build trust and generate case studies.
+* For Corporate L&D: A Direct Outreach & Content Marketing campaign focused on ROI.
+* For Individual Learners: A Freemium & Community Growth model to build a large user base.
+5.2 Pricing
+* For Education Institutions: A Per-Student, Per-Year Licensing Model (approx. $25/student/year).
+* For Corporate L&D: A Per-Seat, Per-Year Subscription Model (approx. $200/seat/year).
+* For Individual Learners: A Tiered Subscription Model with a $29/month premium tier and one-time purchases for Academy courses ($199-$999).
+```
+
+## Delivery ownership
+- [[Hybrid Living Division]]
+- [[002 — Divisions MOC]]
+- [[Hybrid Living — Complete Specialist Roster]]
+
+## Source
+- [Hybrid Living: Business Plan (Final & Complete)](https://docs.google.com/document/d/1wj9Dg6aTaFQn2wTOPv__IDp3obSy1fD0K7fjyn7qci4/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Hybrid Living: Business Plan (Final & Complete)](https://docs.google.com/document/d/1wj9Dg6aTaFQn2wTOPv__IDp3obSy1fD0K7fjyn7qci4/edit?usp=drivesdk)
+
+<!-- drive-expansion:434db0ca613144748507 -->
+
+## Source interface and operating records
+
+- [[API-16 Hybrid Living Learning API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:0ec3b1fe13ece1c2ae65 -->

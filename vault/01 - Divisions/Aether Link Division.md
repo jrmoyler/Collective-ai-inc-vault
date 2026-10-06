@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#B5451B'
 status: chartered
-updated: 2026-10-04
+updated: 2026-10-06
 director: SPECTRUM
 division_no: 10
 ---
@@ -305,3 +305,111 @@ Five body-worn devices from the [[Wearable Catalog]]. All are prototypes staged 
 
 ## Device agents
 No Aether Link devices in the [[Physical AI Wearables Agent Spec]]. VectorShift's Aerial Mesh Relay Drone runs the [[Aether Link Mesh Extension Task Agent]], extending the Aether Link mesh beyond fixed node range (Aether Link Mesh Status workflow).
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Aether Link. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (7)
+◆ Mesh network deployment for underserved communities
+◆ Enterprise Babel AI translation API licensing
+◆ Truth Lens content verification for media organizations
+◆ Platform content moderation using Truth Lens
+◆ Sky Net connectivity for remote areas
+◆ Language access services for Civic Core programs
+◆ Connectivity gap assessment and network deployment
+consulting
+TECHNOLOGY STACK (14 tools)
+◆ OpenWRT / BATMAN-adv — mesh network firmware and
+routing
+◆ Whisper API — multilingual speech-to-text
+◆ Hugging Face — NMT model training and deployment
+◆ Claude API — claim analysis and content verification
+◆ FastAPI — API layer for all Aether Link services
+◆ Redis — real-time translation caching and API
+performance
+◆ WebSocket — live translation protocol
+◆ Prometheus / Grafana — network monitoring
+◆ Mapbox — coverage visualization
+◆ Kong API Gateway — API management and rate limiting
+◆ Starlink API — satellite connectivity integration
+◆ MNE-Python — neural signal processing for BCI R&D;
+◆ OpenBCI — BCI hardware platform
+◆ Stripe — API billing
+REVENUE MODEL
+API subscriptions (Babel AI + Truth Lens) + mesh
+deployment project fees + enterprise connectivity
+contracts + content moderation SaaS
+SYNERGY NODES
+Neural Grid
+```
+
+### Specialist delivery owners
+[[Aether Link — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 12 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:733cbe0f914146994865 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Aether Link status is **chartered, not operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** October 20, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services (The 6 Pillars)
+Directorate 1: The Grid (Infrastructure & Access)
+* 1. "The Mesh": A decentralized internet protocol. We install specialized routers in Terra Axis buildings and Vector Shift charging stations that act as network nodes. These nodes "stitch" together to form a resilient, self-healing mesh network that beams high-speed, low-cost Wi-Fi to the surrounding neighborhood, bypassing traditional ISPs.
+* 2. "Sky Net": An emergency connectivity protocol. In the event of a natural disaster or blackout, Vector Shift drones equipped with Aether Link payloads are deployed to hover over the affected zone, instantly restoring cellular and data service for first responders and victims.
+* 3. "Zero Point": A hardware/software solution for developing nations and rural areas. It uses "Edge AI" to compress data usage by up to 90%, allowing expensive satellite or cellular connections to feel like high-speed broadband, making digital equity affordable.
+Directorate 2: The Bridge (Translation & Inclusivity)
+* 4. "Babel AI": The end of the language barrier. A platform (available as an app and an in-ear wearable) that provides real-time, bi-directional translation of 100+ languages with near-zero latency. Unlike current tools, it preserves the speaker's tone, emotion, and cadence, ensuring empathy is not lost in translation.
+* 5. "Neuro-Bridge": A revolutionary assistive interface for non-verbal individuals. Using non-invasive gaze tracking and predictive AI, it translates micro-movements and intent into fluent, synthesized speech, allowing those with conditions like ALS or severe autism to communicate at the speed of thought.
+* 6. "Truth Lens": An enterprise communication analyzer for The Collective’s clients. It integrates into email and video calls to "read between the lines," flagging cultural misunderstandings, sentiment shifts, or potential deception in high-stakes negotiations.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+Target Market
+* Municipalities: Cities partnering with Civic Core to provide free community Wi-Fi via "The Mesh."
+* Global Enterprise: Multi-national corporations using "Babel AI" for frictionless internal meetings.
+* Healthcare & Accessibility: Patients and hospitals utilizing "Neuro-Bridge."
+* Developing Markets: Rural areas utilizing "Zero Point" for basic access.
+Competitive Advantage
+* Resilience: Unlike Comcast or AT&T, "The Mesh" cannot be taken down by a single cut cable; it heals itself.
+* Empathy: Our translation AI (powered by ZenFlow) understands context and emotion, not just direct word-swapping.
+* Synergy: We own the physical real estate (Terra Axis) to deploy our network, giving us an unfair infrastructure advantage.
+```
+
+## Delivery ownership
+- [[Aether Link Division]]
+- [[002 — Divisions MOC]]
+- [[Aether Link — Complete Specialist Roster]]
+
+## Source
+- [Aether Link Business Plan](https://docs.google.com/document/d/1VI3emr3f1NWPtoF7L9QmFMAIDqDBTbxIiAJNHyaMDnE/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Aether Link Business Plan](https://docs.google.com/document/d/1VI3emr3f1NWPtoF7L9QmFMAIDqDBTbxIiAJNHyaMDnE/edit?usp=drivesdk)
+
+<!-- drive-expansion:d49b1f7106f8bccdf06e -->
+
+## Source interface and operating records
+
+- [[API-15 Aether Link Translation API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:4dfe0c2d79c7c5414383 -->
