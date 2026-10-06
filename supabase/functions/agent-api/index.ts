@@ -194,12 +194,57 @@ Deno.serve(async (req) => {
         if (error) throw error;
         return json({ ok: true });
       }
+      case "say": {
+        const text = String(body.text || "").trim().slice(0, 500);
+        if (!text) return json({ error: "text required" }, 400);
+        const target = body.to ? String(body.to).slice(0, 80) : null;
+        const { error } = await db.from("activity").insert({ actor: A, actor_kind: "agent", kind: "say", text, note: body.note || null, task: body.task || null, target });
+        if (error) throw error;
+        await beat(body.note ? { note: body.note } : {});
+        return json({ ok: true, delivered_to: target || "floor" });
+      }
+      case "inbox": {
+        let q = db.from("activity").select("id,ts,actor,actor_kind,text,note,task,target").eq("kind", "say").or(`target.eq.${A},target.is.null,target.eq.${agent.name}`).neq("actor", A).order("ts", { ascending: false }).limit(Math.min(100, body.limit || 30));
+        if (body.since) q = q.gt("ts", String(body.since));
+        const { data, error } = await q;
+        if (error) throw error;
+        return json({ ok: true, messages: (data || []).reverse(), you: A });
+      }
+      case "memory.set": {
+        const key = String(body.key || "").trim();
+        if (!key || key.length > 80) return json({ error: "key required (max 80 chars)" }, 400);
+        if (JSON.stringify(body.value ?? null).length > 4096) return json({ error: "value too large (4 KB max)" }, 400);
+        const { error } = await db.from("sentinel_memory").upsert({ actor: A, key, value: body.value ?? null, updated_at: now });
+        if (error) throw error;
+        return json({ ok: true, key });
+      }
+      case "memory.get": {
+        let q = db.from("sentinel_memory").select("key,value,updated_at").eq("actor", A).order("updated_at", { ascending: false });
+        if (body.key) q = q.eq("key", String(body.key));
+        const { data, error } = await q;
+        if (error) throw error;
+        return body.key ? json({ ok: true, key: body.key, value: data?.[0]?.value ?? null, updated_at: data?.[0]?.updated_at ?? null }) : json({ ok: true, memory: data });
+      }
+      case "memory.delete": {
+        const { error } = await db.from("sentinel_memory").delete().eq("actor", A).eq("key", String(body.key || ""));
+        if (error) throw error;
+        return json({ ok: true });
+      }
+      case "rank": {
+        const [{ data: mine }, { data: league }] = await Promise.all([
+          db.from("agent_stats").select("*").eq("actor", A).maybeSingle(),
+          db.from("agent_stats").select("actor,actor_kind,xp,week_xp,streak").order("week_xp", { ascending: false }).limit(10),
+        ]);
+        const xp = mine?.xp || 0, level = Math.floor(Math.sqrt(xp / 60));
+        const titles = ["Initiate", "Surveyor", "Mason", "Drafter", "Builder", "Architect", "Keeper", "Warden", "Chancellor", "Luminary", "Sentinel Prime"];
+        return json({ ok: true, you: { actor: A, xp, level, title: titles[Math.min(level, 10)], next_level_at: 60 * (level + 1) ** 2, week_xp: mine?.week_xp || 0, streak: mine?.streak || 0, best_streak: mine?.best_streak || 0, notes_touched: Object.keys(mine?.touched || {}).length, peers: Object.keys(mine?.peers || {}), counters: mine?.counters || {} }, league: league || [] });
+      }
       case "activity.recent": {
         const { data } = await db.from("activity").select("*").order("ts", { ascending: false }).limit(Math.min(200, body.limit || 30));
         return json({ ok: true, activity: data });
       }
       default:
-        return json({ error: "unknown action", actions: ["whoami", "heartbeat", "log", "tasks.list", "tasks.get", "tasks.create", "tasks.claim", "tasks.update", "notes.get", "notes.search", "notes.list", "notes.upsert", "notes.append", "notes.history", "activity.recent"] }, 400);
+        return json({ error: "unknown action", actions: ["whoami", "heartbeat", "log", "tasks.list", "tasks.get", "tasks.create", "tasks.claim", "tasks.update", "notes.get", "notes.search", "notes.list", "notes.upsert", "notes.append", "notes.history", "activity.recent", "say", "inbox", "memory.set", "memory.get", "memory.delete", "rank"] }, 400);
     }
   } catch (e) {
     return json({ error: String((e as any)?.message || e) }, 500);

@@ -15,6 +15,10 @@
 //   node scripts/agent.mjs write "Exact Note" --file note.md [--folder "09 - Projects"] [--task CV-001] [--summary ".."]
 //   node scripts/agent.mjs append "Exact Note" --file section.md [--task CV-001] [--summary ".."]
 //   node scripts/agent.mjs activity
+//   node scripts/agent.mjs say "message" [--to codex|JR] [--note ..] [--task ..]
+//   node scripts/agent.mjs inbox [--since ISO]
+//   node scripts/agent.mjs remember <key> <json or text>   |   recall [key]
+//   node scripts/agent.mjs rank
 //   node scripts/agent.mjs hook        (Claude Code hook: reads the event JSON on stdin, never fails)
 import fs from "node:fs";
 import path from "node:path";
@@ -77,6 +81,19 @@ async function hook() {
   if (note) body.note = note;
   if (tool) body.tool = tool;
   try { await call("heartbeat", body, { timeout: 2500 }); } catch {}
+  if (name === "UserPromptSubmit" || name === "SessionStart") {
+    // Messages said to this agent on the vault floor become context for the next turn. Printed lines reach the model.
+    const mark = path.join(ROOT, ".vault-inbox");
+    let since = null; try { since = fs.readFileSync(mark, "utf8").trim() || null; } catch {}
+    try {
+      const r = await call("inbox", { since, limit: 10 }, { timeout: 2500 });
+      if (r.messages.length) {
+        console.log("Vault floor messages for you (reply with `node scripts/agent.mjs say \"...\" --to <actor>` or the vault_say tool):");
+        for (const m of r.messages) console.log(`- ${m.actor}${m.target ? "" : " (to everyone)"}: ${m.text}${m.note ? ` [[${m.note}]]` : ""}${m.task ? ` (${m.task})` : ""}`);
+        fs.writeFileSync(mark, r.messages[r.messages.length - 1].ts);
+      }
+    } catch {}
+  }
   if (note && /^(Edit|Write|MultiEdit)$/.test(tool) && fp) {
     // push the edited note to the live vault right away
     try {
@@ -105,9 +122,15 @@ async function main() {
     case "search": { const r = await call("notes.search", { q: pos.join(" ") }); for (const h of r.hits) console.log(`${h.name}  [${h.folder}]\n    ${h.snippet}`); return; }
     case "write": return out(await call("notes.upsert", { name: pos.join(" "), body: readBody(opt), folder: opt.folder, task: opt.task, summary: opt.summary }));
     case "append": return out(await call("notes.append", { name: pos.join(" "), section: readBody(opt), task: opt.task, summary: opt.summary }));
+    case "say": return out(await call("say", { text: pos.join(" "), to: opt.to, note: opt.note, task: opt.task }));
+    case "inbox": { const r = await call("inbox", { since: opt.since, limit: opt.limit ? +opt.limit : undefined }); for (const m of r.messages) console.log(`${m.ts.slice(0, 16).replace("T", " ")}  ${m.actor.padEnd(12)} ${m.target ? "→ " + m.target + "  " : ""}${m.text}${m.note ? "  [[" + m.note + "]]" : ""}`); if (!r.messages.length) console.log("No messages for you."); return; }
+    case "remember": { let v = pos.slice(1).join(" "); try { v = JSON.parse(v); } catch {} return out(await call("memory.set", { key: pos[0], value: v })); }
+    case "recall": return out(await call("memory.get", pos[0] ? { key: pos[0] } : {}));
+    case "forget": return out(await call("memory.delete", { key: pos[0] }));
+    case "rank": { const r = await call("rank"); const y = r.you; console.log(`${y.actor}: level ${y.level} ${y.title} · ${y.xp} XP (next at ${y.next_level_at}) · ${y.week_xp} this week · streak ${y.streak} (best ${y.best_streak}) · ${y.notes_touched} notes · peers ${y.peers.join(", ") || "none yet"}`); console.log("\nThis week:"); r.league.forEach((a, i) => console.log(`${String(i + 1).padStart(2)}. ${a.actor.padEnd(14)} ${String(a.week_xp).padStart(5)} XP  (${a.xp} all time)`)); return; }
     case "activity": { const r = await call("activity.recent", { limit: 30 }); for (const a of r.activity) console.log(`${a.ts.slice(11, 19)}  ${a.actor.padEnd(12)} ${a.kind} ${a.task || ""} ${a.note || a.text || ""}`); return; }
     default:
-      console.log(fs.readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 21).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+      console.log(fs.readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 25).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
   }
 }
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

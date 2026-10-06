@@ -93,9 +93,11 @@ figcaption{font:400 12px var(--mono);color:var(--faint);margin-top:10px;letter-s
       <label>Build<select id="build"><option value="agent">Agent Sentinel</option><option value="jr">JR · Hataalii Architect</option><option value="devon">Devon · Builder</option><option value="ahmad">Ahmad · Steward</option><option value="kenza">Kenza · Conductor</option><option value="member">Member Navigator</option><option value="owners">Claude · two owners</option></select></label>
       <p id="description"></p>
       <dl id="specs"></dl>
+      <label>Level <span id="levelOut" style="color:var(--fg)">0 · Initiate</span><input id="level" type="range" min="0" max="25" value="0" style="accent-color:var(--gold);padding:0;border:0;background:none"></label>
       <h3>Palette</h3>
       <div id="colors"></div>
-      <div class="toggles"><label class="toggle"><input id="rotate" type="checkbox"> Turntable</label><label class="toggle"><input id="walk" type="checkbox"> Walk cycle</label></div>
+      <label>Doing<select id="pose"><option value="idle">Standing by</option><option value="walking">Walking the street</option><option value="working">Working</option><option value="writing">Writing a note</option><option value="reading">Reading</option><option value="thinking">Thinking</option><option value="reviewing">Reviewing</option><option value="blocked">Blocked</option><option value="lifting">Riding the lift</option></select></label>
+      <div class="toggles"><label class="toggle"><input id="rotate" type="checkbox"> Turntable</label><button class="reset" id="celebrate" type="button">Celebrate</button><button class="reset" id="greet" type="button">Greet</button></div>
       <button class="reset" id="reset" type="button">Reset colors</button>
       <small>Live city geometry, rendered with the same mesh factory and pose as the campus. The concept below sets the material and silhouette direction; the runtime figure uses lighter geometry so 48 Sentinels can stand in the city at once.</small>
     </section>
@@ -126,9 +128,9 @@ function roster(){$('#roster').innerHTML=Object.keys(NAMES).map(k=>{const f=k===
   const art=k==='owners'?`<span class="duo">${Identity.preview({form:'agent',palette:['#111827','#C97B54','#00D9B5']})}${Identity.preview({form:'agent',palette:['#111827','#C97B54','#A62C48']})}</span>`:Identity.preview({form:f});
   return `<button type="button" data-build="${k}" style="--c:${c}" aria-pressed="${k===selected}"><span class="thumb">${art}</span><b>${NAMES[k]}</b><small>${k==='owners'?'2 owners':Identity.FORMS[f].symbol}</small></button>`}).join('');
   $('#roster').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#build').value=b.dataset.build;$('#build').onchange({target:$('#build')})})}
-function draw(){models.forEach(m=>{scene.remove(m.grp);SentinelMesh.dispose(m.grp)});models=[];
+function draw(){models.forEach(m=>{scene.remove(m.grp);SentinelMesh.dispose(m.grp)});models=[];const level=+($('#level').value||0);$('#levelOut').textContent=level+' · '+Identity.title(level);
   const specs=selected==='owners'?[{id:'claude:jr',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#00D9B5',ownerBadge:'JR'},{id:'claude:devon',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#A62C48',ownerBadge:'DS'}]:[{id:selected,form:selected,palette:colors,symbol:Identity.FORMS[selected].symbol}];
-  specs.forEach((s,i)=>{const m=SentinelMesh.create(s);m.grp.position.x=specs.length===2?(i-.5)*3.4:0;m.grp.rotation.y=specs.length===2?(i-.5)*-.3:0;m.grp.traverse(o=>{if(o.isMesh&&o!==m.ring&&o!==m.plate)o.castShadow=true});m.info=s;scene.add(m.grp);models.push(m)});
+  specs.forEach((s,i)=>{const m=SentinelMesh.create({...s,level});m.grp.position.x=specs.length===2?(i-.5)*3.4:0;m.grp.rotation.y=specs.length===2?(i-.5)*-.3:0;m.grp.traverse(o=>{if(o.isMesh&&o!==m.ring&&o!==m.plate)o.castShadow=true});m.info=s;scene.add(m.grp);models.push(m)});
   view.goalDist=selected==='owners'?17:13.5;
   const accent=selected==='owners'?'#C97B54':colors[2];glowPool.material.color.set(accent).convertSRGBToLinear();document.documentElement.style.setProperty('--c',accent);
   $('#description').textContent=descriptions[selected];$('#vname').textContent=NAMES[selected];$('#vkind').textContent=BUILDS[selected].kind;
@@ -140,8 +142,8 @@ function controls(){const labels=['Body · 60%','Armor · 30%','Accent · 10%'];
   document.querySelectorAll('[data-color]').forEach(input=>input.oninput=()=>{const ok=Identity.HEX.test(input.value);input.setAttribute('aria-invalid',!ok);if(ok){colors[+input.dataset.color]=input.value.toUpperCase();document.querySelector(`[data-picker="${input.dataset.color}"]`).value=input.value.toLowerCase();draw()}});
   document.querySelectorAll('[data-picker]').forEach(input=>input.oninput=()=>{const t=document.querySelector(`[data-color="${input.dataset.picker}"]`);t.value=input.value.toUpperCase();t.oninput()})}
 $('#build').onchange=e=>{selected=e.target.value;colors=Identity.FORMS[selected==='owners'?'agent':selected].palette.slice();controls();draw()};
-$('#reset').onclick=()=>$('#build').onchange({target:$('#build')});
-$('#rotate').checked=!reduced;$('#walk').checked=false;
+$('#reset').onclick=()=>$('#build').onchange({target:$('#build')});$('#level').oninput=draw;
+$('#rotate').checked=!reduced;$('#celebrate').onclick=()=>models.forEach(m=>SentinelMesh.emote(m,'celebrate',performance.now()/1000));$('#greet').onclick=()=>models.forEach(m=>SentinelMesh.emote(m,'greet',performance.now()/1000));
 roster();controls();draw();
 // Orbit: drag to turn, wheel or pinch to zoom.
 let drag=null;canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);canvas.classList.add('drag')});
@@ -165,7 +167,7 @@ let previous=0;
 function frame(t){requestAnimationFrame(frame);const dt=Math.min(.05,(t-previous)/1000||0);previous=t;const sec=t/1000;
   if($('#rotate').checked&&!reduced&&!drag)view.goalYaw+=dt*.35;
   const k=reduced?1:1-Math.exp(-dt*7);view.yaw+=(view.goalYaw-view.yaw)*k;view.dist+=(view.goalDist-view.dist)*k;
-  if(!reduced)models.forEach(m=>SentinelMesh.pose(m,sec,$('#walk').checked));
+  if(!reduced)models.forEach(m=>SentinelMesh.pose(m,sec,$('#pose').value,{beam:6,beamBase:0}));
   if(renderer){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);placeCamera(w,h);renderer.render(scene,camera)}
   else if(t-(frame.lastSVG||0)>120){svgGeometry();frame.lastSVG=t}}
 requestAnimationFrame(frame);

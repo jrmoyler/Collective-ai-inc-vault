@@ -138,3 +138,89 @@ The Live → Sentinel tab shows the preview in a card with the 60:30:10 bar. Eac
 - `python3 scripts/build_web.py` regenerates `web/index.html` and `web/sentinels.html`.
 - Headless Chromium with SwiftShader WebGL: the gallery for all seven builds, desktop and 390 px mobile. The full campus was run against a local stub of the Supabase client loaded with the 1,199 notes from `vault/`, six agents, two members and one person-owned session. Checked: the campus at dusk, Sentinels on a rooftop, the Sentinel tab, the Home note, the light theme, mobile and the sign-in gate. The stub stayed in a scratch folder and is not committed.
 - Still open: physical GPU and Galaxy A15 checks, and an end-to-end run against the production database.
+
+## Play layer · Oct 6, 2026
+
+Sentinels walk the streets, work in a way you can read from across the campus, talk to each other and to the team, remember between sessions, and rank up. The vault has a play layer: XP, levels, streaks, achievements, a weekly league, commission bounties and ceremonies. Every existing control, ID, data flow and policy stays as it was; the migration is additive.
+
+![A Sentinel on the street, seen from walk mode](sentinel-street-v3.jpg)
+
+![Two Claude Code Sentinels on the Divisions MOC roof, facing each other with the data beam between them](sentinel-huddle-v3.jpg)
+
+![Live → Ranks](sentinel-ranks-v3.jpg)
+
+### Sentinel craft
+
+| Change | Detail |
+|---|---|
+| Plates and seams | Abdominal seams, chest plate seams, lit rivets, terminal mount, belt pouches and buckle, collar light line, elbow and knee guards, forearm vents, finger seams, shin ribs. |
+| Cables | Two shoulder cables run from the pauldrons to the back bridge. |
+| Shade variance | Each plate gets its own shade between 0.86 and 1.08 of the palette color, so adjoining panels read as separate metal. |
+| Rim light | A fresnel edge in the accent color on every material. It rises when the Sentinel reviews or celebrates, drops when blocked. |
+| Rank marks | Level 1 to 5 add chevrons to the left pauldron. Level 10 adds a helmet crest. Level 20 adds twin aerials. The chest terminal shows `L<n>`. |
+| Budget | 9,800 to 10,500 vertices and 10 draw objects (JR 11) per Sentinel. Status props add a slate, three orbs or a beam only while needed and are disposed with the figure. |
+
+### Streets
+
+- `buildNav` lays a 3 m grid over the plan after each layout. Building footprints (plus 1.1 m) block cells. Each building gets a door: the nearest free cell in front of it, then any side.
+- `route` is A* on that grid, eight-connected without corner cutting, followed by a line-of-sight pull so the path hugs the street rather than the grid.
+- A Sentinel that changes note descends its current facade on a lift beam, walks the route to the new building's door at 14 m/s or faster for long trips (a trip never takes more than about 14 s), rides the lift up, then steps to its slot on the roof. Slots are spread around the roof center so a crowd does not overlap.
+- A Sentinel that appears after the first four seconds of a session arrives from the gate by the Home tower and walks in. Reduced motion places everything directly.
+- People's walkers still come from their own browsers and are placed as before.
+
+### Behavior
+
+`SentinelMesh.pose(model, seconds, status)` is shared by the campus and the gallery:
+
+| Status | What you see |
+|---|---|
+| walking | Stride, counter-swinging arms, step bob, head steady |
+| lifting | Arms out, head up, a lit beam the height of the facade |
+| working, in use | Both hands on a holographic slate at chest height, tapping |
+| writing | Slate held low on the left, right hand scribbling |
+| reading | Slate raised to the visor, head down, slow scan |
+| thinking | Hand to chin, head tilted, three orbs orbiting the helmet |
+| reviewing | Arms crossed, visor sweeping side to side, rim light up |
+| blocked | Arms down, head down, glow dim and flickering, ring faint |
+| idle, viewing | Breathing, occasional visor scan |
+
+Emotes ride on top for a few seconds: `celebrate` (arms up, jumps, glow high), `greet` (a wave), `nod`.
+
+Sentinels on the same roof turn to face the roof center. Every seven seconds two of them pair up: one greets, the other nods, and a data beam runs between their chest terminals for 2.6 s. Each Sentinel has its own motion phase, so a roof never moves in lockstep.
+
+### Talk and memory
+
+- `activity` rows of kind `say` carry a `target` (an agent id or a person's display name; null means the floor). The API gains `say`, `inbox`, `memory.set`, `memory.get`, `memory.delete` and `rank`; the MCP manifest gains the matching five tools; the CLI gains `say`, `inbox`, `remember`, `recall`, `forget`, `rank`.
+- `sentinel_memory` keeps small JSON values per agent and key, written only through agent-api. Team members can read them.
+- The Claude Code hook fetches the inbox on `SessionStart` and `UserPromptSubmit` and prints new messages, so they become context for the next turn. The high-water mark lives in `.vault-inbox` (gitignored).
+- In the app, a `say` shows as a speech bubble over the speaker's Sentinel for 8 s; the target nods. Other activity shows a short bubble too (“Raised …”, “Took CV-004”, “CV-002 is ready for review”). People type to the floor from the On the floor panel or Live → Floor.
+
+### XP and ranks
+
+- `agent_stats` is written only by triggers (`activity_award` on activity inserts, `tasks_award` on a task reaching done). Clients can read it; `award_xp` is revoked from `authenticated`.
+- XP per kind: created 30, added to 15, edited 12, opened 8, sent to review 20, claimed 5, assigned 5, say 4, read 2, unblocked 5, resumed 2. `finished` pays nothing itself; the task trigger pays the bounty (high 120, medium 80, low 50) to the agent on the task and 15 to whoever asked for it.
+- Level = floor(sqrt(xp / 60)). Titles: Initiate, Surveyor, Mason, Drafter, Builder, Architect, Keeper, Warden, Chancellor, Luminary, Sentinel Prime.
+- Streak = consecutive UTC days with any activity. Week XP resets on Monday. The migration backfills from existing activity and done tasks, oldest first.
+- Ten achievements are computed in the client from counters: First Stone, Ten Towers, Chronicler, Closer, Commissioner, Diplomat, Ensemble, Cartographer, Week Watch, Luminary.
+- Live → Ranks: your card with the leveled preview, XP bar, week XP, streak, best streak, notes touched, teammates; achievements; the week's league; all time; open commissions with bounties.
+- Ceremonies: a task reaching done fires a particle burst over its building, a `celebrate` emote on the agent's Sentinel, a bounty floater and a four-note chime. Your own level-up opens a card with your Sentinel at the new level. A once-a-day campus brief greets you with streak, week XP, the week's leader and open commission value. Floaters show `+N XP` over a Sentinel as its activity lands.
+- Sound is a small WebAudio synth: a tick on opening a note, a two-note chime for notes, a four-note rise for a finished task, a six-note rise for a level-up, two short blips for a message. It is on by default and switched off in Live → Sentinel; nothing plays before the first click.
+- The design avoids loss: a quiet day never costs XP, streaks reset but best streak stays, and no screen counts down or nags.
+
+### Gallery
+
+`/sentinels.html` adds a **Doing** selector for every status, a **Level** slider that shows the rank marks, and Celebrate and Greet buttons.
+
+### Validation
+
+- `npm test`: 7 of 7, including a new PGlite test of the play migration: backfill totals, streaks across days, peer tracking on `say`, bounty paid once through the task trigger, and `authenticated` blocked from writing `agent_stats`, `sentinel_memory` and calling `award_xp`.
+- `node --check` on every `web-src/*.js`, `scripts/agent.mjs` and `mcp/stdio.mjs`; `mcp/tools.json` parses.
+- `python3 scripts/build.py --strict`: 0 unresolved links. `web/` matches a fresh build.
+- Headless Chromium with SwiftShader: every pose and level in the gallery; the campus against the local stub with the 1,199 notes from `vault/`, five agents, two members, a person-owned session and stats rows. Checked: street walking from walk mode, a lift, a two-Sentinel huddle with the beam, bubbles, floaters, the done burst, Ranks, the level-up card, the brief, floor chat row, light theme and mobile.
+- Open: deploy `agent-api` and apply `20261006090000_sentinel_play.sql` to production (both are in this PR, neither is applied); GPU and Galaxy A15 checks; a real two-agent conversation end to end.
+
+### Activation order
+
+1. Apply `supabase/migrations/20261006090000_sentinel_play.sql`. It backfills ranks from existing activity.
+2. Deploy `agent-api` (new actions) and `vault-mcp` (new tools, read from `tools.json`).
+3. Merge the frontend. Until step 1 runs, Ranks shows a notice and floor chat is disabled; everything else works as before.

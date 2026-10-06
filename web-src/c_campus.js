@@ -233,7 +233,7 @@ function build(prev){
   groundMat=new THREE.MeshStandardMaterial({map:tex,roughness:.88,metalness:0});
   ground=new THREE.Mesh(new THREE.PlaneGeometry(GSIDE,GSIDE),groundMat);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
   if(!apron){apron=new THREE.Mesh(new THREE.PlaneGeometry(14000,14000),new THREE.MeshStandardMaterial({color:lin('#0c111b'),roughness:1,metalness:0}));apron.rotation.x=-Math.PI/2;apron.position.y=-.12;scene.add(apron)}
-  buildInstances(prev);fitShadow();applyState();buildChips();setMarkers(tasksMarks);
+  buildInstances(prev);buildNav();fitShadow();applyState();buildChips();setMarkers(tasksMarks);
   renderer.shadowMap.needsUpdate=true;dirty=true;
 }
 
@@ -344,7 +344,10 @@ function updateLabels(){
   const cands=[],cp=camera.position;camera.getWorldDirection(_f);
   const addB=(id,cls,prio)=>{const b=B[id];if(!b)return;cands.push({x:b.cx,y:b.h+2.6,z:b.cz,t:NOTES[id].name,s:"",cls,prio,c:colorOf(NOTES[id])})};
   if(sel>=0)addB(sel,"sel",100);
-  AG.forEach(m=>{if(!m.grp.visible)return;const a=m.info;cands.push({x:m.pos.x,y:m.pos.y+7,z:m.pos.z,t:`${a.name} · ${a.status}`,s:a.ownerName?`${a.ownerName} · ${a.ownerBadge}`:a.task||"",cls:"ag",prio:110,c:a.color||"#E8A33D"})});
+  AG.forEach((m,id)=>{if(!m.grp.visible)return;const a=m.info,st=m.phaseName==='street'?'walking':m.phaseName==='lift'||m.phaseName==='descend'?'lift':a.status;const lv=a.level??levels.get(a.levelKey||a.id);
+    cands.push({x:m.pos.x,y:m.pos.y+7,z:m.pos.z,t:`${a.name} · ${st}`,s:(lv>0?`L${lv} · `:"")+(a.ownerName?`${a.ownerName} · ${a.ownerBadge}`:a.task||""),cls:"ag",prio:110,c:a.color||"#E8A33D"});
+    const bb=bubbles.get(id);if(bb)cands.push({x:m.pos.x,y:m.pos.y+8.3,z:m.pos.z,t:bb.text,s:"",cls:"say",prio:120,c:a.color||"#E8A33D"})});
+  floaters.forEach(f=>{const e=time-f.t0;cands.push({x:f.x,y:f.y+e*3,z:f.z,t:f.text,s:"",cls:"xp",prio:130,c:f.color,op:1-e/2.2})});
   if(hov>=0&&hov!==sel)addB(hov,"hov",90);
   if(sel>=0){[...nbr.keys()].map(i=>({i,d:Math.hypot(B[i].cx-cp.x,B[i].cz-cp.z)})).sort((a,b)=>a.d-b.d).slice(0,13).forEach((o,k)=>addB(o.i,"",60-k))}
   const far=walk?0:cam.dist;
@@ -356,11 +359,11 @@ function updateLabels(){
   cands.forEach(c=>{
     _v.set(c.x-cp.x,c.y-cp.y,c.z-cp.z);if(_v.dot(_f)<2)return;
     _v.set(c.x,c.y,c.z).project(camera);if(Math.abs(_v.x)>1.02||Math.abs(_v.y)>1.02)return;
-    const px=(_v.x*.5+.5)*W,py=(-_v.y*.5+.5)*H;const w=(c.t.length*6.8+18),h=c.cls==="dl"?34:22;
+    const px=(_v.x*.5+.5)*W,py=(-_v.y*.5+.5)*H;const w=(Math.min(c.t.length,c.cls==="say"?40:99)*6.8+18),h=c.cls==="dl"?34:c.cls==="say"?40:22;
     const rect=[px-w/2,py-h,px+w/2,py];
     if(taken.some(r=>rect[0]<r[2]&&rect[2]>r[0]&&rect[1]<r[3]&&rect[3]>r[1]))return;
     taken.push(rect);const el=lbl(used++);el.className="lbl"+(c.cls?" "+c.cls:"");el.style.setProperty("--c",c.c);
-    el.innerHTML=esc(c.t.length>44?c.t.slice(0,43)+"…":c.t)+(c.s?`<small>${c.s}</small>`:"");
+    el.innerHTML=esc(c.t.length>(c.cls==="say"?120:44)?c.t.slice(0,43)+"…":c.t)+(c.s?`<small>${c.s}</small>`:"");el.style.opacity=c.op==null?"":String(Math.max(0,c.op));
     el.style.transform=`translate(${Math.round(px)}px,${Math.round(py)}px) translate(-50%,-100%)`;el.style.display="";
   });
   for(let i=used;i<pool.length;i++)pool[i].style.display="none";
@@ -406,35 +409,133 @@ function setMarkers(list){
 }
 
 
+// ---------- streets: a walkable grid over the plan. Buildings block cells; everything else is road or plaza.
+const NAV={cell:3,n:0,ox:0,oz:0,blocked:null};
+function buildNav(){
+  const c=NAV.cell,n=Math.ceil(GSIDE/c);NAV.n=n;NAV.ox=-GSIDE/2;NAV.oz=-GSIDE/2;const bl=NAV.blocked=new Uint8Array(n*n);
+  B.forEach(b=>{if(!b)return;const t=b.tiers[0],pad=1.1;const x0=Math.floor((t.x-t.w/2-pad-NAV.ox)/c),x1=Math.floor((t.x+t.w/2+pad-NAV.ox)/c),z0=Math.floor((t.z-t.d/2-pad-NAV.oz)/c),z1=Math.floor((t.z+t.d/2+pad-NAV.oz)/c);
+    for(let z=Math.max(0,z0);z<=Math.min(n-1,z1);z++)for(let x=Math.max(0,x0);x<=Math.min(n-1,x1);x++)bl[z*n+x]=1});
+  // doors: the nearest free cell in front of each building (toward +z), then any side
+  B.forEach(b=>{if(!b)return;const t=b.tiers[0];const cx=Math.floor((t.x-NAV.ox)/c),cz=Math.floor((t.z-NAV.oz)/c);let best=null;
+    for(let r=1;r<14&&!best;r++)for(const [dx,dz] of [[0,r],[r,0],[-r,0],[0,-r],[r,r],[-r,r],[r,-r],[-r,-r]]){const x=cx+dx,z=cz+dz;if(x>=0&&z>=0&&x<n&&z<n&&!bl[z*n+x]){best=[x,z];break}}
+    b.door=best?{x:NAV.ox+(best[0]+.5)*c,z:NAV.oz+(best[1]+.5)*c}:{x:t.x,z:t.z+t.d/2+2}});
+}
+const cellOf=(x,z)=>[clamp(Math.floor((x-NAV.ox)/NAV.cell),0,NAV.n-1),clamp(Math.floor((z-NAV.oz)/NAV.cell),0,NAV.n-1)];
+const free=(x,z)=>x>=0&&z>=0&&x<NAV.n&&z<NAV.n&&!NAV.blocked[z*NAV.n+x];
+function nearestFree(x,z){if(free(x,z))return[x,z];for(let r=1;r<20;r++)for(let dz=-r;dz<=r;dz++)for(let dx=-r;dx<=r;dx++)if(Math.max(Math.abs(dx),Math.abs(dz))===r&&free(x+dx,z+dz))return[x+dx,z+dz];return[x,z]}
+// A* on the grid, 8-connected without corner cutting, then a line-of-sight pull so Sentinels walk the street instead of the staircase.
+function route(ax,az,bx,bz){
+  const n=NAV.n,[sx,sz]=nearestFree(...cellOf(ax,az)),[gx,gz]=nearestFree(...cellOf(bx,bz));
+  if(sx===gx&&sz===gz)return[[bx,bz]];
+  const key=(x,z)=>z*n+x,open=[key(sx,sz)],g=new Map([[key(sx,sz),0]]),came=new Map(),f=new Map([[key(sx,sz),Math.hypot(gx-sx,gz-sz)]]),closed=new Set();
+  const DIRS=[[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]];let steps=0;
+  while(open.length&&steps++<40000){
+    let bi=0;for(let i=1;i<open.length;i++)if(f.get(open[i])<f.get(open[bi]))bi=i;
+    const cur=open[bi];open[bi]=open[open.length-1];open.pop();if(closed.has(cur))continue;closed.add(cur);
+    const cx=cur%n,cz=(cur-cx)/n;
+    if(cx===gx&&cz===gz){const cells=[];let k=cur;while(k!==undefined){cells.push(k);k=came.get(k)}cells.reverse();
+      const pts=cells.map(k=>{const x=k%n;return[NAV.ox+(x+.5)*NAV.cell,NAV.oz+((k-x)/n+.5)*NAV.cell]});
+      const out=[pts[0]];let a=0;for(let i=2;i<=pts.length;i++){if(i===pts.length||!sight(pts[a],pts[i])){out.push(pts[i-1]);a=i-1}}
+      out[out.length-1]=[bx,bz];return out}
+    for(const [dx,dz,w] of DIRS){const nx=cx+dx,nz=cz+dz;if(!free(nx,nz))continue;if(dx&&dz&&(!free(cx+dx,cz)||!free(cx,cz+dz)))continue;
+      const nk=key(nx,nz),ng=g.get(cur)+w;if(ng<(g.get(nk)??1e9)){g.set(nk,ng);came.set(nk,cur);f.set(nk,ng+Math.hypot(gx-nx,gz-nz));if(!closed.has(nk))open.push(nk)}}
+  }
+  return[[bx,bz]];
+}
+function sight(a,b){const d=Math.hypot(b[0]-a[0],b[1]-a[1]),k=Math.ceil(d/(NAV.cell*.5));for(let i=0;i<=k;i++){const t=i/k;if(!free(...cellOf(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t)))return false}return true}
+
 // ---------- Vault Sentinels: articulated architectural avatars, shared cached geometry.
-const AG=new Map(),pulses=new Map();let agentGroup=null,lastAgents=[];
+// Each one walks the streets to its building, rides a lift up the facade and takes a slot on the roof.
+const AG=new Map(),pulses=new Map(),bubbles=new Map(),floaters=[],bursts=[];let agentGroup=null,lastAgents=[],levels=new Map();
 const LIVE_ST=["working","writing","reading","thinking","reviewing"];
-function disposeSentinel(m){SentinelMesh.dispose(m.grp);agentGroup.remove(m.grp)}
+function disposeSentinel(m){SentinelMesh.dispose(m.grp);agentGroup.remove(m.grp);if(m.link){m.link.geometry.dispose();m.link.material.dispose();agentGroup.remove(m.link)}}
+function roofSlot(n,slot,count){const b=B[n.id],r=Math.min(Math.max(b.fw,b.fd)*.5-1.2,2.8+count*.3);const a=slot*(2*Math.PI/Math.max(count,1))+hash01(NOTES[n.id].name)*6;return new THREE.Vector3(b.cx+Math.cos(a)*Math.max(.8,r),b.h,b.cz+Math.sin(a)*Math.max(.8,r))}
 function setAgents(list){
-  lastAgents=list||[];if(!agentGroup)return;const seen=new Set(),slots=new Map();
+  lastAgents=list||[];if(!agentGroup)return;const seen=new Set(),counts=new Map();
+  lastAgents.forEach(a=>{if(a.note&&!a.position){const n=byName.get(a.note);if(n&&B[n.id])counts.set(n.id,(counts.get(n.id)||0)+1)}});
+  const slots=new Map();
   lastAgents.forEach(a=>{
     seen.add(a.id);const n=a.note?byName.get(a.note):null,b=n?B[n.id]:null;let m=AG.get(a.id);
-    const signature=JSON.stringify([Identity.form(a.form||'agent'),Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],a.form||'agent'),a.symbol,a.ownerColor,a.ownerBadge]);
-    if(m&&m.signature!==signature){disposeSentinel(m);AG.delete(a.id);m=null}
-    if(!m){m=SentinelMesh.create(a);agentGroup.add(m.grp);AG.set(a.id,m)}m.info=a;
-    let tgt=null;
-    if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){tgt=new THREE.Vector3(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0}
-    else if(b){const slot=slots.get(n.id)||0;slots.set(n.id,slot+1);tgt=new THREE.Vector3(b.cx+Math.cos(slot*2.4)*2.8,b.h,b.cz+Math.sin(slot*2.4)*2.8)}
-    if(tgt){if(m.noteId!==(n?.id??-2)||m.to.distanceTo(tgt)>.05){if(reduced||!m.grp.visible||m.noteId===-1){m.pos.copy(tgt);m.to.copy(tgt);m.t0=-1}else{m.from.copy(m.pos);m.to.copy(tgt);m.t0=time}m.noteId=n?.id??-2}m.grp.visible=!(a.local&&a.position?.walking);m.ring.scale.setScalar(a.position?1.6:2.4)}else{m.grp.visible=false;m.noteId=-1}m.grp.position.copy(m.pos);
+    const level=a.level??levels.get(a.levelKey||a.id)??0;
+    const signature=JSON.stringify([Identity.form(a.form||'agent'),Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],a.form||'agent'),a.symbol,a.ownerColor,a.ownerBadge,level]);
+    if(m&&m.signature!==signature){const keep={pos:m.pos.clone(),noteId:m.noteId,path:m.path,leg:m.leg,phaseName:m.phaseName,lift:m.lift};disposeSentinel(m);AG.delete(a.id);m=null;m=SentinelMesh.create({...a,level});Object.assign(m,keep);agentGroup.add(m.grp);AG.set(a.id,m)}
+    if(!m){m=SentinelMesh.create({...a,level});agentGroup.add(m.grp);AG.set(a.id,m);m.phaseName='new'}
+    m.info=a;
+    if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){
+      // a person walking: positions come from their own browser
+      m.pos.set(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0;m.noteId=-2;m.path=null;m.phaseName='placed';
+      m.grp.visible=!(a.local&&a.position.walking);m.ring.scale.setScalar(1.6);
+    }else if(b){
+      const slot=slots.get(n.id)||0;slots.set(n.id,slot+1);const tgt=roofSlot(n,slot,counts.get(n.id)||1);
+      if(m.noteId!==n.id){
+        // new destination: start where it stands (or at the campus gate), walk the streets, then lift
+        if(reduced||(m.phaseName==='new'&&time<4)){m.pos.copy(tgt);m.phaseName='roof';m.path=null}
+        else{const from=m.phaseName==='roof'||m.phaseName==='placed'?{x:m.pos.x,z:m.pos.z}:(m.phaseName==='new'?gate():{x:m.pos.x,z:m.pos.z});
+          if(m.phaseName==='roof'&&m.noteId>=0&&B[m.noteId]){const d=B[m.noteId].door;m.path=[[d.x,d.z]].concat(route(d.x,d.z,b.door.x,b.door.z));m.phaseName='descend';m.lift={from:m.pos.y,to:0,x:d.x,z:d.z,h:B[m.noteId].h}}
+          else{m.path=route(from.x,from.z,b.door.x,b.door.z);m.phaseName='street';m.pos.set(from.x,0,from.z)}
+          m.leg=0;m.pathT=time}
+        m.noteId=n.id;m.roof=tgt;m.home=b;
+      }else if(m.phaseName==='roof'){m.roof=tgt;if(m.pos.distanceTo(tgt)>.05)m.pos.lerp(tgt,.2)}
+      m.grp.visible=true;m.ring.scale.setScalar(2.2);
+    }else{m.grp.visible=false;m.noteId=-1;m.path=null;m.phaseName='new'}
+    m.grp.position.copy(m.pos);
   });
   AG.forEach((m,id)=>{if(!seen.has(id)){disposeSentinel(m);AG.delete(id)}});if(iMesh)applyState();dirty=true;
 }
+function gate(){const hm=byName.get("🏠 Home");const b=hm&&B[hm.id]?B[hm.id]:null;return b?{x:b.door.x,z:b.door.z+8}:{x:0,z:GSIDE/2-30}}
+function setLevels(map){levels=map||new Map();setAgents(lastAgents)}
 function pulse(name){const n=byName.get(name);if(!n||!B[n.id])return;pulses.set(n.id,time+6);if(iMesh)applyState()}
-function stepAgents(dt){
-  let live=false;
-  AG.forEach(m=>{
-    if(!m.grp.visible)return;live=true;
-    if(m.t0>=0){const k=clamp((time-m.t0)/1.5,0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.lerpVectors(m.from,m.to,e);if(!m.info.position)m.pos.y+=Math.sin(Math.PI*k)*28;if(k>=1){m.t0=-1;m.pos.copy(m.to)}m.grp.position.copy(m.pos)}
-    if(!reduced)SentinelMesh.pose(m,time,m.t0>=0);
-  });
-  let exp=false;pulses.forEach((u,id)=>{if(u<time){pulses.delete(id);exp=true}});if(exp)applyState();
-  return live||pulses.size>0;
+function say(id,text,ttl=8){const m=AG.get(id);if(!m)return false;bubbles.set(id,{text:String(text).slice(0,120),until:time+ttl});if(!reduced)SentinelMesh.emote(m,'greet',time);lastLbl=0;dirty=true;return true}
+function floater(id,text,color){const m=AG.get(id);if(!m||!m.grp.visible)return;floaters.push({x:m.pos.x,y:m.pos.y+7.5,z:m.pos.z,text,color:color||m.info.color||'#E8A33D',t0:time});dirty=true}
+function emote(id,name){const m=AG.get(id);if(m&&!reduced)SentinelMesh.emote(m,name,time)}
+// a burst of accent particles over a building: task done, level up
+let burstGeo=null;
+function celebrate(noteName,color){
+  const n=byName.get(noteName);const b=n?B[n.id]:null;if(!b||reduced)return;
+  const N=140,pos=new Float32Array(N*3),vel=[];for(let i=0;i<N;i++){const a=Math.random()*Math.PI*2,r=Math.random();pos.set([b.cx,b.h+1,b.cz],i*3);vel.push([Math.cos(a)*r*9,9+Math.random()*12,Math.sin(a)*r*9])}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const p=new THREE.Points(g,new THREE.PointsMaterial({color:lin(color||'#F2B85B'),size:1.1,transparent:true,opacity:1,sizeAttenuation:true,fog:false}));
+  agentGroup.add(p);bursts.push({p,vel,t0:time});pulses.set(n.id,time+5);applyState();
+  AG.forEach(m=>{if(m.noteId===n.id)SentinelMesh.emote(m,'celebrate',time)});
 }
+const HUDDLE={until:0,a:null,b:null};
+function stepAgents(dt){
+  let live=false;const onRoof=new Map();
+  AG.forEach(m=>{
+    if(!m.grp.visible)return;live=true;const a=m.info;let status=a.status;
+    if(m.phaseName==='descend'){const k=clamp((time-m.pathT)/Math.max(.8,m.lift.h/22),0,1);m.pos.set(m.lift.x,m.lift.from*(1-k),m.lift.z);m.grp.position.copy(m.pos);SentinelMesh.pose(m,time,'lifting',{beam:m.lift.h,beamBase:0});if(k>=1){m.phaseName='street';m.pathT=time;m.leg=0;m.pos.y=0}return}
+    if(m.phaseName==='street'&&m.path){
+      const speed=Math.max(14,pathLength(m.path,m.pos)/14)*dt;let left=speed;
+      while(left>0&&m.leg<m.path.length){const [tx,tz]=m.path[m.leg];const dx=tx-m.pos.x,dz=tz-m.pos.z,d=Math.hypot(dx,dz);if(d<=left){m.pos.x=tx;m.pos.z=tz;left-=d;m.leg++}else{m.pos.x+=dx/d*left;m.pos.z+=dz/d*left;const yaw=Math.atan2(dx,dz);m.grp.rotation.y+=(((yaw-m.grp.rotation.y+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI)*Math.min(1,dt*10);left=0}}
+      m.pos.y=0;m.grp.position.copy(m.pos);
+      if(m.leg>=m.path.length){m.phaseName='lift';m.pathT=time;m.lift={from:0,to:m.home.h,x:m.pos.x,z:m.pos.z,h:m.home.h}}
+      SentinelMesh.pose(m,time,'walking');return}
+    if(m.phaseName==='lift'){const k=clamp((time-m.pathT)/Math.max(.9,m.lift.h/20),0,1),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;m.pos.y=m.lift.h*e;m.grp.position.copy(m.pos);SentinelMesh.pose(m,time,'lifting',{beam:m.lift.h,beamBase:0});if(k>=1){m.phaseName='roof';m.pathT=time;m.from.copy(m.pos);m.pos.y=m.home.h}return}
+    if(m.phaseName==='roof'&&m.roof){const d=m.pos.distanceTo(m.roof);if(d>.08){const step=Math.min(d,dt*6);m.pos.lerp(m.roof,step/d);m.grp.position.copy(m.pos);const dx=m.roof.x-m.pos.x,dz=m.roof.z-m.pos.z;if(d>.4)m.grp.rotation.y=Math.atan2(dx,dz);SentinelMesh.pose(m,time,'walking');return}
+      if(!onRoof.has(m.noteId))onRoof.set(m.noteId,[]);onRoof.get(m.noteId).push(m)}
+    if(a.position)status=a.position.walking?'walking':'viewing';
+    if(a.local)status='viewing';
+    SentinelMesh.pose(m,time,status||'idle');
+  });
+  // huddles: Sentinels that share a roof face the center, and two of them trade a data beam now and then
+  onRoof.forEach((group,noteId)=>{
+    const b=B[noteId];group.forEach(m=>{const dx=b.cx-m.pos.x,dz=b.cz-m.pos.z;m.grp.rotation.y+=(((Math.atan2(dx,dz)-m.grp.rotation.y+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI)*Math.min(1,dt*3);m.face=null});
+    if(group.length>=2){
+      if(time>HUDDLE.until){const i=Math.floor(hash01(noteId+':'+Math.floor(time/7))*group.length),j=(i+1+Math.floor(hash01('j'+Math.floor(time/7))*(group.length-1)))%group.length;HUDDLE.a=group[i];HUDDLE.b=group[j];HUDDLE.until=time+7;HUDDLE.on=time+2.6;if(!reduced){SentinelMesh.emote(HUDDLE.a,'greet',time);setTimeout(()=>SentinelMesh.emote(HUDDLE.b,'nod',time+.6),500)}}
+      if(HUDDLE.a&&HUDDLE.b&&group.includes(HUDDLE.a)&&group.includes(HUDDLE.b)){const A=HUDDLE.a,Bm=HUDDLE.b;A.face=Math.atan2(Bm.pos.x-A.pos.x,Bm.pos.z-A.pos.z);Bm.face=Math.atan2(A.pos.x-Bm.pos.x,A.pos.z-Bm.pos.z);
+        if(time<HUDDLE.on){const l=SentinelMesh.prop(A,'link');l.visible=true;const from=new THREE.Vector3(0,4.3,0),to=Bm.grp.position.clone().sub(A.grp.position).add(new THREE.Vector3(0,4.3,0)).applyAxisAngle(new THREE.Vector3(0,1,0),-A.grp.rotation.y);const d=from.distanceTo(to);l.position.copy(from).lerp(to,.5);l.scale.set(1,d,1);l.lookAt(to);l.rotateX(Math.PI/2);l.material.opacity=.3+.3*Math.abs(Math.sin(time*14))}
+        else if(A.props.link)A.props.link.visible=false}
+    }
+  });
+  // particles
+  for(let i=bursts.length-1;i>=0;i--){const b=bursts[i],e=time-b.t0,arr=b.p.geometry.attributes.position.array;for(let k=0;k<b.vel.length;k++){const v=b.vel[k];arr[k*3]+=v[0]*dt;arr[k*3+1]+=v[1]*dt;arr[k*3+2]+=v[2]*dt;v[1]-=22*dt}b.p.geometry.attributes.position.needsUpdate=true;b.p.material.opacity=Math.max(0,1-e/2.4);if(e>2.5){agentGroup.remove(b.p);b.p.geometry.dispose();b.p.material.dispose();bursts.splice(i,1)}}
+  if(bursts.length)live=true;
+  let exp=false;pulses.forEach((u,id)=>{if(u<time){pulses.delete(id);exp=true}});if(exp)applyState();
+  bubbles.forEach((b,id)=>{if(b.until<time)bubbles.delete(id)});
+  for(let i=floaters.length-1;i>=0;i--)if(time-floaters[i].t0>2.2)floaters.splice(i,1);
+  return live||pulses.size>0||floaters.length>0;
+}
+function pathLength(path,pos){let l=0,px=pos.x,pz=pos.z;for(const [x,z] of path){l+=Math.hypot(x-px,z-pz);px=x;pz=z}return l}
 
 // ---------- input
 const ptrs=new Map();let moved=false,pinch=null,dragBtn=0;
@@ -583,10 +684,10 @@ function rebuild(prevNames){
   if(!C.ok)return;const selName=sel>=0?NOTES.find(n=>n.id===sel)?.name:null;
   build(prevNames);if(cur)cur=byName.get(cur.name)||null;
   if(selName&&byName.get(selName))select(byName.get(selName));else{sel=-1;nbr=new Map();applyState()}
-  AG.forEach(m=>m.noteId=-1);setAgents(lastAgents);
+  AG.forEach(m=>{m.noteId=-1;m.phaseName='placed'});setAgents(lastAgents);
 }
 function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
-return {boot,skipIntro,setAgents,pulse,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
+return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
 })();
 

@@ -15,7 +15,7 @@ const Identity=(()=>{
   // Slots: torso is rigid; head, arms and legs are articulated around their pivots.
   const BROAD={jr:1.12,ahmad:1.08,devon:1.04,kenza:.97,member:.95,agent:1};
   function blueprint(f,opt={}){
-    f=form(f);const b=BROAD[f],parts=[],S=[-1,1];
+    f=form(f);const b=BROAD[f],parts=[],S=[-1,1],lvl=Math.max(0,Math.min(30,opt.level|0));
     const add=slot=>(shape,w,h,d,x,y,z,k,rz=0,rx=0)=>parts.push({slot,shape,w,h,d,x,y,z,k,rz,rx});
     const T=add('torso'),H=add('head'),side=s=>s<0?'L':'R';
     // pelvis, belt, waist
@@ -54,17 +54,33 @@ const Identity=(()=>{
       A('bevel',.3,.3,.3,s*.04,0,0,4);A('taper',.23,.7,.25,s*.08,-.42,0,0);A('bevel',.07,.5,.22,s*.22,-.4,0,1);
       A('bevel',.2,.16,.22,s*.08,-.84,0,4);A('taper',.27,.7,.29,s*.08,-1.22,.02,1);A('box',.03,.48,.02,s*.08,-1.2,.18,2);
       A('bevel',.18,.24,.2,s*.08,-1.7,.02,4);A('box',.15,.13,.07,s*.08,-1.87,.07,4);
+      A('bevel',.12,.2,.26,s*.2,-.84,0,1);A('box',.2,.025,.03,s*.08,-1.05,.17,4);A('box',.2,.025,.03,s*.08,-1.4,.17,4);
+      for(let i=0;i<3;i++)A('box',.03,.1,.02,s*.08+(i-1)*.045,-1.95,.11,4);A('box',.16,.03,.03,s*.08,-1.82,.11,2);
       if(opt.owner&&s>0)A('bevel',.33,.13,.35,s*.08,-.98,.02,3);
       if(f==='member')A('box',.31,.05,.33,s*.08,-1.53,.02,2);
       if(f==='ahmad')A('bevel',.08,.5,.3,s*.25,-1.2,0,1);
       L('bevel',.27,.27,.29,0,-.02,0,4);L('taper',.33,1.1,.37,0,-.6,0,0);L('taper',.27,.72,.08,0,-.55,.2,1);
       L('bevel',.25,.24,.3,0,-1.24,.03,4);L('bevel',.22,.22,.1,0,-1.22,.19,1);
       L('taper',.31,1.12,.35,0,-1.9,0,0);L('taper',.23,.84,.08,0,-1.86,.18,1);L('box',.03,.56,.02,0,-1.86,.225,2);
+      L('bevel',.28,.2,.14,0,-1.23,.2,1);L('box',.2,.03,.02,0,-1.18,.28,2);L('box',.24,.025,.03,0,-.3,.21,4);L('box',.24,.025,.03,0,-.85,.21,4);
+      L('box',.03,.5,.02,s*.11,-1.9,.18,4);L('box',.22,.025,.03,0,-2.25,.19,4);
       L('bevel',.2,.18,.22,0,-2.56,0,4);L('bevel',.31,.3,.56,0,-2.8,.08,1);L('box',.27,.12,.16,0,-2.89,.38,4);
       if(f==='jr')L('bevel',.09,.74,.32,s*.2,-.6,0,1);
       if(f==='kenza'){L('taper',.3,.9,.05,s*.06,-.35,.25,1,s*.12);L('box',.03,.8,.02,s*.2,-.35,.28,2,s*.12)}
       if(f==='devon')L('box',.05,.9,.05,s*.17,-1.9,.1,2);
     }
+    // ---- craft pass: seams, rivets, segmented plates, cables, guards and rank marks. k=4 is the dark joint tone.
+    for(const y of [3.78,3.92,4.06])T('box',.5*b,.025,.025,0,y,.33,4);                 // abdominal seams
+    for(const s of S){T('box',.02,.9,.03,s*.3*b,4.22,.37,4);T('box',.02,.5,.05,s*.46*b,4.2,.2,4)}  // chest plate seams
+    for(const s of S)for(const [x,y] of [[.33,4.66],[.33,3.86],[.14,4.74]])T('box',.035,.035,.03,s*x*b,y,.39,2);  // rivets, lit
+    T('box',.34*b,.025,.03,0,4.5,.37,4);T('box',.025,.22,.03,0,4.5,.37,4);                 // terminal mount
+    for(const s of S){T('bevel',.05,.05,.62,s*.52*b,4.74,-.2,4,0,.45);T('bevel',.05,.05,.5,s*.34*b,4.9,-.3,4,0,.3)}  // shoulder cables to the back
+    for(const s of S)for(let i=0;i<3;i++)T('box',.18,.04,.1,s*.33*b,3.33-.11*i,.27,1);     // belt pouches, stepped
+    T('bevel',.3,.22,.1,0,3.3,.3,1);T('box',.1,.1,.03,0,3.3,.36,2);                      // belt buckle with lit core
+    T('box',.42*b,.025,.03,0,4.9,.26,2);                                                 // collar light line
+    for(let i=0;i<Math.min(5,lvl);i++)T('box',.16,.022,.04,-.74*b,4.98-.065*i,.26,2,-.28);  // rank chevrons, left pauldron
+    if(lvl>=10)H('bevel',.05,.3,.46,0,1.02,-.06,1);                                        // level 10: helmet crest
+    if(lvl>=20)for(const s of S)T('bevel',.05,.5,.05,s*.56*b,5.3,-.1,2);                   // level 20: twin aerials
     const pivots={head:[0,4.78,0],armL:[-.74*b,4.62,0],armR:[.74*b,4.62,0],legL:[-.26*b,2.95,0],legR:[.26*b,2.95,0]};
     return {form:f,broad:b,parts,pivots,terminal:{x:0,y:4.3,z:.38,w:.42,h:.295}};
   }
@@ -77,7 +93,7 @@ const Identity=(()=>{
 
   // ---- 2D preview: an orthographic front projection of the blueprint, shaded per material.
   let uid=0;
-  function preview(p){p=profile(p);const pal=p.palette,f=p.form,bp=blueprint(f),tone=tones(pal),id='sp'+(++uid);
+  function preview(p){const lvl=p&&p.level|0;p=profile(p);const pal=p.palette,f=p.form,bp=blueprint(f,{level:lvl}),tone=tones(pal),id='sp'+(++uid);
     const X=u=>70+u*31.6,Y=v=>202-v*31.6;
     const shapes=bp.parts.map(q=>{const pv=bp.pivots[q.slot]||[0,0,0],cx=pv[0]+q.x,cy=pv[1]+q.y,hw=q.w/2,hh=q.h/2,bw=q.shape==='taper'?hw*.72:hw;
       const pts=[[-hw,hh],[hw,hh],[bw,-hh],[-bw,-hh]].map(([x,y])=>[x*Math.cos(q.rz)-y*Math.sin(q.rz),x*Math.sin(q.rz)+y*Math.cos(q.rz)]);
@@ -90,5 +106,19 @@ const Identity=(()=>{
 <g stroke="${mix(pal[0],'#000000',.6)}" stroke-width=".35" stroke-linejoin="round">${shapes.map(s=>`<polygon points="${s.pts}" fill="${fill(s.k)}"/>`).join('')}</g>
 <g fill="${pal[2]}" filter="url(#${id}b)" opacity=".9">${lit}</g>
 <rect x="${X(t.x-t.w/2).toFixed(1)}" y="${Y(t.y+t.h/2).toFixed(1)}" width="${(t.w*31.6).toFixed(1)}" height="${(t.h*31.6).toFixed(1)}" rx="1" fill="${tone[6]}" stroke="${pal[2]}" stroke-width=".6"/><text x="70" y="${(Y(t.y)+2.6).toFixed(1)}" text-anchor="middle" fill="${pal[2]}" font-family="monospace" font-weight="700" font-size="7.5">${FORMS[f].symbol}</text></svg>`}
-  return {HEX,FORMS,palette,form,badge,platformCode,profile,preview,blueprint,tones,mix};
+  const TITLES=['Initiate','Surveyor','Mason','Drafter','Builder','Architect','Keeper','Warden','Chancellor','Luminary','Sentinel Prime'];
+  const level=xp=>Math.floor(Math.sqrt(Math.max(0,xp|0)/60)),nextAt=l=>60*(l+1)*(l+1),title=l=>TITLES[Math.min(TITLES.length-1,Math.max(0,l|0))];
+  const ACHIEVEMENTS=[
+    {id:'first-stone',name:'First Stone',what:'Create a note',test:c=>(c.created|0)>=1},
+    {id:'ten-towers',name:'Ten Towers',what:'Create ten notes',test:c=>(c.created|0)>=10},
+    {id:'chronicler',name:'Chronicler',what:'Extend or edit notes 25 times',test:c=>((c['added to']|0)+(c.edited|0))>=25},
+    {id:'closer',name:'Closer',what:'Finish five tasks',test:c=>(c.done|0)>=5},
+    {id:'commissioner',name:'Commissioner',what:'Open ten tasks',test:c=>(c.opened|0)>=10},
+    {id:'diplomat',name:'Diplomat',what:'Send ten floor messages',test:c=>(c.say|0)>=10},
+    {id:'ensemble',name:'Ensemble',what:'Work with three different teammates',test:(c,s)=>Object.keys(s.peers||{}).length>=3},
+    {id:'cartographer',name:'Cartographer',what:'Touch fifty different notes',test:(c,s)=>Object.keys(s.touched||{}).length>=50},
+    {id:'week-watch',name:'Week Watch',what:'Seven-day streak',test:(c,s)=>(s.best_streak|0)>=7},
+    {id:'luminary',name:'Luminary',what:'Reach level 9',test:(c,s)=>level(s.xp)>=9}];
+  const achievements=s=>ACHIEVEMENTS.map(a=>({...a,done:!!(s&&a.test(s.counters||{},s))}));
+  return {HEX,FORMS,palette,form,badge,platformCode,profile,preview,blueprint,tones,mix,level,nextAt,title,TITLES,achievements,ACHIEVEMENTS};
 })();

@@ -1,18 +1,398 @@
 {
-  "instructions": "Collective AI vault: JR Moyler's second brain, live. Every call is shown to the team in real time. Work loop: tasks_list -> tasks_claim -> vault_status (say what you are doing) -> vault_read / vault_search -> vault_write or vault_append -> tasks_update (review or done, with a result). Read before you write. Keep what is there and add sections. Never invent figures, dates, names or prices: write 'unknown' and say what would settle it. Link with [[Exact Note Name]] only to notes that exist. Banned words: delve, leverage, robust, seamless, transformative, empower, elevate, game-changing, cutting-edge, innovative, tapestry. Full protocol: vault_protocol.",
+  "instructions": "Collective AI vault: JR Moyler's second brain, live. Every call is shown to the team in real time. Work loop: tasks_list -> tasks_claim -> vault_status (say what you are doing) -> vault_read / vault_search -> vault_write or vault_append -> tasks_update (review or done, with a result). Read before you write. Keep what is there and add sections. Never invent figures, dates, names or prices: write 'unknown' and say what would settle it. Link with [[Exact Note Name]] only to notes that exist. Banned words: delve, leverage, robust, seamless, transformative, empower, elevate, game-changing, cutting-edge, innovative, tapestry. Talk to teammates with vault_say and read vault_inbox when you start and before you finish. Keep notes to yourself with vault_memory_set. vault_rank shows your XP and the week's league. Full protocol: vault_protocol.",
   "tools": [
-    {"name": "vault_protocol", "action": null, "description": "The rules every agent follows in this vault (canon, voice, linking, task loop). Read once per session.", "inputSchema": {"type": "object", "properties": {}}},
-    {"name": "vault_status", "action": "heartbeat", "description": "Tell the team what you are doing right now. Shown live on the campus as a lantern over the note you name. Call it when you start, switch notes, or finish (status idle).", "inputSchema": {"type": "object", "properties": {"status": {"type": "string", "enum": ["working", "thinking", "reading", "writing", "reviewing", "blocked", "idle", "offline"]}, "note": {"type": "string", "description": "Exact note name you are working in"}, "task": {"type": "string", "description": "Task id, e.g. CV-007"}, "detail": {"type": "string", "description": "One line: what you are doing"}}, "required": ["status"]}},
-    {"name": "vault_search", "action": "notes.search", "description": "Search note names and bodies. Returns names, folders and snippets.", "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}, "limit": {"type": "integer", "minimum": 1, "maximum": 50}}, "required": ["query"]}, "map": {"query": "q"}},
-    {"name": "vault_read", "action": "notes.get", "description": "Read one note by exact name: frontmatter, body, version, last editor and backlinks.", "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}},
-    {"name": "vault_write", "action": "notes.upsert", "description": "Create a note or replace its body. Body is markdown starting with '# Name'. Frontmatter merges with what is there. Returns any unresolved [[links]]. Prefer vault_append for adding to an existing note.", "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}, "body": {"type": "string"}, "folder": {"type": "string", "description": "e.g. '09 - Projects' (new notes only)"}, "fm": {"type": "object", "description": "frontmatter fields: type, tags, status, division, source"}, "task": {"type": "string"}, "summary": {"type": "string", "description": "One line for the activity feed"}}, "required": ["name", "body"]}},
-    {"name": "vault_append", "action": "notes.append", "description": "Add a section to the end of an existing note. Start the section with a '## ' heading.", "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}, "section": {"type": "string"}, "task": {"type": "string"}, "summary": {"type": "string"}}, "required": ["name", "section"]}},
-    {"name": "vault_history", "action": "notes.history", "description": "Who edited a note and when.", "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}},
-    {"name": "tasks_list", "action": "tasks.list", "description": "List tasks, highest priority first. Filter by status.", "inputSchema": {"type": "object", "properties": {"status": {"type": "string", "enum": ["open", "claimed", "review", "blocked", "done"]}}}},
-    {"name": "tasks_claim", "action": "tasks.claim", "description": "Claim an open task. Fails if another agent holds it (claims older than 48h can be taken over).", "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}},
-    {"name": "tasks_update", "action": "tasks.update", "description": "Move your task to review, blocked, done, or back to open. Put what changed and what still needs JR in result.", "inputSchema": {"type": "object", "properties": {"id": {"type": "string"}, "status": {"type": "string", "enum": ["review", "blocked", "done", "open", "claimed"]}, "result": {"type": "string"}}, "required": ["id", "status"]}},
-    {"name": "tasks_create", "action": "tasks.create", "description": "Open a new task for work you discovered. Do not do unrequested work inside someone else's task.", "inputSchema": {"type": "object", "properties": {"title": {"type": "string"}, "detail": {"type": "string"}, "note": {"type": "string"}, "priority": {"type": "string", "enum": ["high", "medium", "low"]}, "division": {"type": "string"}}, "required": ["title"]}},
-    {"name": "vault_log", "action": "log", "description": "Add a line to the live activity feed.", "inputSchema": {"type": "object", "properties": {"kind": {"type": "string"}, "text": {"type": "string"}, "note": {"type": "string"}, "task": {"type": "string"}}, "required": ["kind", "text"]}},
-    {"name": "vault_activity", "action": "activity.recent", "description": "Recent activity from every agent and teammate.", "inputSchema": {"type": "object", "properties": {"limit": {"type": "integer", "minimum": 1, "maximum": 200}}}}
+    {
+      "name": "vault_protocol",
+      "action": null,
+      "description": "The rules every agent follows in this vault (canon, voice, linking, task loop). Read once per session.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "vault_status",
+      "action": "heartbeat",
+      "description": "Tell the team what you are doing right now. Shown live on the campus as a lantern over the note you name. Call it when you start, switch notes, or finish (status idle).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "working",
+              "thinking",
+              "reading",
+              "writing",
+              "reviewing",
+              "blocked",
+              "idle",
+              "offline"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "description": "Exact note name you are working in"
+          },
+          "task": {
+            "type": "string",
+            "description": "Task id, e.g. CV-007"
+          },
+          "detail": {
+            "type": "string",
+            "description": "One line: what you are doing"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      }
+    },
+    {
+      "name": "vault_search",
+      "action": "notes.search",
+      "description": "Search note names and bodies. Returns names, folders and snippets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "map": {
+        "query": "q"
+      }
+    },
+    {
+      "name": "vault_read",
+      "action": "notes.get",
+      "description": "Read one note by exact name: frontmatter, body, version, last editor and backlinks.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "name": "vault_write",
+      "action": "notes.upsert",
+      "description": "Create a note or replace its body. Body is markdown starting with '# Name'. Frontmatter merges with what is there. Returns any unresolved [[links]]. Prefer vault_append for adding to an existing note.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "folder": {
+            "type": "string",
+            "description": "e.g. '09 - Projects' (new notes only)"
+          },
+          "fm": {
+            "type": "object",
+            "description": "frontmatter fields: type, tags, status, division, source"
+          },
+          "task": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string",
+            "description": "One line for the activity feed"
+          }
+        },
+        "required": [
+          "name",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "vault_append",
+      "action": "notes.append",
+      "description": "Add a section to the end of an existing note. Start the section with a '## ' heading.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "section": {
+            "type": "string"
+          },
+          "task": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "section"
+        ]
+      }
+    },
+    {
+      "name": "vault_history",
+      "action": "notes.history",
+      "description": "Who edited a note and when.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "name": "tasks_list",
+      "action": "tasks.list",
+      "description": "List tasks, highest priority first. Filter by status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "claimed",
+              "review",
+              "blocked",
+              "done"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "tasks_claim",
+      "action": "tasks.claim",
+      "description": "Claim an open task. Fails if another agent holds it (claims older than 48h can be taken over).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "tasks_update",
+      "action": "tasks.update",
+      "description": "Move your task to review, blocked, done, or back to open. Put what changed and what still needs JR in result.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "review",
+              "blocked",
+              "done",
+              "open",
+              "claimed"
+            ]
+          },
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ]
+      }
+    },
+    {
+      "name": "tasks_create",
+      "action": "tasks.create",
+      "description": "Open a new task for work you discovered. Do not do unrequested work inside someone else's task.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "division": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      }
+    },
+    {
+      "name": "vault_log",
+      "action": "log",
+      "description": "Add a line to the live activity feed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "task": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "text"
+        ]
+      }
+    },
+    {
+      "name": "vault_activity",
+      "action": "activity.recent",
+      "description": "Recent activity from every agent and teammate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          }
+        }
+      }
+    },
+    {
+      "name": "vault_say",
+      "action": "say",
+      "description": "Say something on the floor. Shown as a speech bubble over your Sentinel in the campus and delivered to the inbox of the agent or person you name (to). Use it to hand off work, ask a question, or report a finding to a teammate. Leave 'to' empty to address everyone.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "One or two sentences"
+          },
+          "to": {
+            "type": "string",
+            "description": "Agent id (e.g. codex, claude-code) or a person's display name. Empty = the whole floor"
+          },
+          "note": {
+            "type": "string",
+            "description": "Note the message is about"
+          },
+          "task": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      }
+    },
+    {
+      "name": "vault_inbox",
+      "action": "inbox",
+      "description": "Messages said to you or to the whole floor, newest last. Read it when you start and before you finish a task. Reply with vault_say.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "string",
+            "description": "ISO timestamp; only messages after it"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      }
+    },
+    {
+      "name": "vault_memory_set",
+      "action": "memory.set",
+      "description": "Remember something across sessions: a preference, a decision, where you left off. Small JSON values, keyed by name. Overwrites the key.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "description": "Any JSON value under 4 KB"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ]
+      }
+    },
+    {
+      "name": "vault_memory_get",
+      "action": "memory.get",
+      "description": "Read your memory. With a key, one value; without, every key you have stored.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "vault_rank",
+      "action": "rank",
+      "description": "Your XP, level, title, streak and this week's league table. XP comes from notes you create or extend, tasks you finish and messages you send.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
   ]
 }
