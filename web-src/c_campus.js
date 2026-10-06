@@ -354,6 +354,7 @@ function updateLabels(){
   if(!walk&&far>150)DIST.forEach(d=>cands.push({x:d.x+d.w/2,y:58,z:d.z+d.d/2,t:d.name,s:d.count+" notes",cls:"dl",prio:far>260?50:20,c:d.color}));
   if(sel<0||far>90){let k=0;LAND.forEach(id=>{const b=B[id];if(!b)return;const d=Math.hypot(b.cx-cp.x,b.cz-cp.z);if(d<(walk?160:420)&&far<300&&k<12){addB(id,"",40-d*.01);k++}})}
   if(walk||far<130){const near=[];NOTES.forEach(n=>{const b=B[n.id];const d=Math.hypot(b.cx-cp.x,b.cz-cp.z);if(d<(walk?85:95))near.push({id:n.id,sc:n.out.size+n.back.size-d*.08})});near.sort((a,b)=>b.sc-a.sc).slice(0,16).forEach((o,k)=>addB(o.id,"",30-k*.5))}
+  if(Campus.labelCands&&Campus.labelCands.length)cands.push(...Campus.labelCands);
   cands.sort((a,b)=>b.prio-a.prio);
   const taken=[];let used=0;
   cands.forEach(c=>{
@@ -557,8 +558,9 @@ cv.addEventListener("pointermove",e=>{
   }
   dirty=true;
 });
+const pickers=[],frameHooks=[];
 function endPtr(e){const p=ptrs.get(e.pointerId);if(!p)return;ptrs.delete(e.pointerId);cv.classList.remove("drag");if(ptrs.size<2)pinch=null;
-  if(!moved&&ptrs.size===0&&e.type==="pointerup"&&p.btn===0){const id=pick(e.clientX,e.clientY);if(id>=0)open(NOTES[id])}}
+  if(!moved&&ptrs.size===0&&e.type==="pointerup"&&p.btn===0){const r=cv.getBoundingClientRect();rc.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-((e.clientY-r.top)/r.height*2-1)},camera);if(pickers.some(f=>f(rc,e)))return;const id=pick(e.clientX,e.clientY);if(id>=0)open(NOTES[id])}}
 cv.addEventListener("pointerup",endPtr);cv.addEventListener("pointercancel",endPtr);
 cv.addEventListener("pointerleave",()=>{if(hov>=0){hov=-1;applyState();updateLabels()}});
 cv.addEventListener("wheel",e=>{e.preventDefault();stopAuto();
@@ -628,6 +630,7 @@ function frame(t){
     Object.values(bridgeMats).forEach(m=>{m.uniforms.time.value=time;m.uniforms.prog.value=bridgeProg});dirty=true;
   }
   if(stepAgents(dt))dirty=true;
+  frameHooks.forEach(f=>{if(f(dt,time))dirty=true});
   if(!dirty)return;
   dirty=false;
   applyCamera();
@@ -688,6 +691,8 @@ function rebuild(prevNames){
 }
 function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
-return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
+return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,
+  // integration points for other modules (guides, title, world): read-only handles plus hooks
+  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
 })();
 
