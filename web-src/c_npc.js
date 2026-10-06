@@ -164,7 +164,7 @@ const Guides=(()=>{
       const open=S.tasks.filter(t=>isOpen(t)&&inDistrict(g.top,t.note)).length,live=S.tasks.filter(t=>isLiveTask(t)&&inDistrict(g.top,t.note)).length;
       const here=S.presence.filter(p=>p.status!=="offline"&&t0-Date.parse(p.last_seen)<15*60e3&&inDistrict(g.top,p.note)).length;
       g.stats={notes:ns.length,blocks:new Set(ns.map(n=>(n.folder||"").split("/")[1]||"·")).size,changed,topType,tall,open,live,here};
-      g.lbl.t="Warden · "+g.name;g.lbl.s=esc(open?plural(open,"open task")+" · talk":"click to talk");
+      g.lbl.t="Warden · "+g.name;g.lbl.s=esc(open?plural(open,"open task")+" · talk":(matchMedia("(pointer:coarse)").matches?"tap to talk":"click to talk"));
       g.marker.visible=live>0;const mat=open?kit().gold:kit().steel;g.markerDia.material=mat;g.markerRing.material=mat;g.markerGlow.visible=open>0;
     });
   }

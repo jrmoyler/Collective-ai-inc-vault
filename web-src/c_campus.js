@@ -8,6 +8,8 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const hash01=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return((h>>>0)%100000)/100000};
 const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const cv=$("#gl"),stage=$("#stage");
+const TOUCH=matchMedia("(pointer:coarse)").matches||navigator.maxTouchPoints>0;
+if(TOUCH)stage.classList.add("touch");
 let renderer,scene,camera,sun,hemi,skyMat,skyMesh,ground,groundMat,iMesh,mat,uni={},ringMesh,bridgeGroup,markerGroup,rc;
 let W=1,H=1,paused=false,dirty=true,last=0,time=0,lastLbl=0,lastMini=0,firstFrame=false,introStart=-1;
 let B=[],DIST=[],BLOCKS=[],WORLD={W:1,H:1},GSIDE=1,inst=[],boxes=null,boxB=null,growth=null,delay=null,LAND=[];
@@ -39,6 +41,8 @@ const _c1=new THREE.Color(),_c2=new THREE.Color();
 const cam={tx:0,ty:0,tz:0,yaw:.5,pitch:.62,dist:700},goal=Object.assign({},cam);
 const shiftNow={x:0,y:0},shiftGoal={x:0,y:0};
 const keys=new Set();
+// Touch walking: an analog stick (left thumb) feeds the same walk step as WASD.
+const joy={f:0,r:0,id:null};
 const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 
 // Key states. "auto" blends between them from the real sun elevation (see SOL below); the three named ones are the manual presets.
@@ -803,6 +807,15 @@ function overview(){
 function flyDistrict(top){
   const d=DIST.find(x=>x.top===top);if(!d)return;if(walk)exitWalk();auto=false;
   goal.tx=d.x+d.w/2;goal.tz=d.z+d.d/2;goal.ty=0;goal.dist=Math.max(d.w,d.d)*1.05+70;goal.pitch=.72;dirty=true;
+  $("#plate").hidden=true;showDistrict(d,true);
+}
+// Drop in at street level at a district's north-west corner, looking down the edge road into the blocks.
+function walkDistrict(top){
+  const d=DIST.find(x=>x.top===top);if(!d||!C.ok)return false;
+  if(!walk)enterWalk();
+  goal.tx=d.x+2;goal.tz=d.z-2.5;goal.yaw=-1.9;goal.pitch=.06;collide();
+  cam.tx=goal.tx;cam.tz=goal.tz;cam.yaw=goal.yaw;cam.pitch=goal.pitch;cam.ty=goal.ty=3.4;dirty=true;showDistrict(d,false);
+  return true;
 }
 
 // ---------- walking
@@ -813,7 +826,7 @@ function enterWalk(){
   const px=cam.tx+Math.sin(cam.yaw)*cp*D,pz=cam.tz+Math.cos(cam.yaw)*cp*D,py=Math.max(3.4,cam.ty+Math.sin(cam.pitch)*D);
   cam.tx=goal.tx=clamp(px,-GSIDE/2+20,GSIDE/2-20);cam.tz=goal.tz=clamp(pz,-GSIDE/2+20,GSIDE/2-20);cam.ty=py;cam.dist=goal.dist=0;
   goal.ty=3.4;goal.pitch=.1;goal.yaw=cam.yaw;collide();cam.tx=goal.tx;cam.tz=goal.tz;
-  $("#rbWalk").classList.add("on");$("#hint").firstElementChild.textContent="Drag · look   WASD · walk   Shift · run";dirty=true;
+  $("#rbWalk").classList.add("on");$("#hint").firstElementChild.textContent="Drag · look   WASD · walk   Shift · run";stage.classList.add("walking");bannerTop=null;dirty=true;
 }
 function exitWalk(){
   if(!walk)return;walk=false;
@@ -822,7 +835,7 @@ function exitWalk(){
   // keep the camera where it is; put the orbit target in front of it
   cam.dist=d;cam.tx=px-Math.sin(cam.yaw)*cp*d;cam.ty=py-Math.sin(cam.pitch)*d;cam.tz=pz-Math.cos(cam.yaw)*cp*d;
   goal.tx=cam.tx;goal.ty=0;goal.tz=cam.tz;goal.dist=d+70;goal.pitch=.55;goal.yaw=cam.yaw;
-  $("#rbWalk").classList.remove("on");$("#hint").firstElementChild.textContent="Drag · orbit   Right-drag · pan   Scroll · zoom";dirty=true;
+  $("#rbWalk").classList.remove("on");$("#hint").firstElementChild.textContent="Drag · orbit   Right-drag · pan   Scroll · zoom";stage.classList.remove("walking");joyReset();dirty=true;
 }
 function toggleWalk(force){if(!C.ok)return;if(force===true||!walk)enterWalk();else exitWalk()}
 function collide(){
@@ -907,13 +920,36 @@ function drawMini(){
 $("#mini").addEventListener("pointerdown",e=>{if(!C.ok)return;const r=e.currentTarget.getBoundingClientRect(),w=r.width,h=r.height,sc=Math.min(w/WORLD.W,h/WORLD.H)*.92;
   const x=(e.clientX-r.left-w/2)/sc,z=(e.clientY-r.top-h/2)/sc;auto=false;if(walk){goal.tx=x;goal.tz=z}else{goal.tx=x;goal.tz=z;goal.ty=0}dirty=true});
 function buildChips(){
-  $("#chips").innerHTML=DIST.slice().sort((a,b)=>b.count-a.count).map(d=>`<button class="chip2" data-top="${esc(d.top)}"><i style="background:${d.color}"></i>${esc(d.name)}<b>${d.count}</b></button>`).join("");
+  const count=typeof Districts!=="undefined"?Districts.all.length:DIST.length;
+  $("#chips").innerHTML=`<button class="chip2 navchip" id="districtNavigator" type="button" aria-label="Open district navigator"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h7v6H4zM13 5h7v4h-7zM13 11h7v8h-7zM4 13h7v6H4z"/></svg>${count} districts</button>`+DIST.slice().sort((a,b)=>b.count-a.count).map(d=>`<button class="chip2" data-top="${esc(d.top)}"><i style="background:${d.color}"></i>${esc(d.name)}<b>${d.count}</b></button>`).join("");
 }
-$("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip2");if(b){closeSheet();flyDistrict(b.dataset.top)}});
+$("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip2");if(!b)return;if(b.id==="districtNavigator"){if(typeof Journey!=="undefined")Journey.show(cur&&typeof Districts!=="undefined"?Districts.worldTop(cur):undefined);return}closeSheet();flyDistrict(b.dataset.top)});
 function markChip(){
   let best=null,bd=1e12;DIST.forEach(d=>{const dx=Math.max(d.x-cam.tx,0,cam.tx-(d.x+d.w)),dz=Math.max(d.z-cam.tz,0,cam.tz-(d.z+d.d)),q=dx*dx+dz*dz;if(q<bd){bd=q;best=d}});
   document.querySelectorAll(".chip2").forEach(c=>c.classList.toggle("on",best&&c.dataset.top===best.top&&!sheet.open));
+  // Street level: announce each district as you walk into it.
+  if(walk&&best&&bd===0&&best.top!==bannerTop)showDistrict(best,false);
 }
+let bannerTop=null,bannerT=0;
+function districtInfo(d){const def=typeof Districts!=="undefined"?Districts.get(d.top):null;return {title:def?.title||d.name,purpose:def?.purpose||"",virtual:!!def?.virtual}}
+function showDistrict(d,flown){
+  bannerTop=d.top;const el=$("#districtBanner");if(!el)return;const info=districtInfo(d);
+  document.querySelector(".brief")?.remove();
+  el.innerHTML=`<i style="background:${esc(d.color)}"></i><div><small>${flown?"District":"Entering"} · ${esc(d.top)}</small><b>${esc(info.title)}</b><span>${d.count} notes${info.purpose?" · "+esc(info.purpose):""}</span></div><div class="db-go"><button class="btn" type="button" data-act="dir">Directory</button>${walk?"":`<button class="btn" type="button" data-act="walk">Walk here</button>`}</div><button class="ib x" type="button" aria-label="Dismiss district card"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
+  el.dataset.top=d.top;el.hidden=false;el.classList.remove("in");void el.offsetWidth;el.classList.add("in");
+  clearTimeout(bannerT);bannerT=setTimeout(()=>{el.hidden=true},walk?5200:12000);
+}
+$("#districtBanner")?.addEventListener("click",e=>{const el=e.currentTarget,b=e.target.closest("button");if(!b)return;const top=el.dataset.top;el.hidden=true;
+  if(b.dataset.act==="dir"&&typeof Journey!=="undefined")Journey.show(top);else if(b.dataset.act==="walk")walkDistrict(top)});
+// ---------- touch stick
+function joyReset(){joy.f=joy.r=0;joy.id=null;const k=$("#joy i");if(k)k.style.transform=""}
+(()=>{const pad=$("#joy");if(!pad)return;
+  const move=e=>{const r=pad.getBoundingClientRect(),R=r.width/2;let x=e.clientX-r.left-R,y=e.clientY-r.top-R;const m=Math.hypot(x,y);if(m>R){x*=R/m;y*=R/m}
+    joy.r=Math.abs(x)<R*.12?0:x/R;joy.f=Math.abs(y)<R*.12?0:-y/R;pad.firstElementChild.style.transform=`translate(${x}px,${y}px)`;auto=false;dirty=true};
+  pad.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();pad.setPointerCapture(e.pointerId);joy.id=e.pointerId;move(e)});
+  pad.addEventListener("pointermove",e=>{if(e.pointerId===joy.id)move(e)});
+  ["pointerup","pointercancel","lostpointercapture"].forEach(t=>pad.addEventListener(t,e=>{if(e.pointerId===joy.id)joyReset()}));
+})();
 
 // ---------- task markers: a lamp on the roof of any note with open agent work
 const MK={open:"#9CD3FF",claimed:"#F2B85B",review:"#22D3EE",blocked:"#E5534B"};
@@ -1137,6 +1173,7 @@ function step(dt){
     else{const v=goal.dist*.9*dt;goal.tx+=(-sy*f+cy*r)*v;goal.tz+=(-cy*f-sy*r)*v;clampTarget();if(keys.has("q"))goal.yaw+=dt*1.2;if(keys.has("e"))goal.yaw-=dt*1.2}
     dirty=true;
   }
+  if(walk&&(joy.f||joy.r)){const m=Math.hypot(joy.f,joy.r),v=26*(m>.92?2.2:1)*dt;walkMove(joy.f*v,joy.r*v);dirty=true}
   if(auto&&!walk&&!sheet.open){goal.yaw+=dt*.04;dirty=true}
   const k=reduced?1:1-Math.exp(-dt*(walk?13:5.5));
   let dyaw=((goal.yaw-cam.yaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
@@ -1226,7 +1263,7 @@ function init(){
     // opening shot: high above the plan, then a slow drift
     cam.tx=goal.tx=0;cam.tz=goal.tz=0;cam.ty=goal.ty=0;cam.dist=GSIDE*1.05;goal.dist=GSIDE*.8;cam.pitch=.95;goal.pitch=.62;cam.yaw=goal.yaw=.5;
     C.ok=true;
-    $("#plateP").textContent=`${NOTES.length} notes in ${DIST.length} districts. Click a building to read it. Open a note and the camera flies to it and draws its links.`;
+    $("#plateP").textContent=`${NOTES.length} notes in ${DIST.length} districts. ${TOUCH?"Tap":"Click"} a building to read it. Open a note and the camera flies to it and draws its links.`;
     requestAnimationFrame(frame);
   }catch(err){
     console.warn("3D unavailable:",err);C.ok=false;
@@ -1275,7 +1312,7 @@ function rebuild(prevNames,options={}){
 }
 function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
-return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,
+return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,flyDistrict,walkDistrict,cycleTime,shift,rebuild,setMarkers,
   // integration points for other modules (guides, title, world): read-only handles plus hooks
   scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,tex:TEX,landmarks:districtAssets?.userData.records||[],renderBudget:{...renderBudget},
     // testing only: pin the local clock to a decimal hour (null restores the real clock) and recompute the sky

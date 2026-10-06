@@ -16,7 +16,7 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-a
 const results=[];
 const thematic=JSON.parse(fs.readFileSync(new URL('../docs/source-district-definitions.json',import.meta.url),'utf8')).map(d=>({...d,kind:'thematic'}));
 for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],['mobile',{width:390,height:844},true]]){
- const page=await browser.newPage({viewport,reducedMotion:reduced?'reduce':'no-preference'});const errors=[],warnings=[];page.on('requestfailed',r=>console.log(name,'RESOURCE',r.url(),r.failure()?.errorText));
+ const page=await browser.newPage({viewport,reducedMotion:reduced?'reduce':'no-preference',...(name==='mobile'?{hasTouch:true,isMobile:true,deviceScaleFactor:2}:{})});const errors=[],warnings=[];page.on('requestfailed',r=>console.log(name,'RESOURCE',r.url(),r.failure()?.errorText));
  page.on('pageerror',e=>{errors.push(e.message);console.log(name,'PAGEERROR',e.message)});page.on('console',m=>{if(m.type()==='error')errors.push(m.text());else if(m.type()==='warning')warnings.push(m.text())});
  await page.addInitScript(({notes,reduced})=>{
   localStorage.setItem('vault.title.cutscene','false');localStorage.setItem('vault.sound','false');localStorage.setItem('vault.quality',reduced?'low':'high');
@@ -37,7 +37,26 @@ for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],
  const campus=await page.evaluate(()=>({notes:NOTES.length,districts:Campus.districts().length,gpu:Campus.ok(),drawCalls:Campus.renderer().info.render.calls,audio:VaultAudio.status(),versions:VaultEngine.versions,landmarks:Campus.debug().landmarks.length,buildings:Campus.buildings().filter(Boolean).length}));
  await page.screenshot({path:new URL(name+'-world.png',out).pathname});
  if(name==='desktop'){await page.evaluate(()=>{const p=Campus.debug().landmarks.find(x=>x.folder==='17 - Synergy Nodes');if(p)Campus.flyAt(p.x,p.z,p.y,36,.65)});await page.waitForTimeout(1600);await page.screenshot({path:new URL(name+'-landmark.png',out).pathname});}
- await page.getByRole('button',{name:'Open district navigator'}).click();await page.getByText('District progress saved to your account.',{exact:true}).waitFor();
+ // Phones: the floor starts folded, a thematic district can be flown to, walked and moved through with the touch stick.
+ let touch=null;
+ if(name==='mobile'){
+  const floorFolded=await page.evaluate(()=>document.getElementById('floor').classList.contains('min'));
+  await page.evaluate(()=>{document.getElementById('plate').hidden=true;document.querySelector('.brief')?.remove()});
+  await page.locator('.chip2[data-top="13 - Learning and Curriculum"]').tap({force:true});
+  await page.locator('#districtBanner button[data-act="walk"]').waitFor({timeout:10000});
+  await page.locator('#districtBanner button[data-act="walk"]').tap({force:true});
+  await page.waitForFunction(()=>Campus.position().walking,{timeout:10000});
+  const start=await page.evaluate(()=>Campus.position());const pad=await page.locator('#joy').boundingBox();
+  const cdp=await page.context().newCDPSession(page);const cx=pad.x+pad.width/2,cy=pad.y+pad.height/2;
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:cx,y:cy}]});
+  for(let i=0;i<12;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:cx+(i%2),y:cy-50}]});await page.waitForTimeout(100)}
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  const end=await page.evaluate(()=>Campus.position());
+  touch={floorFolded,walked:Math.hypot(end.x-start.x,end.z-start.z)};
+  await page.screenshot({path:new URL(name+'-walk.png',out).pathname});
+  await page.evaluate(()=>Campus.toggleWalk());
+ }
+ await page.getByRole('button',{name:'Open district navigator'}).click({force:true});await page.getByText('District progress saved to your account.',{exact:true}).waitFor();
  const districtCount=await page.locator('.journey-nav button').count();
  await page.getByRole('button',{name:'Shortlist this district',exact:true}).click();await page.getByRole('button',{name:'Remove from district shortlist',exact:true}).waitFor();
  await page.locator('.journey-nav button[data-folder="11 - Physical AI"]').click();await page.getByRole('heading',{name:'Physical systems lab',exact:true}).waitFor();
@@ -47,7 +66,7 @@ for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],
  await page.evaluate(()=>open(NOTES.find(n=>n.name.startsWith('District Handbook —'))));
  await page.waitForTimeout(500);await page.getByRole('button',{name:'Close reader',exact:true}).count().then(async n=>{if(n)await page.getByRole('button',{name:'Close reader',exact:true}).click()});
  const reader=await page.evaluate(()=>({inlineTransform:document.getElementById('sheet').style.transform,hasContent:document.getElementById('sbody').textContent.length>100}));
- results.push({name,viewport,reduced,title:await page.title(),campus,districtCount,saved,reader,errors,warnings});await page.close();
+ results.push({name,viewport,reduced,title:await page.title(),campus,districtCount,saved,reader,touch,errors,warnings});await page.close();
 }
 await browser.close();server.close();fs.writeFileSync(new URL('results.json',out),JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2));console.log('Evidence directory:',out.pathname);
-if(results.some(r=>r.errors.length||r.districtCount!==19||r.campus.districts!==19||r.campus.landmarks!==19||r.campus.buildings!==r.campus.notes||!r.campus.gpu||r.reader.inlineTransform))process.exitCode=1;
+if(results.some(r=>r.errors.length||r.districtCount!==19||r.campus.districts!==19||r.campus.landmarks!==19||r.campus.buildings!==r.campus.notes||!r.campus.gpu||r.reader.inlineTransform||(r.name==='mobile'&&!(r.touch?.floorFolded&&r.touch.walked>1))))process.exitCode=1;

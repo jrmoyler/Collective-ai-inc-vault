@@ -151,7 +151,7 @@ const Live=(()=>{
     const r=stats.get(me.name),lv=Identity.level(r?.xp||0),open=tasks.filter(t=>t.status==="open"),bounty=open.reduce((a,t)=>a+(BOUNTY[t.priority]||80),0),top=[...stats.values()].filter(x=>x.actor!=="repo-sync").sort((a,b)=>b.week_xp-a.week_xp)[0];
     const el=document.createElement("div");el.className="brief";
     el.innerHTML=`<div class="k">${new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})} · campus brief</div><b>${r?.streak>1?`Day ${r.streak} of your streak, ${esc(me.name)}.`:`Welcome back, ${esc(me.name)}.`}</b><span>Level ${lv} ${esc(Identity.title(lv))} · ${r?.week_xp||0} XP this week${top&&top.week_xp?` · leading this week: ${esc(agentName(top.actor))} with ${top.week_xp}`:""}</span><span>${open.length} open commission${open.length===1?"":"s"} worth ${bounty} XP${open.length?` · <a class="wl" id="briefGo">see them</a>`:""}</span><button class="ib x" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
-    document.body.appendChild(el);const close=()=>el.remove();el.querySelector(".ib").onclick=close;setTimeout(close,14000);const go=el.querySelector("#briefGo");if(go)go.onclick=e=>{e.preventDefault();sheet.atab="ranks";openSheet("agents");close()};
+    document.body.appendChild(el);const close=()=>el.remove();el.querySelector(".ib").onclick=close;setTimeout(close,matchMedia("(max-width:760px)").matches?8000:14000);const go=el.querySelector("#briefGo");if(go)go.onclick=e=>{e.preventDefault();sheet.atab="ranks";openSheet("agents");close()};
   }
   async function sayFloor(text,target){
     text=String(text||"").trim().slice(0,500);if(!text)return;
@@ -185,13 +185,18 @@ const Live=(()=>{
   function sessionRows(){return [...sessions.values()].filter(isLive).map(p=>{const owner=ownIdentity(p.user_id);return `<button class="ag-row" ${p.note?`data-note="${esc(p.note)}"`:''}><i style="background:${owner.ownerColor}"></i><div><b>${esc(agentName(p.agent))} · ${esc(owner.ownerName)}</b><span>${esc(p.status)} · ${owner.ownerBadge} · ${esc(p.note||'')}</span></div><em>${short(p.last_seen)}</em></button>`}).join('')}
   function drawFloor(){
     const el=$("#floor");if(!el||!me)return;
+    // Do not wipe a message the member is still typing.
+    if(el.contains(document.activeElement)&&document.activeElement.value)return;
     const ids=[...agents.keys()].filter(id=>id!=="repo-sync"),live=ids.filter(id=>isLive(pres.get(id))).length,owned=[...sessions.values()].filter(isLive).length;
     el.hidden=false;
-    el.innerHTML=`<h3><span>On the floor</span><b>${connected||pollT?(live+owned?(live+owned)+" live":"quiet"):"connecting"}${pollT&&!connected?" · polling":""}</b></h3>${rowsHTML(true,true)}${sessionRows()}${ids.length-live?`<div class="watch">${ids.length-live} agents offline · <a class="wl" id="floorAll">see all</a></div>`:""}
+    // Phones start with the floor folded to its header so the city stays visible.
+    if(!el.dataset.ready){el.dataset.ready="1";if(matchMedia("(max-width:760px)").matches)el.classList.add("min")}
+    el.innerHTML=`<h3 role="button" tabindex="0" aria-expanded="${!el.classList.contains("min")}" aria-label="On the floor: show or hide"><span>On the floor<i class="fchev" aria-hidden="true">▾</i></span><b>${connected||pollT?(live+owned?(live+owned)+" live":"quiet"):"connecting"}${pollT&&!connected?" · polling":""}</b></h3>${rowsHTML(true,true)}${sessionRows()}${ids.length-live?`<div class="watch">${ids.length-live} agents offline · <a class="wl" id="floorAll">see all</a></div>`:""}
       <div class="ticker">${acts.slice(0,4).map(a=>`<div><b>${esc(agentName(a.actor))}</b> ${esc(a.kind)} ${esc(a.note||a.text||"")}</div>`).join("")||"<div>No activity yet</div>"}</div>
       <div class="watch">Watching now: ${esc(watchers.join(", ")||me.name)}</div>`;
     const sayRow=playReady?`<form class="sayrow" id="sayForm"><input id="sayText" maxlength="500" placeholder="Say something to the floor…" autocomplete="off" aria-label="Message to the floor"><select id="sayTo" aria-label="To"><option value="">Everyone</option>${[...agents.values()].filter(a=>a.id!=="repo-sync"&&a.active!==false&&isLive(pres.get(a.id))).map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join("")}</select><button class="btn" type="submit">Say</button></form>`:"";
     el.querySelector("h3").insertAdjacentHTML("afterend",sayRow);
+    const h=el.querySelector("h3"),fold=()=>{el.classList.toggle("min");h.setAttribute("aria-expanded",String(!el.classList.contains("min")))};h.onclick=e=>{if(!e.target.closest("a"))fold()};h.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fold()}};
     const sf=el.querySelector("#sayForm");if(sf)sf.onsubmit=async e=>{e.preventDefault();const t=el.querySelector("#sayText");await sayFloor(t.value,el.querySelector("#sayTo").value);t.value=""};
   }
   document.addEventListener("click",e=>{if(e.target.id==="floorAll"){e.preventDefault();sheet.atab="floor";openSheet("agents");return}const c=e.target.closest("[data-commission]");if(c){sheet.atab="board";openSheet("agents");return}const r=e.target.closest(".ag-row[data-note]");if(r){const n=byName.get(r.dataset.note);if(n){open(n);Campus.flyTo(r.dataset.agent)}return}const ar=e.target.closest(".ag-row[data-agent]");if(ar&&Campus.flyTo(ar.dataset.agent))toast("Flying to "+agentName(ar.dataset.agent))});
