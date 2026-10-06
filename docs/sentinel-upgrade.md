@@ -225,3 +225,38 @@ Sentinels on the same roof turn to face the roof center. Every seven seconds two
 1. Apply `supabase/migrations/20261006090000_sentinel_play.sql`. It backfills ranks from existing activity. Done 2026-10-06.
 2. Deploy `agent-api` (new actions) and `vault-mcp` (new tools, read from `tools.json`). Done 2026-10-06.
 3. Merge the frontend. The production app still runs the previous build until then; the new tables and actions are already live and harmless to it.
+
+## World pass · Oct 6, 2026
+
+Three parallel work streams, integrated and verified on one build. Nothing in the existing controls, data flows or policies changes.
+
+![Street level by day: glass curtain wall, pavers, cast shadows, the ZenFlow Warden ahead](world-guide-street.jpg)
+
+![Title screen main menu, every frame generated at runtime](title-menu.jpg)
+
+![Night overview with lit windows and bloom](world-night.jpg)
+
+### Title screen and opening cutscene (`web-src/f_title.js`)
+
+Pure code: a three.js city of 2,116 instanced towers rises in a radial wave under a dawn light with a drifting gold data lattice; the wordmark "COLLECTIVE AI" and "VAULT" reveal letter by letter with a light sweep, then the tagline, then the menu: Enter the Vault, Settings (sound, cutscene on or off, quality low or high, replay intro), Credits. A synthesized score (D minor pad, arpeggio, sub pulses) starts on the first gesture and ends with the menu. Skippable at any point. Seen-today players get a 1.5 s sting. Reduced motion skips straight to the menu. The hand-off to the app is a 900 ms shutter wipe; the renderer and audio are disposed afterward. `e_boot.js` awaits `Title.start()` before sign-in.
+
+### World (`web-src/c_campus.js`)
+
+- **Real clock.** Mode `auto` is the default. Latitude comes from a 52-entry time zone table (continent fallback, default 35°N); longitude from the UTC offset; the sun from the NOAA low-precision approximation (about 1° error; a comment says so). Sky gradient, sun colour, haze, fog, exposure, window light, star opacity, bloom weight and the UI theme blend continuously between night, dawn, day and dusk on sun elevation. Shadows follow the real sun and re-render only when it moves more than about 0.5°. Updates every minute and on focus. The time-of-day button cycles auto → dusk → night → day; the tooltip shows local time, zone and sun elevation.
+- **Atmosphere.** Sun disc with glow, horizon haze toward the sun, a moon opposite the sun with a faint face, 1,600 stars that fade in at night, aerial perspective from blended fog.
+- **Materials.** Six albedo tiles in `web/assets/`: facade glass, stone and gravel roof from Higgsfield (Recraft V4.1); asphalt, pavers and steel generated locally with ImageMagick after Higgsfield refused further generations on the daily limit. Facade variant per building from the existing hash, sampled triplanar-style; mortar and floor seams darken procedurally; roughness and metalness per variant. Windows are cut and lit only from dusk, so by day the facade texture shows. Ground samples asphalt on streets and pavers on district plots through a mask painted with the plan. Still one `InstancedMesh`.
+- **Bloom.** On quality high, widths over 760 px and no reduced motion, the three r128 example passes load lazily from cdnjs; any failure falls back to a plain render. Composer runs only when the blended bloom weight is above 0.03.
+
+### Guides (`web-src/c_npc.js`)
+
+One Warden per district, a member-form Sentinel in the district colour, placed on the nearest roomy free cell to the district centre (all eight neighbours free). It idles, turns to face you within 60 m and greets once per approach. Clicking it flies the camera to a spot facing it and opens a three-tab panel: **Ask** (local intent matching: what is this district, what's new, who is working here, open tasks, where is X, plus a scored search over names, tags and bodies; never guesses; four suggested chips), **Map** (blocks, the eight tallest notes, Walk me there), **Work** (open and claimed tasks with bounties, recent activity, a pointer to floor chat). `Live.snapshot()` is the only read the guides make from the live layer.
+
+### Branding
+
+`web/icon.svg` and PNG icons at 64, 192 and 512 px, `web/manifest.json`, head links and theme colour. Both MCP servers announce `title: Collective AI Vault`, the icon and the website in `serverInfo`. `https://collective-ai-inc-vault.vercel.app/mcp` and `/api` proxy to the edge functions, so connector lists show the vault's domain and icon rather than the database host's.
+
+### Validation
+
+- `node --check` on every module; `python3 scripts/build_web.py`; `npm test` 7/7; `build.py --strict` 0 unresolved.
+- Headless Chromium with SwiftShader on the integrated `web/index.html`: title cutscene, menu, settings, mobile 390 px; the campus after Enter at dawn, noon, dusk and night; street level by day and night; a Warden standing in its district; Ask with an answered question; Map; Work. Screenshots in `docs/title-*.jpg`, `docs/world-*.jpg`, `docs/guides-*.jpg`.
+- Open: GPU cost of bloom and the four extra texture samples on a laptop and on the Galaxy A15; the cdnjs example script URLs were served locally in the harness; only the UTC zone was exercised live; Space Grotesk was blocked in the harness so screenshots show the fallback face; the three fallback textures can be swapped for generated ones by replacing the files.

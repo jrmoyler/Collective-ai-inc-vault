@@ -606,16 +606,17 @@ function home(){
 }
 
 // ---------- reader sheet
-const sheet={open:false,full:false,view:"note",ntab:"note",atab:"floor"};
+const sheet={open:false,full:false,view:"note",ntab:"note",atab:"floor",gtab:"ask"};
 function snippet(src,target){const ln=src.body.split("\n").find(l=>l.includes("[["+target))||"";return ln.replace(/\[( |x)\]/g,"").replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g,"$1").replace(/[#>*|`-]/g," ").trim().slice(0,90)}
 function renderSheet(){
   const sb=$("#sbody"),tabs=$("#stabs");
-  const T=sheet.view==="note"?[["note","Note"],["links","Links"],["outline","Outline"],["history","History"]]:[["floor","Floor"],["ranks","Ranks"],["board","Board"],["activity","Activity"],["desk","Desk"],["connect","Connect"],["identity","Sentinel"]];
-  const act=sheet.view==="note"?sheet.ntab:sheet.atab;
+  const T=sheet.view==="note"?[["note","Note"],["links","Links"],["outline","Outline"],["history","History"]]:sheet.view==="guide"?[["ask","Ask"],["map","Map"],["work","Work"]]:[["floor","Floor"],["ranks","Ranks"],["board","Board"],["activity","Activity"],["desk","Desk"],["connect","Connect"],["identity","Sentinel"]];
+  const act=sheet.view==="note"?sheet.ntab:sheet.view==="guide"?(sheet.gtab||"ask"):sheet.atab;
   tabs.innerHTML=T.map(([k,l])=>`<button data-st="${k}" class="${k===act?"on":""}">${l}</button>`).join("");
-  $("#crumb2").innerHTML=sheet.view==="note"&&cur?(cur.folder?esc(cur.folder)+" / ":"")+"<b>"+esc(cur.name)+"</b>":"<b>Live</b> · agents, tasks, desk";
+  $("#crumb2").innerHTML=sheet.view==="note"&&cur?(cur.folder?esc(cur.folder)+" / ":"")+"<b>"+esc(cur.name)+"</b>":sheet.view==="guide"?"<b>"+esc(typeof Guides!=="undefined"&&Guides.current()?Guides.current().name:"District")+"</b> · Guide":"<b>Live</b> · agents, tasks, desk";
   $("#sBack").disabled=hpos<=0;$("#sFwd").disabled=hpos>=hist.length-1;
   if(sheet.view==="agents"){sb.innerHTML=`<div class="pane">${Live.render(sheet.atab)}</div>`;Live.bind(sb);return}
+  if(sheet.view==="guide"){sb.innerHTML=`<div class="pane">${typeof Guides!=="undefined"?Guides.render(sheet.gtab||"ask"):""}</div>`;if(typeof Guides!=="undefined")Guides.bind(sb);sb.scrollTop=0;return}
   const n=cur;if(!n){sb.innerHTML="";return}
   if(sheet.ntab==="note"){sb.innerHTML=`<article class="doc" id="doc">${n.body.trim()==="{{HOME}}"?home():props(n)+md(n.body,n)}</article>`}
   else if(sheet.ntab==="links"){
@@ -646,7 +647,7 @@ function openSheet(view){if(view)sheet.view=view;sheet.open=true;renderSheet();s
 function closeSheet(){sheet.open=false;sheet.full=false;syncSheet()}
 $("#sClose").onclick=closeSheet;
 $("#sFull").onclick=()=>{sheet.full=!sheet.full;syncSheet()};
-$("#stabs").addEventListener("click",e=>{const b=e.target.closest("button[data-st]");if(!b)return;if(sheet.view==="note")sheet.ntab=b.dataset.st;else sheet.atab=b.dataset.st;renderSheet()});
+$("#stabs").addEventListener("click",e=>{const b=e.target.closest("button[data-st]");if(!b)return;if(sheet.view==="note")sheet.ntab=b.dataset.st;else if(sheet.view==="guide")sheet.gtab=b.dataset.st;else sheet.atab=b.dataset.st;renderSheet()});
 
 // ---------- open a note: read it and fly to it
 function open(n,push=true){
@@ -1005,17 +1006,58 @@ const cv=$("#gl"),stage=$("#stage");
 let apron=null,renderer,scene,camera,sun,hemi,skyMat,skyMesh,ground,groundMat,iMesh,mat,uni={},ringMesh,bridgeGroup,markerGroup,rc;
 let W=1,H=1,paused=false,dirty=true,last=0,time=0,lastLbl=0,lastMini=0,firstFrame=false,introStart=-1;
 let B=[],DIST=[],BLOCKS=[],WORLD={W:1,H:1},GSIDE=1,inst=[],boxes=null,boxB=null,growth=null,delay=null,LAND=[];
-let sel=-1,hov=-1,nbr=new Map(),mode=store.get("vault.time","dusk"),walk=false,auto=!reduced,tasksMarks=[];
+let sel=-1,hov=-1,nbr=new Map(),mode=store.get("vault.time","auto"),walk=false,auto=!reduced,tasksMarks=[];
+if(!["auto","dusk","night","day"].includes(mode))mode="auto";
+// atmosphere and post state
+let stars=null,groundUni=null,composer=null,bloomPass=null,postState="off",bloomNow=0,skyTimer=0;
+const TEX={},shadowDir=new THREE.Vector3(0,-1,0);
+const _c1=new THREE.Color(),_c2=new THREE.Color();
 const cam={tx:0,ty:0,tz:0,yaw:.5,pitch:.62,dist:700},goal=Object.assign({},cam);
 const shiftNow={x:0,y:0},shiftGoal={x:0,y:0};
 const keys=new Set();
 const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 
+// Key states. "auto" blends between them from the real sun elevation (see SOL below); the three named ones are the manual presets.
+// haze: horizon band colour. moon: moonlight colour used as the "sun" light when the sun is down.
 const MODES={
-  dusk:{top:"#0f1733",mid:"#3a4577",bot:"#8a6a86",sun:"#ff9a4d",sunI:3.6,dir:[.74,.3,.46],hSky:"#6f7fba",hGnd:"#3a2d3c",hI:.95,fog:"#6c5b7c",fogD:.00062,exp:1.1,win:1.5,ui:"dark"},
-  night:{top:"#03050d",mid:"#0b1230",bot:"#1b2650",sun:"#8fa8ff",sunI:.6,dir:[.5,.36,.5],hSky:"#2b3768",hGnd:"#0a0c16",hI:.55,fog:"#0a1024",fogD:.00105,exp:1.2,win:3.1,ui:"dark"},
-  day:{top:"#5d8dd0",mid:"#a8c3de",bot:"#eadfca",sun:"#fff0d4",sunI:3.1,dir:[.46,.62,.42],hSky:"#b9cfe9",hGnd:"#968c7c",hI:.95,fog:"#cbd4dc",fogD:.00068,exp:1.0,win:.35,ui:"light"}
+  dusk:{top:"#0f1733",mid:"#3a4577",bot:"#8a6a86",haze:"#c98a6e",sun:"#ff9a4d",sunI:3.6,dir:[.74,.3,.46],hSky:"#6f7fba",hGnd:"#3a2d3c",hI:.95,fog:"#6c5b7c",fogD:.00062,exp:1.1,win:1.5,ui:"dark",stars:.25,bloom:.55},
+  night:{top:"#03050d",mid:"#0b1230",bot:"#1b2650",haze:"#243052",sun:"#8fa8ff",sunI:.35,dir:[.5,.36,.5],hSky:"#2b3768",hGnd:"#0a0c16",hI:.7,fog:"#0a1024",fogD:.00105,exp:1.2,win:2.1,ui:"dark",stars:1,bloom:1},
+  day:{top:"#4f84cc",mid:"#9fbddc",bot:"#e6dcc8",haze:"#e6e1d6",sun:"#fff0d4",sunI:2.5,dir:[.46,.62,.42],hSky:"#b9cfe9",hGnd:"#8c8273",hI:.55,fog:"#cbd4dc",fogD:.00062,exp:.9,win:.35,ui:"light",stars:0,bloom:0},
+  dawn:{top:"#2a3a6e",mid:"#7a86b4",bot:"#e2a98c",haze:"#f0b08a",sun:"#ffc08a",sunI:2.6,dir:[.74,.3,.46],hSky:"#8c9ccc",hGnd:"#4a3d3c",hI:.9,fog:"#9a8a98",fogD:.0007,exp:1.05,win:1.0,ui:"dark",stars:.1,bloom:.35}
 };
+const MODE_ORDER=["auto","dusk","night","day"];
+const NUM_KEYS=["sunI","hI","fogD","exp","win","stars","bloom"],COL_KEYS=["top","mid","bot","haze","sun","hSky","hGnd","fog"];
+const CUR={};NUM_KEYS.forEach(k=>CUR[k]=0);COL_KEYS.forEach(k=>CUR[k]=new THREE.Color());CUR.ui="dark";
+
+// ---------- SOL: the real sun from the viewer's clock and time zone.
+// Latitude comes from a small table of time zone names (no geolocation prompt); longitude from the UTC offset.
+// Solar position is the NOAA low-precision approximation (declination from day of year, equation of time, hour angle):
+// good to about a degree, which is all the light needs. DST shifts the longitude estimate by 15 degrees; accepted.
+const TZ_LAT={"America/New_York":40.7,"America/Detroit":42.3,"America/Chicago":41.9,"America/Denver":39.7,"America/Phoenix":33.4,"America/Los_Angeles":34.1,"America/Anchorage":61.2,"Pacific/Honolulu":21.3,"America/Toronto":43.7,"America/Vancouver":49.3,"America/Mexico_City":19.4,"America/Bogota":4.7,"America/Lima":-12,"America/Sao_Paulo":-23.5,"America/Argentina/Buenos_Aires":-34.6,"America/Santiago":-33.4,
+  "Europe/London":51.5,"Europe/Dublin":53.3,"Europe/Lisbon":38.7,"Europe/Madrid":40.4,"Europe/Paris":48.9,"Europe/Berlin":52.5,"Europe/Amsterdam":52.4,"Europe/Rome":41.9,"Europe/Zurich":47.4,"Europe/Stockholm":59.3,"Europe/Warsaw":52.2,"Europe/Athens":38,"Europe/Istanbul":41,"Europe/Moscow":55.8,
+  "Africa/Cairo":30,"Africa/Lagos":6.5,"Africa/Nairobi":-1.3,"Africa/Johannesburg":-26.2,"Asia/Dubai":25.2,"Asia/Karachi":24.9,"Asia/Kolkata":22.5,"Asia/Dhaka":23.8,"Asia/Bangkok":13.8,"Asia/Jakarta":-6.2,"Asia/Singapore":1.3,"Asia/Hong_Kong":22.3,"Asia/Shanghai":31.2,"Asia/Seoul":37.6,"Asia/Tokyo":35.7,"Asia/Manila":14.6,
+  "Australia/Perth":-31.9,"Australia/Sydney":-33.9,"Australia/Melbourne":-37.8,"Australia/Brisbane":-27.5,"Pacific/Auckland":-36.9,"UTC":35};
+const SOL={zone:"UTC",lat:35,lon:0,elev:0,az:180,hours:0,clockOverride:null,dir:new THREE.Vector3(0,1,0),moon:new THREE.Vector3(0,1,0)};
+function solInit(){
+  try{SOL.zone=Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC"}catch(e){SOL.zone="UTC"}
+  const z=SOL.zone;SOL.lat=TZ_LAT[z]??(z.startsWith("Europe/")?50:z.startsWith("Africa/")?5:z.startsWith("Australia/")?-30:z.startsWith("Asia/")?30:z.startsWith("America/")?35:35);
+}
+function solUpdate(){
+  const now=new Date();const off=-now.getTimezoneOffset()/60;SOL.lon=off*15;
+  let hLocal=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
+  if(SOL.clockOverride!=null)hLocal=SOL.clockOverride;
+  SOL.hours=hLocal;
+  const start=new Date(now.getFullYear(),0,0);const n=Math.floor((now-start)/864e5);
+  const rad=Math.PI/180,dec=23.44*Math.sin(2*Math.PI*(284+n)/365)*rad;
+  const Bq=2*Math.PI*(n-81)/364,eot=9.87*Math.sin(2*Bq)-7.53*Math.cos(Bq)-1.5*Math.sin(Bq);
+  const utc=hLocal-off,solar=utc+SOL.lon/15+eot/60,H=(solar-12)*15*rad,phi=SOL.lat*rad;
+  const sinE=Math.sin(phi)*Math.sin(dec)+Math.cos(phi)*Math.cos(dec)*Math.cos(H);const e=Math.asin(clamp(sinE,-1,1));
+  let az=Math.atan2(Math.sin(H),Math.cos(H)*Math.sin(phi)-Math.tan(dec)*Math.cos(phi))+Math.PI; // from north, clockwise
+  SOL.elev=e/rad;SOL.az=az/rad;
+  // scene frame: north is -z, east is +x
+  SOL.dir.set(Math.cos(e)*Math.sin(az),Math.sin(e),-Math.cos(e)*Math.cos(az));
+  SOL.moon.set(-SOL.dir.x,Math.max(.28,-SOL.dir.y),-SOL.dir.z).normalize();
+}
 
 // ---------- layout: squarified treemap of districts, then blocks, then a grid of buildings
 function squarify(items,x,y,w,h){
@@ -1092,19 +1134,61 @@ function paintGround(){
   BLOCKS.forEach(b=>{g.fillStyle="rgba(255,255,255,.028)";g.fillRect(X(b.x),Z(b.z),b.w*sc,b.d*sc);g.strokeStyle="rgba(255,255,255,.07)";g.lineWidth=.22*sc;g.strokeRect(X(b.x),Z(b.z),b.w*sc,b.d*sc)});
   B.forEach(b=>{if(!b)return;const t=b.tiers[0];g.fillStyle="rgba(255,255,255,.05)";g.fillRect(X(t.x-t.w/2-.9),Z(t.z-t.d/2-.9),(t.w+1.8)*sc,(t.d+1.8)*sc)});
   const tex=new THREE.CanvasTexture(cvs);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=renderer.capabilities.getMaxAnisotropy();tex.generateMipmaps=true;tex.minFilter=THREE.LinearMipmapLinearFilter;
+  // plaza mask: white inside district plots (pavers), black on the streets between them (asphalt). Same frame as the plan.
+  const MS=1024,mc=document.createElement("canvas");mc.width=mc.height=MS;const mg=mc.getContext("2d"),ms=MS/GSIDE;
+  mg.fillStyle="#000";mg.fillRect(0,0,MS,MS);mg.fillStyle="#fff";
+  DIST.forEach(d=>mg.fillRect((d.x+GSIDE/2)*ms,(d.z+GSIDE/2)*ms,d.w*ms,d.d*ms));
+  const mask=new THREE.CanvasTexture(mc);mask.generateMipmaps=false;mask.minFilter=mask.magFilter=THREE.LinearFilter;
+  tex.userData={mask};
   return tex;
+}
+// albedo tiles from web/assets. Each sampler starts as a 1x1 neutral texel so the shaders compile before the files arrive.
+function tile(name,url,r,g,b){
+  if(TEX[name])return TEX[name];
+  const t=new THREE.DataTexture(new Uint8Array([r,g,b,255]),1,1,THREE.RGBAFormat);t.needsUpdate=true;TEX[name]=t;
+  const img=new Image();img.onload=()=>{
+    const tt=new THREE.Texture(img);tt.wrapS=tt.wrapT=THREE.MirroredRepeatWrapping;tt.anisotropy=renderer.capabilities.getMaxAnisotropy();tt.minFilter=THREE.LinearMipmapLinearFilter;tt.needsUpdate=true;
+    TEX[name]=tt;[uni,groundUni].forEach(u=>{if(u&&u["t_"+name])u["t_"+name].value=tt});dirty=true};
+  img.onerror=()=>console.warn("texture missing:",url);img.src=url;
+  return t;
+}
+function loadTiles(){
+  tile("asphalt","assets/ground-asphalt.jpg",46,47,49);tile("pavers","assets/ground-pavers.jpg",150,146,138);
+  tile("glass","assets/facade-glass.jpg",70,82,100);tile("stone","assets/facade-stone.jpg",190,172,140);tile("steel","assets/facade-steel.jpg",140,146,156);tile("roof","assets/roof-gravel.jpg",120,120,118);
+}
+// ground: plan colour as an overlay on asphalt and pavers, picked by the mask, in world space so the tiles never stretch
+function groundMaterial(tex){
+  const m=new THREE.MeshStandardMaterial({map:tex,roughness:.9,metalness:0});
+  m.onBeforeCompile=sh=>{
+    sh.uniforms.t_asphalt={value:TEX.asphalt};sh.uniforms.t_pavers={value:TEX.pavers};sh.uniforms.t_mask={value:tex.userData.mask};sh.uniforms.uSide={value:GSIDE};groundUni=sh.uniforms;
+    sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\nvarying vec3 vGPos;").replace("#include <begin_vertex>","#include <begin_vertex>\nvGPos=(modelMatrix*vec4(transformed,1.0)).xyz;");
+    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nuniform sampler2D t_asphalt;uniform sampler2D t_pavers;uniform sampler2D t_mask;uniform float uSide;varying vec3 vGPos;\nvec3 srgb(vec3 c){return pow(c,vec3(2.2));}")
+      .replace("#include <roughnessmap_fragment>",`#include <roughnessmap_fragment>
+{
+  vec2 wp=vGPos.xz;
+  vec3 asp=srgb(texture2D(t_asphalt,wp/18.0).rgb);
+  vec3 pav=srgb(texture2D(t_pavers,wp/9.0).rgb);
+  float m=texture2D(t_mask,vec2(wp.x/uSide+0.5,0.5-wp.y/uSide)).r;
+  vec3 tl=mix(asp*1.3,pav*0.55,m);
+  // the painted plan (district tints, outlines, lot pads) sits on the tiles as an overlay
+  vec3 plan=diffuseColor.rgb;
+  diffuseColor.rgb=tl*(0.75+plan*4.0)+plan*0.9;
+  roughnessFactor=mix(0.92,0.78,m);
+}`);
+  };
+  return m;
 }
 
 // ---------- scene
 function makeMaterial(){
   const m=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.72,metalness:.1});m.extensions={derivatives:true};
   m.onBeforeCompile=sh=>{
-    sh.uniforms.uWin={value:MODES[mode].win};uni=sh.uniforms;
+    sh.uniforms.uWin={value:CUR.win||MODES.dusk.win};sh.uniforms.t_glass={value:TEX.glass};sh.uniforms.t_stone={value:TEX.stone};sh.uniforms.t_steel={value:TEX.steel};sh.uniforms.t_roof={value:TEX.roof};uni=sh.uniforms;
     sh.vertexShader=sh.vertexShader
       .replace("#include <common>","#include <common>\nattribute vec3 aCol;attribute vec4 aTint;attribute vec4 aState;varying vec3 vBCol;varying vec4 vBTint;varying vec4 vBSt;varying vec3 vWPos;varying vec3 vBN;")
       .replace("#include <begin_vertex>","#include <begin_vertex>\nvWPos=(modelMatrix*instanceMatrix*vec4(transformed,1.0)).xyz;vBN=normal;vBCol=aCol;vBTint=aTint;vBSt=aState;");
     sh.fragmentShader=sh.fragmentShader
-      .replace("#include <common>","#include <common>\nuniform float uWin;varying vec3 vBCol;varying vec4 vBTint;varying vec4 vBSt;varying vec3 vWPos;varying vec3 vBN;\nfloat h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}")
+      .replace("#include <common>","#include <common>\nuniform float uWin;uniform sampler2D t_glass;uniform sampler2D t_stone;uniform sampler2D t_steel;uniform sampler2D t_roof;varying vec3 vBCol;varying vec4 vBTint;varying vec4 vBSt;varying vec3 vWPos;varying vec3 vBN;\nfloat h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}\nvec3 srgb(vec3 c){return pow(c,vec3(2.2));}")
       .replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
 {
   vec3 N=normalize(vBN);
@@ -1114,21 +1198,37 @@ function makeMaterial(){
   float u=mix(vWPos.x,vWPos.z,useZ);
   vec2 g=vec2(u,vWPos.y)/vec2(2.5,3.3);
   vec2 id=floor(g);vec2 f=fract(g);
-  vec2 fwv=fwidth(g);float far=smoothstep(0.28,0.7,max(fwv.x,fwv.y));
-  float inW=mix(step(0.17,f.x)*step(f.x,0.83)*step(0.2,f.y)*step(f.y,0.8),0.42,far);
+  vec2 fwv=fwidth(g);float far=smoothstep(0.12,0.45,max(fwv.x,fwv.y));
+  float mull=step(0.04,abs(f.x-0.5));
+  float inW=mix(step(0.14,f.x)*step(f.x,0.86)*step(0.24,f.y)*step(f.y,0.78)*mull,0.42,far);
   float r=h21(id+vBSt.z*91.7+useZ*17.0);
   float lit=mix(step(1.0-vBSt.x,r),vBSt.x,far);
   float lobby=1.0-step(1.7,vWPos.y);
   vec3 warm=mix(vec3(1.0,0.68,0.32),vec3(0.62,0.78,1.0),step(0.9,h21(id.yx+vBSt.z*13.0)));
   warm=mix(warm,vBTint.rgb*1.6,0.3*step(0.55,h21(id*1.7+3.0)));
   float flick=0.7+0.3*h21(id+7.0);
+  float wk=smoothstep(0.3,1.2,uWin);
   float w=wall*inW;
   float hi=vBSt.y;
-  vec3 base=vBCol*mix(1.0,1.28,top);
-  diffuseColor.rgb=mix(base,base*0.16+vec3(0.008,0.012,0.026),w);
+  // facade albedo: one of three tiles per building (hash), sampled triplanar-style on the wall axis; roof gravel on the top face
+  vec2 fuv=vec2(u,vWPos.y)/vec2(10.0,13.2);
+  float variant=floor(vBSt.z*2.999);
+  vec3 ft=srgb(texture2D(t_glass,fuv).rgb)*3.2;
+  ft=mix(ft,srgb(texture2D(t_stone,fuv*1.4).rgb)*1.25,step(0.5,variant));
+  ft=mix(ft,srgb(texture2D(t_steel,fuv*1.2).rgb)*1.9,step(1.5,variant));
+  vec3 rt=srgb(texture2D(t_roof,vWPos.xz/14.0).rgb);
+  // mortar and floor seams: darken thin lines at every floor and every bay
+  float sy=abs(fract(vWPos.y/3.3)-0.5),sx=abs(fract(u/2.5)-0.5);
+  float seam=1.0-0.42*(1.0-far)*(1.0-smoothstep(0.44,0.48,max(sy,sx)))*wall;
+  seam=mix(seam,1.0,step(0.5,variant)*0.5);
+  vec3 tex=mix(ft,rt*1.1,top);
+  vec3 base=tex*(0.42+vBCol*3.4)*mix(1.0,0.9,top)*seam;
+  diffuseColor.rgb=mix(base,vec3(0.010,0.013,0.024),w*wk);
+  roughnessFactor=mix(roughnessFactor,mix(0.42,0.6,step(0.5,variant)),wall*(1.0-w));
+  metalnessFactor=mix(metalnessFactor,0.35*step(1.5,variant)+0.12*(1.0-step(0.5,variant)),wall*(1.0-w));
   roughnessFactor=mix(roughnessFactor,0.5,w);
   metalnessFactor=mix(metalnessFactor,0.05,w);
-  vec3 em=warm*flick*w*(lit+lobby*0.9)*uWin*(1.0+hi*1.3);
+  vec3 em=warm*flick*w*wk*(lit+lobby*0.9)*uWin*(1.0+hi*1.3);
   em+=top*(vBTint.rgb*vBTint.a*1.1+vec3(1.0,0.62,0.2)*hi*0.9);
   em+=wall*(1.0-w)*vec3(1.0,0.6,0.2)*hi*0.10;
   totalEmissiveRadiance+=em*vBSt.w;
@@ -1200,31 +1300,113 @@ function applyState(){
 // ---------- sky, light, mode
 function skyMaterial(){
   return new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
-    uniforms:{top:{value:new THREE.Color()},mid:{value:new THREE.Color()},bot:{value:new THREE.Color()},sunCol:{value:new THREE.Color()},sunDir:{value:new THREE.Vector3()}},
+    uniforms:{top:{value:new THREE.Color()},mid:{value:new THREE.Color()},bot:{value:new THREE.Color()},haze:{value:new THREE.Color()},sunCol:{value:new THREE.Color()},sunDir:{value:new THREE.Vector3(0,1,0)},moonDir:{value:new THREE.Vector3(0,1,0)},moonI:{value:0},sunDisc:{value:1}},
     vertexShader:"varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
-    fragmentShader:"uniform vec3 top;uniform vec3 mid;uniform vec3 bot;uniform vec3 sunCol;uniform vec3 sunDir;varying vec3 vD;void main(){vec3 d=normalize(vD);float h=d.y;vec3 c=mix(bot,mid,smoothstep(-0.04,0.2,h));c=mix(c,top,smoothstep(0.15,0.75,h));float s=max(dot(d,normalize(sunDir)),0.0);c+=sunCol*(pow(s,64.0)*1.1+pow(s,6.0)*0.3+pow(s,2.0)*0.12*(1.0-smoothstep(0.0,0.5,h)));gl_FragColor=vec4(c,1.0);\n#include <tonemapping_fragment>\n#include <encodings_fragment>\n}"});
+    fragmentShader:`uniform vec3 top;uniform vec3 mid;uniform vec3 bot;uniform vec3 haze;uniform vec3 sunCol;uniform vec3 sunDir;uniform vec3 moonDir;uniform float moonI;uniform float sunDisc;varying vec3 vD;
+float hs(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+void main(){
+  vec3 d=normalize(vD);float h=d.y;
+  vec3 c=mix(bot,mid,smoothstep(-0.04,0.22,h));c=mix(c,top,smoothstep(0.16,0.8,h));
+  // horizon haze: a soft band that thickens toward the sun side
+  vec3 sd=normalize(sunDir);float s=max(dot(d,sd),0.0);
+  float hz=exp(-abs(h)*9.0)*(0.55+0.45*pow(s,3.0));
+  c=mix(c,haze,hz*0.6*(1.0-step(0.0,-h-0.08)));
+  // sun: sharp disc with a soft glow, plus a wide warm wash low on the sky
+  float disc=smoothstep(0.99935,0.99965,s);
+  c+=sunCol*(disc*6.0+pow(s,220.0)*1.2+pow(s,10.0)*0.28+pow(s,2.0)*0.12*(1.0-smoothstep(0.0,0.5,h)))*sunDisc;
+  // moon: a smaller disc opposite the sun, only when the sun is down
+  vec3 md=normalize(moonDir);float m=max(dot(d,md),0.0);
+  float mdisc=smoothstep(0.99975,0.99988,m);
+  float face=1.0-0.35*smoothstep(0.2,0.6,hs(floor(d.xy*170.0)));
+  c+=vec3(0.86,0.9,1.0)*(mdisc*2.4*face+pow(m,900.0)*0.6+pow(m,40.0)*0.08)*moonI;
+  gl_FragColor=vec4(c,1.0);
+#include <tonemapping_fragment>
+#include <encodings_fragment>
+}`});
 }
+function makeStars(){
+  const N=1600,pos=new Float32Array(N*3),col=new Float32Array(N*3),R=2300;
+  for(let i=0;i<N;i++){const a=Math.random()*Math.PI*2,y=0.04+Math.random()*0.96,r=Math.sqrt(1-y*y);pos.set([Math.cos(a)*r*R,y*R,Math.sin(a)*r*R],i*3);
+    const t=Math.random(),b=.45+.55*Math.random()*Math.random();col.set([b*(0.85+0.15*t),b*(0.88+0.1*t),b*(1.0-0.12*t)],i*3)}
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));g.setAttribute("color",new THREE.BufferAttribute(col,3));
+  const sc=document.createElement("canvas");sc.width=sc.height=32;const sg=sc.getContext("2d"),gr=sg.createRadialGradient(16,16,0,16,16,16);gr.addColorStop(0,"rgba(255,255,255,1)");gr.addColorStop(.35,"rgba(255,255,255,.55)");gr.addColorStop(1,"rgba(255,255,255,0)");sg.fillStyle=gr;sg.fillRect(0,0,32,32);
+  const sprite=new THREE.CanvasTexture(sc);
+  const p=new THREE.Points(g,new THREE.PointsMaterial({size:5,map:sprite,vertexColors:true,transparent:true,opacity:0,depthWrite:false,sizeAttenuation:false,fog:false,blending:THREE.AdditiveBlending}));
+  p.renderOrder=-9;p.frustumCulled=false;p.visible=false;return p;
+}
+// Blend the key states by sun elevation (degrees) into CUR. night at -12 and below, twilight (dawn or dusk) at 0, day from +18.
+function blendSky(e,morning){
+  const tw=morning?MODES.dawn:MODES.dusk;
+  let a,b,t;
+  if(e<0){a=MODES.night;b=tw;t=clamp((e+12)/12,0,1);t=t*t*(3-2*t)}else{a=tw;b=MODES.day;t=clamp(e/18,0,1);t=t*t*(3-2*t)}
+  NUM_KEYS.forEach(k=>CUR[k]=a[k]+(b[k]-a[k])*t);
+  COL_KEYS.forEach(k=>{CUR[k].copy(lin(a[k])).lerp(_c2.copy(lin(b[k])),t)});
+  CUR.ui=e>4?"light":"dark";
+}
+function copySky(m){NUM_KEYS.forEach(k=>CUR[k]=m[k]);COL_KEYS.forEach(k=>CUR[k].copy(lin(m[k])));CUR.ui=m.ui}
+// Push CUR plus a light direction into the scene. dir is the sun when it is up, the moon when it is not.
+function pushSky(dir,sunUp,moonI){
+  const u=skyMat.uniforms;u.top.value.copy(CUR.top);u.mid.value.copy(CUR.mid);u.bot.value.copy(CUR.bot);u.haze.value.copy(CUR.haze);u.sunCol.value.copy(CUR.sun).multiplyScalar(.9);
+  u.sunDir.value.copy(SOL.dir.y>-.3&&mode==="auto"?SOL.dir:dir);u.moonDir.value.copy(mode==="auto"?SOL.moon:dir);u.moonI.value=moonI;u.sunDisc.value=mode==="auto"?clamp((SOL.elev+3)/3,0,1):(mode==="night"?0:1);
+  sun.color.copy(CUR.sun);sun.intensity=CUR.sunI;
+  hemi.color.copy(CUR.hSky);hemi.groundColor.copy(CUR.hGnd);hemi.intensity=CUR.hI;
+  scene.fog.color.copy(CUR.fog);scene.fog.density=CUR.fogD;
+  renderer.toneMappingExposure=CUR.exp;if(uni.uWin)uni.uWin.value=CUR.win;
+  if(stars){stars.material.opacity=CUR.stars;stars.visible=CUR.stars>.01}
+  bloomNow=CUR.bloom;
+  // shadows re-render only when the light moves more than about half a degree
+  if(shadowDir.dot(dir)<0.99996){shadowDir.copy(dir);sun.position.copy(dir).multiplyScalar(1100);renderer.shadowMap.needsUpdate=true}
+  if(document.documentElement.dataset.theme!==CUR.ui){document.documentElement.dataset.theme=CUR.ui;store.set("vault.theme",CUR.ui)}
+  dirty=true;
+}
+const _dir=new THREE.Vector3();
 function applyMode(name){
-  const m=MODES[name]||MODES.dusk;mode=name in MODES?name:"dusk";
-  skyMat.uniforms.top.value.copy(lin(m.top));skyMat.uniforms.mid.value.copy(lin(m.mid));skyMat.uniforms.bot.value.copy(lin(m.bot));skyMat.uniforms.sunCol.value.copy(lin(m.sun)).multiplyScalar(.9);
-  const d=new THREE.Vector3(...m.dir).normalize();skyMat.uniforms.sunDir.value.copy(d);
-  sun.color.copy(lin(m.sun));sun.intensity=m.sunI;sun.position.copy(d).multiplyScalar(1100);
-  hemi.color.copy(lin(m.hSky));hemi.groundColor.copy(lin(m.hGnd));hemi.intensity=m.hI;
-  scene.fog.color.set(m.fog);scene.fog.density=m.fogD;
-  renderer.toneMappingExposure=m.exp;if(uni.uWin)uni.uWin.value=m.win;
-  document.documentElement.dataset.theme=m.ui;store.set("vault.theme",m.ui);store.set("vault.time",mode);
-  renderer.shadowMap.needsUpdate=true;dirty=true;
+  mode=name==="auto"||name in MODES?name:"auto";if(mode==="dawn")mode="auto";
+  if(mode==="auto"){
+    solUpdate();const e=SOL.elev,morning=SOL.hours<12;blendSky(e,morning);
+    const up=e>-0.5;_dir.copy(up?SOL.dir:SOL.moon);if(up&&_dir.y<.06)_dir.y=.06;_dir.normalize();
+    pushSky(_dir,up,1-clamp((e+2)/4,0,1));
+  }else{
+    const m=MODES[mode];copySky(m);_dir.set(...m.dir).normalize();pushSky(_dir,mode!=="night",mode==="night"?1:0);
+  }
+  store.set("vault.time",mode);tipTime();
 }
+function tipTime(){
+  const b=$("#rbTime");if(!b)return;
+  const hh=Math.floor(SOL.hours),mm=Math.floor((SOL.hours-hh)*60);
+  const clock=`${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")} ${SOL.zone} · sun ${Math.round(SOL.elev)}°`;
+  b.setAttribute("data-tip",`Time of day: ${mode}${mode==="auto"?" · "+clock:""}`);
+}
+function skyTick(){if(C.ok&&mode==="auto"&&!document.hidden)applyMode("auto")}
 function fitShadow(){
   const S=GSIDE*.62;const c=sun.shadow.camera;c.left=-S;c.right=S;c.top=S;c.bottom=-S;c.near=20;c.far=2600;c.updateProjectionMatrix();renderer.shadowMap.needsUpdate=true;
+}
+
+// ---------- post: bloom for windows and Sentinel lights, loaded on demand from the three r128 examples
+const POST_SRC="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/";
+const POST_FILES=["shaders/CopyShader.js","shaders/LuminosityHighPassShader.js","shaders/GammaCorrectionShader.js","postprocessing/EffectComposer.js","postprocessing/RenderPass.js","postprocessing/ShaderPass.js","postprocessing/UnrealBloomPass.js"];
+function wantPost(){return store.get("vault.quality","high")==="high"&&innerWidth>760&&!reduced}
+function loadPost(){
+  if(postState!=="off"||!wantPost())return;postState="loading";
+  const next=i=>{if(i>=POST_FILES.length){try{setupPost()}catch(e){console.warn("post unavailable:",e);postState="failed"}return}
+    const s=document.createElement("script");s.src=POST_SRC+POST_FILES[i];s.onload=()=>next(i+1);s.onerror=()=>{postState="failed";console.warn("post unavailable:",POST_FILES[i])};document.head.appendChild(s)};
+  next(0);
+}
+function setupPost(){
+  if(!THREE.EffectComposer||!THREE.UnrealBloomPass||!THREE.GammaCorrectionShader)throw new Error("examples missing");
+  composer=new THREE.EffectComposer(renderer);composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(W,H);
+  composer.addPass(new THREE.RenderPass(scene,camera));
+  bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(W,H),.6,.45,.86);composer.addPass(bloomPass);
+  composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
+  postState="ready";dirty=true;
 }
 
 // ---------- build
 function build(prev){
   layout();
-  if(ground){scene.remove(ground);groundMat.map.dispose();ground.geometry.dispose()}
+  if(ground){scene.remove(ground);groundMat.map.userData.mask.dispose();groundMat.map.dispose();groundMat.dispose();ground.geometry.dispose();groundUni=null}
   const tex=paintGround();
-  groundMat=new THREE.MeshStandardMaterial({map:tex,roughness:.88,metalness:0});
+  groundMat=groundMaterial(tex);
   ground=new THREE.Mesh(new THREE.PlaneGeometry(GSIDE,GSIDE),groundMat);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
   if(!apron){apron=new THREE.Mesh(new THREE.PlaneGeometry(14000,14000),new THREE.MeshStandardMaterial({color:lin('#0c111b'),roughness:1,metalness:0}));apron.rotation.x=-Math.PI/2;apron.position.y=-.12;scene.add(apron)}
   buildInstances(prev);buildNav();fitShadow();applyState();buildChips();setMarkers(tasksMarks);
@@ -1628,8 +1810,8 @@ function frame(t){
   if(!dirty)return;
   dirty=false;
   applyCamera();
-  skyMesh.position.copy(camera.position);
-  renderer.render(scene,camera);
+  skyMesh.position.copy(camera.position);if(stars)stars.position.copy(camera.position);
+  if(composer&&postState==="ready"&&bloomNow>.03){bloomPass.strength=.5*bloomNow;composer.render()}else renderer.render(scene,camera);
   if(!firstFrame){firstFrame=true;const l=$("#loading");l.style.opacity=0;setTimeout(()=>l.hidden=true,700)}
   if(t-lastLbl>90){lastLbl=t;updateLabels();markChip()}
   if(t-lastMini>120){lastMini=t;drawMini()}
@@ -1649,11 +1831,14 @@ function init(){
     skyMat=skyMaterial();skyMesh=new THREE.Mesh(new THREE.SphereGeometry(2400,32,16),skyMat);skyMesh.renderOrder=-10;skyMesh.frustumCulled=false;scene.add(skyMesh);
     bridgeGroup=new THREE.Group();scene.add(bridgeGroup);markerGroup=new THREE.Group();scene.add(markerGroup);agentGroup=new THREE.Group();scene.add(agentGroup);
     ringMesh=new THREE.Mesh(new THREE.RingGeometry(.94,1,64),new THREE.MeshBasicMaterial({color:lin("#F2B85B"),transparent:true,opacity:.85,side:THREE.DoubleSide,fog:false}));ringMesh.rotation.x=-Math.PI/2;ringMesh.visible=false;scene.add(ringMesh);
+    stars=makeStars();scene.add(stars);
     SentinelMesh.environment(renderer);
-    mat=makeMaterial();
+    loadTiles();mat=makeMaterial();solInit();
     const ro=new ResizeObserver(()=>resize());ro.observe(stage);
     build(null);applyMode(mode);resize();
-    $("#rbTime").setAttribute("data-tip","Time of day: "+mode);
+    // the real sun moves: once a minute, and again when the tab comes back
+    skyTimer=setInterval(skyTick,60000);document.addEventListener("visibilitychange",skyTick);window.addEventListener("focus",skyTick);
+    loadPost();
     // opening shot: high above the plan, then a slow drift
     cam.tx=goal.tx=0;cam.tz=goal.tz=0;cam.ty=goal.ty=0;cam.dist=GSIDE*1.05;goal.dist=GSIDE*.8;cam.pitch=.95;goal.pitch=.62;cam.yaw=goal.yaw=.5;
     C.ok=true;
@@ -1667,9 +1852,15 @@ function init(){
 }
 function resize(){
   const r=stage.getBoundingClientRect();W=Math.max(1,r.width|0);H=Math.max(1,r.height|0);
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.setSize(W,H,false);camera.aspect=W/H;applyShift();dirty=true;
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.setSize(W,H,false);camera.aspect=W/H;applyShift();
+  if(composer){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(W,H)}
+  dirty=true;
 }
-function cycleTime(){const o=["dusk","night","day"];const m=o[(o.indexOf(mode)+1)%3];if(!C.ok){document.documentElement.dataset.theme=MODES[m].ui;mode=m;store.set("vault.time",m);return}applyMode(m);$("#rbTime").setAttribute("data-tip","Time of day: "+m);toast("Time of day: "+m)}
+function cycleTime(){
+  const m=MODE_ORDER[(MODE_ORDER.indexOf(mode)+1)%MODE_ORDER.length];
+  if(!C.ok){mode=m;const ui=m==="auto"?(new Date().getHours()>=7&&new Date().getHours()<18?"light":"dark"):MODES[m].ui;document.documentElement.dataset.theme=ui;store.set("vault.theme",ui);store.set("vault.time",m);return}
+  applyMode(m);toast("Time of day: "+(m==="auto"?"auto (your local sun)":m));
+}
 function shift(el){
   if(!C.ok)return;
   if(!el||!el.classList.contains("open")){shiftGoal.x=0;shiftGoal.y=0;$("#hint").style.right="14px";$("#floor").style.right="14px"}
@@ -1687,9 +1878,203 @@ function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
 return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,
   // integration points for other modules (guides, title, world): read-only handles plus hooks
-  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD})};
+  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,tex:TEX,
+    // testing only: pin the local clock to a decimal hour (null restores the real clock) and recompute the sky
+    setClock:h=>{SOL.clockOverride=h==null?null:+h;if(C.ok)applyMode("auto")}})};
 })();
 
+
+// =====================================================================
+// Guides: one Warden per district. A Member-form Sentinel stands on a free plaza cell near the
+// district center, greets when the camera comes close, and answers questions about that district
+// from data already in the page (NOTES, the layout, Live.snapshot()). No network, no model call.
+// Guides are not agents: they never go through Campus.setAgents and carry no presence row.
+// =====================================================================
+const Guides=(()=>{
+  const BOUNTY={high:120,medium:80,low:50},NEAR=60,WEEK=7*864e5;
+  let G=[],lastDist=null,curTop=null,booted=false,memo=new Map();
+  const two=name=>{const w=String(name).replace(/[^A-Za-z ]/g," ").trim().split(/\s+/).filter(Boolean);return (w.length>=2?w[0][0]+w[1][0]:(w[0]||"GD").slice(0,2)).toUpperCase()};
+  const wrap=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
+  const district=top=>Campus.districts().find(d=>d.top===top)||null;
+  const notesIn=top=>NOTES.filter(n=>n.top===top);
+  const inDistrict=(top,name)=>{const n=name&&byName.get(name);return !!n&&n.top===top};
+  const clean=s=>String(s).replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g,"$1").replace(/[#>*|`_]/g," ").replace(/\s+/g," ").trim();
+  const link=n=>`<a class="wl" data-n="${esc(n.name)}">${esc(n.name)}</a>`;
+  const snap=()=>{try{return Live.snapshot()}catch(e){return {tasks:[],acts:[],agents:[],presence:[],stats:[]}}};
+  const agentName=id=>snap().agents.find(a=>a.id===id)?.name||id;
+
+  // ---- placement: the free NAV cell nearest the district center, inside the district, with free neighbors.
+  // NAV.blocked already pads every building footprint by 1.1 units, so a free cell is street or plaza.
+  function spot(d){
+    const {NAV}=Campus.world(),c=NAV.cell,n=NAV.n,bl=NAV.blocked;
+    const cx=d.x+d.w/2,cz=d.z+d.d/2;
+    if(!bl||!n)return {x:cx,z:cz};
+    const free=(x,z)=>x>=0&&z>=0&&x<n&&z<n&&!bl[z*n+x];
+    const roomy=(x,z)=>{for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++)if(!free(x+dx,z+dz))return false;return true};
+    const inside=(x,z)=>{const wx=NAV.ox+(x+.5)*c,wz=NAV.oz+(z+.5)*c;return wx>d.x+1&&wx<d.x+d.w-1&&wz>d.z+1&&wz<d.z+d.d-1};
+    const gx=Math.floor((cx-NAV.ox)/c),gz=Math.floor((cz-NAV.oz)/c);
+    let fallback=null;
+    for(let r=0;r<60;r++)for(let dz=-r;dz<=r;dz++)for(let dx=-r;dx<=r;dx++){
+      if(Math.max(Math.abs(dx),Math.abs(dz))!==r)continue;const x=gx+dx,z=gz+dz;
+      if(!free(x,z)||!inside(x,z))continue;
+      if(roomy(x,z))return {x:NAV.ox+(x+.5)*c,z:NAV.oz+(z+.5)*c};
+      if(!fallback)fallback={x:NAV.ox+(x+.5)*c,z:NAV.oz+(z+.5)*c};
+    }
+    return fallback||{x:cx,z:cz};
+  }
+  function place(){
+    const scene=Campus.scene();
+    G.forEach(g=>{SentinelMesh.dispose(g.m.grp);scene.remove(g.m.grp)});G=[];
+    lastDist=Campus.districts();
+    lastDist.forEach(d=>{
+      const p=spot(d),m=SentinelMesh.create({id:"guide:"+d.top,form:"member",palette:["#0B1020",d.color,"#F4EFE6"],symbol:two(d.name),level:0});
+      m.pos.set(p.x,0,p.z);m.grp.position.copy(m.pos);m.grp.rotation.y=Math.atan2(d.x+d.w/2-p.x,d.z+d.d/2-p.z)+Math.PI;m.ring.scale.setScalar(2.2);
+      scene.add(m.grp);
+      G.push({top:d.top,name:d.name,color:d.color,x:p.x,z:p.z,m,near:false,home:m.grp.rotation.y});
+    });
+  }
+
+  // ---- per frame: idle pose, turn and greet when the camera target comes close, labels
+  function frame(dt,time){
+    if(Campus.districts()!==lastDist)place();
+    if(!G.length)return false;
+    const cam=Campus.camera(),cp=cam.position,tgt=Campus.position();
+    const L=Campus.labelCands;for(let i=L.length-1;i>=0;i--)if(L[i].cls==="guide")L.splice(i,1);
+    let live=false;
+    G.forEach(g=>{
+      const m=g.m,dCam=Math.hypot(cp.x-g.x,cp.z-g.z),dT=Math.hypot(tgt.x-g.x,tgt.z-g.z),near=Math.min(dCam,dT)<NEAR;
+      if(near&&!g.near)SentinelMesh.emote(m,"greet",time);
+      g.near=near;
+      const want=near?Math.atan2(cp.x-g.x,cp.z-g.z):g.home;
+      m.grp.rotation.y+=wrap(want-m.grp.rotation.y)*Math.min(1,dt*(near?6:2));
+      if(dCam<520){SentinelMesh.pose(m,time,"idle");live=true}
+      if(dCam<900)L.push({x:g.x,y:7.4,z:g.z,t:"Guide · "+g.name,s:"click to ask",cls:"guide",prio:105,c:g.color});
+    });
+    return live;
+  }
+  function picker(rc){
+    if(!G.length)return false;
+    const hits=rc.intersectObjects(G.map(g=>g.m.grp),true);if(!hits.length)return false;
+    let o=hits[0].object,g=null;while(o&&!g){g=G.find(x=>x.m.grp===o)||null;o=o.parent}
+    if(!g)return false;
+    openFor(g.top,true);return true;
+  }
+  function openFor(top,fly=true){
+    const g=G.find(x=>x.top===top),d=district(top);if(!d)return false;
+    curTop=top;
+    // target a step in front of the guide, toward the viewer, so the viewer's own Sentinel stands facing it rather than on it
+    if(fly&&g){const cp=Campus.camera().position,dx=cp.x-g.x,dz=cp.z-g.z,l=Math.hypot(dx,dz)||1;Campus.flyAt(g.x+dx/l*5,g.z+dz/l*5,2,28,.3)}
+    sheet.view="guide";sheet.gtab=sheet.gtab||"ask";openSheet("guide");
+    return true;
+  }
+  function boot(){
+    if(booted||!Campus.ok())return;booted=true;
+    place();Campus.onFrame(frame);Campus.addPicker(picker);
+  }
+
+  // ---- answers. Every answer is computed from loaded data; nothing is guessed.
+  const CHIPS=["What is this district","What's new","Who is working here","Open tasks"];
+  function overview(top,d){
+    const ns=notesIn(top),mocs=ns.filter(n=>n.fm.type==="moc"),types={};ns.forEach(n=>{const t=n.fm.type||"untyped";types[t]=(types[t]||0)+1});
+    const rows=Object.entries(types).sort((a,b)=>b[1]-a[1]);
+    const blocks=new Set(ns.map(n=>(n.folder||"").split("/")[1]||"·"));
+    return `<p>${ns.length} notes in ${blocks.size} block${blocks.size===1?"":"s"}. ${mocs.length?`Maps of content: ${mocs.map(link).join(", ")}.`:"No MOC lives in this district."}</p>
+    <div class="tw"><table><thead><tr><th>Type</th><th>Notes</th></tr></thead><tbody>${rows.map(([t,c])=>`<tr><td>${esc(t)}</td><td>${c}</td></tr>`).join("")}</tbody></table></div>`;
+  }
+  function whatsNew(top){
+    const now=Date.now(),ns=notesIn(top).filter(n=>n.updated_at&&now-Date.parse(n.updated_at)<WEEK).sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
+    if(!ns.length)return "<p>Nothing in this district changed in the last 7 days.</p>";
+    return `<p>${ns.length} note${ns.length===1?"":"s"} changed in the last 7 days.</p>${ns.slice(0,8).map(n=>`<button class="bl" data-n="${esc(n.name)}"><b>${esc(n.name)}</b><small>${esc(ago(n.updated_at))}${n.updated_by?" · "+esc(n.updated_by):""}</small></button>`).join("")}`;
+  }
+  function whoHere(top){
+    const S=snap(),live=S.presence.filter(p=>p.status!=="offline"&&Date.now()-Date.parse(p.last_seen)<15*60e3&&inDistrict(top,p.note));
+    if(!live.length)return "<p>No agent is standing in this district right now.</p>";
+    return live.map(p=>`<button class="bl" data-n="${esc(p.note)}"><b>${esc(agentName(p.agent))} · ${esc(p.status)}</b><small>${esc(p.note)}${p.task?" · "+esc(p.task):""}${p.detail?" · "+esc(p.detail):""}</small></button>`).join("");
+  }
+  function openTasks(top){
+    const ts=snap().tasks.filter(t=>t.status!=="done"&&inDistrict(top,t.note)).sort((a,b)=>(BOUNTY[b.priority]||80)-(BOUNTY[a.priority]||80));
+    if(!ts.length)return "<p>No open task points at a note in this district.</p>";
+    return ts.map(t=>`<button class="bl" data-n="${esc(t.note)}"><b>${esc(t.title||t.id)} <em class="bounty">+${BOUNTY[t.priority]||80} XP</em></b><small>${esc(t.id)} · ${esc(t.status)}${t.agent?" · "+esc(agentName(t.agent)):""} · ${esc(t.note)}</small></button>`).join("");
+  }
+  function best(top,q){
+    const ql=q.toLowerCase().trim(),terms=ql.split(/[^a-z0-9]+/).filter(t=>t.length>2);
+    const score=n=>{const nm=n.name.toLowerCase();let s=0;
+      if(nm===ql)s+=100;else if(nm.startsWith(ql))s+=70;else if(nm.includes(ql))s+=50;
+      terms.forEach(t=>{if(nm.includes(t))s+=18;if([...n.tags].some(x=>x.toLowerCase().includes(t)))s+=12});
+      const body=n.body.toLowerCase();terms.forEach(t=>{let i=0,c=0;while((i=body.indexOf(t,i))>=0&&c<12){c++;i+=t.length}s+=Math.min(12,c)*1.5});
+      return s};
+    return notesIn(top).map(n=>({n,s:score(n)})).filter(r=>r.s>0).sort((a,b)=>b.s-a.s);
+  }
+  function snippetFor(n,q){
+    const terms=q.toLowerCase().split(/[^a-z0-9]+/).filter(t=>t.length>2);
+    const line=n.body.split("\n").find(l=>{const ll=l.toLowerCase();return !/^#/.test(l)&&terms.some(t=>ll.includes(t))})||n.body.split("\n").find(l=>l.trim()&&!/^#/.test(l))||"";
+    return clean(line).slice(0,110);
+  }
+  function answer(top,q){
+    const d=district(top);q=String(q||"").trim();if(!d||!q)return "";
+    const ql=q.toLowerCase();
+    let m;
+    if(m=ql.match(/^(?:where(?:'s| is| are)?|find|take me to|go to|show me|fly to)\s+(.+?)\??$/)){
+      const want=m[1].replace(/^(the|a)\s+/,"");const r=best(top,want)[0]||NOTES.map(n=>({n,s:n.name.toLowerCase().includes(want)?1:0})).find(r=>r.s);
+      if(r){setTimeout(()=>open(r.n),60);return `<p>${esc(r.n.name)} is ${r.n.top===top?"in this district":"in "+esc(r.n.top)}. Flying there.</p>`}
+      return `<p>I do not have a note called “${esc(want)}”. Try one of these.</p>`+chips();
+    }
+    if(/what(?:'s| is)? (?:this|the) (?:district|place|area)|about (?:this|the) district|what is here|what'?s here/.test(ql))return overview(top,d);
+    if(/what'?s new|new here|recent|changed|updated|latest/.test(ql))return whatsNew(top);
+    if(/who(?:'s| is)?\s*(?:working|here|around|standing)|anyone (?:here|working)|working here/.test(ql))return whoHere(top);
+    if(/open tasks?|tasks?\b|commissions?|to-?do|work here|what needs doing/.test(ql))return openTasks(top);
+    const rs=best(top,q).slice(0,5);
+    if(!rs.length)return "<p>I do not have that. Try one of these.</p>"+chips();
+    return `<p>${rs.length} note${rs.length===1?"":"s"} in this district match.</p>`+rs.map(r=>`<button class="bl" data-n="${esc(r.n.name)}"><b>${esc(r.n.name)}</b><small>${esc(snippetFor(r.n,q)||r.n.folder||"")}</small></button>`).join("");
+  }
+  const chips=()=>`<div class="taglist gchips">${CHIPS.map(c=>`<button class="chip gq" type="button" data-q="${esc(c)}">${esc(c)}</button>`).join("")}</div>`;
+
+  // ---- tabs
+  function askTab(top,d){
+    const ns=notesIn(top),blocks=new Set(ns.map(n=>(n.folder||"").split("/")[1]||"·")),last=memo.get(top);
+    return `<div class="callout agent" style="--c:${esc(d.color)}"><div class="ct">Warden of ${esc(d.name)}</div><p>${ns.length} notes stand here in ${blocks.size} block${blocks.size===1?"":"s"}. Ask where a note is, what changed this week, who is working here, or what is open. I answer from the vault as loaded; I do not guess.</p></div>
+    <form class="sayrow" id="gAsk"><input maxlength="200" placeholder="Ask the Warden…" autocomplete="off" aria-label="Question for the guide" value="${esc(last?last.q:"")}"><button class="btn pri" type="submit">Ask</button></form>
+    ${chips()}
+    <div class="sec" id="gAns" style="margin-top:14px">${last?`<h4>${esc(last.q)}</h4>${last.a}`:""}</div>`;
+  }
+  function mapTab(top,d){
+    const Bld=Campus.buildings(),ns=notesIn(top),groups=new Map();
+    ns.forEach(n=>{const k=(n.folder||"").split("/")[1]||"·";groups.set(k,(groups.get(k)||0)+1)});
+    const blocks=[...groups].sort((a,b)=>b[1]-a[1]);
+    const tall=ns.filter(n=>Bld[n.id]).map(n=>({n,h:Bld[n.id].h,deg:n.out.size+n.back.size})).sort((a,b)=>b.h-a.h||b.deg-a.deg).slice(0,8);
+    return `<div class="sec"><h4>Blocks <span>${blocks.length}</span></h4>${blocks.map(([k,c])=>`<div class="act"><time>${c}</time><div><b>${esc(k==="·"?d.top+" (root)":k)}</b></div></div>`).join("")}</div>
+    <div class="sec"><h4>Landmarks <span>tallest ${tall.length}</span></h4>${tall.map(t=>`<button class="bl" data-n="${esc(t.n.name)}"><b>${esc(t.n.name)}</b><small>${Math.round(t.h)} m · ${t.deg} links${t.n.fm.type?" · "+esc(t.n.fm.type):""}</small></button>`).join("")||"<p class='note-s'>No buildings placed yet.</p>"}</div>
+    <div class="sec"><button class="btn pri" id="gWalk" type="button">Walk me there</button> <span class="note-s">Centers the camera over ${esc(d.name)}.</span></div>`;
+  }
+  function workTab(top,d){
+    const S=snap(),ts=S.tasks.filter(t=>(t.status==="open"||t.status==="claimed")&&inDistrict(top,t.note)).sort((a,b)=>(a.status>b.status?1:-1)||(BOUNTY[b.priority]||80)-(BOUNTY[a.priority]||80));
+    const acts=S.acts.filter(a=>inDistrict(top,a.note)).slice(0,10);
+    return `<div class="sec"><h4>Open and claimed <span>${ts.length}</span></h4>${ts.map(t=>`<button class="bl" data-n="${esc(t.note)}"><b>${esc(t.title||t.id)} <em class="bounty">+${BOUNTY[t.priority]||80} XP</em></b><small>${esc(t.id)} · ${esc(t.status)}${t.agent?" · "+esc(agentName(t.agent)):" · unassigned"} · ${esc(t.note)}</small></button>`).join("")||"<p class='note-s'>No open or claimed task points at this district.</p>"}</div>
+    <div class="sec"><h4>Recent activity <span>${acts.length}</span></h4>${acts.map(a=>`<div class="act"><time>${esc(ago(a.ts))}</time><div><b>${esc(agentName(a.actor))}</b> <span>${esc(a.kind)}</span> ${esc(a.text||"")} <a class="wl" data-n="${esc(a.note)}">${esc(a.note)}</a></div></div>`).join("")||"<p class='note-s'>No recorded activity in this district.</p>"}</div>
+    <div class="callout info"><div class="ct">Say to this district's workers</div><p>Floor chat lives in Live → Floor. Messages reach every agent on the floor, or one agent you pick. <a class="wl" id="gFloor">Open the floor</a>.</p></div>`;
+  }
+  function render(tab){
+    const d=district(curTop);if(!d)return "<p class='note-s'>Pick a guide on the campus first.</p>";
+    const head=`<div class="who"><i style="width:10px;height:10px;border-radius:2px;background:${esc(d.color)};display:inline-block"></i><span>${esc(d.top)} · ${notesIn(curTop).length} notes</span></div>`;
+    return head+(tab==="map"?mapTab(curTop,d):tab==="work"?workTab(curTop,d):askTab(curTop,d));
+  }
+  function ask(root,q){
+    const top=curTop;q=String(q||"").trim();if(!q)return;
+    const a=answer(top,q);memo.set(top,{q,a});
+    const el=root.querySelector("#gAns");if(el)el.innerHTML=`<h4>${esc(q)}</h4>${a}`;
+  }
+  function bind(root){
+    const f=root.querySelector("#gAsk");if(f)f.onsubmit=e=>{e.preventDefault();ask(root,f.querySelector("input").value)};
+    root.querySelectorAll(".gq").forEach(b=>b.onclick=()=>{const i=root.querySelector("#gAsk input");if(i)i.value=b.dataset.q;ask(root,b.dataset.q)});
+    const w=root.querySelector("#gWalk");if(w)w.onclick=()=>{const d=district(curTop);if(d)Campus.flyAt(d.x+d.w/2,d.z+d.d/2,0,Math.max(d.w,d.d)*1.05+70,.72)};
+    const fl=root.querySelector("#gFloor");if(fl)fl.onclick=e=>{e.preventDefault();sheet.atab="floor";openSheet("agents")};
+    root.querySelectorAll(".bl[data-n]").forEach(b=>b.onclick=()=>{const n=byName.get(b.dataset.n);if(n)open(n)});
+  }
+  const list=()=>G.map(g=>({top:g.top,name:g.name,color:g.color,x:g.x,z:g.z}));
+  const current=()=>district(curTop);
+  return {boot,render,bind,answer,list,openFor,current,CHIPS};
+})();
+(function(){const t=setInterval(()=>{if(typeof Campus!=="undefined"&&Campus.ok()){clearInterval(t);Guides.boot()}},300)})();
 
 // =====================================================================
 // Live layer: Supabase Postgres + Realtime.
@@ -2017,9 +2402,252 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
   async function history(name){const {data}=await sb.from("note_revisions").select("version,edited_by,edited_at").eq("name",name).order("edited_at",{ascending:false}).limit(30);return (data||[]).map(r=>({...r,edited_by:agentName(r.edited_by)}))}
   async function signOut(){await sb.auth.signOut();location.reload()}
   if(typeof open==='function'){const _open=open;open=function(n,push){_open(n,push);Sound.tick()}}
-  return {session,member,join,loadAll,subscribe,render,bind,history,pushAgents,syncMarkers,drawFloor,signOut,brief,me:()=>me,debug:()=>({onStats,onDone,onActivity,levelUp,stats})};
+  return {session,member,join,loadAll,subscribe,render,bind,history,pushAgents,syncMarkers,drawFloor,signOut,brief,me:()=>me,snapshot:()=>({tasks:[...tasks],acts:[...acts],agents:[...agents.values()],presence:[...pres.values()],stats:[...stats.values()]}),debug:()=>({onStats,onDone,onActivity,levelUp,stats})};
 })();
 
+
+// ---------- title: cold open, procedural city rising, wordmark, main menu. Everything here is code; no assets.
+// Title.start() -> Promise that resolves once the player chooses "Enter the Vault". The overlay then dissolves over the live app.
+const Title=(()=>{
+const VERSION="v2.1",TAG="Architecting a Humane Future";
+const K={seen:"vault.title.seen",sound:"vault.sound",cut:"vault.title.cutscene",q:"vault.quality"};
+const S=(typeof store!=="undefined")?store:{get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const today=()=>new Date().toISOString().slice(0,10);
+const reduced=()=>window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const CSS=`
+#title{position:fixed;inset:0;z-index:80;background:#05070e;color:#F4EFE6;font-family:var(--body,system-ui,sans-serif);overflow:hidden;user-select:none;-webkit-user-select:none;--gold:var(--accent,#E8A33D);--t-ease:cubic-bezier(.2,.7,.2,1)}
+#title canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#title .tv{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 62%,transparent 40%,rgba(2,3,8,.55) 78%,rgba(2,3,8,.92) 100%)}
+#title .tgrain{position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,transparent 1px 3px)}
+#title .tbars{position:absolute;inset:0;pointer-events:none}
+#title .tbars::before,#title .tbars::after{content:"";position:absolute;left:0;right:0;height:8vh;background:#020308;transition:transform 1.4s var(--t-ease)}
+#title .tbars::before{top:0}#title .tbars::after{bottom:0}
+#title.menu .tbars::before{transform:translateY(-100%)}#title.menu .tbars::after{transform:translateY(100%)}
+#title .layer{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px 16px;box-sizing:border-box;pointer-events:none}
+#title .slate{font-family:var(--mono,ui-monospace,monospace);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:#8A93AD;opacity:0;transition:opacity .9s}
+#title .slate.on{opacity:1}
+#title .slate i{display:block;width:1px;height:0;margin:14px auto 0;background:var(--gold);transition:height 1.2s var(--t-ease)}
+#title .slate.on i{height:42px}
+#title .wm{display:grid;gap:10px;justify-items:center;transform:translateY(0);transition:transform 1s var(--t-ease)}
+#title.menu .wm{transform:translateY(calc(-1 * var(--wm-up,26vh)))}
+#title .word{font-family:var(--display,"Space Grotesk",sans-serif);font-weight:700;font-size:clamp(34px,7.2vw,96px);line-height:.95;letter-spacing:.06em;position:relative;white-space:nowrap}
+#title .word span{display:inline-block;opacity:0;transform:translateY(.35em) rotateX(40deg);filter:blur(6px);transition:opacity .55s var(--t-ease),transform .7s var(--t-ease),filter .6s}
+#title .word span.on{opacity:1;transform:none;filter:none}
+#title .word span.sp{width:.32em}
+#title .sweep{position:absolute;inset:-10% -4%;pointer-events:none;background:linear-gradient(100deg,transparent 35%,rgba(255,236,200,.75) 50%,transparent 65%);transform:translateX(-120%);mix-blend-mode:screen;opacity:0}
+#title .sweep.go{animation:tsweep 1.3s var(--t-ease) forwards}
+@keyframes tsweep{0%{transform:translateX(-120%);opacity:0}15%{opacity:1}100%{transform:translateX(120%);opacity:0}}
+#title .sub{font-family:var(--display,"Space Grotesk",sans-serif);font-weight:500;font-size:clamp(13px,1.6vw,20px);letter-spacing:.62em;text-indent:.62em;color:var(--gold);opacity:0;transform:translateY(8px);transition:opacity .9s,transform .9s var(--t-ease)}
+#title .sub.on{opacity:1;transform:none}
+#title .rule{width:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transition:width 1.2s var(--t-ease)}
+#title .rule.on{width:min(420px,70vw)}
+#title .tag{font-family:var(--body,system-ui);font-style:italic;font-size:clamp(13px,1.4vw,17px);color:#C9CFDF;letter-spacing:.04em;opacity:0;transition:opacity 1.2s}
+#title .tag.on{opacity:1}
+#title .skip{position:absolute;right:18px;bottom:18px;font-family:var(--mono,monospace);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8A93AD;border:1px solid rgba(138,147,173,.35);padding:8px 14px;border-radius:999px;background:rgba(5,7,14,.5);transition:color .2s,border-color .2s,opacity .5s;pointer-events:auto}
+#title .skip:hover{color:#fff;border-color:var(--gold)}
+#title.menu .skip{opacity:0;pointer-events:none}
+#title .mm{position:absolute;left:0;right:0;top:50%;display:grid;justify-items:center;gap:6px;opacity:0;transform:translateY(24px);transition:opacity .8s .2s,transform .9s .2s var(--t-ease);pointer-events:none}
+#title.menu .mm{opacity:1;transform:none;pointer-events:auto}
+#title .mm button{font-family:var(--display,"Space Grotesk",sans-serif);font-weight:600;font-size:clamp(17px,1.5vw,22px);letter-spacing:.18em;text-transform:uppercase;color:#C9CFDF;padding:12px 28px;position:relative;border-radius:4px;transition:color .18s,transform .18s var(--t-ease)}
+#title .mm button::before{content:"";position:absolute;left:8px;top:50%;width:0;height:1px;background:var(--gold);transition:width .22s var(--t-ease)}
+#title .mm button:hover,#title .mm button.on{color:#fff;transform:translateX(6px)}
+#title .mm button:hover::before,#title .mm button.on::before{width:12px}
+#title .mm button.pri{color:#fff;border:1px solid rgba(232,163,61,.55);background:linear-gradient(180deg,rgba(232,163,61,.18),rgba(232,163,61,.06));box-shadow:0 0 0 1px rgba(232,163,61,.12) inset,0 18px 40px -22px var(--gold);margin-bottom:10px;padding:14px 40px}
+#title .mm button.pri:hover,#title .mm button.pri.on{background:var(--gold);color:#1a1204;border-color:var(--gold);transform:translateX(0) scale(1.02)}
+#title .mm button.pri::before{display:none}
+#title .mm button:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
+#title .foot{position:absolute;left:18px;right:18px;bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono,monospace);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#59627D;opacity:0;transition:opacity 1s .6s;pointer-events:none}
+#title.menu .foot{opacity:1}
+#title .foot b{color:#8A93AD;font-weight:400}
+#title .foot .hintk{color:#59627D}
+#title .foot kbd{font:inherit;border:1px solid rgba(138,147,173,.35);border-radius:4px;padding:1px 6px;margin-right:4px}
+#title .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.97);width:min(420px,calc(100% - 32px));background:rgba(10,14,26,.9);border:1px solid rgba(138,147,173,.22);border-top:2px solid var(--gold);border-radius:14px;padding:22px 22px 18px;box-sizing:border-box;opacity:0;pointer-events:none;transition:opacity .25s,transform .3s var(--t-ease);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 40px 90px -30px rgba(0,0,0,.8);text-align:left}
+#title .panel.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+#title .panel .k{font-family:var(--mono,monospace);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+#title .panel h2{font-family:var(--display,"Space Grotesk",sans-serif);font-size:22px;margin:4px 0 14px;letter-spacing:-.01em;color:#fff}
+#title .panel .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid rgba(138,147,173,.16);font-size:14px;color:#C9CFDF}
+#title .panel .row small{display:block;font-size:12px;color:#8A93AD}
+#title .seg{display:flex;border:1px solid rgba(138,147,173,.3);border-radius:999px;overflow:hidden;flex:none}
+#title .seg button{font-family:var(--mono,monospace);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;color:#8A93AD}
+#title .seg button.on{background:var(--gold);color:#1a1204}
+#title .panel .act{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+#title .panel .act button{font-size:13px;padding:7px 14px;border:1px solid rgba(138,147,173,.3);border-radius:8px;color:#C9CFDF}
+#title .panel .act button:hover{border-color:var(--gold);color:#fff}
+#title .panel p{margin:0 0 6px;font-size:14px;color:#C9CFDF;line-height:1.6}
+#title .panel p.dim{color:#8A93AD;font-size:12.5px}
+#title.out{animation:tout .9s var(--t-ease) forwards}
+@keyframes tout{0%{clip-path:inset(0 0 0 0);opacity:1;transform:scale(1)}55%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(50% 0 50% 0);opacity:0;transform:scale(1.04)}}
+#title.out .wm,#title.out .mm,#title.out .foot{opacity:0;transition:opacity .35s}
+#title.out .tbars::before,#title.out .tbars::after{transform:none;transition:transform .55s var(--t-ease)}
+@media (max-width:640px){#title .word{letter-spacing:.04em;font-size:clamp(30px,10.5vw,52px)}#title .word span.sp{display:block;height:0;width:0}#title .word span.sp+span{margin-left:0}#title{--wm-up:21vh}#title .mm button{font-size:15px;padding:10px 22px}#title .mm button.pri{padding:12px 32px}#title .foot{font-size:9.5px;letter-spacing:.12em}#title .foot .hintk{display:none}#title .skip{bottom:14px;right:14px}}
+@media (prefers-reduced-motion: reduce){#title *{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+`;
+// ---- synth: pad + slow arpeggio, under 20 s, created on the first user gesture only.
+const Score=(()=>{let ctx=null,master=null,nodes=[],timer=0;
+  const on=()=>S.get(K.sound,true)!==false;
+  function start(){if(ctx||!on())return;try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+    if(ctx.state==="suspended")ctx.resume();
+    const t=ctx.currentTime;master=ctx.createGain();master.gain.setValueAtTime(0,t);master.gain.linearRampToValueAtTime(.55,t+2.5);
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.setValueAtTime(420,t);lp.frequency.linearRampToValueAtTime(1900,t+9);lp.Q.value=.6;
+    const dl=ctx.createDelay(1);dl.delayTime.value=.37;const fb=ctx.createGain();fb.gain.value=.34;const wet=ctx.createGain();wet.gain.value=.32;
+    lp.connect(master);lp.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(master);master.connect(ctx.destination);
+    // pad: two detuned saws per note on a D minor 9 voicing, slow LFO on the filter
+    const pad=[73.42,110,146.83,174.61,220,261.63];
+    pad.forEach((f,i)=>{[-6,6].forEach(d=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=i<2?"sawtooth":"triangle";o.frequency.value=f;o.detune.value=d+(i%2?3:-3);
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045,t+3+i*.4);g.gain.setValueAtTime(.045,t+14);g.gain.linearRampToValueAtTime(0,t+18.5);
+      o.connect(g).connect(lp);o.start(t);o.stop(t+19);nodes.push(o)})});
+    const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.11;lg.gain.value=260;lfo.connect(lg).connect(lp.frequency);lfo.start(t);lfo.stop(t+19);nodes.push(lfo);
+    // arpeggio: D F A C E G A D, eighth notes at 68 bpm, enters with the city, opens up with the wordmark
+    const arp=[293.66,349.23,440,523.25,659.25,783.99,880,1174.66];const step=60/68/2;
+    for(let n=0,k=0;t+2.6+n*step<t+17;n++){if(n%8===7)continue;const f=arp[k%arp.length]*(n>=24?1:.5);k++;const at=t+2.6+n*step;
+      const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=f;const vol=(n>=24?.09:.055)*(n>=48?Math.max(0,(17-(n*step+2.6))/4):1);
+      g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(vol,at+.02);g.gain.exponentialRampToValueAtTime(.0001,at+step*1.8);o.connect(g).connect(lp);o.start(at);o.stop(at+step*2);nodes.push(o)}
+    // bass pulse under the reveal
+    [7.4,9.2,11].forEach(at=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=36.71;g.gain.setValueAtTime(0,t+at);g.gain.linearRampToValueAtTime(.35,t+at+.05);g.gain.exponentialRampToValueAtTime(.0001,t+at+1.6);o.connect(g).connect(master);o.start(t+at);o.stop(t+at+1.8);nodes.push(o)});
+    timer=setTimeout(stop,19500);
+  }
+  function tick(f=880,len=.08,gain=.05){if(!ctx||!on())return;const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+len+.02)}
+  function duck(sec){if(!ctx||!master)return;const t=ctx.currentTime;master.gain.cancelScheduledValues(t);master.gain.setValueAtTime(master.gain.value,t);master.gain.linearRampToValueAtTime(0,t+sec)}
+  function stop(){clearTimeout(timer);nodes.forEach(o=>{try{o.stop()}catch(e){}});nodes=[];if(ctx){const c=ctx;ctx=null;master=null;setTimeout(()=>{try{c.close()}catch(e){}},200)}}
+  return{start,tick,duck,stop,live:()=>!!ctx};
+})();
+// ---- the picture: an instanced grid city that grows from a dark plane while the camera drifts up and back.
+function makeCity(canvas,quality){
+  if(typeof THREE==="undefined")return null;
+  let r;try{r=new THREE.WebGLRenderer({canvas,antialias:quality==="high",alpha:false,powerPreference:"high-performance"})}catch(e){return null}
+  const dpr=Math.min(window.devicePixelRatio||1,quality==="high"?2:1);r.setPixelRatio(dpr);
+  const scene=new THREE.Scene();scene.background=new THREE.Color(0x05070e);scene.fog=new THREE.FogExp2(0x05070e,.016);
+  const cam=new THREE.PerspectiveCamera(42,1,.1,600);
+  const G=quality==="high"?46:30,CELL=4.2;const N=G*G;
+  const geo=new THREE.BoxGeometry(1,1,1);geo.translate(0,.5,0);
+  const mat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.55,metalness:.25,emissive:0x0b1024,emissiveIntensity:.9});
+  const mesh=new THREE.InstancedMesh(geo,mat,N);mesh.frustumCulled=false;scene.add(mesh);
+  const seed=(i,j)=>{const s=Math.sin(i*127.1+j*311.7)*43758.5453;return s-Math.floor(s)};
+  const H=new Float32Array(N),D=new Float32Array(N),W=new Float32Array(N);
+  for(let i=0;i<G;i++)for(let j=0;j<G;j++){const k=i*G+j;const dx=(i-G/2)/(G/2),dz=(j-G/2)/(G/2);const d=Math.sqrt(dx*dx+dz*dz);
+    const core=Math.max(0,1-d*1.15);const rnd=seed(i,j);H[k]=(2+rnd*rnd*26)*(.25+core*core*2.2)*((i%7===3||j%9===4)?.1:1);D[k]=rnd*.5+d*.6;W[k]=CELL*(.46+seed(j,i)*.34)}
+  const m4=new THREE.Matrix4(),col=new THREE.Color();
+  const lit=new Float32Array(N);for(let k=0;k<N;k++)lit[k]=seed(k%G*3,Math.floor(k/G)*5);
+  function write(g,time){for(let i=0;i<G;i++)for(let j=0;j<G;j++){const k=i*G+j;const p=clamp((g-D[k])/.42,0,1);const e=ease(p);const h=Math.max(.02,H[k]*e);
+      m4.makeScale(W[k],h,W[k]);m4.setPosition((i-G/2+.5)*CELL,0,(j-G/2+.5)*CELL);mesh.setMatrixAt(k,m4);
+      const warm=lit[k]>.72?1:0;const glow=e*(warm?.55+.45*Math.sin(time*1.3+lit[k]*40):.08);col.setRGB(.16+glow*.85,.19+glow*.55,.34+glow*.1);mesh.setColorAt(k,col)}
+    mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true}
+  // ground plane with a faint grid of emissive lines
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(G*CELL*3,G*CELL*3),new THREE.MeshStandardMaterial({color:0x070a14,roughness:.9,metalness:.1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.01;scene.add(ground);
+  const grid=new THREE.GridHelper(G*CELL,G,0x1d2648,0x141a30);grid.material.transparent=true;grid.material.opacity=.6;scene.add(grid);
+  // data lattice: points that rise with the city
+  const PN=quality==="high"?1400:600;const pp=new Float32Array(PN*3),pv=new Float32Array(PN);
+  for(let k=0;k<PN;k++){pp[k*3]=(Math.random()-.5)*G*CELL*1.3;pp[k*3+1]=Math.random()*60;pp[k*3+2]=(Math.random()-.5)*G*CELL*1.3;pv[k]=.4+Math.random()}
+  const pgeo=new THREE.BufferGeometry();pgeo.setAttribute("position",new THREE.BufferAttribute(pp,3));
+  const pts=new THREE.Points(pgeo,new THREE.PointsMaterial({color:0xf2b85b,size:.32,transparent:true,opacity:0,sizeAttenuation:true,depthWrite:false}));scene.add(pts);
+  scene.add(new THREE.HemisphereLight(0x55689f,0x0a0c18,.9));
+  const sun=new THREE.DirectionalLight(0xf2b85b,0);sun.position.set(-40,60,-30);scene.add(sun);
+  const key=new THREE.PointLight(0xe8a33d,0,300,1.4);key.position.set(0,42,0);scene.add(key);
+  const rim=new THREE.DirectionalLight(0x5b9bf0,.25);rim.position.set(60,30,80);scene.add(rim);
+  let w=0,h=0;function size(){const W2=canvas.clientWidth||innerWidth,H2=canvas.clientHeight||innerHeight;if(W2===w&&H2===h)return;w=W2;h=H2;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+  // camera path: starts low in the streets looking up, ends high and back, then orbits for the menu
+  function render(p,time,menu){size();
+    const g=clamp((p-.1)/.6,0,1.25);write(g,time);
+    const k=ease(clamp(p/.9,0,1));
+    const orbit=menu?(time*.05):0;
+    const dist=18+k*120,height=1.5+k*58;const a=-.35+k*.9+orbit;
+    cam.position.set(Math.sin(a)*dist,height,Math.cos(a)*dist);cam.lookAt(0,8+k*6,0);
+    cam.fov=42-k*8;cam.updateProjectionMatrix();
+    const dawn=clamp((p-.45)/.4,0,1);sun.intensity=dawn*1.6;key.intensity=clamp((p-.2)/.4,0,1)*3.2*(.85+.15*Math.sin(time*2.1));
+    pts.material.opacity=clamp((p-.25)/.3,0,1)*.7;const pos=pgeo.attributes.position.array;for(let q=0;q<PN;q++){pos[q*3+1]+=pv[q]*.06;if(pos[q*3+1]>70)pos[q*3+1]=0}pgeo.attributes.position.needsUpdate=true;
+    scene.fog.density=.016-dawn*.011;
+    r.render(scene,cam)}
+  function dispose(){scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>m.dispose())}});r.dispose();try{r.forceContextLoss()}catch(e){}}
+  return{render,dispose};
+}
+// ---- the overlay
+function start(){
+  return new Promise(resolve=>{
+    if(document.getElementById("title")){resolve();return}
+    const style=document.createElement("style");style.id="titleCss";style.textContent=CSS;document.head.appendChild(style);
+    const root=document.createElement("div");root.id="title";root.setAttribute("role","dialog");root.setAttribute("aria-label","Collective AI Vault title screen");
+    const letters=s=>[...s].map(c=>`<span class="${c===" "?"sp":""}">${c===" "?"":c}</span>`).join("");
+    root.innerHTML=`<canvas id="titleGl" aria-hidden="true"></canvas><div class="tv"></div><div class="tgrain"></div><div class="tbars"></div>
+<div class="layer"><div class="slate" id="tSlate">Collective AI Inc · 2026<i></i></div></div>
+<div class="layer"><div class="wm" id="tWm"><div class="word" id="tWord">${letters("COLLECTIVE AI")}<div class="sweep" id="tSweep"></div></div><div class="sub" id="tSub">VAULT</div><div class="rule" id="tRule"></div><div class="tag" id="tTag">${TAG}</div></div></div>
+<nav class="mm" id="tMenu" aria-label="Main menu"><button class="pri" data-act="enter">Enter the Vault</button><button data-act="settings">Settings</button><button data-act="credits">Credits</button></nav>
+<div class="panel" id="tSettings" role="dialog" aria-label="Settings"><div class="k">Settings</div><h2>Vault</h2>
+<div class="row"><div>Sound<small>Score and campus chimes</small></div><div class="seg" data-k="sound"><button data-v="true">On</button><button data-v="false">Off</button></div></div>
+<div class="row"><div>Opening cutscene<small>Plays once a day. Off shows a short sting.</small></div><div class="seg" data-k="cut"><button data-v="true">On</button><button data-v="false">Off</button></div></div>
+<div class="row"><div>Quality<small>Low halves the pixel count and the skyline.</small></div><div class="seg" data-k="q"><button data-v="low">Low</button><button data-v="high">High</button></div></div>
+<div class="act"><button data-act="replay">Replay intro</button><button data-act="close">Done</button></div></div>
+<div class="panel" id="tCredits" role="dialog" aria-label="Credits"><div class="k">Credits</div><h2>Collective AI Vault</h2>
+<p>Collective AI Inc</p><p>JR Moyler (Hataalii), Co-Founder and CEO</p><p class="dim">Built with three.js. The skyline, the score and every frame of this opening are generated in code at runtime; nothing is loaded from a file.</p>
+<div class="act"><button data-act="close">Done</button></div></div>
+<button class="skip" id="tSkip">Skip</button>
+<div class="foot"><div><b>Collective AI</b> · Vault · ${VERSION}</div><div class="hintk"><kbd>↑↓</kbd>move <kbd>Enter</kbd>select <kbd>Esc</kbd>back</div></div>`;
+    document.body.appendChild(root);
+    const $t=s=>root.querySelector(s);
+    const canvas=$t("#titleGl"),menu=$t("#tMenu"),mbtns=[...menu.querySelectorAll("button")];
+    const quality=S.get(K.q,"high");
+    const noMotion=reduced();
+    const city=noMotion?null:makeCity(canvas,quality);
+    if(!city)canvas.style.background="radial-gradient(ellipse at 50% 70%,#161d3a,#05070e 70%)";
+    // timeline (seconds). Full cutscene is ~14 s; the sting compresses it to 1.5 s.
+    const full=[["slate",.6],["slateOff",3.2],["letters",6.2],["sweep",8.0],["sub",8.9],["rule",9.3],["tag",10.2],["menu",12.6]];
+    const sting=[["letters",.05],["sweep",.5],["sub",.6],["rule",.7],["tag",.8],["menu",1.5]];
+    const seenToday=S.get(K.seen,null)===today();
+    const cutOn=S.get(K.cut,true)!==false;
+    let cue=noMotion?[["letters",0],["sub",0],["rule",0],["tag",0],["menu",0]]:(seenToday||!cutOn)?sting:full;
+    const lettersEls=[...$t("#tWord").querySelectorAll("span")];
+    let t0=performance.now(),cueI=0,inMenu=false,done=false,raf=0,progress=0,menuAt=0,sel=0,panel=null;
+    const CUT_LEN=full[full.length-1][1];
+    function fire(name){switch(name){
+      case"slate":$t("#tSlate").classList.add("on");break;
+      case"slateOff":$t("#tSlate").classList.remove("on");break;
+      case"letters":lettersEls.forEach((el,i)=>setTimeout(()=>{el.classList.add("on");if(i%3===0)Score.tick(660+i*18,.06,.025)},noMotion?0:i*70));break;
+      case"sweep":$t("#tSweep").classList.add("go");break;
+      case"sub":$t("#tSub").classList.add("on");break;
+      case"rule":$t("#tRule").classList.add("on");break;
+      case"tag":$t("#tTag").classList.add("on");break;
+      case"menu":toMenu();break}}
+    function toMenu(){if(inMenu)return;inMenu=true;menuAt=performance.now();cue.forEach(c=>{if(c[0]!=="menu")fire(c[0])});cueI=cue.length;root.classList.add("menu");S.set(K.seen,today());setSel(0);setTimeout(()=>{if(!done)mbtns[0].focus({preventScroll:true})},700)}
+    function setSel(i){sel=(i+mbtns.length)%mbtns.length;mbtns.forEach((b,j)=>b.classList.toggle("on",j===sel))}
+    function frame(now){raf=requestAnimationFrame(frame);const t=(now-t0)/1000;
+      while(cueI<cue.length&&t>=cue[cueI][1]){fire(cue[cueI][0]);cueI++}
+      if(city){if(!inMenu)progress=cue===full?clamp(t/CUT_LEN,0,1):1;else progress=Math.min(1,progress+(1-progress)*.04+.004);
+        try{city.render(progress,t,inMenu)}catch(e){}}}
+    raf=requestAnimationFrame(frame);
+    // first user gesture starts the score (browser policy); any gesture during the cutscene also skips it
+    let gestured=false;function gesture(){if(gestured)return;gestured=true;Score.start()}
+    function skip(){gesture();if(!inMenu){t0=performance.now()-CUT_LEN*1000;toMenu()}}
+    $t("#tSkip").addEventListener("click",e=>{e.stopPropagation();skip()});
+    root.addEventListener("pointerdown",e=>{gesture();if(!inMenu)skip()});
+    // panels
+    function openPanel(id){panel=id;$t("#tSettings").classList.toggle("on",id==="tSettings");$t("#tCredits").classList.toggle("on",id==="tCredits");if(id==="tSettings")paintSettings();Score.tick(520,.07,.03);const f=$t("#"+id+" .act button:last-child");if(f)f.focus({preventScroll:true})}
+    function closePanel(){panel=null;$t("#tSettings").classList.remove("on");$t("#tCredits").classList.remove("on");mbtns[sel].focus({preventScroll:true})}
+    function paintSettings(){const v={sound:String(S.get(K.sound,true)!==false),cut:String(S.get(K.cut,true)!==false),q:S.get(K.q,"high")};root.querySelectorAll("#tSettings .seg").forEach(seg=>{const k=seg.dataset.k;seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.v===v[k]))})}
+    $t("#tSettings").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const seg=b.closest(".seg");
+      if(seg){const k=seg.dataset.k;const v=b.dataset.v;if(k==="sound"){S.set(K.sound,v==="true");if(v==="false")Score.stop()}else if(k==="cut")S.set(K.cut,v==="true");else S.set(K.q,v);paintSettings();Score.tick(760,.06,.03);return}
+      if(b.dataset.act==="replay"){replay();return}if(b.dataset.act==="close")closePanel()});
+    $t("#tCredits").addEventListener("click",e=>{const b=e.target.closest("button[data-act=close]");if(b)closePanel()});
+    function replay(){closePanel();root.classList.remove("menu");inMenu=false;progress=0;S.set(K.seen,"");
+      ["#tSlate","#tSub","#tRule","#tTag"].forEach(s=>$t(s).classList.remove("on"));$t("#tSweep").classList.remove("go");lettersEls.forEach(el=>el.classList.remove("on"));
+      cue=noMotion?[["letters",0],["sub",0],["rule",0],["tag",0],["menu",0]]:full;cueI=0;t0=performance.now();Score.stop();gestured=false;gesture()}
+    function enter(){if(done)return;done=true;Score.tick(880,.25,.06);Score.duck(.8);
+      root.classList.add("out");cancelAnimationFrame(raf);
+      const ms=noMotion?10:920;
+      setTimeout(()=>{if(city)city.dispose();Score.stop();root.remove();style.remove();window.removeEventListener("keydown",key);resolve()},ms)}
+    menu.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;act(b.dataset.act)});
+    menu.addEventListener("pointermove",e=>{const b=e.target.closest("button");if(b)setSel(mbtns.indexOf(b))});
+    function act(a){if(a==="enter")enter();else if(a==="settings")openPanel("tSettings");else if(a==="credits")openPanel("tCredits")}
+    function key(e){if(done)return;gesture();
+      if(!inMenu){if(e.key!=="Tab")e.preventDefault();skip();return}
+      if(panel){if(e.key==="Escape"){e.preventDefault();closePanel()}return}
+      if(e.key==="ArrowDown"||e.key==="ArrowUp"||e.key==="w"||e.key==="s"){e.preventDefault();setSel(sel+(e.key==="ArrowDown"||e.key==="s"?1:-1));Score.tick(620,.05,.02);mbtns[sel].focus({preventScroll:true})}
+      else if(e.key==="Enter"||e.key===" "){if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#tMenu"))return;e.preventDefault();act(mbtns[sel].dataset.act)}}
+    window.addEventListener("keydown",key);
+  });
+}
+return{start,version:VERSION};
+})();
 
 // ---------- boot: sign in, load the live vault, raise the campus
 (async function boot(){
@@ -2033,6 +2661,8 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
     Live.syncMarkers();Live.pushAgents();Live.subscribe();Live.drawFloor();setTimeout(Live.brief,2500);
     const want=decodeURIComponent(location.hash.slice(1));if(want&&byName.get(want))open(byName.get(want));
   }
+  // title screen and opening cutscene first; it resolves when the player chooses "Enter the Vault"
+  try{if(typeof Title!=="undefined")await Title.start()}catch(e){console.warn(e)}
   try{if(await Live.session()&&await Live.member()){await enter();return}}catch(e){console.warn(e)}
   $("#loading").textContent="Sign in";gate.hidden=false;setTimeout(()=>$("#gName").focus(),50);
   $("#gateForm").addEventListener("submit",async e=>{
