@@ -31,3 +31,29 @@ test('46 autonomous agents plus two same-tool owners retain unique meshes and ba
  const models=specs.map(mesh.create);assert.equal(new Set(models.map(m=>m.grp.uuid)).size,48);
  let disposed=0;models.forEach(m=>{m.grp.traverse(o=>{o.material?.addEventListener('dispose',()=>disposed++)});mesh.dispose(m.grp)});assert.ok(disposed>=48*6);
 });
+test('rigid-skinned figure stays within the draw budget, and tiers add trim and the aura',()=>{
+ for(const form of ['jr','devon','ahmad','kenza','member','agent']){
+  const lo=mesh.create({id:'t-'+form,form,level:0}),hi=mesh.create({id:'t2-'+form,form,level:20});
+  assert.equal(lo.bones.length,15);assert.equal(lo.legs.length,2);assert.ok(lo.legs[0].isBone);
+  const a=mesh.stats(lo),b=mesh.stats(hi);
+  assert.ok(a.draws<=8&&b.draws<=8,'at most 8 draw calls before props');assert.ok(b.verts>a.verts,'higher tiers add plates');
+  assert.equal(lo.aura.visible,false);assert.equal(hi.aura.visible,true);assert.equal(identity.blueprint(form,{level:20}).tier,4);
+  mesh.dispose(lo.grp);mesh.dispose(hi.grp);
+ }
+ assert.deepEqual([0,2,3,5,6,9,10,19,20].map(identity.tier),[0,0,1,1,2,2,3,3,4]);
+ assert.equal(mesh.textures().state,'skipped','no DOM: detail maps are skipped and shading stays code-only');
+});
+test('every status and emote produces a finite, grounded pose, and emotes end on their own',()=>{
+ const m=mesh.create({id:'pose-check',form:'kenza',level:12});const finite=()=>m.bones.every(b=>[b.rotation.x,b.rotation.y,b.rotation.z,b.position.y].every(Number.isFinite));
+ for(const s of mesh.STATUSES){for(let i=0;i<90;i++)mesh.pose(m,10+i/30,s,{speed:i>45?12:3});assert.ok(finite(),s);assert.ok(m.bones[0].position.y<=3.06&&m.bones[0].position.y>2.4,s+' keeps the pelvis over planted feet')}
+ for(const [e,d] of Object.entries(mesh.EMOTES)){mesh.emote(m,e,100);let peak=0;for(let i=0;i<=Math.ceil(d*30)+3;i++){mesh.pose(m,100+i/30,'idle');peak=Math.max(peak,m.bones[0].position.y);assert.ok(finite(),e)}
+  assert.equal(m.emote,null,e+' ends');if(e==='celebrate'||e==='levelup')assert.ok(peak>3.6,e+' leaves the ground')}
+ mesh.emote(m,'greet',200);mesh.pose(m,199.9,'idle');assert.equal(m.emote,'greet','an emote scheduled in the future waits');
+ mesh.dispose(m.grp);
+});
+test('reduced motion holds a still pose, and an immediate rebuild at a higher level does not replay the ceremony',()=>{
+ mesh.reducedMotion(true);const m=mesh.create({id:'still',form:'member'});mesh.pose(m,1,'working');const a=m.bones.map(b=>b.rotation.x);mesh.pose(m,3.7,'working');
+ assert.deepEqual(m.bones.map(b=>b.rotation.x),a);mesh.emote(m,'celebrate',4);mesh.pose(m,4.3,'working');assert.equal(m.emote,null);
+ mesh.reducedMotion(null);mesh.dispose(m.grp);
+ const x=mesh.create({id:'lvl',form:'agent',level:2}),y=mesh.create({id:'lvl',form:'agent',level:3});assert.equal(y.pendingEmote,null);mesh.dispose(x.grp);mesh.dispose(y.grp);
+});

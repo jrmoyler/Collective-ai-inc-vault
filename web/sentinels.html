@@ -93,13 +93,19 @@ figcaption{font:400 12px var(--mono);color:var(--faint);margin-top:10px;letter-s
       <label>Build<select id="build"><option value="agent">Agent Sentinel</option><option value="jr">JR · Hataalii Architect</option><option value="devon">Devon · Builder</option><option value="ahmad">Ahmad · Steward</option><option value="kenza">Kenza · Conductor</option><option value="member">Member Navigator</option><option value="owners">Claude · two owners</option></select></label>
       <p id="description"></p>
       <dl id="specs"></dl>
+      <label>View<select id="mode"><option value="single">Single build</option><option value="lineup">Lineup · all six forms</option><option value="ranks">Ranks · levels 0, 3, 6, 10, 20</option></select></label>
       <label>Level <span id="levelOut" style="color:var(--fg)">0 · Initiate</span><input id="level" type="range" min="0" max="25" value="0" style="accent-color:var(--gold);padding:0;border:0;background:none"></label>
       <h3>Palette</h3>
       <div id="colors"></div>
-      <label>Doing<select id="pose"><option value="idle">Standing by</option><option value="walking">Walking the street</option><option value="working">Working</option><option value="writing">Writing a note</option><option value="reading">Reading</option><option value="thinking">Thinking</option><option value="reviewing">Reviewing</option><option value="blocked">Blocked</option><option value="lifting">Riding the lift</option></select></label>
-      <div class="toggles"><label class="toggle"><input id="rotate" type="checkbox"> Turntable</label><button class="reset" id="celebrate" type="button">Celebrate</button><button class="reset" id="greet" type="button">Greet</button></div>
+      <label>Doing<select id="pose"><option value="idle">Standing by</option><option value="viewing">Viewing</option><option value="walking">Walking the street</option><option value="working">Working</option><option value="in use">In use</option><option value="writing">Writing a note</option><option value="reading">Reading</option><option value="thinking">Thinking</option><option value="reviewing">Reviewing</option><option value="blocked">Blocked</option><option value="lifting">Riding the lift</option></select></label>
+      <label id="speedRow">Ground speed <span id="speedOut" style="color:var(--fg)">3.4 m/s · walk</span><input id="speed" type="range" min="1" max="14" step=".2" value="3.4" style="accent-color:var(--gold);padding:0;border:0;background:none"></label>
+      <h3>Emotes</h3>
+      <div class="toggles"><button class="reset" data-emote="greet" type="button">Greet</button><button class="reset" data-emote="nod" type="button">Nod</button><button class="reset" data-emote="celebrate" type="button">Celebrate</button><button class="reset" id="levelup" type="button">Level up</button></div>
+      <h3>Motion</h3>
+      <div class="toggles"><label class="toggle"><input id="rotate" type="checkbox"> Turntable</label><label class="toggle"><input id="look" type="checkbox"> Look at pointer</label><label class="toggle"><input id="slow" type="checkbox"> Slow motion</label><label class="toggle"><input id="still" type="checkbox"> Reduced motion</label></div>
       <button class="reset" id="reset" type="button">Reset colors</button>
-      <small>Live city geometry, rendered with the same mesh factory and pose as the campus. The concept below sets the material and silhouette direction; the runtime figure uses lighter geometry so 48 Sentinels can stand in the city at once.</small>
+      <dl id="cost" style="margin-top:16px"></dl>
+      <small>Live city geometry, rendered with the same mesh factory and pose as the campus: one 15-bone rigid-skinned figure in five merged surfaces. Detail maps load from assets/sentinels/; without them the figure falls back to code-only shading.</small>
     </section>
   </div>
   <figure><img src="sentinel-concept.webp" alt="Concept sheet showing Agent, JR, Devon, Ahmad, Kenza and Member architectural Sentinel designs and two Claude owner bands" loading="lazy"><figcaption>Concept sheet. Design reference, not a render of the runtime mesh.</figcaption></figure>
@@ -120,6 +126,9 @@ const Identity=(()=>{
   // Units are meters on a 5.7 m figure, eight heads tall. +z faces forward.
   // k: 0 body (60%), 1 armor (30%), 2 accent, lit (10%), 3 owner band, lit, 4 joint, 5 accent cloth, 6 visor glass.
   // Slots: torso is rigid; head, arms and legs are articulated around their pivots.
+  // Cosmetic tier: 0 below level 3, 1 from 3, 2 from 6 (aura ring), 3 from 10, 4 from 20.
+  const TIERS=['Plain','Trimmed','Haloed','Crested','Ascendant'];
+  const tier=l=>{l=l|0;return l>=20?4:l>=10?3:l>=6?2:l>=3?1:0};
   const BROAD={jr:1.12,ahmad:1.08,devon:1.04,kenza:.97,member:.95,agent:1};
   function blueprint(f,opt={}){
     f=form(f);const b=BROAD[f],parts=[],S=[-1,1],lvl=Math.max(0,Math.min(30,opt.level|0));
@@ -188,8 +197,35 @@ const Identity=(()=>{
     for(let i=0;i<Math.min(5,lvl);i++)T('box',.16,.022,.04,-.74*b,4.98-.065*i,.26,2,-.28);  // rank chevrons, left pauldron
     if(lvl>=10)H('bevel',.05,.3,.46,0,1.02,-.06,1);                                        // level 10: helmet crest
     if(lvl>=20)for(const s of S)T('bevel',.05,.5,.05,s*.56*b,5.3,-.1,2);                   // level 20: twin aerials
+    // ---- fidelity pass: face, plating, hinge caps and back hardware. 'cap' is a short cylinder on the x axis.
+    H('bevel',.4,.07,.14,0,.77,.2,1);                                                      // brow ridge over the visor
+    for(const s of S){H('box',.03,.42,.05,s*.165,.52,.235,4);H('cap',.08,.16,.16,s*.265,.5,-.02,4);H('box',.02,.05,.05,s*.31,.5,-.02,2)}  // visor frame, comm pods with lit dots
+    H('box',.27,.022,.012,0,.6,.27,2);                                                     // face glow: eye line across the slits
+    for(let i=0;i<3;i++)H('box',.16-.03*i,.016,.02,0,.23-.032*i,.255,4);                  // chin vents
+    H('bevel',.38,.18,.1,0,.3,-.25,1,0,.3);                                                // rear neck guard
+    T('bevel',.1,.26,.06,0,3.93,.37,1);                                                    // sternum plate under the terminal
+    for(const s of S){T('bevel',.42*b,.1,.2,s*.3*b,4.69,.2,1,s*.16);                       // clavicle plates
+      for(let i=0;i<3;i++){const y=4.42-.16*i;T('box',.03,.12,.22,s*(.42+.16*(y-3.7))*b,y,.04,4,-s*.16)}  // side rib vents
+      T('cap',.06,.24,.24,s*.44*b,2.95,0,4)}                                               // hip hinge caps
+    for(let i=0;i<3;i++)T('bevel',.22-.03*i,.08,.08,0,3.8-.12*i,-.24,1);                    // lower spine plates
+    T('bevel',.34,.42,.16,0,4.3,-.56,4);T('box',.12,.26,.03,0,4.3,-.645,2);                // power core with lit cell
+    T('bevel',.3,.26,.08,0,2.96,.27,1,0,.1);                                               // pelvis front plate
+    for(const s of S){const A=add('arm'+side(s)),L=add('leg'+side(s));
+      A('bevel',.33,.2,.35,s*.1,-.2,0,1,-s*.12);                                           // deltoid cap
+      A('cap',.05,.17,.17,s*.27,-.84,0,4);A('box',.012,.06,.06,s*.297,-.84,0,2);           // elbow hinge, lit pin
+      A('bevel',.29,.24,.31,s*.08,-.98,.02,1);A('bevel',.3,.1,.3,s*.08,-1.56,.02,1);        // forearm top plate and wrist cuff
+      A('bevel',.17,.06,.1,s*.08,-1.85,.1,1);                                              // knuckle guard
+      L('bevel',.24,.38,.06,s*.05,-.12,.22,1,0,-.12);                                      // tasset
+      L('cap',.05,.2,.2,s*.14,-1.24,0,4);L('box',.012,.06,.06,s*.168,-1.24,0,2);           // knee hinge, lit pin
+      L('bevel',.24,.6,.1,0,-1.75,-.2,1);L('bevel',.16,.14,.12,0,-2.86,-.22,1)}            // calf plate, heel spur
+    // ---- cosmetic tier from level: more lit trim per tier; the mesh adds the aura ring from tier 2.
+    const tr=tier(lvl);
+    if(tr>=1){for(const s of S)T('box',.4*b,.02,.03,s*.74*b,4.86,.305,2,-s*.26);T('box',.7*b,.02,.03,0,3.24,.285,2)}  // pauldron edge lights, belt line
+    if(tr>=2){for(const s of S){T('box',.2,.025,.03,s*.085,3.99,.405,2,s*.45);add('leg'+side(s))('box',.2,.02,.02,0,-1.36,.25,2)}}  // chest chevron, knee lights
+    if(tr>=3)for(const s of S){T('bevel',.04,.7,.3,s*.22,4.62,-.62,1,-s*.25,-.2);T('box',.02,.6,.02,s*.235,4.62,-.78,2,-s*.25,-.2);H('box',.02,.2,.02,s*.2,.66,.2,2)}  // back fins with lit edges, temple lights
+    if(tr>=4){for(const s of S){add('arm'+side(s))('box',.31,.02,.32,s*.08,-1.62,.02,2);add('leg'+side(s))('box',.02,.7,.02,s*.13,-1.86,.19,2)}T('box',.03,.36,.02,0,3.68,-.29,2)}  // gauntlet rings, shin rails, lit spine
     const pivots={head:[0,4.78,0],armL:[-.74*b,4.62,0],armR:[.74*b,4.62,0],legL:[-.26*b,2.95,0],legR:[.26*b,2.95,0]};
-    return {form:f,broad:b,parts,pivots,terminal:{x:0,y:4.3,z:.38,w:.42,h:.295}};
+    return {form:f,broad:b,tier:tr,parts,pivots,terminal:{x:0,y:4.3,z:.38,w:.42,h:.295}};
   }
 
   // ---- Colors for the seven material slots, derived from the three account colors.
@@ -227,44 +263,71 @@ const Identity=(()=>{
     {id:'week-watch',name:'Week Watch',what:'Seven-day streak',test:(c,s)=>(s.best_streak|0)>=7},
     {id:'luminary',name:'Luminary',what:'Reach level 9',test:(c,s)=>level(s.xp)>=9}];
   const achievements=s=>ACHIEVEMENTS.map(a=>({...a,done:!!(s&&a.test(s.counters||{},s))}));
-  return {HEX,FORMS,palette,form,badge,platformCode,profile,preview,blueprint,tones,mix,level,nextAt,title,TITLES,achievements,ACHIEVEMENTS};
+  return {HEX,FORMS,palette,form,badge,platformCode,profile,preview,blueprint,tones,mix,level,nextAt,title,TITLES,tier,TIERS,achievements,ACHIEVEMENTS};
 })();
 
 // Shared mesh factory used by the live city and the reference gallery.
-// Geometry comes from Identity.blueprint. Torso plates are merged into one mesh per palette color;
-// head, arms and legs are one vertex-colored mesh each, so a Sentinel costs at most 11 draw calls.
-// Props for a status (hologram slate, thought orbs, lift beam) are added on demand and disposed with the figure.
+// Geometry comes from Identity.blueprint. Every plate is merged into five rigid-skinned meshes, one per surface
+// (body, armor, lit trim, joints, visor glass), driven by one 15-bone skeleton. A Sentinel costs 8 draw calls:
+// the five surfaces, the chest terminal, the compass ring and the aura ring (hidden below tier 2).
+// Props for a status (hologram slate, thought orbs, lift beam, data link) are added on demand and disposed with the figure.
+// Surface detail: tileable textures in assets/sentinels/ are sampled triplanar in bind-pose space, so the merged meshes need
+// no UVs. Until they load, or where they cannot load (tests, file errors), the code-only shading is used unchanged.
 const SentinelMesh=(()=>{
 const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 const G={};let ENV=null;
 const hash=s=>{let h=2166136261;for(const c of String(s)){h=Math.imul(h^c.charCodeAt(0),16777619)}return (h>>>0)/4294967296};
-// Unit cube with chamfered edges. A taper narrows the bottom face, for V-shaped plates.
+const now=()=>typeof performance!=='undefined'&&performance.now?performance.now():Date.now();
+// ---- reduced motion: follows the OS setting unless the page forces a value
+let REDUCED=false,FORCED=null;
+try{if(typeof matchMedia==='function'){const mq=matchMedia('(prefers-reduced-motion: reduce)');REDUCED=mq.matches;if(mq.addEventListener)mq.addEventListener('change',e=>{REDUCED=e.matches})}}catch(e){REDUCED=false}
+const reducedNow=()=>FORCED==null?REDUCED:FORCED;
+function reducedMotion(v){if(v!==undefined)FORCED=v==null?null:!!v;return reducedNow()}
+
+// ---- geometry
+// Unit cube with chamfered edges. A taper narrows the bottom face, for V-shaped plates. 'edge' marks chamfer faces.
 function chamfer(c,taper){
   const P=(sx,sy,sz,ax)=>{const v=[sx*(ax===0?.5:.5-c),sy*(ax===1?.5:.5-c),sz*(ax===2?.5:.5-c)];if(taper&&sy<0){v[0]*=taper;v[2]*=.82}return v};
   const tri=[],quad=(a,b,c2,d)=>tri.push(a,b,c2,a,c2,d),S=[-1,1];
   for(const s of S){quad(P(s,-1,-1,0),P(s,1,-1,0),P(s,1,1,0),P(s,-1,1,0));quad(P(-1,s,-1,1),P(1,s,-1,1),P(1,s,1,1),P(-1,s,1,1));quad(P(-1,-1,s,2),P(1,-1,s,2),P(1,1,s,2),P(-1,1,s,2))}
   for(const a of S)for(const b of S){quad(P(a,b,-1,0),P(a,b,1,0),P(a,b,1,1),P(a,b,-1,1));quad(P(a,-1,b,0),P(a,1,b,0),P(a,1,b,2),P(a,-1,b,2));quad(P(-1,a,b,1),P(1,a,b,1),P(1,a,b,2),P(-1,a,b,2))}
   for(const x of S)for(const y of S)for(const z of S)tri.push(P(x,y,z,0),P(x,y,z,1),P(x,y,z,2));
-  const pos=[];
+  const pos=[],edge=[];
   for(let i=0;i<tri.length;i+=3){const a=tri[i];let b=tri[i+1],d=tri[i+2];
     const u=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],v=[d[0]-a[0],d[1]-a[1],d[2]-a[2]],n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];
     if(n[0]*(a[0]+b[0]+d[0])+n[1]*(a[1]+b[1]+d[1])+n[2]*(a[2]+b[2]+d[2])<0)[b,d]=[d,b];
-    pos.push(...a,...b,...d)}
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();return g;
+    pos.push(...a,...b,...d);const e=i>=36?1:0;edge.push(e,e,e)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('edge',new THREE.Float32BufferAttribute(edge,1));g.computeVertexNormals();return g;
 }
-// Compass ring under each Sentinel: a lit band, 36 ticks and four cardinal chevrons, laid flat.
-function ringGeometry(){
+function plain(g){g=g.toNonIndexed();g.setAttribute('edge',new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count),1));return g}
+// Compass ring under each Sentinel: a lit band, 36 ticks and four cardinal chevrons, laid flat. hi adds a dashed inner band and eight chevrons.
+function ringGeometry(hi){
   const p=[],seg=64,band=(r0,r1,a0,a1)=>{const c0=Math.cos(a0),s0=Math.sin(a0),c1=Math.cos(a1),s1=Math.sin(a1);p.push(r0*c0,r0*s0,0,r1*c0,r1*s0,0,r1*c1,r1*s1,0,r0*c0,r0*s0,0,r1*c1,r1*s1,0,r0*c1,r0*s1,0)};
   for(let i=0;i<seg;i++)band(.9,.96,i/seg*Math.PI*2,(i+1)/seg*Math.PI*2);
   for(let i=0;i<36;i++){const a=i/36*Math.PI*2;band(1.02,i%9===0?1.2:1.09,a-.012,a+.012)}
-  for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;p.push(1.26*Math.cos(a),1.26*Math.sin(a),0,1.36*Math.cos(a-.05),1.36*Math.sin(a-.05),0,1.36*Math.cos(a+.05),1.36*Math.sin(a+.05),0)}
+  const chev=hi?8:4;for(let i=0;i<chev;i++){const a=i*Math.PI*2/chev+Math.PI/4;p.push(1.26*Math.cos(a),1.26*Math.sin(a),0,1.36*Math.cos(a-.05),1.36*Math.sin(a-.05),0,1.36*Math.cos(a+.05),1.36*Math.sin(a+.05),0)}
+  if(hi)for(let i=0;i<48;i+=2)band(.74,.78,i/48*Math.PI*2,(i+1)/48*Math.PI*2);
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.rotateX(-Math.PI/2);return g;
 }
+// ---- shared textures: detail masks are optional; the shader falls back to plain shading while TEX.on is 0
+const TEX={plating:{value:null},carbon:{value:null},circuit:{value:null},iri:{value:null},on:{value:0},iriOn:{value:0},base:'assets/sentinels/',state:'idle'};
+function loadTextures(){
+  if(TEX.state!=='idle')return;TEX.state='skipped';
+  if(typeof window==='undefined'||typeof Image==='undefined'||typeof document==='undefined'||!document.createElementNS||!THREE.TextureLoader)return;
+  TEX.state='loading';const L=new THREE.TextureLoader();let left=3;
+  const done=()=>{if(--left===0){TEX.on.value=1;TEX.state='ready'}};
+  for(const k of ['plating','carbon','circuit'])L.load(TEX.base+k+'.webp',t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;TEX[k].value=t;done()},undefined,()=>{TEX.state='failed'});
+  L.load(TEX.base+'iridescence.webp',t=>{t.encoding=THREE.sRGBEncoding;t.wrapS=THREE.RepeatWrapping;TEX.iri.value=t;TEX.iriOn.value=1},undefined,()=>{});
+}
+// Fades the aura from bright at the ring to nothing at its top. Built from bytes so it works without a DOM.
+function auraAlpha(){const n=32,d=new Uint8Array(n*4);for(let i=0;i<n;i++){const a=Math.round(255*Math.pow(1-i/(n-1),3.2));d.set([a,a,a,a],i*4)}const t=new THREE.DataTexture(d,1,n,THREE.RGBAFormat);t.needsUpdate=true;return t}
 function shared(){
   if(G.box)return G;
-  G.box=new THREE.BoxGeometry(1,1,1).toNonIndexed();G.bevel=chamfer(.14);G.taper=chamfer(.14,.72);G.ring=ringGeometry();
+  G.box=plain(new THREE.BoxGeometry(1,1,1));G.bevel=chamfer(.14);G.taper=chamfer(.14,.72);G.cap=plain(new THREE.CylinderGeometry(.5,.5,1,10).rotateZ(Math.PI/2));
+  G.ring=ringGeometry(false);G.ringHi=ringGeometry(true);G.aura=new THREE.CylinderGeometry(1.02,1.12,1.5,48,1,true).translate(0,.75,0);G.auraTex=auraAlpha();
   G.slate=new THREE.PlaneGeometry(1,.62);G.orb=new THREE.SphereGeometry(.07,8,6);G.beam=new THREE.CylinderGeometry(.12,.12,1,8,1,true);G.link=new THREE.CylinderGeometry(.05,.05,1,5,1,true);
-  G.set=new Set([G.box,G.bevel,G.taper,G.ring,G.slate,G.orb,G.beam,G.link]);
+  G.set=new Set([G.box,G.bevel,G.taper,G.cap,G.ring,G.ringHi,G.aura,G.slate,G.orb,G.beam,G.link]);
+  loadTextures();
   return G;
 }
 // Image-based light for the metals: a dusk gradient dome with soft boxes, prefiltered once per renderer.
@@ -281,28 +344,76 @@ function environment(renderer){
   }catch(e){ENV=null}
   return ENV;
 }
-// Fresnel rim: a thin edge light in the accent color so plates separate from the background at any distance.
-function rim(m,color,gain){
-  const prev=m.onBeforeCompile;
-  m.onBeforeCompile=s=>{if(prev)prev(s);s.uniforms.uRim={value:color};s.uniforms.uRimGain=gain;
-    s.fragmentShader='uniform vec3 uRim;uniform float uRimGain;\n'+s.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\t{vec3 vd=normalize(vViewPosition);float fr=pow(1.0-max(dot(normal,vd),0.0),3.2);totalEmissiveRadiance+=uRim*fr*uRimGain;}')};
-  return m;
+
+// ---- materials. One program per surface kind, shared by every Sentinel; uniforms are per figure.
+// Common pieces: bind-pose position and normal for triplanar detail and the visor scan; a fresnel rim weighted toward
+// top edges; status-driven glow.
+const V_HEAD='attribute float glow;\nvarying float vGlow;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
+const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vLocal=position;vLocalN=normal;';
+const F_HEAD=`uniform vec3 uRim;uniform float uRimGain;uniform float glowGain;uniform float uTime;uniform float uScan;uniform float uCircuit;
+uniform sampler2D tDetail;uniform sampler2D tCircuit;uniform sampler2D tIri;uniform float uTexOn;uniform float uIriOn;
+varying float vGlow;varying vec3 vLocal;varying vec3 vLocalN;
+float triplanar(sampler2D t,vec3 p,vec3 n,float s){vec3 w=pow(abs(n),vec3(4.0));w/=max(dot(w,vec3(1.0)),1e-4);
+  return texture2D(t,p.zy*s).g*w.x+texture2D(t,p.xz*s).g*w.y+texture2D(t,p.xy*s).g*w.z;}
+`;
+const RIM=`{vec3 vd=normalize(vViewPosition);float fr=pow(1.0-max(dot(normal,vd),0.0),3.0);
+  totalEmissiveRadiance+=uRim*fr*uRimGain*(0.55+0.45*clamp(normal.y*0.5+0.5,0.0,1.0));}`;
+// kind: body | armor | joint | trim | visor
+function surface(kind,U,opts){
+  const m=new THREE.MeshStandardMaterial({vertexColors:true,skinning:true,...opts});
+  const detail=kind==='armor'?TEX.plating:kind==='trim'||kind==='visor'?null:TEX.carbon,scale=kind==='armor'?.9:3.2,amt=kind==='armor'?.85:kind==='joint'?.5:.55;
+  m.onBeforeCompile=s=>{
+    Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn});
+    s.vertexShader=V_HEAD+s.vertexShader.replace('#include <begin_vertex>',V_BODY);
+    let f=s.fragmentShader;
+    f=f.replace('#include <color_fragment>',`#include <color_fragment>
+\tfloat sDetail=uTexOn>0.5?triplanar(tDetail,vLocal,vLocalN,${scale.toFixed(2)}):0.55;
+\tdiffuseColor.rgb*=mix(1.0,0.5+0.92*sDetail,uTexOn*${amt.toFixed(2)});`);
+    f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0);');
+    let em=RIM;
+    if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
+    if(kind==='armor')em+=`\n\tif(uCircuit>0.0&&uTexOn>0.5){float c=triplanar(tCircuit,vLocal,vLocalN,0.7);float flow=0.35+0.65*pow(0.5+0.5*sin(vLocal.y*3.0-uTime*2.2),3.0);totalEmissiveRadiance+=uRim*c*uCircuit*flow*glowGain;}`;
+    if(kind==='visor')em+=`
+\t{vec3 vd=normalize(vViewPosition);float fr=pow(1.0-max(dot(normal,vd),0.0),1.6);float h=fract(fr*1.25+uTime*0.035+vLocal.y*0.55);
+\t vec3 film=uIriOn>0.5?texture2D(tIri,vec2(h,0.5)).rgb:0.5+0.5*cos(6.2832*(vec3(0.0,0.33,0.67)+h));
+\t totalEmissiveRadiance+=film*(0.06+0.55*fr);
+\t float band=exp(-pow((vLocal.y-uScan)*16.0,2.0));
+\t totalEmissiveRadiance+=uRim*(0.22+band*0.7)*glowGain;}`;
+    f=f.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\t'+em);
+    s.fragmentShader=F_HEAD+f};
+  m.customProgramCacheKey=()=>'sentinel-'+kind;return m;
 }
-// Vertex-colored standard material; accent vertices add their own color as emission, scaled by a pulsing uniform.
-function glowMaterial(glow,rimColor,rimGain){
-  const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.42,metalness:ENV?.66:.42,envMap:ENV,envMapIntensity:1});
-  m.onBeforeCompile=s=>{s.uniforms.glowGain=glow;
-    s.vertexShader='attribute float glow;\nvarying float vGlow;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n\tvGlow=glow;');
-    s.fragmentShader='uniform float glowGain;\nvarying float vGlow;\n'+s.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;')};
-  rim(m,rimColor,rimGain);m.customProgramCacheKey=()=>'sentinel-glow';return m;
+
+// ---- skeleton. Rigid skinning: each plate follows one bone, so armor never smears.
+const BONES=['hips','spine','head','armL','foreL','handL','armR','foreR','handR','legL','shinL','footL','legR','shinR','footR'];
+const PARENT=[-1,0,1,1,3,4,1,6,7,0,9,10,0,12,13];
+const HIPS=0,SPINE=1,HEAD=2,AL=3,FL=4,HL=5,AR=6,FR=7,HR=8,LL=9,SL=10,FTL=11,LR=12,SR=13,FTR=14,NB=15,HX=45,HY=46,HZ=47,NCH=48;
+const L1=1.24,L2=1.32;
+function restOf(bp){const p=bp.pivots,r=new Float32Array(NB*3),set=(i,x,y,z)=>{r[i*3]=x;r[i*3+1]=y;r[i*3+2]=z};
+  set(HIPS,0,3.05,0);set(SPINE,0,3.42,0);set(HEAD,...p.head);
+  for(const [a,f,h,s] of [[AL,FL,HL,-1],[AR,FR,HR,1]]){const q=p[s<0?'armL':'armR'];set(a,...q);set(f,q[0]+s*.08,q[1]-.84,0);set(h,q[0]+s*.08,q[1]-1.7,0)}
+  for(const [l,s2,ft,s] of [[LL,SL,FTL,-1],[LR,SR,FTR,1]]){const q=p[s<0?'legL':'legR'];set(l,...q);set(s2,q[0],q[1]-L1,0);set(ft,q[0],q[1]-2.56,0)}
+  return r}
+function boneOf(q){
+  if(q.slot==='torso')return q.y<3.38?HIPS:SPINE;
+  if(q.slot==='head')return HEAD;
+  const L=q.slot.endsWith('L');
+  if(q.slot.startsWith('arm'))return q.y>-.62?(L?AL:AR):q.y>-1.62?(L?FL:FR):(L?HL:HR);
+  return q.y>-1.1?(L?LL:LR):q.y>-2.45?(L?SL:SR):(L?FTL:FTR);
 }
 const _m=new THREE.Matrix4(),_q=new THREE.Quaternion(),_e=new THREE.Euler(),_s=new THREE.Vector3(),_p=new THREE.Vector3(),_n=new THREE.Matrix3(),_v=new THREE.Vector3();
-function put(t,geo,q,col,glow,shade){
-  _m.compose(_p.set(q.x,q.y,q.z),_q.setFromEuler(_e.set(q.rx||0,0,q.rz||0)),_s.set(q.w,q.h,q.d));_n.getNormalMatrix(_m);
-  const P=geo.attributes.position,N=geo.attributes.normal;
-  for(let i=0;i<P.count;i++){_v.fromBufferAttribute(P,i).applyMatrix4(_m);t.pos.push(_v.x,_v.y,_v.z);_v.fromBufferAttribute(N,i).applyMatrix3(_n).normalize();t.nrm.push(_v.x,_v.y,_v.z);t.col.push(col.r*shade,col.g*shade,col.b*shade);t.glow.push(glow)}
+// Bakes one plate into a surface buffer. Chamfer faces catch a little more light; plates darken slightly toward their base.
+function put(t,geo,q,origin,col,glow,shade,bone){
+  _m.compose(_p.set(origin[0]+q.x,origin[1]+q.y,origin[2]+q.z),_q.setFromEuler(_e.set(q.rx||0,0,q.rz||0)),_s.set(q.w,q.h,q.d));_n.getNormalMatrix(_m);
+  const P=geo.attributes.position,N=geo.attributes.normal,E=geo.attributes.edge;
+  for(let i=0;i<P.count;i++){const ly=P.getY(i),k=shade*(E.getX(i)?1.13:1)*(glow?1:.9+.2*(ly+.5));
+    _v.fromBufferAttribute(P,i).applyMatrix4(_m);t.pos.push(_v.x,_v.y,_v.z);_v.fromBufferAttribute(N,i).applyMatrix3(_n).normalize();t.nrm.push(_v.x,_v.y,_v.z);
+    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.bone.push(bone,0,0,0)}
 }
-function geometryOf(t){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(t.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(t.nrm,3));g.setAttribute('color',new THREE.Float32BufferAttribute(t.col,3));g.setAttribute('glow',new THREE.Float32BufferAttribute(t.glow,1));g.computeBoundingSphere();return g}
+function geometryOf(t){const g=new THREE.BufferGeometry(),n=t.glow.length,w=new Float32Array(n*4);for(let i=0;i<n;i++)w[i*4]=1;
+  g.setAttribute('position',new THREE.Float32BufferAttribute(t.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(t.nrm,3));g.setAttribute('color',new THREE.Float32BufferAttribute(t.col,3));
+  g.setAttribute('glow',new THREE.Float32BufferAttribute(t.glow,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(t.bone,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(w,4));
+  g.computeBoundingSphere();g.boundingSphere.radius*=1.35;return g}
 function terminal(a,f,pal){
   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=180;const ctx=canvas.getContext('2d');
   ctx.fillStyle=pal[0];ctx.fillRect(0,0,256,180);ctx.fillStyle=pal[2];
@@ -313,135 +424,328 @@ function terminal(a,f,pal){
   if(a.level>0){ctx.textAlign='right';ctx.font='bold 24px monospace';ctx.fillText('L'+Math.min(99,a.level|0),234,42)}
   const tex=new THREE.CanvasTexture(canvas);tex.encoding=THREE.sRGBEncoding;return tex;
 }
+// The last level each id was built at, so a rebuild at a higher level plays the level-up ceremony.
+const SEEN=new Map();
+const SURF={0:'body',5:'body',1:'armor',2:'trim',3:'trim',4:'joint',6:'visor'};
 function makeSentinel(a){
   const g=shared(),f=Identity.form(a.form||'agent'),pal=Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],f),level=a.level|0;
   const owner=a.ownerColor&&Identity.HEX.test(a.ownerColor)?a.ownerColor:null,bp=Identity.blueprint(f,{owner:!!owner,level}),tone=Identity.tones(pal,owner).map(lin);
-  const grp=new THREE.Group(),glow={value:1},rimGain={value:.3},torso=new Map(),slots={},white=new THREE.Color(1,1,1),seed=hash(a.id||f);
+  const tier=bp.tier|0,grp=new THREE.Group(),white=new THREE.Color(1,1,1),seed=hash(a.id||f),buf={},rest=restOf(bp);
+  const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0}};
   // Each plate gets its own shade (0.86 to 1.08) so neighboring panels read as separate pieces of metal.
   bp.parts.forEach((q,i)=>{
-    const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape],shade=q.k===2||q.k===3?1:.86+.22*hash(seed+i),lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
-    if(q.slot==='torso'){const k=q.k===4||q.k===6?0:q.k;if(!torso.has(k))torso.set(k,{pos:[],nrm:[],col:[],glow:[]});put(torso.get(k),geo,q,white,lit,q.k===4||q.k===6?shade*.4:shade)}
-    else{if(!slots[q.slot])slots[q.slot]={pos:[],nrm:[],col:[],glow:[]};put(slots[q.slot],geo,q,tone[q.k],lit,shade)}
+    const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
+    const shade=lit?1:.86+.22*hash(seed+i),col=kind==='armor'?white:tone[q.k],origin=bp.pivots[q.slot]||[0,0,0];
+    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],bone:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
   });
-  const env=ENV?{envMap:ENV,envMapIntensity:1}:{};
-  const MAT={0:()=>new THREE.MeshStandardMaterial({color:tone[0],vertexColors:true,roughness:.52,metalness:ENV?.6:.4,...env}),1:()=>new THREE.MeshStandardMaterial({color:tone[1],vertexColors:true,roughness:.3,metalness:ENV?.85:.45,...env}),2:()=>new THREE.MeshStandardMaterial({color:tone[2],vertexColors:true,emissive:tone[2],emissiveIntensity:.9,roughness:.4,metalness:.2}),5:()=>new THREE.MeshStandardMaterial({color:tone[5],vertexColors:true,roughness:.75,metalness:.05,...env})};
-  let accent=null;
-  [...torso.keys()].sort().forEach(k=>{const mesh=new THREE.Mesh(geometryOf(torso.get(k)),rim(MAT[k](),tone[2],rimGain));if(k===2)accent=mesh.material;grp.add(mesh)});
-  const joint=name=>{const j=new THREE.Group();j.position.fromArray(bp.pivots[name]);if(slots[name])j.add(new THREE.Mesh(geometryOf(slots[name]),glowMaterial(glow,tone[2],rimGain)));grp.add(j);return j};
-  const head=joint('head'),arms=[joint('armL'),joint('armR')],legs=[joint('legL'),joint('legR')];
-  const t=bp.terminal,plate=new THREE.Mesh(new THREE.PlaneGeometry(t.w,t.h),new THREE.MeshBasicMaterial({map:terminal(a,f,pal)}));plate.position.set(t.x,t.y,t.z);grp.add(plate);
-  const ring=new THREE.Mesh(g.ring,new THREE.MeshBasicMaterial({color:tone[2],transparent:true,opacity:.65,side:THREE.DoubleSide,fog:false,depthWrite:false}));ring.position.y=.06;grp.add(ring);
-  return {grp,ring,legs,arms,head,plate,glow,rimGain,accent,tone,props:{},status:'idle',emote:null,emoteT:0,phase:(parseInt(Identity.badge(a.id||f),36)%628)/100,pos:new THREE.Vector3(),from:new THREE.Vector3(),to:new THREE.Vector3(),t0:-1,noteId:-1,signature:JSON.stringify([f,pal,a.symbol,a.ownerColor,a.ownerBadge,level])};
+  // bones in bind pose (no rotation), positioned relative to their parent
+  const bones=BONES.map(name=>{const b=new THREE.Bone();b.name=name;return b});
+  bones.forEach((b,i)=>{const p=PARENT[i],x=rest[i*3]-(p<0?0:rest[p*3]),y=rest[i*3+1]-(p<0?0:rest[p*3+1]),z=rest[i*3+2]-(p<0?0:rest[p*3+2]);b.position.set(x,y,z);(p<0?grp:bones[p]).add(b)});
+  grp.updateMatrixWorld(true);const skeleton=new THREE.Skeleton(bones),I=new THREE.Matrix4();
+  const env=ENV?{envMap:ENV,envMapIntensity:1}:{},MATS={
+    body:()=>surface('body',U,{roughness:.5,metalness:ENV?.62:.4,...env}),
+    armor:()=>surface('armor',U,{color:tone[1],roughness:.28,metalness:ENV?.88:.5,...env}),
+    trim:()=>surface('trim',U,{roughness:.35,metalness:.2}),
+    joint:()=>surface('joint',U,{roughness:.62,metalness:ENV?.7:.4,...env}),
+    visor:()=>surface('visor',U,{roughness:.07,metalness:ENV?.9:.5,...(ENV?{envMap:ENV,envMapIntensity:1.5}:{})})};
+  const surfaces={};
+  for(const kind of ['body','armor','trim','joint','visor'])if(buf[kind]){const mesh=new THREE.SkinnedMesh(geometryOf(buf[kind]),MATS[kind]());mesh.name='sentinel-'+kind;grp.add(mesh);mesh.bind(skeleton,I);surfaces[kind]=mesh}
+  const t=bp.terminal,plate=new THREE.Mesh(new THREE.PlaneGeometry(t.w,t.h),new THREE.MeshBasicMaterial({map:terminal(a,f,pal)}));plate.position.set(t.x-rest[SPINE*3],t.y-rest[SPINE*3+1],t.z);bones[SPINE].add(plate);
+  const ring=new THREE.Mesh(tier>=3?g.ringHi:g.ring,new THREE.MeshBasicMaterial({color:tone[2],transparent:true,opacity:.65,side:THREE.DoubleSide,fog:false,depthWrite:false}));ring.position.y=.06;grp.add(ring);
+  const aura=new THREE.Mesh(g.aura,new THREE.MeshBasicMaterial({color:tone[2],alphaMap:g.auraTex,transparent:true,opacity:0,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false,fog:false}));aura.visible=tier>=2;aura.name='sentinel-aura';ring.add(aura);
+  const key=a.id||f,prev=SEEN.get(key),stamp=now();let pendingEmote=null;
+  if(prev&&level>prev.level&&stamp-prev.at>5000&&a.celebrateLevelUp!==false)pendingEmote='levelup';
+  SEEN.set(key,{level,at:prev&&prev.level===level?prev.at:stamp});
+  const anim={t:-1,S:new Float32Array(NCH),V:new Float32Array(NCH),T:new Float32Array(NCH),P:new Float32Array(NCH),walkW:0,gait:0,speed:0,px:0,pz:0,lookY:0,lookP:0,lookW:0,glow:1,rim:.3,slate:0,orbs:0,flash:0,jump:0};
+  const head=bones[HEAD],arms=[bones[AL],bones[AR]],legs=[bones[LL],bones[LR]];
+  return {grp,ring,aura,legs,arms,head,bones,skeleton,surfaces,plate,glow:U.glow,rimGain:U.rim,uniforms:U,accent:surfaces.trim?surfaces.trim.material:null,tone,tier,level,rest,anim,
+    props:{},status:'idle',emote:null,emoteT:0,pendingEmote,lookAt:null,walkSpeed:null,phase:(parseInt(Identity.badge(a.id||f),36)%628)/100,
+    pos:new THREE.Vector3(),from:new THREE.Vector3(),to:new THREE.Vector3(),t0:-1,noteId:-1,signature:JSON.stringify([f,pal,a.symbol,a.ownerColor,a.ownerBadge,level])};
 }
 // ---- props, created the first time a status needs them
 function prop(m,name){
   if(m.props[name])return m.props[name];const g=shared(),c=m.tone[2];let o;
-  if(name==='slate'){o=new THREE.Mesh(g.slate,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false,fog:false}));const edge=new THREE.Mesh(g.slate,new THREE.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:.9,fog:false}));edge.scale.set(1.02,1.02,1);o.add(edge);o.scale.setScalar(1.1)}
-  else if(name==='orbs'){o=new THREE.Group();for(let i=0;i<3;i++){const s=new THREE.Mesh(g.orb,new THREE.MeshBasicMaterial({color:c,fog:false}));s.scale.setScalar(.7+i*.25);o.add(s)}}
+  if(name==='slate'){o=new THREE.Mesh(g.slate,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false,fog:false}));const edge=new THREE.Mesh(g.slate,new THREE.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:.9,fog:false}));edge.scale.set(1.02,1.02,1);o.add(edge);o.scale.setScalar(1.1);(m.bones?m.bones[SPINE]:m.grp).add(o);m.props[name]=o;return o}
+  else if(name==='orbs'){o=new THREE.Group();for(let i=0;i<3;i++){const s=new THREE.Mesh(g.orb,new THREE.MeshBasicMaterial({color:c,fog:false,transparent:true}));s.scale.setScalar(.7+i*.25);o.add(s)}(m.bones?m.bones[HEAD]:m.grp).add(o);m.props[name]=o;return o}
   else if(name==='beam'){o=new THREE.Mesh(g.beam,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false,fog:false}))}
   else if(name==='link'){o=new THREE.Mesh(g.link,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false,fog:false}))}
+  else o=new THREE.Group();
   m.props[name]=o;m.grp.add(o);return o;
 }
-function hideProps(m,keep){for(const k in m.props)m.props[k].visible=k===keep||(Array.isArray(keep)&&keep.includes(k))}
 const BUSY={working:1,writing:1,reading:1,thinking:1,reviewing:1,'in use':1};
-// One pose function for the city and the gallery. status: walking | lifting | working | writing | reading | thinking | reviewing | blocked | idle | viewing | 'in use'.
-// m.emote: 'celebrate' | 'greet' | 'nod' for a few seconds over the status. m.face: yaw of a partner to look toward, or null.
-function pose(m,t,status,opt={}){
-  status=typeof status==='boolean'?(status?'walking':m.status||'idle'):(status||m.status||'idle');
-  const ph=m.phase,moving=status==='walking',breathe=Math.sin(t*1.7+ph),L=m.legs,A=m.arms,H=m.head;
-  const stride=moving?Math.sin(t*7.5+ph):0;
-  // base: breathing figure
-  L[0].rotation.x=stride*.42;L[1].rotation.x=-stride*.42;L[0].rotation.z=L[1].rotation.z=0;
-  A.forEach((arm,i)=>{const s=i?1:-1;arm.rotation.set(-s*stride*.36+(moving?0:breathe*.025),0,s*(.05+(moving?0:breathe*.012)))});
-  H.rotation.set(moving?.05:Math.sin(t*.31+ph*2)*.05,moving?Math.sin(t*3.75+ph)*.05:Math.sin(t*.42+ph)*.42*Math.max(0,Math.sin(t*.13+ph*3)),0);
-  let bob=moving?Math.abs(Math.cos(t*7.5+ph))*.07:breathe*.02,keep=null,glowK=.85+.3*(.5+.5*Math.sin(t*2.6+ph)),rimK=.3;
-  if(status==='lifting'){A[0].rotation.x=A[1].rotation.x=-.25;A[0].rotation.z=-.3;A[1].rotation.z=.3;H.rotation.x=-.35;const b=prop(m,'beam');keep='beam';b.visible=true;b.scale.set(1.6,opt.beam||1,1.6);b.position.y=(opt.beam||1)/2-m.grp.position.y+(opt.beamBase||0);b.material.opacity=.18+.12*Math.sin(t*9);bob=0}
-  else if(status==='working'||status==='in use'){const tap=Math.sin(t*9+ph);A[0].rotation.set(-1.15+tap*.08,0,-.28);A[1].rotation.set(-1.15-tap*.08,0,.28);H.rotation.set(.22,Math.sin(t*1.3+ph)*.08,0);const s=prop(m,'slate');keep='slate';s.position.set(0,3.95,1.05);s.rotation.set(-.35,0,0);s.material.opacity=.3+.1*Math.sin(t*5+ph)}
-  else if(status==='writing'){const w=Math.sin(t*11+ph);A[0].rotation.set(-1.05,0,-.35);A[1].rotation.set(-1.3+w*.05,0,.55+w*.08);H.rotation.set(.3,-.15,0);const s=prop(m,'slate');keep='slate';s.position.set(-.35,3.65,.95);s.rotation.set(-.9,.2,.1);s.scale.setScalar(.85);s.material.opacity=.32}
-  else if(status==='reading'){A[0].rotation.set(-1.6,0,-.15);A[1].rotation.set(-1.6,0,.15);H.rotation.set(.38,Math.sin(t*.9+ph)*.12,0);const s=prop(m,'slate');keep='slate';s.position.set(0,4.45,.95);s.rotation.set(-.55,0,0);s.scale.setScalar(1);s.material.opacity=.28+.06*Math.sin(t*2+ph)}
-  else if(status==='thinking'){A[1].rotation.set(-2.1,0,.45);A[0].rotation.set(-.15,0,-.1);H.rotation.set(-.08,Math.sin(t*.6+ph)*.3,.1);const o=prop(m,'orbs');keep='orbs';o.children.forEach((s,i)=>{const a=t*(1.2+i*.3)+i*2.1+ph;s.position.set(Math.cos(a)*.55,5.9+Math.sin(a*1.7)*.14+i*.12,Math.sin(a)*.55)});bob+=.01*Math.sin(t*2)}
-  else if(status==='reviewing'){A[0].rotation.set(-1.25,0,-.95);A[1].rotation.set(-1.4,0,.95);H.rotation.set(.1,Math.sin(t*1.1+ph)*.4,0);rimK=.45}
-  else if(status==='blocked'){A[0].rotation.set(.1,0,-.06);A[1].rotation.set(.1,0,.06);H.rotation.set(.42,0,.08);glowK=.35+.25*Math.max(0,Math.sin(t*1.4+ph));rimK=.12;bob=-.03}
-  if(m.emote){const k=Math.min(1,(t-m.emoteT)/.3),e=t-m.emoteT;
-    if(m.emote==='celebrate'){A[0].rotation.set(-2.6*k,0,-.5);A[1].rotation.set(-2.6*k,0,.5);H.rotation.x=-.3*k;bob+=Math.abs(Math.sin(e*6))*.35*k;glowK=1.6;rimK=.6;if(e>3)m.emote=null}
-    else if(m.emote==='greet'){A[1].rotation.set(-2.3*k,0,.35+Math.sin(e*7)*.25*k);if(e>1.6)m.emote=null}
-    else if(m.emote==='nod'){H.rotation.x+=Math.sin(e*8)*.18*k;if(e>1.2)m.emote=null}
-    else m.emote=null}
-  if(m.face!=null&&!moving){const d=((m.face-m.grp.rotation.y+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;H.rotation.y+=Math.max(-.9,Math.min(.9,d))*.8}
-  hideProps(m,keep);
-  m.grp.position.y=m.pos.y+bob;
-  m.ring.rotation.y=t*.3;m.ring.material.opacity=(status==='blocked'?.3:.5)+.18*Math.sin(t*2+ph);
-  m.glow.value=glowK;m.rimGain.value=rimK;if(m.accent)m.accent.emissiveIntensity=.9*glowK;
+const STATUSES=['idle','viewing','walking','working','in use','writing','reading','thinking','reviewing','blocked','lifting'];
+const EMOTES={celebrate:3,greet:1.8,nod:1.3,levelup:3.8};
+
+// ---- animation math. Everything below runs per frame and allocates nothing.
+const clamp=(x,a,b)=>x<a?a:x>b?b:x,sm=x=>{x=clamp(x,0,1);return x*x*(3-2*x)},ease=x=>{x=clamp(x,0,1);return x<.5?2*x*x:1-(-2*x+2)*(-2*x+2)/2};
+const back=x=>{x=clamp(x,0,1)-1;return 1+2.70158*x*x*x+1.70158*x*x};          // ease out with overshoot
+const rate=(dt,k)=>1-Math.exp(-dt*k);
+const wrap=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
+// Keyframes as a flat [t0,v0,t1,v1,...] list, smoothstep between keys.
+function kf(K,e){if(e<=K[0])return K[1];for(let i=2;i<K.length;i+=2)if(e<=K[i]){const t0=K[i-2];return K[i-1]+(K[i+1]-K[i-1])*sm((e-t0)/(K[i]-t0))}return K[K.length-1]}
+const NOD=[0,0,.15,-.09,.38,.34,.6,-.05,.82,.2,1.1,0];
+const hv=(th,tz,kn)=>Math.cos(tz)*(L1*Math.cos(th)+L2*Math.cos(th+kn));   // hip-to-ankle height of a leg
+function R(A,b,x,y,z){const i=b*3;A[i]=x;A[i+1]=y;A[i+2]=z}
+function arms(A,x,y,z,fx){R(A,AL,x,y,z);R(A,AR,x,-y,-z);A[FL*3]=fx;A[FR*3]=fx}
+function mixTo(P,i,v,w){P[i]+=(v-P[i])*w}
+// Slate placement per status, in chest-bone space: x, y, z, pitch, yaw, roll, scale.
+const SLATE={working:[0,.46,1.22,-.55,0,0,1.1],'in use':[0,.46,1.22,-.55,0,0,1.1],writing:[-.3,.28,1.1,-1.0,.25,.1,.85],reading:[0,1.18,1.12,-.12,0,0,1]};
+// Glow and rim targets per status.
+const GLOW={idle:[.95,.3],viewing:[.95,.3],walking:[1,.3],working:[1.1,.34],'in use':[1.1,.34],writing:[1.05,.32],reading:[1.05,.32],thinking:[1,.36],reviewing:[1.15,.46],blocked:[.4,.12],lifting:[1.25,.4]};
+
+function target(T,status){
+  T.fill(0);arms(T,0,0,-.07,-.18);T[HL*3]=T[HR*3]=-.05;
+  switch(status){
+    case 'walking':arms(T,0,0,-.05,-.3);break;
+    case 'working':case 'in use':arms(T,-.42,.35,-.16,-1.1);T[HL*3]=T[HR*3]=.15;T[HEAD*3]=.26;T[SPINE*3]=.06;break;
+    case 'writing':R(T,AL,-.35,.5,-.1);T[FL*3]=-1.3;R(T,AR,-.5,-.25,.12);T[FR*3]=-1.4;R(T,HEAD,.38,-.12,0);T[SPINE*3]=.08;break;
+    case 'reading':arms(T,-.72,.38,-.12,-1.65);T[HEAD*3]=.18;break;
+    case 'thinking':R(T,AR,-.62,-.55,.2);T[FR*3]=-2.25;T[HR*3]=-.3;R(T,AL,-.35,.85,.05);T[FL*3]=-1.45;R(T,HEAD,-.06,.22,.12);T[SPINE*3+2]=.03;break;
+    case 'reviewing':R(T,AL,-.42,.95,.08);T[FL*3]=-1.8;R(T,AR,-.5,-.95,-.08);T[FR*3]=-1.7;T[SPINE*3]=-.05;break;
+    case 'blocked':T[SPINE*3]=.24;R(T,HEAD,.42,0,.1);arms(T,-.06,0,-.03,-.08);for(const [l,s] of [[LL,SL],[LR,SR]]){T[l*3]=-.08;T[s*3]=.18}break;
+    case 'lifting':arms(T,-.15,0,-.45,-.3);T[HEAD*3]=-.35;T[LL*3+2]=.03;T[LR*3+2]=-.03;break;
+  }
+}
+// Gait: distance-matched cadence, heel strike and toe-off, knee flexion in swing, pelvis drop, sway, roll and twist,
+// counter-rotating chest and arms. Blends from walk to run with speed.
+function gait(P,phi,A,run,w){
+  const s=Math.sin(phi),c=Math.cos(phi),ksw=.95+.75*run,arm=(.4+.25*run)*A/.4;
+  for(let side=0;side<2;side++){const sg=side?-1:1,ss=sg*s,cc=sg*c,l=side?LR:LL,k=side?SR:SL,ft=side?FTR:FTL;
+    const th=-A*ss,kn=ksw*Math.pow(Math.max(0,cc),1.3)+.1+.12*run,stance=sm(-cc*2+.5);
+    const foot=-(th+kn)*(.5+.5*stance)-.32*Math.pow(Math.max(0,ss),6)+.55*Math.pow(Math.max(0,-Math.sin(phi+side*Math.PI+.3)),6);
+    P[l*3]+=th*w;P[k*3]+=kn*w;P[ft*3]+=foot*w}
+  const D=.22*A;
+  P[HIPS*3+1]+=D*s*w;P[SPINE*3+1]-=1.5*D*s*w;P[HEAD*3+1]+=.5*D*s*w;
+  P[HIPS*3+2]+=.05*(1-.4*run)*c*w;P[SPINE*3+2]-=.03*c*w;
+  P[HX]+=.06*(1-.5*run)*c*w;
+  P[SPINE*3]+=(.04+.16*run)*w;P[HEAD*3]-=(.02+.1*run)*w;
+  P[AL*3]+=arm*s*w;P[AR*3]-=arm*s*w;
+  P[FL*3]-=(.25*Math.max(0,-s)+1.0*run)*w;P[FR*3]-=(.25*Math.max(0,s)+1.0*run)*w;
+  P[AL*3+2]-=.04*run*w;P[AR*3+2]+=.04*run*w;
+}
+// Emotes write over the pose with weight w and may set a jump height and a glow boost. Each has anticipation,
+// action with overshoot, follow-through and settle.
+function emoteLayer(m,P,name,e,w){
+  const a=m.anim;let jump=0,glow=0;
+  if(name==='celebrate'){
+    const crouch=e<.28?ease(e/.28):e<.42?1-ease((e-.28)/.14):e>1&&e<1.3?.7*Math.sin(Math.PI*(e-1)/.3):0;
+    const up=e<.28?0:back((e-.28)/.3);
+    if(e>.28&&e<1)jump=1.1*Math.sin(Math.PI*(e-.28)/.72);
+    const pump=e>1.25?Math.max(0,Math.sin((e-1.25)*9)):0,hop=e>1.25&&e<2.6?.14*Math.abs(Math.sin((e-1.25)*9)):0;jump+=hop;
+    mixTo(P,AL*3,.4*crouch-2.85*up,w);mixTo(P,AR*3,.4*crouch-2.85*up,w);mixTo(P,AL*3+2,-.35*up,w);mixTo(P,AR*3+2,.35*up,w);
+    mixTo(P,FL*3,-.2-.9*pump,w);mixTo(P,FR*3,-.2-.9*(e>1.25?Math.max(0,-Math.sin((e-1.25)*9)):0),w);
+    for(const [l,k] of [[LL,SL],[LR,SR]]){mixTo(P,l*3,-.55*crouch-(jump>.3?.3:0),w);mixTo(P,k*3,1.1*crouch+(jump>.3?.6:0),w)}
+    mixTo(P,SPINE*3,.25*crouch-.1*up,w);mixTo(P,HEAD*3,-.3*up,w);glow=.8;
+  }else if(name==='greet'){
+    const raise=e<.18?0:e<1.4?back((e-.18)/.32):1-ease((e-1.4)/.4),pre=e<.18?ease(e/.18):Math.max(0,1-(e-.18)/.15);
+    const wv=e>.5&&e<1.45?Math.sin((e-.5)*11):0,lag=e>.5&&e<1.55?Math.sin((e-.5)*11-.9):0;
+    mixTo(P,AR*3,.22*pre-.3*raise,w);mixTo(P,AR*3+2,.07+.25*pre+2.35*raise+.2*wv*raise,w);mixTo(P,FR*3,-.15-.25*raise,w);
+    mixTo(P,FR*3+2,.35*lag*raise,w);mixTo(P,HR*3+2,.3*Math.sin((e-.5)*11-1.6)*raise,w);
+    mixTo(P,HEAD*3+2,-.1*raise,w);mixTo(P,SPINE*3+2,-.04*raise,w);glow=.15*raise;
+  }else if(name==='nod'){
+    P[HEAD*3]+=kf(NOD,e)*w;P[SPINE*3]+=.12*kf(NOD,e-.05)*w;
+  }else if(name==='levelup'){
+    const crouch=e<.35?ease(e/.35)*.95:e<.5?.95*(1-ease((e-.35)/.15)):e>1.25&&e<1.55?.6*Math.sin(Math.PI*(e-1.25)/.3):0;
+    const air=e>.35&&e<1.25?(e-.35)/.9:0;if(air)jump=1.6*Math.sin(Math.PI*air);
+    const spread=air?Math.sin(Math.PI*air):0,fist=e>1.4?back((e-1.4)/.45):0;
+    P[HIPS*3+1]+=(e>.35?2*Math.PI*ease((e-.35)/.9):0)*w;
+    mixTo(P,AL*3,.3*crouch-.2*fist,w);mixTo(P,AL*3+1,.5*crouch,w);mixTo(P,AL*3+2,-1.35*spread-.45*fist,w);mixTo(P,FL*3,-.4*crouch-1.4*fist,w);
+    mixTo(P,AR*3,.3*crouch-2.95*fist,w);mixTo(P,AR*3+1,-.5*crouch,w);mixTo(P,AR*3+2,1.35*spread+.22*fist,w);mixTo(P,FR*3,-.4*crouch-.25*fist,w);
+    for(const [l,k] of [[LL,SL],[LR,SR]]){mixTo(P,l*3,-.6*crouch-.45*spread,w);mixTo(P,k*3,1.2*crouch+.8*spread,w)}
+    mixTo(P,SPINE*3,.3*crouch-.12*fist,w);mixTo(P,HEAD*3,.3*crouch-.25*fist-.15*spread,w);
+    glow=e<.35?1.4*e/.35:1.4*(1-sm((e-2.6)/1.2));a.flash=Math.max(a.flash,e<1.6?1:1-sm((e-1.6)/1.6));
+  }
+  a.jump=jump;return glow*w;
+}
+// One pose function for the city and the gallery. status: walking | lifting | working | writing | reading | thinking |
+// reviewing | blocked | idle | viewing | 'in use'. m.emote: 'celebrate' | 'greet' | 'nod' | 'levelup' over the status.
+// m.face: yaw of a partner to look toward, or null. m.lookAt or opt.look: a world point for the head to track.
+// opt.speed: ground speed in m/s for the gait when the figure is not actually moving (the gallery treadmill).
+const NOOPT={};
+function pose(m,t,status,opt){
+  opt=opt||NOOPT;status=typeof status==='boolean'?(status?'walking':m.status||'idle'):(status||m.status||'idle');
+  const a=m.anim;if(!a)return;const red=reducedNow(),ph=m.phase,T=a.T,S=a.S,V=a.V,P=a.P;
+  let dt=t-a.t;const first=a.t<0||dt<0||dt>1;if(first)dt=1/60;a.t=t;
+  if(m.pendingEmote){if(!red)emote(m,m.pendingEmote,t);m.pendingEmote=null}
+  const moving=status==='walking';
+  // ground speed from the figure's own travel; falls back to opt.speed for the gallery treadmill
+  const gx=m.grp.position.x,gz=m.grp.position.z;let v=first?0:Math.hypot(gx-a.px,gz-a.pz)/dt;a.px=gx;a.pz=gz;if(v>40)v=0;
+  if(moving){const want=v>.3?v:(opt.speed!=null?opt.speed:(m.walkSpeed||3.4));a.speed+=(want-a.speed)*(first?1:rate(dt,4))}
+  a.walkW+=((moving&&!red?1:0)-a.walkW)*(first?1:rate(dt,7));
+  // status pose through a slightly underdamped spring: transitions settle with a small overshoot
+  target(T,status);
+  if(first||red){S.set(T);V.fill(0)}
+  else{let left=dt;while(left>1e-5){const h=Math.min(left,1/60);left-=h;for(let i=0;i<NCH;i++){V[i]+=(90*(T[i]-S[i])-13.7*V[i])*h;S[i]+=V[i]*h}}}
+  P.set(S);
+  if(!red){
+    const idleW=1-a.walkW,br=Math.sin(t*1.6+ph);
+    // breathing, and a slow weight shift with the unweighted knee relaxing
+    P[SPINE*3]+=.02*br*idleW;P[AL*3+2]-=.016*br*idleW;P[AR*3+2]+=.016*br*idleW;P[HEAD*3]-=.012*br*idleW;
+    if(status!=='lifting'&&status!=='blocked'){const ws=Math.sin(t*.45+ph*2)*idleW,wl=Math.max(0,ws),wr=Math.max(0,-ws);
+      P[HX]+=.05*ws;P[HIPS*3+2]+=.035*ws;P[SPINE*3+2]-=.03*ws;
+      P[SL*3]+=.14*wl;P[LL*3]-=.05*wl;P[SR*3]+=.14*wr;P[LR*3]-=.05*wr}
+    switch(status){
+      case 'idle':case 'viewing':P[HEAD*3+1]+=Math.sin(t*.42+ph)*.42*Math.max(0,Math.sin(t*.13+ph*3));P[HEAD*3]+=Math.sin(t*.31+ph*2)*.04;break;
+      case 'working':case 'in use':{const tap=Math.sin(t*9+ph);P[FL*3]+=tap*.07;P[FR*3]-=tap*.07;P[HL*3]+=Math.max(0,tap)*.12;P[HR*3]+=Math.max(0,-tap)*.12;P[HEAD*3+1]+=Math.sin(t*1.3+ph)*.08;break}
+      case 'writing':{const w=Math.sin(t*11+ph);P[FR*3]+=w*.05;P[AR*3+2]+=Math.sin(t*7+ph)*.04;P[HR*3+2]+=Math.sin(t*13+ph)*.12;P[HEAD*3+1]+=Math.sin(t*.8+ph)*.05;break}
+      case 'reading':{const turn=Math.pow(Math.max(0,Math.sin(t*.8+ph)),12);P[AR*3+1]-=.35*turn;P[FR*3+2]+=.25*turn;P[HEAD*3+1]+=Math.sin(t*.9+ph)*.12;break}
+      case 'thinking':P[HEAD*3+1]+=Math.sin(t*.6+ph)*.25;P[HR*3+2]+=Math.sin(t*1.7+ph)*.06;break;
+      case 'reviewing':P[HEAD*3+1]+=Math.sin(t*1.1+ph)*.4;P[SPINE*3+1]+=Math.sin(t*1.1+ph-.5)*.06;break;
+      case 'blocked':P[HEAD*3+1]+=Math.sin(t*.3+ph)*.08;break;
+    }
+    // locomotion layer
+    if(a.walkW>.001||moving){const spd=Math.max(.5,a.speed),A=clamp(.26+.03*spd,.28,.62),step=2*2.9*Math.sin(A)*.85;a.gait+=Math.PI*spd*dt/step;
+      gait(P,a.gait+ph,A,sm((spd-5)/5),a.walkW)}
+  }
+  // emote over the pose
+  let glowBoost=0;a.jump=0;
+  if(m.emote){const D=EMOTES[m.emote];if(!D||red)m.emote=null;else{const e=t-m.emoteT;
+    if(e>D)m.emote=null;else if(e>=0){const w=Math.min(1,e/.12)*Math.min(1,(D-e)/.35);glowBoost=emoteLayer(m,P,m.emote,e,w)}}}
+  // look-at: partner yaw (m.face) or a world point; split between chest and head, smoothed
+  let ly=0,lp=0,lw=0;const look=opt.look||m.lookAt;
+  if(look){_v.copy(look);m.grp.worldToLocal(_v);_v.y-=5.2+m.anim.P[HY];ly=clamp(Math.atan2(_v.x,_v.z),-1.1,1.1);lp=clamp(-Math.atan2(_v.y,Math.hypot(_v.x,_v.z)),-.5,.5);lw=Math.abs(Math.atan2(_v.x,_v.z))<2.2?1:0}
+  else if(m.face!=null&&!moving){ly=clamp(wrap(m.face-m.grp.rotation.y),-.9,.9)*.8;lw=1}
+  const lk=red||first?1:rate(dt,5);a.lookY+=(ly-a.lookY)*lk;a.lookP+=(lp-a.lookP)*lk;a.lookW+=(lw-a.lookW)*lk;
+  if(a.lookW>.001){P[HEAD*3+1]=P[HEAD*3+1]*(1-a.lookW*.7)+a.lookY*.68*a.lookW;P[SPINE*3+1]+=a.lookY*.3*a.lookW;P[HEAD*3]=P[HEAD*3]*(1-a.lookW*.6)+a.lookP*.85*a.lookW}
+  // legs keep vertical against pelvis roll and sway; feet stay flat outside the gait; the pelvis drops to the lower foot
+  const rl=P[HIPS*3+2],sway=Math.atan(P[HX]/2.9)*.7,flat=1-a.walkW;
+  P[LL*3+2]-=rl+sway;P[LR*3+2]-=rl+sway;
+  P[FTL*3]-=(P[LL*3]+P[SL*3])*flat;P[FTR*3]-=(P[LR*3]+P[SR*3])*flat;
+  P[HY]-=L1+L2-Math.max(hv(P[LL*3],P[LL*3+2],P[SL*3]),hv(P[LR*3],P[LR*3+2],P[SR*3]));
+  P[HY]+=a.jump;
+  const B=m.bones,r=m.rest;
+  for(let i=0;i<NB;i++)B[i].rotation.set(P[i*3],P[i*3+1],P[i*3+2]);
+  B[HIPS].position.set(r[0]+P[HX],r[1]+P[HY],r[2]+P[HZ]);
+  // materials: status glow and rim, eased; the visor scan sweeps; the circuit flow scrolls
+  const G0=GLOW[status]||GLOW.idle,gk=first||red?1:rate(dt,4);a.glow+=(G0[0]-a.glow)*gk;a.rim+=(G0[1]-a.rim)*gk;
+  let pulse=1;
+  if(!red){pulse=status==='working'||status==='in use'?1+.12*Math.sin(t*6+ph)*Math.sin(t*1.1):status==='thinking'?1+.25*Math.sin(t*3.1+ph):status==='blocked'?.6+.4*Math.max(0,Math.sin(t*1.4+ph))*(hash(Math.floor(t*12))>.25?1:.3):1+.08*Math.sin(t*2.6+ph)}
+  const U=m.uniforms;U.glow.value=a.glow*pulse+glowBoost;U.rim.value=a.rim+(m.emote?.25:0);U.time.value=red?0:t;
+  U.scan.value=red?5.3:5.3+.2*Math.sin(t*(status==='reading'?2.4:1.1)+ph);
+  if(m.accent&&m.accent.emissive)m.accent.emissiveIntensity=0;
+  // props, faded in and out
+  const wantSlate=!!SLATE[status],wantOrbs=status==='thinking',pk=first||red?1:rate(dt,8);
+  a.slate+=((wantSlate?1:0)-a.slate)*pk;a.orbs+=((wantOrbs?1:0)-a.orbs)*pk;
+  if(a.slate>.01||wantSlate){const s=prop(m,'slate'),c=SLATE[status];if(c){s.position.set(c[0],c[1],c[2]);s.rotation.set(c[3],c[4],c[5]);s.userData.k=c[6]}
+    s.scale.setScalar((s.userData.k||1)*(.6+.4*a.slate));s.material.opacity=(.26+(red?0:.08*Math.sin(t*4+ph)))*a.slate;s.children[0].material.opacity=.9*a.slate;s.visible=a.slate>.01}
+  else if(m.props.slate)m.props.slate.visible=false;
+  if(a.orbs>.01){const o=prop(m,'orbs');o.visible=true;for(let i=0;i<3;i++){const s=o.children[i],ang=(red?0:t)*(1.2+i*.3)+i*2.1+ph;s.position.set(Math.cos(ang)*.55,1.12+Math.sin(ang*1.7)*.14+i*.12,Math.sin(ang)*.55);s.material.opacity=a.orbs}}
+  else if(m.props.orbs)m.props.orbs.visible=false;
+  if(status==='lifting'){const b=prop(m,'beam');b.visible=true;b.scale.set(1.6,opt.beam||1,1.6);b.position.y=(opt.beam||1)/2-m.grp.position.y+(opt.beamBase||0);b.material.opacity=red?.22:.18+.12*Math.sin(t*9)}
+  else if(m.props.beam)m.props.beam.visible=false;
+  if(m.props.link)m.props.link.visible=false;
+  m.grp.position.y=m.pos.y;
+  // ring and aura: the aura shows from tier 2 and flares during a level-up
+  m.ring.rotation.y=red?0:t*.3;m.ring.material.opacity=(status==='blocked'?.3:.5)+(red?0:.18*Math.sin(t*2+ph))+.3*a.flash;
+  const auraBase=m.tier>=4?.2:m.tier>=3?.15:m.tier>=2?.1:0;a.flash=Math.max(0,a.flash-dt*.8);
+  m.aura.visible=auraBase>0||a.flash>.01;m.aura.material.opacity=auraBase*(red?1:.8+.2*Math.sin(t*1.3+ph))+.35*a.flash;m.aura.scale.set(1+.15*a.flash,1+(red?0:.06*Math.sin(t*1.7+ph))+.8*a.flash,1+.15*a.flash);
   m.status=status;
 }
-function emote(m,name,t){m.emote=name;m.emoteT=t}
-function dispose(grp){const g=shared();grp.traverse(o=>{if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose()}if(o.geometry&&!g.set.has(o.geometry))o.geometry.dispose()})}
-return {create:makeSentinel,dispose,pose,emote,prop,environment,BUSY};
+function emote(m,name,t){m.emote=name;m.emoteT=t;if(m.anim&&name==='levelup')m.anim.flash=Math.max(m.anim.flash,.01)}
+function dispose(grp){const g=shared();grp.traverse(o=>{if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose()}if(o.geometry&&!g.set.has(o.geometry))o.geometry.dispose();if(o.skeleton&&o.skeleton.boneTexture){o.skeleton.boneTexture.dispose();o.skeleton.boneTexture=null}})}
+// Cost of one figure: draw calls (visible meshes), vertices, materials and bones.
+function stats(m){let draws=0,verts=0,mats=0;m.grp.traverse(o=>{if(o.isMesh){mats++;if(o.visible){draws++;verts+=o.geometry.attributes.position.count}}});return {draws,verts,materials:mats,bones:m.bones?m.bones.length:0}}
+function textures(base){if(base&&TEX.state==='idle')TEX.base=base;return {state:TEX.state,base:TEX.base}}
+return {create:makeSentinel,dispose,pose,emote,prop,environment,BUSY,STATUSES,EMOTES,stats,textures,reducedMotion,tier:l=>Identity.tier(l)};
 })();
 </script>
 <script>
-const $=s=>document.querySelector(s),canvas=$('#reference'),fallback=$('#referenceFallback'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=s=>document.querySelector(s),canvas=$('#reference'),fallback=$('#referenceFallback'),osReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let renderer=null;try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;SentinelMesh.environment(renderer)}catch{renderer=null;canvas.hidden=true;canvas.style.display='none';fallback.hidden=false;$('#renderMode').textContent='This browser has no WebGL. Showing the same mesh geometry as SVG.'}
-const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(30,1,.1,200);
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(30,1,.1,300);
 scene.add(new THREE.HemisphereLight('#C9D8FF','#151B29',.7));
-const key=new THREE.DirectionalLight('#FFF3E0',2.4);key.position.set(5,9,7);key.castShadow=true;key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-6,right:6,top:8,bottom:-2,near:1,far:30});key.shadow.bias=-.0008;scene.add(key);
+const key=new THREE.DirectionalLight('#FFF3E0',2.4);key.position.set(5,9,7);key.castShadow=true;key.shadow.mapSize.set(2048,2048);Object.assign(key.shadow.camera,{left:-12,right:12,top:10,bottom:-3,near:1,far:40});key.shadow.bias=-.0008;scene.add(key);
 const rim=new THREE.DirectionalLight('#D4A843',2);rim.position.set(-6,5,-5);scene.add(rim);
 const cool=new THREE.DirectionalLight('#6FA8FF',1.1);cool.position.set(6,3,-6);scene.add(cool);
-// Floor: a dark plinth disc, a soft accent pool and a faint survey grid.
+// Floor: a dark plinth disc, a soft accent pool and a survey grid that scrolls as a treadmill while walking.
 function pool(){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),r=g.createRadialGradient(128,128,0,128,128,128);r.addColorStop(0,'rgba(255,255,255,.55)');r.addColorStop(.45,'rgba(255,255,255,.12)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,256,256);return new THREE.CanvasTexture(c)}
-const floor=new THREE.Mesh(new THREE.CircleGeometry(7,64),new THREE.MeshStandardMaterial({color:new THREE.Color('#070B18').convertSRGBToLinear(),roughness:.85,metalness:.1}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(16,72),new THREE.MeshStandardMaterial({color:new THREE.Color('#070B18').convertSRGBToLinear(),roughness:.85,metalness:.1}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
 const glowPool=new THREE.Mesh(new THREE.PlaneGeometry(9,9),new THREE.MeshBasicMaterial({map:pool(),transparent:true,opacity:.13,depthWrite:false,color:'#D4A843'}));glowPool.rotation.x=-Math.PI/2;glowPool.position.y=.01;scene.add(glowPool);
-const grid=new THREE.GridHelper(14,28,new THREE.Color('#2A3B66').convertSRGBToLinear(),new THREE.Color('#16203D').convertSRGBToLinear());grid.position.y=.005;grid.material.transparent=true;grid.material.opacity=.45;scene.add(grid);
-let models=[],selected='agent',colors=Identity.FORMS.agent.palette.slice();
+const grid=new THREE.GridHelper(30,60,new THREE.Color('#2A3B66').convertSRGBToLinear(),new THREE.Color('#16203D').convertSRGBToLinear());grid.position.y=.005;grid.material.transparent=true;grid.material.opacity=.45;scene.add(grid);
+let models=[],selected='agent',colors=Identity.FORMS.agent.palette.slice(),mode='single';
 const BUILDS={agent:{kind:'Shared chassis',traits:'Facade-ribbed chest, antenna, platform armor',insignia:'Platform code, e.g. CC, CX, GPT'},jr:{kind:'Core · owner assigned',traits:'Broad frame, four-step mantle, gold thigh plates, teal tabard',insignia:'H'},devon:{kind:'Core · owner assigned',traits:'Twin shoulder rails, bridge backpack, shin rails',insignia:'DS'},ahmad:{kind:'Core · owner assigned',traits:'Square guards, chest ledger, plum coat, forearm guards',insignia:'AM'},kenza:{kind:'Core · owner assigned',traits:'Swept collar fins, split waist panels, helmet fin',insignia:'KD'},member:{kind:'Every team account',traits:'Narrow jacket armor, paired chest rails, wrist accents',insignia:'MN'},owners:{kind:'Person-owned tool sessions',traits:'Same Claude chassis, separate owner band and code',insignia:'CLA + owner code'}};
 const descriptions={agent:'One chassis for the complete agent registry. Platform armor, terminal insignia and an owner band for person-owned sessions.',jr:'Tall athletic frame. Four stepped mantle plates, broad shoulders, split gold thigh armor. H chest insignia.',devon:'Twin upright shoulder rails and a structural bridge backpack. Teal armor and silver identification.',ahmad:'Layered chest ledger, square shoulder armor and plum forearm guards. Gold identification.',kenza:'Swept collar fins and split crimson waist panels. Rose gold identification.',member:'Narrow jacket armor, paired chest rails and personal wrist accents. Three account colors.',owners:'Two Claude Sentinels share the copper platform chassis. JR has a teal owner band; Devon has a crimson example band. Each has a distinct owner code.'};
 const NAMES={agent:'Agent Sentinel',jr:'JR · Hataalii',devon:'Devon · Builder',ahmad:'Ahmad · Steward',kenza:'Kenza · Conductor',member:'Member Navigator',owners:'Claude · two owners'};
-const view={yaw:.42,pitch:.1,dist:13.5,goalYaw:.42,goalDist:13.5};
+const TIER_NOTE=['Base trim','Pauldron edge lights and a lit belt line','Chest chevron, knee lights, armor circuit flow and the aura ring','Helmet crest, lit back fins, temple lights, a denser compass ring','Twin aerials, gauntlet rings, shin rails and a lit spine'];
+const view={yaw:.42,pitch:.1,dist:13.5,goalYaw:.42,goalDist:13.5,cy:2.75};
 function roster(){$('#roster').innerHTML=Object.keys(NAMES).map(k=>{const f=k==='owners'?'agent':k,c=(k==='owners'?['#111827','#C97B54','#00D9B5']:Identity.FORMS[f].palette)[2];
   const art=k==='owners'?`<span class="duo">${Identity.preview({form:'agent',palette:['#111827','#C97B54','#00D9B5']})}${Identity.preview({form:'agent',palette:['#111827','#C97B54','#A62C48']})}</span>`:Identity.preview({form:f});
   return `<button type="button" data-build="${k}" style="--c:${c}" aria-pressed="${k===selected}"><span class="thumb">${art}</span><b>${NAMES[k]}</b><small>${k==='owners'?'2 owners':Identity.FORMS[f].symbol}</small></button>`}).join('');
-  $('#roster').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#build').value=b.dataset.build;$('#build').onchange({target:$('#build')})})}
-function draw(){models.forEach(m=>{scene.remove(m.grp);SentinelMesh.dispose(m.grp)});models=[];const level=+($('#level').value||0);$('#levelOut').textContent=level+' · '+Identity.title(level);
-  const specs=selected==='owners'?[{id:'claude:jr',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#00D9B5',ownerBadge:'JR'},{id:'claude:devon',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#A62C48',ownerBadge:'DS'}]:[{id:selected,form:selected,palette:colors,symbol:Identity.FORMS[selected].symbol}];
-  specs.forEach((s,i)=>{const m=SentinelMesh.create({...s,level});m.grp.position.x=specs.length===2?(i-.5)*3.4:0;m.grp.rotation.y=specs.length===2?(i-.5)*-.3:0;m.grp.traverse(o=>{if(o.isMesh&&o!==m.ring&&o!==m.plate)o.castShadow=true});m.info=s;scene.add(m.grp);models.push(m)});
-  view.goalDist=selected==='owners'?17:13.5;
-  const accent=selected==='owners'?'#C97B54':colors[2];glowPool.material.color.set(accent).convertSRGBToLinear();document.documentElement.style.setProperty('--c',accent);
-  $('#description').textContent=descriptions[selected];$('#vname').textContent=NAMES[selected];$('#vkind').textContent=BUILDS[selected].kind;
-  $('#specs').innerHTML=`<dt>Silhouette</dt><dd>${BUILDS[selected].traits}</dd><dt>Insignia</dt><dd>${BUILDS[selected].insignia}</dd><dt>Palette</dt><dd>${(selected==='owners'?Identity.FORMS.agent.palette:colors).join(' · ')}</dd>`;
+  $('#roster').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#mode').value='single';mode='single';$('#build').value=b.dataset.build;$('#build').onchange({target:$('#build')})})}
+function specsFor(level){
+  if(mode==='lineup')return ['agent','jr','devon','ahmad','kenza','member'].map(f=>({id:'line:'+f,form:f,palette:Identity.FORMS[f].palette,symbol:Identity.FORMS[f].symbol,level}));
+  const f=selected==='owners'?'agent':selected;
+  if(mode==='ranks')return [0,3,6,10,20].map(l=>({id:'rank:'+f+':'+l,form:f,palette:selected==='owners'?Identity.FORMS.agent.palette:colors,symbol:Identity.FORMS[f].symbol,level:l}));
+  if(selected==='owners')return [{id:'claude:jr',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#00D9B5',ownerBadge:'JR',level},{id:'claude:devon',form:'agent',palette:Identity.FORMS.agent.palette,symbol:'CLA',ownerColor:'#A62C48',ownerBadge:'DS',level}];
+  return [{id:selected,form:selected,palette:colors,symbol:Identity.FORMS[selected].symbol,level}];
+}
+function draw(){models.forEach(m=>{scene.remove(m.grp);SentinelMesh.dispose(m.grp)});models=[];const level=+($('#level').value||0);
+  $('#levelOut').textContent=level+' · '+Identity.title(level)+' · tier '+Identity.tier(level)+' '+Identity.TIERS[Identity.tier(level)];
+  const specs=specsFor(level),gap=3.4;
+  specs.forEach((s,i)=>{const m=SentinelMesh.create(s);m.grp.position.x=(i-(specs.length-1)/2)*gap;m.pos.copy(m.grp.position);m.grp.rotation.y=specs.length===2?(i-.5)*-.3:0;
+    m.grp.traverse(o=>{if(o.isSkinnedMesh)o.castShadow=true});m.info=s;scene.add(m.grp);models.push(m)});
+  view.goalDist=specs.length>=5?30:specs.length===2?17:13.5;view.cy=specs.length>=5?2.9:2.75;
+  const accent=selected==='owners'||mode==='lineup'?'#C97B54':colors[2];glowPool.material.color.set(accent).convertSRGBToLinear();document.documentElement.style.setProperty('--c',accent);
+  const label=mode==='lineup'?'All six forms':mode==='ranks'?NAMES[selected]+' · ranks':NAMES[selected];
+  $('#description').textContent=mode==='lineup'?'The six silhouettes side by side at the chosen level. Every figure is the campus mesh.':mode==='ranks'?'One build at levels 0, 3, 6, 10 and 20. Each tier adds lit trim; tier 2 adds the aura ring and armor circuit flow.':descriptions[selected];
+  $('#vname').textContent=label;$('#vkind').textContent=mode==='single'?BUILDS[selected].kind:'Comparison';
+  $('#specs').innerHTML=`<dt>Silhouette</dt><dd>${BUILDS[selected].traits}</dd><dt>Insignia</dt><dd>${BUILDS[selected].insignia}</dd><dt>Palette</dt><dd>${(selected==='owners'?Identity.FORMS.agent.palette:colors).join(' · ')}</dd><dt>Tier ${Identity.tier(level)}</dt><dd>${TIER_NOTE[Identity.tier(level)]}</dd>`;
   $('#ratio').innerHTML=(selected==='owners'?Identity.FORMS.agent.palette:colors).map(c=>`<i style="background:${c}"></i>`).join('');
-  document.querySelectorAll('#roster button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.build===selected))}
+  document.querySelectorAll('#roster button').forEach(b=>b.setAttribute('aria-pressed',mode==='single'&&b.dataset.build===selected));cost()}
+function cost(){if(!models.length)return;const s=SentinelMesh.stats(models[0]),tx=SentinelMesh.textures().state;
+  $('#cost').innerHTML=`<dt>Draw calls</dt><dd>${s.draws} per figure</dd><dt>Vertices</dt><dd>${s.verts.toLocaleString()}</dd><dt>Skeleton</dt><dd>${s.bones} bones, rigid skinning</dd><dt>Detail maps</dt><dd>${tx==='ready'?'Loaded':tx==='loading'?'Loading':tx==='failed'?'Unavailable, code-only shading':'Code-only shading'}</dd>`}
 function controls(){const labels=['Body · 60%','Armor · 30%','Accent · 10%'];
-  $('#colors').innerHTML=selected==='owners'?'<p style="color:var(--muted);font-size:13px;margin:0 0 14px">Owner bands use each member’s accent color. Pick a single build to edit its palette.</p>':colors.map((c,i)=>`<label>${labels[i]}<span class="swatch"><input type="color" data-picker="${i}" value="${c.toLowerCase()}" aria-label="${['Body','Armor','Accent'][i]} color picker"><input type="text" data-color="${i}" value="${c}" maxlength="7" spellcheck="false" aria-label="${['Body','Armor','Accent'][i]} hex code"></span></label>`).join('');
+  $('#colors').innerHTML=selected==='owners'||mode==='lineup'?'<p style="color:var(--muted);font-size:13px;margin:0 0 14px">Pick a single build to edit its palette.</p>':colors.map((c,i)=>`<label>${labels[i]}<span class="swatch"><input type="color" data-picker="${i}" value="${c.toLowerCase()}" aria-label="${['Body','Armor','Accent'][i]} color picker"><input type="text" data-color="${i}" value="${c}" maxlength="7" spellcheck="false" aria-label="${['Body','Armor','Accent'][i]} hex code"></span></label>`).join('');
   document.querySelectorAll('[data-color]').forEach(input=>input.oninput=()=>{const ok=Identity.HEX.test(input.value);input.setAttribute('aria-invalid',!ok);if(ok){colors[+input.dataset.color]=input.value.toUpperCase();document.querySelector(`[data-picker="${input.dataset.color}"]`).value=input.value.toLowerCase();draw()}});
   document.querySelectorAll('[data-picker]').forEach(input=>input.oninput=()=>{const t=document.querySelector(`[data-color="${input.dataset.picker}"]`);t.value=input.value.toUpperCase();t.oninput()})}
+const sec=()=>clock;
 $('#build').onchange=e=>{selected=e.target.value;colors=Identity.FORMS[selected==='owners'?'agent':selected].palette.slice();controls();draw()};
+$('#mode').onchange=e=>{mode=e.target.value;controls();draw()};
 $('#reset').onclick=()=>$('#build').onchange({target:$('#build')});$('#level').oninput=draw;
-$('#rotate').checked=!reduced;$('#celebrate').onclick=()=>models.forEach(m=>SentinelMesh.emote(m,'celebrate',performance.now()/1000));$('#greet').onclick=()=>models.forEach(m=>SentinelMesh.emote(m,'greet',performance.now()/1000));
+$('#levelup').onclick=()=>{const l=$('#level');l.value=Math.min(25,+l.value+1);draw();models.forEach(m=>SentinelMesh.emote(m,'levelup',sec()))};
+document.querySelectorAll('[data-emote]').forEach(b=>b.onclick=()=>models.forEach((m,i)=>SentinelMesh.emote(m,b.dataset.emote,sec()+i*.12)));
+const speedText=()=>{const v=+$('#speed').value;$('#speedOut').textContent=v.toFixed(1)+' m/s · '+(v<5?'walk':v<10?'jog':'run')};$('#speed').oninput=speedText;speedText();
+const syncPose=()=>{$('#speedRow').style.display=$('#pose').value==='walking'?'':'none'};$('#pose').onchange=syncPose;syncPose();
+$('#still').checked=osReduced;$('#still').onchange=()=>SentinelMesh.reducedMotion($('#still').checked);SentinelMesh.reducedMotion(osReduced);
+$('#rotate').checked=!osReduced;
+// URL presets for review and screenshots: ?mode=lineup&level=12&pose=walking&speed=8&build=jr&emote=celebrate&yaw=.6
+const Q=new URLSearchParams(location.search);
+if(Q.get('build')&&NAMES[Q.get('build')]){selected=Q.get('build');$('#build').value=selected;colors=Identity.FORMS[selected==='owners'?'agent':selected].palette.slice()}
+if(Q.get('mode')){mode=Q.get('mode');$('#mode').value=mode}
+if(Q.get('level'))$('#level').value=Q.get('level');if(Q.get('pose')){$('#pose').value=Q.get('pose');syncPose()}if(Q.get('speed')){$('#speed').value=Q.get('speed');speedText()}
+if(Q.get('yaw')){view.yaw=view.goalYaw=+Q.get('yaw');$('#rotate').checked=false}
 roster();controls();draw();
-// Orbit: drag to turn, wheel or pinch to zoom.
-let drag=null;canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);canvas.classList.add('drag')});
-canvas.addEventListener('pointermove',e=>{if(!drag)return;view.goalYaw-=(e.clientX-drag.x)*.008;view.pitch=Math.max(-.15,Math.min(.6,view.pitch+(e.clientY-drag.y)*.004));drag={x:e.clientX,y:e.clientY}});
+// Orbit: drag to turn, wheel to zoom. Pointer position also drives the look-at target.
+let drag=null;const pointer=new THREE.Vector2(),ray=new THREE.Raycaster(),lookPlane=new THREE.Plane(new THREE.Vector3(0,0,1),-6),lookPoint=new THREE.Vector3();
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);canvas.classList.add('drag')});
+canvas.addEventListener('pointermove',e=>{const r=canvas.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);if(!drag)return;view.goalYaw-=(e.clientX-drag.x)*.008;view.pitch=Math.max(-.15,Math.min(.6,view.pitch+(e.clientY-drag.y)*.004));drag={x:e.clientX,y:e.clientY}});
 const end=()=>{drag=null;canvas.classList.remove('drag')};canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
-canvas.addEventListener('wheel',e=>{e.preventDefault();view.goalDist=Math.max(8,Math.min(26,view.goalDist*Math.exp(e.deltaY*.001)))},{passive:false});
-function placeCamera(w,h){camera.aspect=w/h;camera.position.set(Math.sin(view.yaw)*Math.cos(view.pitch)*view.dist,2.9+Math.sin(view.pitch)*view.dist,Math.cos(view.yaw)*Math.cos(view.pitch)*view.dist);camera.lookAt(0,2.75,0);camera.updateProjectionMatrix();camera.updateMatrixWorld(true)}
+canvas.addEventListener('wheel',e=>{e.preventDefault();view.goalDist=Math.max(8,Math.min(42,view.goalDist*Math.exp(e.deltaY*.001)))},{passive:false});
+function placeCamera(w,h){camera.aspect=w/h;camera.position.set(Math.sin(view.yaw)*Math.cos(view.pitch)*view.dist,view.cy+.15+Math.sin(view.pitch)*view.dist,Math.cos(view.yaw)*Math.cos(view.pitch)*view.dist);camera.lookAt(0,view.cy,0);camera.updateProjectionMatrix();camera.updateMatrixWorld(true)}
+// SVG fallback: projects the skinned geometry (bones applied) so the fallback shows the current pose.
 function svgGeometry(){const w=fallback.clientWidth,h=fallback.clientHeight;if(!w||!h)return;placeCamera(w,h);scene.updateMatrixWorld(true);const triangles=[],light=new THREE.Vector3(.4,.7,.7).normalize();
-  models.forEach(model=>model.grp.traverse(o=>{if(!o.isMesh||!o.visible)return;const g=o.geometry,index=g.index,positions=g.attributes.position,cols=g.attributes.color,glow=g.attributes.glow,count=index?index.count:positions.count;
-    for(let i=0;i<count;i+=3){const ids=[0,1,2].map(k=>index?index.getX(i+k):i+k),vertices=ids.map(k=>new THREE.Vector3().fromBufferAttribute(positions,k).applyMatrix4(o.matrixWorld));
+  models.forEach(model=>model.grp.traverse(o=>{if(!o.isMesh||!o.visible||o.material.blending===THREE.AdditiveBlending)return;const g=o.geometry,index=g.index,positions=g.attributes.position,cols=g.attributes.color,glow=g.attributes.glow,count=index?index.count:positions.count;
+    for(let i=0;i<count;i+=3){const ids=[0,1,2].map(k=>index?index.getX(i+k):i+k),vertices=ids.map(k=>{const v=new THREE.Vector3();if(o.isSkinnedMesh)o.boneTransform(k,v);else v.fromBufferAttribute(positions,k);return v.applyMatrix4(o.matrixWorld)});
       const center=vertices.reduce((a,v)=>a.add(v),new THREE.Vector3()).multiplyScalar(1/3),normal=new THREE.Vector3().subVectors(vertices[1],vertices[0]).cross(new THREE.Vector3().subVectors(vertices[2],vertices[0])).normalize();
       if(o.material.side!==THREE.DoubleSide&&normal.dot(new THREE.Vector3().subVectors(camera.position,center))<=0)continue;
       const projected=vertices.map(v=>v.clone().project(camera));if(projected.some(v=>v.z>1||v.z<-1))continue;
-      const base=cols?new THREE.Color(cols.getX(ids[0]),cols.getY(ids[0]),cols.getZ(ids[0])):o.material.color.clone(),lit=(glow&&glow.getX(ids[0])>.5)||(o.material.emissive&&o.material.emissiveIntensity>.5)||o.material.type==='MeshBasicMaterial';
+      const base=cols?new THREE.Color(cols.getX(ids[0]),cols.getY(ids[0]),cols.getZ(ids[0])).multiply(o.material.color):o.material.color.clone(),lit=(glow&&glow.getX(ids[0])>.5)||o.material.type==='MeshBasicMaterial';
       const color=(lit?base:base.multiplyScalar(.35+.65*Math.max(0,normal.dot(light)))).convertLinearToSRGB().getStyle();
       triangles.push({depth:center.clone().applyMatrix4(camera.matrixWorldInverse).z,points:projected.map(v=>`${((v.x+1)*w/2).toFixed(1)},${((1-v.y)*h/2).toFixed(1)}`).join(' '),color})}}));
   triangles.sort((a,b)=>a.depth-b.depth);
   const ownerLabels=models.filter(m=>m.info.ownerBadge).map(m=>{const p=new THREE.Vector3(m.grp.position.x,6.2,0).project(camera);return `<text x="${(p.x+1)*w/2}" y="${(1-p.y)*h/2}" text-anchor="middle" fill="${m.info.ownerColor}" font-family="monospace" font-size="14">${m.info.ownerBadge} · Claude</text>`}).join('');
   fallback.innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Actual Sentinel geometry">${triangles.map(t=>`<polygon points="${t.points}" fill="${t.color}" stroke="${t.color}" stroke-width=".4"/>`).join('')}${ownerLabels}</svg>`}
-let previous=0;
-function frame(t){requestAnimationFrame(frame);const dt=Math.min(.05,(t-previous)/1000||0);previous=t;const sec=t/1000;
-  if($('#rotate').checked&&!reduced&&!drag)view.goalYaw+=dt*.35;
-  const k=reduced?1:1-Math.exp(-dt*7);view.yaw+=(view.goalYaw-view.yaw)*k;view.dist+=(view.goalDist-view.dist)*k;
-  if(!reduced)models.forEach(m=>SentinelMesh.pose(m,sec,$('#pose').value,{beam:6,beamBase:0}));
+let previous=0,clock=0,costAt=0;
+function frame(t){requestAnimationFrame(frame);const real=Math.min(.05,(t-previous)/1000||0);previous=t;const still=SentinelMesh.reducedMotion(),dt=real*($('#slow').checked?.25:1);clock+=dt;
+  if($('#rotate').checked&&!still&&!drag)view.goalYaw+=real*.35;
+  const k=still?1:1-Math.exp(-real*7);view.yaw+=(view.goalYaw-view.yaw)*k;view.dist+=(view.goalDist-view.dist)*k;
+  const status=$('#pose').value,speed=+$('#speed').value;
+  if(status==='walking'&&!still){grid.position.z=(grid.position.z+dt*speed)%.5}
+  let look=null;if($('#look').checked){ray.setFromCamera(pointer,camera);if(ray.ray.intersectPlane(lookPlane,lookPoint))look=lookPoint}
+  models.forEach(m=>SentinelMesh.pose(m,clock,status,{beam:6,beamBase:0,speed,look}));
+  if(t-costAt>1000){cost();costAt=t}
   if(renderer){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);placeCamera(w,h);renderer.render(scene,camera)}
   else if(t-(frame.lastSVG||0)>120){svgGeometry();frame.lastSVG=t}}
 requestAnimationFrame(frame);
+if(Q.get('emote'))setTimeout(()=>models.forEach(m=>SentinelMesh.emote(m,Q.get('emote'),clock)),Number(Q.get('emoteDelay')||400));
 </script></body></html>
