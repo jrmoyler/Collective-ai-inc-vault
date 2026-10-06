@@ -67,7 +67,7 @@ function environment(renderer){
   if(ENV||!renderer||!THREE.PMREMGenerator)return ENV;
   try{
     const pm=new THREE.PMREMGenerator(renderer),s=new THREE.Scene(),g=new THREE.SphereGeometry(10,32,16),c=[],p=g.attributes.position;
-    const top=new THREE.Color('#1C2747'),mid=new THREE.Color('#5A4430'),bot=new THREE.Color('#05070F');
+    const top=new THREE.Color('#6E9BC4'),mid=new THREE.Color('#C4B48A'),bot=new THREE.Color('#2A241C');
     for(let i=0;i<p.count;i++){const y=p.getY(i)/10,col=y>0?mid.clone().lerp(top,Math.min(1,y*1.7)):mid.clone().lerp(bot,Math.min(1,-y*3));c.push(col.r,col.g,col.b)}
     g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));s.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
     const soft=(w,h,x,y,z,col)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));m.position.set(x,y,z);m.lookAt(0,0,0);s.add(m)};
@@ -108,7 +108,7 @@ function surface(kind,U,opts){
 \tvec3 seamP=vLocal*${kind==='armor'?'9.0':'28.0'};vec3 seamW=fwidth(seamP)+vec3(0.003);
 \tvec3 seamD=abs(fract(seamP-0.5)-0.5);vec3 seams=vec3(1.0)-smoothstep(vec3(0.015),vec3(0.015)+seamW,seamD);
 \tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.055':'0.025'};
-\tdiffuseColor.rgb*=1.0-machining;`);
+\tdiffuseColor.rgb*=1.0-machining*0.45;`);
     f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0);');
     let em=RIM;
     if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
@@ -121,7 +121,7 @@ function surface(kind,U,opts){
 \t totalEmissiveRadiance+=uRim*(0.22+band*0.7)*glowGain;}`;
     f=f.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\t'+em);
     s.fragmentShader=F_HEAD+f};
-  m.customProgramCacheKey=()=>'sentinel-machined-v2-'+kind;return m;
+  m.customProgramCacheKey=()=>'sentinel-painted-v3-'+kind;return m;
 }
 
 // ---- skeleton. Rigid skinning: each plate follows one bone, so armor never smears.
@@ -183,11 +183,11 @@ function makeSentinel(a){
   bones.forEach((b,i)=>{const p=PARENT[i],x=rest[i*3]-(p<0?0:rest[p*3]),y=rest[i*3+1]-(p<0?0:rest[p*3+1]),z=rest[i*3+2]-(p<0?0:rest[p*3+2]);b.position.set(x,y,z);(p<0?grp:bones[p]).add(b)});
   grp.updateMatrixWorld(true);const skeleton=new THREE.Skeleton(bones),I=new THREE.Matrix4();
   const env=ENV?{envMap:ENV,envMapIntensity:1}:{},MATS={
-    body:()=>surface('body',U,{roughness:.5,metalness:ENV?.62:.4,...env}),
-    armor:()=>surface('armor',U,{color:tone[1],roughness:.28,metalness:ENV?.88:.5,...env}),
-    trim:()=>surface('trim',U,{roughness:.35,metalness:.2}),
-    joint:()=>surface('joint',U,{roughness:.62,metalness:ENV?.7:.4,...env}),
-    visor:()=>surface('visor',U,{roughness:.07,metalness:ENV?.9:.5,...(ENV?{envMap:ENV,envMapIntensity:1.5}:{})})};
+    body:()=>surface('body',U,{roughness:.78,metalness:ENV?.08:.04,...env}),
+    armor:()=>surface('armor',U,{color:tone[1],roughness:.58,metalness:ENV?.16:.08,...env}),
+    trim:()=>surface('trim',U,{roughness:.4,metalness:.08}),
+    joint:()=>surface('joint',U,{roughness:.84,metalness:ENV?.1:.05,...env}),
+    visor:()=>surface('visor',U,{roughness:.12,metalness:ENV?.35:.2,...(ENV?{envMap:ENV,envMapIntensity:.7}:{})})};
   const surfaces={};
   for(const kind of ['body','armor','trim','joint','visor'])if(buf[kind]){const mesh=new THREE.SkinnedMesh(geometryOf(buf[kind]),MATS[kind]());mesh.name='sentinel-'+kind;grp.add(mesh);mesh.bind(skeleton,I);surfaces[kind]=mesh}
   const t=bp.terminal,plate=new THREE.Mesh(new THREE.PlaneGeometry(t.w,t.h),new THREE.MeshBasicMaterial({map:terminal(a,f,pal)}));plate.position.set(t.x-rest[SPINE*3],t.y-rest[SPINE*3+1],t.z);bones[SPINE].add(plate);

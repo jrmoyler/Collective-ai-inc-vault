@@ -105,6 +105,11 @@ const Identity=(()=>{
       L('bevel',.24,.38,.06,s*.05,-.12,.22,1,0,-.12);                                      // tasset
       L('cap',.05,.2,.2,s*.14,-1.24,0,4);L('box',.012,.06,.06,s*.168,-1.24,0,2);           // knee hinge, lit pin
       L('bevel',.24,.6,.1,0,-1.75,-.2,1);L('bevel',.16,.14,.12,0,-2.86,-.22,1)}            // calf plate, heel spur
+    // traveler cloak: a cloth fall behind the plates. Width differs per form so the six silhouettes stay distinct.
+    const cloak={jr:1.08,devon:.96,ahmad:1.02,kenza:.74,member:.68,agent:.86}[f];
+    T('taper',.92*b*cloak,1.62,.14,0,3.48,-.5,5,0,.1);
+    T('bevel',.5*b*cloak,.2,.18,0,4.42,-.4,1);
+    if(f==='kenza'||f==='member'||f==='agent')H('bevel',.42*cloak,.18,.4,0,.9,-.12,1,0,-.25);
     // ---- cosmetic tier from level: more lit trim per tier; the mesh adds the aura ring from tier 2.
     const tr=tier(lvl);
     if(tr>=1){for(const s of S)T('box',.4*b,.02,.03,s*.74*b,4.86,.305,2,-s*.26);T('box',.7*b,.02,.03,0,3.24,.285,2)}  // pauldron edge lights, belt line
