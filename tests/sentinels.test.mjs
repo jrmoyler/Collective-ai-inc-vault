@@ -62,7 +62,7 @@ test('traveler cloaks clear the power core, bind the hem to the hips, and stay o
  for(const form of ['jr','devon','ahmad','kenza','member','agent']){
   const bp=identity.blueprint(form,{level:12});
   const cloth=bp.parts.filter(p=>p.k===5&&p.slot==='torso'&&p.z<0);
-  assert.ok(cloth.length>=5,form+' cloak is layered');
+  assert.ok(cloth.length>=6,form+' cloak is layered');
   assert.ok(Math.min(...cloth.map(p=>p.y))<3.38,form+' hem binds to the hips');
   assert.ok(cloth.every(p=>p.z+p.d/2<-0.6),form+' cloth stays behind the power core');
   widths.push(Math.max(...cloth.map(p=>p.w)));
@@ -73,4 +73,14 @@ test('traveler cloaks clear the power core, bind the hem to the hips, and stay o
   mesh.dispose(m.grp);
  }
  assert.equal(new Set(widths).size,6);
+});
+test('cloak hem takes the wind while walking and holds still when motion is reduced',()=>{
+  const m=mesh.create({id:'sway',form:'jr',level:8});
+  assert.ok(m.uniforms.sway);
+  mesh.reducedMotion(false);
+  mesh.pose(m,2,'walking',{speed:4});mesh.pose(m,2.5,'walking',{speed:4});
+  assert.ok(m.uniforms.sway.value>0.6,'a walk lifts the hem');
+  mesh.reducedMotion(true);mesh.pose(m,3,'walking',{speed:4});
+  assert.equal(m.uniforms.sway.value,0);
+  mesh.reducedMotion(null);mesh.dispose(m.grp);
 });

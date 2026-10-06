@@ -80,8 +80,8 @@ function environment(renderer){
 // ---- materials. One program per surface kind, shared by every Sentinel; uniforms are per figure.
 // Common pieces: bind-pose position and normal for triplanar detail and the visor scan; a fresnel rim weighted toward
 // top edges; status-driven glow.
-const V_HEAD='attribute float glow;\nattribute float cloth;\nvarying float vGlow;\nvarying float vCloth;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
-const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vLocal=position;vLocalN=normal;';
+const V_HEAD='attribute float glow;\nattribute float cloth;\nuniform float uTime;\nuniform float uSway;\nvarying float vGlow;\nvarying float vCloth;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
+const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vLocal=position;vLocalN=normal;\n\tfloat hem=smoothstep(4.35,2.55,position.y)*cloth;\n\ttransformed.x+=sin(uTime*1.7+position.x*1.8)*0.11*hem*uSway;\n\ttransformed.z+=sin(uTime*1.15+position.y)*0.045*hem*uSway;';
 const F_HEAD=`uniform vec3 uRim;uniform float uRimGain;uniform float glowGain;uniform float uTime;uniform float uScan;uniform float uCircuit;
 uniform sampler2D tDetail;uniform sampler2D tCircuit;uniform sampler2D tIri;uniform float uTexOn;uniform float uIriOn;
 varying float vGlow;varying float vCloth;varying vec3 vLocal;varying vec3 vLocalN;
@@ -98,7 +98,7 @@ function surface(kind,U,opts){
   m.extensions={...(m.extensions||{}),derivatives:true};
   const detail=kind==='armor'?TEX.plating:kind==='trim'||kind==='visor'?null:TEX.carbon,scale=kind==='armor'?1.4:2.2,amt=kind==='armor'?.35:kind==='joint'?.25:.22;
   m.onBeforeCompile=s=>{
-    Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn});
+    Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uSway:U.sway,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn});
     s.vertexShader=V_HEAD+s.vertexShader.replace('#include <begin_vertex>',V_BODY);
     let f=s.fragmentShader;
     f=f.replace('#include <color_fragment>',`#include <color_fragment>
@@ -109,7 +109,7 @@ function surface(kind,U,opts){
 \tvec3 seamD=abs(fract(seamP-0.5)-0.5);vec3 seams=vec3(1.0)-smoothstep(vec3(0.015),vec3(0.015)+seamW,seamD);
 \tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.03':'0.012'}*(1.0-vCloth);
 \tdiffuseColor.rgb*=1.0-machining*0.22;
-\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(0.93,0.90,0.84)*(0.88+0.16*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);`);
+\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(1.02,0.94,0.82)*(0.9+0.14*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);`);
     f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=mix(clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0),0.94,vCloth);');
     let em=RIM;
     if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
@@ -122,7 +122,7 @@ function surface(kind,U,opts){
 \t totalEmissiveRadiance+=uRim*(0.22+band*0.7)*glowGain;}`;
     f=f.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\t'+em);
     s.fragmentShader=F_HEAD+f};
-  m.customProgramCacheKey=()=>'sentinel-painted-v4-'+kind;return m;
+  m.customProgramCacheKey=()=>'sentinel-painted-v5-'+kind;return m;
 }
 
 // ---- skeleton. Rigid skinning: each plate follows one bone, so armor never smears.
@@ -172,11 +172,11 @@ function makeSentinel(a){
   const g=shared(),f=Identity.form(a.form||'agent'),pal=Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],f),level=a.level|0;
   const owner=a.ownerColor&&Identity.HEX.test(a.ownerColor)?a.ownerColor:null,bp=Identity.blueprint(f,{owner:!!owner,level}),tone=Identity.tones(pal,owner).map(lin);
   const tier=bp.tier|0,grp=new THREE.Group(),white=new THREE.Color(1,1,1),seed=hash(a.id||f),buf={},rest=restOf(bp);
-  const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0}};
+  const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},sway:{value:.28},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0}};
   // Each plate gets its own shade (0.86 to 1.08) so neighboring panels read as separate pieces of metal.
   bp.parts.forEach((q,i)=>{
     const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
-    const shade=lit?1:.86+.22*hash(seed+i),col=kind==='armor'?white:tone[q.k],origin=bp.pivots[q.slot]||[0,0,0];
+    const shade=lit?1:.86+.22*hash(seed+i),col=q.k===5?tone[q.k].clone().lerp(lin('#C4A574'),.42):(kind==='armor'?white:tone[q.k]),origin=bp.pivots[q.slot]||[0,0,0];
     if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],bone:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
   });
   // bones in bind pose (no rotation), positioned relative to their parent
@@ -361,7 +361,7 @@ function pose(m,t,status,opt){
   const G0=GLOW[status]||GLOW.idle,gk=first||red?1:rate(dt,4);a.glow+=(G0[0]-a.glow)*gk;a.rim+=(G0[1]-a.rim)*gk;
   let pulse=1;
   if(!red){pulse=status==='working'||status==='in use'?1+.12*Math.sin(t*6+ph)*Math.sin(t*1.1):status==='thinking'?1+.25*Math.sin(t*3.1+ph):status==='blocked'?.6+.4*Math.max(0,Math.sin(t*1.4+ph))*(hash(Math.floor(t*12))>.25?1:.3):1+.08*Math.sin(t*2.6+ph)}
-  const U=m.uniforms;U.glow.value=a.glow*pulse+glowBoost;U.rim.value=a.rim+(m.emote?.25:0);U.time.value=red?0:t;
+  const U=m.uniforms;U.glow.value=a.glow*pulse+glowBoost;U.rim.value=a.rim+(m.emote?.25:0);U.time.value=red?0:t;U.sway.value=red?0:.28+.85*a.walkW+(m.emote?.4:0);
   U.scan.value=red?5.3:5.3+.2*Math.sin(t*(status==='reading'?2.4:1.1)+ph);
   if(m.accent&&m.accent.emissive)m.accent.emissiveIntensity=0;
   // props, faded in and out
