@@ -5,7 +5,7 @@ tags:
 - physical-ai
 type: moc
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # Physical AI MOC
 
@@ -17,3 +17,5 @@ Hardware, wearables, device agents and the prompts used to visualize them. Every
 - [[Physical AI Wearables Agent Spec]]
 - [[Hardware Agentic Prompt Catalog]]
 - [[Full Synergy Node Catalog]] (physical nodes SYN-01 to SYN-20)
+
+- [[District Handbook — Physical systems lab]] — district work kit and source-grounded records.

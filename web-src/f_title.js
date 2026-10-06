@@ -1,10 +1,11 @@
-// ---------- title: cold open, wordmark, main menu. Everything here is code; no assets are loaded.
+// ---------- title: code-only camera choreography, skyline, postprocessing and menu.
+// Original PCM Foley is generated offline by scripts/generate_audio.py; score is synthesized live.
 // The cold open is a three-shot cutscene rendered live in three.js: (1) night sky tilting down onto a campus rising from
 // the plain, (2) a low push down a lit avenue with sentinels walking, (3) dawn over the skyline as the wordmark lands.
 // Shots crossfade through render targets; letterbox, grain, light leaks, slates and the WebAudio score are code too.
 // Title.start() -> Promise that resolves once the player chooses "Enter the Vault". The overlay then dissolves over the live app.
 const Title=(()=>{
-const VERSION="v2.1",TAG="Architecting a Humane Future";
+const VERSION="v3.0",TAG="Architecting a Humane Future";
 const K={seen:"vault.title.seen",sound:"vault.sound",cut:"vault.title.cutscene",q:"vault.quality"};
 const S=(typeof store!=="undefined")?store:{get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const today=()=>new Date().toISOString().slice(0,10);
@@ -16,7 +17,7 @@ const CSS=`
 #title canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #title .tv{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 62%,transparent 40%,rgba(2,3,8,.55) 78%,rgba(2,3,8,.92) 100%)}
 #title .tgrain{position:absolute;inset:-120px;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,transparent 1px 3px)}
-#title .tgrain.noise{opacity:.11;background-repeat:repeat;background-size:128px 128px;animation:tgrain .6s steps(6) infinite}
+#title .tgrain.noise{opacity:.045;background-repeat:repeat;background-size:128px 128px;animation:tgrain .6s steps(6) infinite}
 @keyframes tgrain{0%{transform:translate(0,0)}17%{transform:translate(-37px,21px)}33%{transform:translate(29px,-44px)}50%{transform:translate(-52px,-13px)}67%{transform:translate(18px,47px)}83%{transform:translate(61px,-29px)}100%{transform:translate(0,0)}}
 #title .tleak{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0;background:radial-gradient(ellipse 60% 70% at 14% 38%,rgba(232,163,61,.55),transparent 60%),radial-gradient(ellipse 50% 40% at 88% 72%,rgba(255,214,150,.28),transparent 60%)}
 #title .tleak.go{animation:tleak 1.5s ease-out}
@@ -56,13 +57,17 @@ const CSS=`
 #title .skip{position:absolute;right:18px;bottom:18px;font-family:var(--mono,monospace);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8A93AD;border:1px solid rgba(138,147,173,.35);padding:8px 14px;border-radius:999px;background:rgba(5,7,14,.5);transition:color .2s,border-color .2s,opacity .5s;pointer-events:auto}
 #title .skip:hover{color:#fff;border-color:var(--gold)}
 #title.menu .skip{opacity:0;pointer-events:none}
-#title .mm{position:absolute;left:0;right:0;top:50%;display:grid;justify-items:center;gap:6px;opacity:0;transform:translateY(24px);transition:opacity .8s .2s,transform .9s .2s var(--t-ease);pointer-events:none}
-#title.menu .mm{opacity:1;transform:none;pointer-events:auto}
+#title .mm{position:absolute;left:50%;top:50%;width:min(380px,calc(100% - 48px));box-sizing:border-box;display:grid;justify-items:stretch;gap:8px;padding:18px 20px;background:rgba(5,10,24,.84);border:1px solid rgba(212,168,67,.22);border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);opacity:0;transform:translate(-50%,24px);transition:opacity .8s .2s,transform .9s .2s var(--t-ease);pointer-events:none}
+#title.menu .mm{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#title.menu .tgrain.noise{opacity:.018;animation:none}
+#title.menu .tv{background:linear-gradient(180deg,rgba(2,3,8,.12),rgba(2,3,8,.08) 36%,rgba(2,3,8,.30) 70%,rgba(2,3,8,.64)),radial-gradient(ellipse at 50% 50%,transparent 24%,rgba(2,3,8,.38) 82%)}
+#title.menu .word,#title.menu .tag{text-shadow:0 2px 24px rgba(0,0,0,.72)}
+#title.menu .sub{color:#EDC46C;text-shadow:0 2px 14px #050A18}
 #title .mm button{font-family:var(--display,"Space Grotesk",sans-serif);font-weight:600;font-size:clamp(17px,1.5vw,22px);letter-spacing:.18em;text-transform:uppercase;color:#C9CFDF;padding:12px 28px;position:relative;border-radius:4px;transition:color .18s,transform .18s var(--t-ease)}
 #title .mm button::before{content:"";position:absolute;left:8px;top:50%;width:0;height:1px;background:var(--gold);transition:width .22s var(--t-ease)}
 #title .mm button:hover,#title .mm button.on{color:#fff;transform:translateX(6px)}
 #title .mm button:hover::before,#title .mm button.on::before{width:12px}
-#title .mm button.pri{color:#fff;border:1px solid rgba(232,163,61,.55);background:linear-gradient(180deg,rgba(232,163,61,.18),rgba(232,163,61,.06));box-shadow:0 0 0 1px rgba(232,163,61,.12) inset,0 18px 40px -22px var(--gold);margin-bottom:10px;padding:14px 40px}
+#title .mm button.pri{color:#fff;border:1px solid rgba(232,163,61,.55);background:#D4A843;color:#15100A;box-shadow:0 0 0 1px rgba(255,236,190,.12) inset,0 12px 30px -20px var(--gold);margin-bottom:10px;padding:14px 40px}
 #title .mm button.pri:hover,#title .mm button.pri.on{background:var(--gold);color:#1a1204;border-color:var(--gold);transform:translateX(0) scale(1.02)}
 #title .mm button.pri::before{display:none}
 #title .mm button:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
@@ -98,15 +103,15 @@ const Score=(()=>{let ctx=null,master=null,nodes=[],timer=0;
   function start(off){off=clamp(+off||0,0,14);if(ctx||!on())return;try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
     if(ctx.state==="suspended")ctx.resume();
     const now=ctx.currentTime,t=now-off;master=ctx.createGain();master.gain.setValueAtTime(0,now);master.gain.linearRampToValueAtTime(.55,now+(off?1.2:2.5));
-    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.setValueAtTime(420,t);lp.frequency.linearRampToValueAtTime(1900,t+9);lp.Q.value=.6;
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.setValueAtTime(420+1480*clamp(off/9,0,1),now);lp.frequency.linearRampToValueAtTime(1900,Math.max(now+.01,t+9));lp.Q.value=.6;
     const dl=ctx.createDelay(1);dl.delayTime.value=.37;const fb=ctx.createGain();fb.gain.value=.34;const wet=ctx.createGain();wet.gain.value=.32;
     lp.connect(master);lp.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(master);master.connect(ctx.destination);
     // pad: two detuned saws per note on a D minor 9 voicing, slow LFO on the filter
     const pad=[73.42,110,146.83,174.61,220,261.63];
     pad.forEach((f,i)=>{[-6,6].forEach(d=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=i<2?"sawtooth":"triangle";o.frequency.value=f;o.detune.value=d+(i%2?3:-3);
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045,t+3+i*.4);g.gain.setValueAtTime(.045,t+14);g.gain.linearRampToValueAtTime(0,t+18.5);
-      o.connect(g).connect(lp);o.start(t);o.stop(t+19);nodes.push(o)})});
-    const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.11;lg.gain.value=260;lfo.connect(lg).connect(lp.frequency);lfo.start(t);lfo.stop(t+19);nodes.push(lfo);
+      g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.045,Math.max(now+.3,t+3+i*.4));g.gain.setValueAtTime(.045,Math.max(now+.31,t+14));g.gain.linearRampToValueAtTime(0,Math.max(now+.32,t+18.5));
+      o.connect(g).connect(lp);o.start(now);o.stop(t+19);nodes.push(o)})});
+    const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.11;lg.gain.value=260;lfo.connect(lg).connect(lp.frequency);lfo.start(now);lfo.stop(t+19);nodes.push(lfo);
     // arpeggio: D F A C E G A D, eighth notes at 68 bpm, enters with the city, opens up with the wordmark
     const arp=[293.66,349.23,440,523.25,659.25,783.99,880,1174.66];const step=60/68/2;
     for(let n=0,k=0;t+2.6+n*step<t+17;n++){if(n%8===7)continue;const f=arp[k%arp.length]*(n>=24?1:.5);k++;const at=t+2.6+n*step;if(at<now)continue;
@@ -241,20 +246,35 @@ function makeCity(canvas,quality){
   const rim=new THREE.DirectionalLight(0x5b9bf0,.25);rim.position.set(60,30,80);scene.add(rim);
   // crossfade compositor
   const rtA=new THREE.WebGLRenderTarget(2,2),rtB=new THREE.WebGLRenderTarget(2,2);
-  const postU={a:{value:rtA.texture},b:{value:rtB.texture},f:{value:0}};
+  const postU={a:{value:rtA.texture},b:{value:rtB.texture},f:{value:0},pixel:{value:new THREE.Vector2(1,1)}};
   const post=new THREE.Scene(),ortho=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
   post.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({uniforms:postU,depthTest:false,depthWrite:false,
     vertexShader:"varying vec2 vU;void main(){vU=uv;gl_Position=vec4(position.xy,0.,1.);}",
-    fragmentShader:"uniform sampler2D a,b;uniform float f;varying vec2 vU;void main(){vec4 A=texture2D(a,vU),B=texture2D(b,vU);float k=smoothstep(0.,1.,f);vec3 c=mix(A.rgb,B.rgb,k)+vec3(.91,.64,.24)*.22*k*(1.-k);gl_FragColor=vec4(c,1.);}"})));
+    fragmentShader:`uniform sampler2D a,b;uniform float f;uniform vec2 pixel;varying vec2 vU;
+      vec3 frame(vec2 uv){return mix(texture2D(a,uv).rgb,texture2D(b,uv).rgb,smoothstep(0.,1.,f));}
+      void main(){vec3 c=frame(vU);vec3 bloom=vec3(0.);
+        bloom+=max(frame(vU+pixel*vec2(3.,0.))-.65,0.);
+        bloom+=max(frame(vU-pixel*vec2(3.,0.))-.65,0.);
+        bloom+=max(frame(vU+pixel*vec2(0.,3.))-.65,0.);
+        bloom+=max(frame(vU-pixel*vec2(0.,3.))-.65,0.);
+        c+=bloom*.085;float k=smoothstep(0.,1.,f);c+=vec3(.91,.64,.24)*.22*k*(1.-k);
+        float lum=dot(c,vec3(.2126,.7152,.0722));c=mix(vec3(lum),c,1.08);
+        c=mix(c,c*vec3(.94,.98,1.07),.28*(1.-smoothstep(.15,.6,lum)));
+        c=mix(c,c*vec3(1.05,1.015,.96),.25*smoothstep(.35,.85,lum));
+        c*=1.-.21*smoothstep(.18,.72,length(vU-.5));gl_FragColor=vec4(c,1.);
+      }`})));
   let w=0,h=0;function size(){const W2=canvas.clientWidth||innerWidth,H2=canvas.clientHeight||innerHeight;if(W2===w&&H2===h)return;w=W2;h=H2;r.setSize(w,h,false);
-    [camA,camB].forEach(c=>{c.aspect=w/h;c.updateProjectionMatrix()});const pr=r.getPixelRatio();rtA.setSize(Math.round(w*pr),Math.round(h*pr));rtB.setSize(Math.round(w*pr),Math.round(h*pr))}
+    [camA,camB].forEach(c=>{c.aspect=w/h;c.updateProjectionMatrix()});const pr=r.getPixelRatio();rtA.setSize(Math.round(w*pr),Math.round(h*pr));rtB.setSize(Math.round(w*pr),Math.round(h*pr));postU.pixel.value.set(1/(w*pr),1/(h*pr))}
   // camera rigs; each places a camera for cutscene time t. No noise, no shake: every move is an eased curve.
   const tgt=new THREE.Vector3(),lerp=(a,b,k)=>a+(b-a)*k;
   const wide=Math.max(1,Math.min(1.5,(innerHeight/innerWidth)*1.78));// pull back on portrait screens
   function shotSky(c,t){const u=clamp(t/CUT.x2,0,1),tilt=ease(clamp((t-.7)/4.2,0,1));
     c.position.set(lerp(-26,-14,u),lerp(5,16,u),SPAN*.78*wide-u*16);tgt.set(lerp(-14,0,tilt),lerp(170,10,tilt),lerp(-80,0,tilt));c.fov=lerp(52,46,u)}
   function shotStreet(c,t){const u=clamp((t-CUT.x1)/(9.3-CUT.x1),0,1),e=u*u*(3-2*u)*.35+u*.65;
-    const z=streetZ(t);c.position.set(RX+Math.sin(u*2.2)*.5,lerp(2.5,4.3,e),z);tgt.set(RX+Math.sin(u*2.2+.5)*1.3,lerp(2.2,4.4,e),z-34);c.fov=lerp(56,48,u)}
+    const z=streetZ(t);
+    // Babylon Curve3 camera rail when the shared engine is present; legacy rail keeps offline startup usable.
+    const rail=typeof VaultEngine!=="undefined"&&VaultEngine.sampleRoute?VaultEngine.sampleRoute([[RX,2.5,SPAN*.44],[RX+.3,2.8,SPAN*.34],[RX+.5,3.5,SPAN*.18],[RX+.4,4.3,SPAN*.04]],e):null;
+    if(rail)c.position.set(rail[0],rail[1],rail[2]);else c.position.set(RX+Math.sin(u*2.2)*.5,lerp(2.5,4.3,e),z);tgt.set(RX+Math.sin(u*2.2+.5)*1.3,lerp(2.2,4.4,e),z-34);c.fov=lerp(56,48,u)}
   function shotDawn(c,t,orbit){const u=ease(clamp((t-CUT.x2)/6.6,0,1));const a=-1.02+u*.3+orbit;const d=SPAN*lerp(.86,.78,u)*wide;
     c.position.set(Math.sin(a)*d,SPAN*lerp(.2,.27,u),Math.cos(a)*d);tgt.set(0,lerp(9,14,u),0);c.fov=lerp(40,36,u)}
   const SHOTS=[{a:-1,b:CUT.x1+.7,f:shotSky},{a:CUT.x1,b:CUT.x2+.7,f:shotStreet},{a:CUT.x2,b:1e9,f:shotDawn}];
@@ -274,7 +294,7 @@ function makeCity(canvas,quality){
     const live=SHOTS.filter(s=>t>=s.a&&t<s.b);
     if(live.length>1){const A=live[0],B=live[1];place(camA,A,t,orbit);place(camB,B,t,orbit);postU.f.value=(t-B.a)/(A.b-B.a);
       r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(rtB);r.render(scene,camB);r.setRenderTarget(null);r.render(post,ortho)}
-    else{place(camA,live[0]||SHOTS[2],t,orbit);r.setRenderTarget(null);r.render(scene,camA)}}
+    else{place(camA,live[0]||SHOTS[2],t,orbit);if(hi){postU.f.value=0;r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(null);r.render(post,ortho)}else{r.setRenderTarget(null);r.render(scene,camA)}}}
   function dispose(){FIG.forEach(f=>{scene.remove(f.m.grp);try{SentinelMesh.dispose(f.m.grp)}catch(e){}});FIG.length=0;scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}});
     post.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});rtA.dispose();rtB.dispose();r.dispose();try{r.forceContextLoss()}catch(e){}}
   return{render,dispose};
@@ -288,7 +308,7 @@ function start(){
     const letters=s=>[...s].map(c=>`<span class="${c===" "?"sp":""}">${c===" "?"":c}</span>`).join("");
     root.innerHTML=`<canvas id="titleGl" aria-hidden="true"></canvas><div class="tleak" id="tLeak"></div><div class="tv"></div><div class="tgrain" id="tGrain"></div><div class="tbars"></div>
 <div class="layer"><div class="slate" id="tSlate">Collective AI Inc · 2026<i></i></div></div>
-<div class="tcap" id="tCap"><b>02</b>The campus, after dark</div>
+<div class="tcap" id="tCap"><b>02</b>Every agent has a place</div>
 <div class="layer"><div class="wm" id="tWm"><div class="word" id="tWord">${letters("COLLECTIVE AI")}<div class="sweep" id="tSweep"></div></div><div class="sub" id="tSub">VAULT</div><div class="rule" id="tRule"></div><div class="tag" id="tTag">${TAG}</div></div></div>
 <nav class="mm" id="tMenu" aria-label="Main menu"><button class="pri" data-act="enter">Enter the Vault</button><button data-act="settings">Settings</button><button data-act="credits">Credits</button></nav>
 <div class="panel" id="tSettings" role="dialog" aria-label="Settings"><div class="k">Settings</div><h2>Vault</h2>
@@ -297,7 +317,7 @@ function start(){
 <div class="row"><div>Quality<small>Low halves the pixel count and the skyline.</small></div><div class="seg" data-k="q"><button data-v="low">Low</button><button data-v="high">High</button></div></div>
 <div class="act"><button data-act="replay">Replay intro</button><button data-act="close">Done</button></div></div>
 <div class="panel" id="tCredits" role="dialog" aria-label="Credits"><div class="k">Credits</div><h2>Collective AI Vault</h2>
-<p>Collective AI Inc</p><p>JR Moyler (Hataalii), Co-Founder and CEO</p><p class="dim">Built with three.js. The skyline, the sentinels, the dawn, the score and every frame of this opening are generated in code at runtime; nothing is loaded from a file.</p>
+<p>Collective AI Inc</p><p>JR Moyler (Hataalii), Co-Founder and CEO</p><p class="dim">Built with three.js. The skyline, the sentinels, the dawn, the score and every frame of this opening are generated in code at runtime; the original Foley and ambience are generated as PCM audio in code.</p>
 <div class="act"><button data-act="close">Done</button></div></div>
 <button class="tsnd" id="tSnd" type="button">Tap for sound</button>
 <button class="skip" id="tSkip" type="button">Skip</button>
@@ -329,7 +349,7 @@ function start(){
       case"slateOff":$t("#tSlate").classList.remove("on");break;
       case"cap":cap.classList.add("on");break;
       case"capOff":cap.classList.remove("on");break;
-      case"leak":if(!inMenu){leak.classList.remove("go");void leak.offsetWidth;leak.classList.add("go")}break;
+      case"leak":if(!inMenu){if(typeof VaultAudio!=="undefined")VaultAudio.play("transition",{volume:.4});leak.classList.remove("go");void leak.offsetWidth;leak.classList.add("go")}break;
       case"letters":lettersEls.forEach((el,i)=>{if(noMotion||inMenu){el.classList.add("on");return}timers.push(setTimeout(()=>{el.classList.add("on");if(i%3===0)Score.tick(660+i*18,.06,.025)},i*70))});break;
       case"sweep":$t("#tSweep").classList.add("go");break;
       case"sub":$t("#tSub").classList.add("on");break;
@@ -341,7 +361,7 @@ function start(){
     function setSel(i){sel=(i+mbtns.length)%mbtns.length;mbtns.forEach((b,j)=>b.classList.toggle("on",j===sel))}
     // the picture runs on its own clock: the sting and the menu show the finished dawn shot, the menu slowly orbits it
     const sceneT=()=>cue===FULL&&!inMenu?clock:CUT.end+(inMenu?menuT:0);
-    function frame(now){raf=requestAnimationFrame(frame);const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
+    function frame(now){raf=requestAnimationFrame(frame);if(document.hidden){last=now;return}const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
       if(inMenu)menuT+=dt;else clock+=dt;
       while(cueI<cue.length&&clock>=cue[cueI][1]){fire(cue[cueI][0]);cueI++}
       if(city){try{city.render(sceneT(),now/1000,inMenu?menuT*.035:0)}catch(e){}}}
@@ -349,7 +369,7 @@ function start(){
     function still(){if(city)try{city.render(CUT.end,0,0)}catch(e){}}
     if(noMotion){toMenu();still();window.addEventListener("resize",still)}else raf=requestAnimationFrame(frame);
     // first user gesture starts the score (browser policy). "Tap for sound" joins it in time; any other gesture skips.
-    let gestured=false;function gesture(at){if(gestured)return;gestured=true;snd.classList.remove("on");Score.start(at||0)}
+    let gestured=false;function gesture(at){if(gestured)return;gestured=true;snd.classList.remove("on");Score.start(at||0);if(typeof VaultAudio!=="undefined")VaultAudio.unlock()}
     setCine();
     function skip(){gesture();if(!inMenu){clock=CUT.end;toMenu()}}
     snd.addEventListener("pointerdown",e=>e.stopPropagation());
@@ -361,13 +381,13 @@ function start(){
     function closePanel(){panel=null;$t("#tSettings").classList.remove("on");$t("#tCredits").classList.remove("on");mbtns[sel].focus({preventScroll:true})}
     function paintSettings(){const v={sound:String(soundOn()),cut:String(S.get(K.cut,true)!==false),q:S.get(K.q,"high")};root.querySelectorAll("#tSettings .seg").forEach(seg=>{const k=seg.dataset.k;seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.v===v[k]))})}
     $t("#tSettings").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const seg=b.closest(".seg");
-      if(seg){const k=seg.dataset.k;const v=b.dataset.v;if(k==="sound"){S.set(K.sound,v==="true");if(v==="false")Score.stop()}else if(k==="cut")S.set(K.cut,v==="true");else S.set(K.q,v);paintSettings();Score.tick(760,.06,.03);return}
+      if(seg){const k=seg.dataset.k;const v=b.dataset.v;if(k==="sound"){S.set(K.sound,v==="true");if(v==="false")Score.stop();else if(gestured)Score.start(0);if(typeof VaultAudio!=="undefined")VaultAudio.setEnabled(v==="true")}else if(k==="cut")S.set(K.cut,v==="true");else S.set(K.q,v);paintSettings();Score.tick(760,.06,.03);return}
       if(b.dataset.act==="replay"){replay();return}if(b.dataset.act==="close")closePanel()});
     $t("#tCredits").addEventListener("click",e=>{const b=e.target.closest("button[data-act=close]");if(b)closePanel()});
     function replay(){closePanel();root.classList.remove("menu");inMenu=false;S.set(K.seen,"");timers.forEach(clearTimeout);timers=[];
       ["#tSlate","#tSub","#tRule","#tTag"].forEach(s=>$t(s).classList.remove("on"));cap.classList.remove("on");$t("#tSweep").classList.remove("go");lettersEls.forEach(el=>el.classList.remove("on"));
       cue=noMotion?STILL:FULL;cueI=0;clock=0;Score.stop();gestured=false;setCine();gesture();if(noMotion){toMenu();still()}}
-    function enter(){if(done)return;done=true;Score.tick(880,.25,.06);Score.duck(.8);
+    function enter(){if(done)return;done=true;Score.tick(880,.25,.06);Score.duck(.8);if(typeof VaultAudio!=="undefined"){VaultAudio.play("complete",{volume:.38,bus:"work"});VaultAudio.ambient(true)}
       root.classList.add("out");cancelAnimationFrame(raf);timers.forEach(clearTimeout);
       const ms=noMotion?10:920;
       setTimeout(()=>{if(city)city.dispose();Score.stop();root.remove();style.remove();window.removeEventListener("keydown",key);window.removeEventListener("resize",still);resolve()},ms)}
@@ -384,3 +404,4 @@ function start(){
 }
 return{start,version:VERSION};
 })();
+

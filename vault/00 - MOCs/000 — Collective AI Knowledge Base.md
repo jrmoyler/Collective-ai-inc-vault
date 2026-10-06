@@ -4,7 +4,7 @@ tags:
 - moc
 type: moc
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # Collective AI Knowledge Base
 
@@ -36,3 +36,9 @@ Root map of the vault. 30 divisions, 600 agents, one founder.
 - [[Collective AI Mega Campus]]
 - [[Vercel Projects]]
 - [[Director Codenames]]
+
+- [[District Handbook — Atlas]] — district work kit and source-grounded records.
+
+- [[District Handbook — Archive stacks]] — district work kit and source-grounded records.
+
+- [[Drive Source Reconciliation Ledger]] — district work kit and source-grounded records.

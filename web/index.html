@@ -1,8 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.svg"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0A0E1A"><meta name="application-name" content="Collective AI Vault"><meta property="og:title" content="Collective AI Vault"><meta property="og:image" content="icon-512.png">
 <title>Collective AI Vault</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="vendor/fonts.css">
 <style>
 /* The vault as a place. Ribbon | 3D campus (full bleed) | reader sheet that docks over the right edge.
    Dusk is the default scene. Dark UI follows dusk and night, light UI follows day. */
@@ -459,7 +458,7 @@ a.wl{transition:border-color .15s,color .15s}
     </div>
     <div class="plate" id="plate">
       <button class="ib x" id="plateX" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <div class="k">Campus plan · Oct 4, 2026</div>
+      <div class="k">Knowledge city · 13 districts</div>
       <h2>Collective AI</h2>
       <p id="plateP"></p>
       <dl><dt>Folder</dt><dd>One district</dd><dt>Note</dt><dd>One building. Taller means longer and more linked.</dd><dt>Link</dt><dd>A cable between rooftops, drawn for the note you open.</dd></dl>
@@ -493,9 +492,11 @@ a.wl{transition:border-color .15s,color .15s}
   <div class="err" id="gErr"></div>
   <button class="btn pri" id="gGo" type="submit">Enter the campus</button>
 </form></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
+<script src="vendor/three-r128.min.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="vendor/vault-libraries.js"></script>
 <script src="config.js"></script>
+
 <script>
 // Notes load from Supabase after sign-in (see e_boot.js) and stay live through Realtime.
 let BASE = [];
@@ -594,7 +595,7 @@ function home(){
   const recent=NOTES.filter(n=>["project","client"].includes(n.fm.type)).slice(0,10);
   const tagCount={};NOTES.forEach(n=>n.tags.forEach(t=>tagCount[t]=(tagCount[t]||0)+1));
   const topTags=Object.entries(tagCount).sort((a,b)=>b[1]-a[1]).slice(0,22);
-  return `<div class="hero"><div class="date">Sunday · Oct 4, 2026</div><h1>Collective AI Vault</h1><p>Architecting a Humane Future. Second brain for John-Ross Moyler (Hataalii).</p></div>
+  return `<div class="hero"><div class="date">${new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric",year:"numeric"})}</div><h1>Collective AI Vault</h1><p>Architecting a Humane Future. Second brain for John-Ross Moyler (Hataalii).</p></div>
   <div class="stats"><div class="stat"><b>${NOTES.length}</b><span>notes</span></div><div class="stat"><b>${cnt("operating")}/${divs.length}</b><span>divisions operating</span></div><div class="stat"><b>${NOTES.filter(n=>n.fm.type==="agent-blueprint").length}</b><span>agent blueprints</span></div><div class="stat"><b>${tasks.length}</b><span>open checklist items</span></div></div>
   <div class="mocs">${mocs.map(m=>`<button class="moc" data-id="${m.id}"><b>${esc(m.name.replace(/^\d+ — /,"").replace(" MOC",""))}</b><small>${m.out.size} notes</small></button>`).join("")}</div>
   <h2>Divisions</h2>
@@ -652,6 +653,7 @@ $("#stabs").addEventListener("click",e=>{const b=e.target.closest("button[data-s
 // ---------- open a note: read it and fly to it
 function open(n,push=true){
   if(!n)return;cur=n;
+  if(typeof VaultAudio!=="undefined")VaultAudio.district(n.top);
   if(push){hist=hist.slice(0,hpos+1);hist.push(n.id);hpos=hist.length-1}
   sheet.view="note";sheet.ntab="note";
   $("#back").disabled=$("#sBack").disabled=hpos<=0;$("#fwd").disabled=$("#sFwd").disabled=hpos>=hist.length-1;
@@ -660,6 +662,7 @@ function open(n,push=true){
   store.set("vault.last",n.name);
   Campus.focus(n);$("#plate").hidden=true;
   openSheet("note");updateCrumb();
+  if(typeof VaultEngine!=="undefined")VaultEngine.reveal($("#sbody"));
 }
 function updateCrumb(){const n=cur;$("#crumb").innerHTML=n?"Campus › "+(n.folder?esc(n.folder.replace(/\//g," › "))+" › ":"")+"<b>"+esc(n.name)+"</b>":"Campus";}
 function goBack(){if(hpos>0){hpos--;open(NOTES[hist[hpos]],false)}}
@@ -718,6 +721,149 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="/"){e.preventDefault();openSwitcher()}
 });
 
+
+
+// Knowledge districts describe the existing folder structure, not the six physical campus districts.
+const Districts = (() => {
+  const rows = [
+    ['00 - MOCs','Atlas','Find the company map and follow the source notes.','navigation',['Read a hub','Follow a linked source','Check unresolved questions']],
+    ['01 - Divisions','Division council','Read division charters and operating boundaries.','council',['Read the charter','Check operating status','Find the director']],
+    ['02 - ZenFlow','Agent foundry','Work from current agent routing and orchestration notes.','foundry',['Check model routing','Read an agent protocol','Inspect an open task']],
+    ['03 - Products','Product workshop','Trace products from specification to delivery.','workshop',['Read a specification','Check dependencies','Find the next delivery task']],
+    ['04 - People','Team commons','Find people, responsibilities and collaboration context.','commons',['Read a profile','Check responsibilities','Find the relevant team note']],
+    ['05 - Operations','Control room','Use procedures and task records to run the company.','control',['Read a procedure','Review open work','Connect your work tool']],
+    ['06 - Finance','Finance chamber','Review financial records and distinguish targets from actuals.','chamber',['Read a financial source','Check assumptions and date','Inspect a finance task']],
+    ['07 - Brand','Brand atelier','Use the voice, visual standards and approved brand records.','atelier',['Read a brand standard','Check source assets','Review a brand task']],
+    ['08 - Research','Research observatory','Find evidence, research questions and dated findings.','observatory',['Read a research note','Follow its sources','Check what remains unknown']],
+    ['09 - Projects','Delivery yard','Find project state, blockers and next actions.','yard',['Read a project record','Review linked tasks','Connect your delivery tool']],
+    ['10 - Archive','Archive stacks','Consult historical records while preserving superseded context.','stacks',['Read the archive record','Check superseded notices','Follow the replacement source']],
+    ['11 - Physical AI','Physical systems lab','Explore robotics, hardware and physical system records.','lab',['Read a system record','Check validation evidence','Inspect a hardware task']],
+    ['Daily','Daily log','Read dated work records and maintain continuity.','log',['Read the latest entry','Check recent changes','Review today’s work']]
+  ];
+  const all = Object.freeze(rows.map(([folder,title,purpose,theme,kit],index)=>Object.freeze({id:index,folder,title,purpose,theme,kit:Object.freeze(kit)})));
+  const top = note => (note.folder || '').split('/')[0];
+  function notesFor(folder,notes,query='') {
+    const q=query.trim().toLowerCase();
+    return notes.filter(n=>top(n)===folder && (!q || [n.name,n.body||'',...(n.fm?.tags||[])].join(' ').toLowerCase().includes(q)))
+      .sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+  }
+  function tasksFor(folder,notes,tasks) {
+    const names=new Set(notesFor(folder,notes).map(n=>n.name));
+    return tasks.filter(t=>t.status!=='done' && names.has(t.note)).sort((a,b)=>({high:0,medium:1,low:2}[a.priority]??3)-({high:0,medium:1,low:2}[b.priority]??3));
+  }
+  function completedWork(folder,notes,tasks) {
+    const names=new Set(notesFor(folder,notes).map(n=>n.name));
+    return tasks.filter(t=>t.status==='done' && t.done_at && String(t.result||'').trim() && names.has(t.note));
+  }
+  function landmarks(folder,notes) {
+    return notesFor(folder,notes).sort((a,b)=>Number(b.fm?.type==='moc')-Number(a.fm?.type==='moc') || ((b.out?.size||0)+(b.back?.size||0))-((a.out?.size||0)+(a.back?.size||0))).slice(0,6);
+  }
+  return Object.freeze({all,top,get:folder=>all.find(d=>d.folder===folder),notesFor,tasksFor,completedWork,landmarks});
+})();
+
+// Babylon owns authored camera rail sampling; Anime owns cancellable DOM transitions.
+// The existing Three renderer owns the city. No second GPU context is created.
+const VaultEngine=(()=>{
+  const rails=new Map();
+  function sampleRoute(points,t){
+    if(!Array.isArray(points)||points.length<2||points.some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v))))throw new TypeError('Camera route needs finite 3D points');
+    t=Number.isFinite(t)?Math.max(0,Math.min(1,t)):0;
+    const key=JSON.stringify(points);let rail=rails.get(key);
+    if(!rail){
+      if(typeof VaultLibraries==='undefined')return points[0].map((v,i)=>v+(points[points.length-1][i]-v)*t);
+      rail=VaultLibraries.Curve3.CreateCatmullRomSpline(points.map(p=>new VaultLibraries.Vector3(...p)),48,false).getPoints();
+      if(rails.size>=16)rails.delete(rails.keys().next().value);rails.set(key,rail);
+    }
+    if(t===0)return points[0].slice();if(t===1)return points[points.length-1].slice();
+    const at=t*(rail.length-1),i=Math.floor(at),a=rail[i],b=rail[Math.min(i+1,rail.length-1)],f=at-i;
+    return [a.x+(b.x-a.x)*f,a.y+(b.y-a.y)*f,a.z+(b.z-a.z)*f];
+  }
+  const transitions=new WeakMap();
+  function reveal(el){
+    if(!el)return;transitions.get(el)?.cancel();
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches||typeof VaultLibraries==='undefined'){el.style.opacity='1';return;}
+    const a=VaultLibraries.animate(el,{opacity:[0,1],translateY:[8,0],duration:280,ease:'out(3)'});transitions.set(el,a);return a;
+  }
+  return {sampleRoute,reveal,versions:{anime:'4.5.0',babylon:'9.29.0'}};
+})();
+
+// Original PCM sound bank, generated by scripts/generate_audio.py.
+// One gesture-unlocked mixer serves title, world and work events. No autoplay or network providers.
+const VaultAudio=(()=>{
+  const BANK={air:'campus-air',hum:'district-hum',footstep:'footstep',ui:'ui',notification:'notification',complete:'complete',transition:'transition'};
+  const busLevel={ambient:.3,effects:.5,work:.55};
+  let ctx=null,master=null,buses=null,ready=null,unlocked=false,enabled=true,disposed=false,generation=0;
+  let ambientWanted=false,districtId='',lastStep=-Infinity,lastWork=-Infinity;
+  const buffers=new Map(),voices=new Set(),loops=new Map();
+  const readEnabled=()=>{try{return JSON.parse(localStorage.getItem('vault.sound')||'true')!==false}catch{return true}};
+  const point=p=>Array.isArray(p)?p:[p?.x||0,p?.y||0,p?.z||0];
+  function ramp(param,value,seconds=.2){if(!ctx)return;param.cancelScheduledValues(ctx.currentTime);param.setValueAtTime(param.value,ctx.currentTime);param.linearRampToValueAtTime(value,ctx.currentTime+seconds)}
+  function init(){
+    if(ctx)return true;
+    const Audio=globalThis.AudioContext||globalThis.webkitAudioContext;
+    if(!Audio)return false;
+    try{ctx=new Audio();disposed=false;enabled=readEnabled();master=ctx.createGain();master.gain.value=enabled?.65:0;
+      const limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-16;limiter.knee.value=18;limiter.ratio.value=4;
+      master.connect(limiter);limiter.connect(ctx.destination);buses={};
+      for(const [name,value] of Object.entries(busLevel)){const g=ctx.createGain();g.gain.value=value;g.connect(master);buses[name]=g}
+      return true;
+    }catch{ctx=null;return false}
+  }
+  async function preload(){
+    if(ready)return ready;if(!init())return false;
+    const audio=ctx,epoch=generation;
+    ready=Promise.all(Object.entries(BANK).map(async([name,file])=>{
+      try{const response=await fetch('audio/'+file+'.wav',{cache:'force-cache'});if(!response.ok)return;
+        const buffer=await audio.decodeAudioData(await response.arrayBuffer());if(epoch===generation&&!disposed)buffers.set(name,buffer);
+      }catch{/* A missing audio file must never block work or sign-in. */}
+    })).then(()=>{if(epoch===generation&&ambientWanted)ambient(true);return epoch===generation});
+    return ready;
+  }
+  function unlock(){if(!init())return Promise.resolve(false);unlocked=true;enabled=readEnabled();
+    const resumed=ctx.state==='suspended'?ctx.resume():Promise.resolve();
+    return resumed.then(()=>preload()).catch(()=>false);
+  }
+  function voice(name,{position=null,volume=1,loop=false,bus='effects',rate=1}={}){
+    if(!ctx||!unlocked||!enabled||ctx.state!=='running'||document.hidden)return null;
+    const buffer=buffers.get(name);if(!buffer)return null;
+    // Keep overlapping realtime notifications bounded; ambient loops retain their voices.
+    if(voices.size>=24&&!loop)return null;
+    const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;source.loop=loop;source.playbackRate.value=Math.max(.5,Math.min(2,rate));
+    gain.gain.value=Math.max(0,Math.min(1,volume));source.connect(gain);
+    let panner=null;
+    if(position&&ctx.createPanner){panner=ctx.createPanner();panner.panningModel='HRTF';panner.distanceModel='inverse';panner.refDistance=4;panner.maxDistance=90;panner.rolloffFactor=1;
+      const [x,y,z]=point(position);if(panner.positionX){panner.positionX.value=x;panner.positionY.value=y;panner.positionZ.value=z}else panner.setPosition(x,y,z);
+      gain.connect(panner);panner.connect(buses[bus]||buses.effects);
+    }else gain.connect(buses[bus]||buses.effects);
+    const handle={source,gain,panner,stop(){try{source.stop()}catch{}}};voices.add(handle);
+    source.onended=()=>{voices.delete(handle);source.disconnect();gain.disconnect();if(panner)panner.disconnect()};
+    source.start();return handle;
+  }
+  function play(name,options){return voice(name,options)}
+  function stopLoops(){for(const handle of loops.values())handle.stop();loops.clear()}
+  function ambient(on=true){ambientWanted=!!on;if(!on||!enabled||document.hidden){stopLoops();return}
+    for(const [key,name,volume] of [['air','air',.65],['hum','hum',.38]])if(!loops.has(key)){const v=voice(name,{loop:true,bus:'ambient',volume});if(v)loops.set(key,v)}
+  }
+  function setEnabled(value){enabled=!!value;try{localStorage.setItem('vault.sound',JSON.stringify(enabled))}catch{}
+    if(master)ramp(master.gain,enabled?.65:0,.1);
+    if(!enabled){stopLoops();for(const v of [...voices])v.stop()}else{unlock();if(ambientWanted)ambient()}
+  }
+  function listener(position,forward=[0,0,-1]){
+    if(!ctx)return;const l=ctx.listener,[x,y,z]=point(position),[fx,fy,fz]=point(forward);
+    if(l.positionX){l.positionX.value=x;l.positionY.value=y;l.positionZ.value=z;l.forwardX.value=fx;l.forwardY.value=fy;l.forwardZ.value=fz;l.upX.value=0;l.upY.value=1;l.upZ.value=0}
+    else{l.setPosition(x,y,z);l.setOrientation(fx,fy,fz,0,1,0)}
+  }
+  function footstep(position,speed=1){const now=globalThis.performance?.now()||Date.now();if(now-lastStep<Math.max(180,460/Math.max(.5,speed)))return;lastStep=now;return play('footstep',{position,volume:.38,rate:.95+(lastStep%7)*.01})}
+  function district(id){if(id===districtId)return;districtId=id;const key=[...String(id)].reduce((n,c)=>n+c.charCodeAt(0),0);const hum=loops.get('hum');if(hum)ramp(hum.source.playbackRate,.92+(key%9)*.02,1.6);play('transition',{volume:.16})}
+  function workEvent(kind,position){const name= /done|complete|level/.test(kind)?'complete':/say|message|write|append|task/.test(kind)?'notification':'ui';
+    const now=globalThis.performance?.now()||Date.now();if(now-lastWork<350)return;lastWork=now;play(name,{bus:'work',position,volume:.6})}
+  function visibility(){if(document.hidden){stopLoops();if(ctx)ctx.suspend().catch(()=>{})}else if(ctx&&unlocked){ctx.resume().then(()=>{if(ambientWanted)ambient()}).catch(()=>{})}}
+  if(typeof document!=='undefined')document.addEventListener('visibilitychange',visibility);
+  async function dispose(){disposed=true;generation++;ambientWanted=false;stopLoops();for(const v of [...voices])v.stop();buffers.clear();ready=null;unlocked=false;
+    const audio=ctx;ctx=null;master=null;buses=null;if(audio)await audio.close().catch(()=>{});
+  }
+  return{unlock,preload,play,ambient,setEnabled,listener,footstep,district,workEvent,dispose,status:()=>({unlocked,enabled,loaded:buffers.size,voices:voices.size,district:districtId})};
+})();
 
 // Vault Sentinel identity. Core forms are assigned by the owner, never by a display name.
 const Identity=(()=>{
@@ -969,6 +1115,9 @@ const RIM=`{vec3 vd=normalize(vViewPosition);float fr=pow(1.0-max(dot(normal,vd)
 // kind: body | armor | joint | trim | visor
 function surface(kind,U,opts){
   const m=new THREE.MeshStandardMaterial({vertexColors:true,skinning:true,...opts});
+  // r128 standard materials already enable derivatives; expose an extension request
+  // for versions that read material.extensions without assuming it exists.
+  m.extensions={...(m.extensions||{}),derivatives:true};
   const detail=kind==='armor'?TEX.plating:kind==='trim'||kind==='visor'?null:TEX.carbon,scale=kind==='armor'?.9:3.2,amt=kind==='armor'?.85:kind==='joint'?.5:.55;
   m.onBeforeCompile=s=>{
     Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn});
@@ -976,7 +1125,12 @@ function surface(kind,U,opts){
     let f=s.fragmentShader;
     f=f.replace('#include <color_fragment>',`#include <color_fragment>
 \tfloat sDetail=uTexOn>0.5?triplanar(tDetail,vLocal,vLocalN,${scale.toFixed(2)}):0.55;
-\tdiffuseColor.rgb*=mix(1.0,0.5+0.92*sDetail,uTexOn*${amt.toFixed(2)});`);
+\tdiffuseColor.rgb*=mix(1.0,0.5+0.92*sDetail,uTexOn*${amt.toFixed(2)});
+\t// Fine machined lines use derivative filtering to avoid distant shimmer. No texture download required.
+\tvec3 seamP=vLocal*${kind==='armor'?'9.0':'28.0'};vec3 seamW=fwidth(seamP)+vec3(0.003);
+\tvec3 seamD=abs(fract(seamP-0.5)-0.5);vec3 seams=vec3(1.0)-smoothstep(vec3(0.015),vec3(0.015)+seamW,seamD);
+\tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.055':'0.025'};
+\tdiffuseColor.rgb*=1.0-machining;`);
     f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0);');
     let em=RIM;
     if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
@@ -989,7 +1143,7 @@ function surface(kind,U,opts){
 \t totalEmissiveRadiance+=uRim*(0.22+band*0.7)*glowGain;}`;
     f=f.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\t'+em);
     s.fragmentShader=F_HEAD+f};
-  m.customProgramCacheKey=()=>'sentinel-'+kind;return m;
+  m.customProgramCacheKey=()=>'sentinel-machined-v2-'+kind;return m;
 }
 
 // ---- skeleton. Rigid skinning: each plate follows one bone, so armor never smears.
@@ -1257,6 +1411,7 @@ function textures(base){if(base&&TEX.state==='idle')TEX.base=base;return {state:
 return {create:makeSentinel,dispose,pose,emote,prop,environment,BUSY,STATUSES,EMOTES,stats,textures,reducedMotion,tier:l=>Identity.tier(l)};
 })();
 
+
 // =====================================================================
 // The campus. Folders are districts, notes are buildings, links are cables.
 // One InstancedMesh with a facade shader (windows, floors, lobby band) so ~2,400 volumes cost a few draw calls.
@@ -1354,7 +1509,14 @@ function squarify(items,x,y,w,h){
   }
   return out;
 }
-function tiersFor(cx,cz,fw,fd,h,rnd){
+// Architectural massing follows the district's stable identity, independent of note count.
+function districtStyle(top){const n=parseInt(top,10);return Number.isFinite(n)?((n%5)+5)%5:Math.floor(hash01(top)*5)}
+function tiersFor(cx,cz,fw,fd,h,rnd,style=0){
+  if(style===1&&h>=15){const a=h*.22,b=h*.76;return[{x:cx,z:cz,w:fw,d:fd,y0:0,y1:a},{x:cx,z:cz,w:fw*.58,d:fd*.82,y0:a,y1:b},{x:cx,z:cz,w:fw*.72,d:fd*.9,y0:b,y1:h}]}
+  if(style===2&&h>=15){return[{x:cx,z:cz,w:fw,d:fd,y0:0,y1:h*.32},{x:cx-fw*.13,z:cz,w:fw*.7,d:fd*.88,y0:h*.32,y1:h*.67},{x:cx-fw*.24,z:cz,w:fw*.46,d:fd*.72,y0:h*.67,y1:h}]}
+  if(style===3&&h>=15){return[{x:cx,z:cz,w:fw,d:fd,y0:0,y1:h*.16},{x:cx,z:cz,w:fw*.88,d:fd*.62,y0:h*.16,y1:h*.91},{x:cx,z:cz,w:fw*.92,d:fd*.72,y0:h*.91,y1:h}]}
+  if(style===4&&h>=15){return[{x:cx,z:cz,w:fw,d:fd,y0:0,y1:h*.42},{x:cx,z:cz,w:fw*.72,d:fd*.72,y0:h*.42,y1:h*.78},{x:cx,z:cz,w:fw*.32,d:fd*.32,y0:h*.78,y1:h}]}
+
   const j=(rnd-.5);
   if(h<15)return[{x:cx,z:cz,w:fw,d:fd,y0:0,y1:h}];
   if(h<32){const h1=h*(.38+.1*rnd);return[{x:cx,z:cz,w:fw,d:fd,y0:0,y1:h1},{x:cx+j*fw*.14,z:cz-j*fd*.12,w:fw*.68,d:fd*.7,y0:h1,y1:h}]}
@@ -1390,7 +1552,7 @@ function layout(){
         h=clamp(h*.86,4,56);
         const mf=Math.min(cw,cd)*(.7+.16*rnd);
         const fw=clamp(Math.min(cw*.84,mf*(.9+.2*hash01(note.name+"w"))),3.5,16),fd=clamp(Math.min(cd*.84,mf*(.9+.2*hash01(note.name+"d"))),3.5,16);
-        B[note.id]={id:note.id,cx,cz,fw,fd,h,rnd,tiers:tiersFor(cx,cz,fw,fd,h,rnd)};
+        B[note.id]={id:note.id,cx,cz,fw,fd,h,rnd,style:districtStyle(d.top),tiers:tiersFor(cx,cz,fw,fd,h,rnd,districtStyle(d.top))};
       });
     });
   });
@@ -1400,7 +1562,7 @@ function layout(){
 
 // ---------- ground plan painted to one texture
 function paintGround(){
-  const S=4096,cvs=document.createElement("canvas");cvs.width=cvs.height=S;const g=cvs.getContext("2d"),sc=S/GSIDE;
+  const S=HI?4096:2048,cvs=document.createElement("canvas");cvs.width=cvs.height=S;const g=cvs.getContext("2d"),sc=S/GSIDE;
   const X=x=>(x+GSIDE/2)*sc,Z=z=>(z+GSIDE/2)*sc;
   g.fillStyle="#0b1019";g.fillRect(0,0,S,S);
   for(let i=0;i<26000;i++){g.fillStyle=`rgba(255,255,255,${Math.random()*.018})`;g.fillRect(Math.random()*S,Math.random()*S,1+Math.random()*2.5,1+Math.random()*2.5)}
@@ -1749,8 +1911,8 @@ function fitShadow(){
 }
 
 // ---------- post: multisampled scene, bloom for windows and lamps, then one grade pass (light shafts, split tone, grain, sRGB)
-// The r128 examples are not on cdnjs (404), so they come from the npm mirror on jsDelivr, pinned to the same three.js version.
-const POST_SRC="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/";
+// Postprocessing is bundled locally from the exact city renderer version.
+const POST_SRC="vendor/three/examples/js/";
 const POST_FILES=["shaders/CopyShader.js","shaders/LuminosityHighPassShader.js","postprocessing/EffectComposer.js","postprocessing/RenderPass.js","postprocessing/ShaderPass.js","postprocessing/UnrealBloomPass.js"];
 function wantPost(){return HI&&!reduced}
 function loadPost(){
@@ -1884,6 +2046,23 @@ function buildDecor(){
   decor.add(instMesh(trunkG,M.trunk,trees.map(t=>({x:t.x,z:t.z,sy:1.6+t.k*1.4})),false));
   decor.add(instMesh(canG,M.canopy,trees.map(t=>{const s=1.3+t.k*1.3;return{x:t.x,y:1.2+t.k*1.1,z:t.z,ry:t.k*6,sx:s,sy:s*(1.05+t.k*.35),sz:s*(.9+t.k*.2),c:tc.setHSL(.24+t.k*.08,.35+t.k*.2,.42+t.k*.18).clone()}}),HI));
   // planters: low stone boxes with a shrub, at plot corners
+  // Furniture remains outside building pads and uses three draw calls for the entire city.
+  const seats=[],rails=[],wayfinding=[];
+  DIST.forEach(d=>{
+    const color=lin(d.color),step=HI?22:40;
+    for(let i=step;i<d.w-step;i+=step){const x=d.x+i,z=d.z+2.5;if(!okCell(x,z,1))continue;
+      seats.push({x,y:.65,z,sx:2.8,sy:.18,sz:.65});
+      rails.push({x:x-1,y:.28,z,sx:.14,sy:.65,sz:.65},{x:x+1,y:.28,z,sx:.14,sy:.65,sz:.65});
+    }
+    // Paired gate blades face each district entrance; colors match the explorer legend.
+    const x=d.x+d.w*.5,z=d.z-2.5;
+    [-1,1].forEach(side=>{wayfinding.push({x:x+side*2.1,y:2.6,z,sx:.22,sy:5.2,sz:.6,c:color});rails.push({x:x+side*2.1,y:2.6,z:z+.36,sx:.5,sy:5.6,sz:.22})});
+  });
+  const furnitureG=new THREE.BoxGeometry(1,1,1);
+  decor.add(instMesh(furnitureG,M.planter,seats,false));
+  decor.add(instMesh(furnitureG.clone(),M.pole,rails,HI));
+  if(!DMAT.wayfinding){DMAT.wayfinding=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.3,metalness:.45,emissive:0xffffff,emissiveIntensity:.35});DMAT.wayfinding.onBeforeCompile=sh=>{Object.assign(sh.uniforms,SH);sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\n'+SH_DECL).replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance *= diffuseColor.rgb * (0.25 + uLamp * 1.8);')}}
+  decor.add(instMesh(furnitureG.clone(),DMAT.wayfinding,wayfinding,false));
   const pl=[];DIST.forEach(d=>[[d.x+1.2,d.z+1.2],[d.x+d.w-1.2,d.z+1.2],[d.x+1.2,d.z+d.d-1.2],[d.x+d.w-1.2,d.z+d.d-1.2]].forEach(([x,z])=>{if(okCell(x,z,0))pl.push({x,z})}));
   const plG=new THREE.BoxGeometry(2.2,.7,2.2);plG.translate(0,.35,0);decor.add(instMesh(plG,M.planter,pl,false));
   decor.add(instMesh(canG,M.canopy,pl.map((p,i)=>({x:p.x,y:.3,z:p.z,sx:1,sy:.55,sz:1,c:tc.setHSL(.27,.4,.38).clone()})),false));
@@ -2364,10 +2543,22 @@ function step(dt){
   const ks=1-Math.exp(-dt*9);const sx=shiftGoal.x-shiftNow.x,sy2=shiftGoal.y-shiftNow.y;
   if(Math.abs(sx)>.3||Math.abs(sy2)>.3){shiftNow.x+=sx*ks;shiftNow.y+=sy2*ks;applyShift();dirty=true}
 }
+let renderWasActive=false;
+const renderBudget={scale:1,slow:0,fast:0,samples:0,ms:0,changes:0};
+function sampleRenderBudget(ms){
+  if(!Number.isFinite(ms)||ms<=0||ms>150)return;
+  renderBudget.ms+=ms;renderBudget.samples++;
+  if(renderBudget.samples<90)return;
+  const average=renderBudget.ms/renderBudget.samples;renderBudget.samples=0;renderBudget.ms=0;
+  renderBudget.slow=average>27?renderBudget.slow+1:0;renderBudget.fast=average<20?renderBudget.fast+1:0;
+  if(renderBudget.slow>=2&&renderBudget.scale>.6){renderBudget.scale=Math.max(.6,renderBudget.scale-.15);renderBudget.slow=0;renderBudget.fast=0;renderBudget.changes++;resize()}
+  else if(renderBudget.fast>=5&&renderBudget.scale<1){renderBudget.scale=Math.min(1,renderBudget.scale+.1);renderBudget.fast=0;renderBudget.changes++;resize()}
+}
 function frame(t){
   requestAnimationFrame(frame);
+  const priorRenderActive=renderWasActive;renderWasActive=false;
   if(!C.ok||document.hidden||paused)return;
-  const dt=Math.min(.05,(t-last)/1000||.016);last=t;time=t/1000;
+  const frameMs=t-last;const dt=Math.min(.05,frameMs/1000||.016);last=t;time=t/1000;
   step(dt);
   const introRun=introStart>=0&&time-introStart<3.6;
   if(introRun){writeMatrices();renderer.shadowMap.needsUpdate=true;dirty=true}else if(introStart>=0){introStart=-1;growth.fill(1);writeMatrices();renderer.shadowMap.needsUpdate=true;dirty=true}
@@ -2386,7 +2577,10 @@ function frame(t){
   applyCamera();
   skyMesh.position.copy(camera.position);if(stars)stars.position.copy(camera.position);
   if(AMB){stepDrones();if(motes)motes.material.uniforms.uCenter.value.set(cam.tx,0,cam.tz)}
+  const renderStart=performance.now();
   if(composer&&postState==="ready"){bloomPass.enabled=bloomNow>.03;bloomPass.strength=.55*bloomNow;updateGrade();composer.render()}else renderer.render(scene,camera);
+  // Consecutive rendered frames include GPU/compositor pressure; idle 30 Hz frames do not.
+  sampleRenderBudget(Math.max(performance.now()-renderStart,priorRenderActive?frameMs:0));renderWasActive=true;
   if(!firstFrame){firstFrame=true;const l=$("#loading");l.style.opacity=0;setTimeout(()=>l.hidden=true,700)}
   if(t-lastLbl>90){lastLbl=t;updateLabels();markChip()}
   if(t-lastMini>120){lastMini=t;drawMini()}
@@ -2430,7 +2624,7 @@ function init(){
 function resize(){
   const r=stage.getBoundingClientRect();W=Math.max(1,r.width|0);H=Math.max(1,r.height|0);
   // pixel budget: 1.75x on desktop high, 1.5x on phones, 1x on low
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,QUALITY==="low"?1:innerWidth>760?1.75:1.5));renderer.setSize(W,H,false);camera.aspect=W/H;applyShift();
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,(QUALITY==="low"?1:innerWidth>760?1.75:1.5)*renderBudget.scale));renderer.setSize(W,H,false);camera.aspect=W/H;applyShift();
   const ps=H*renderer.getPixelRatio()*.5/Math.tan(camera.fov*Math.PI/360);
   if(DMAT.halo)DMAT.halo.uniforms.uScale.value=ps;if(motes)motes.material.uniforms.uScale.value=ps;
   if(composer){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(W,H)}
@@ -2458,10 +2652,11 @@ function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
 return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,
   // integration points for other modules (guides, title, world): read-only handles plus hooks
-  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,tex:TEX,
+  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,tex:TEX,renderBudget:{...renderBudget},
     // testing only: pin the local clock to a decimal hour (null restores the real clock) and recompute the sky
     setClock:h=>{SOL.clockOverride=h==null?null:+h;if(C.ok)applyMode("auto")}})};
 })();
+
 
 
 // =====================================================================
@@ -2507,7 +2702,8 @@ const Guides=(()=>{
       robe:top(new THREE.CylinderGeometry(.62,1,1,20,1,true)),
       hem:top(new THREE.CylinderGeometry(1,1,1,20,1,true)),
       mantle:top(new THREE.CylinderGeometry(.56,.94,1,20,1,true)),
-      cape:top(new THREE.BoxGeometry(1,1,.035)),
+      // Tailored cloth with scalloped shoulders and a folded cross section, built once.
+      cape:(()=>{const p=[],idx=[],w=12,h=10;for(let y=0;y<=h;y++)for(let x=0;x<=w;x++){const u=x/w,v=y/h,edge=Math.abs(u-.5)*2;p.push((u-.5)*(1-.12*(1-v)),-v+.055*edge*edge*(1-v),Math.sin(u*Math.PI*6)*.045*(.35+.65*v)+v*v*.075)}for(let y=0;y<h;y++)for(let x=0;x<w;x++){const a=y*(w+1)+x,b=a+w+1;idx.push(a,b,a+1,b,b+1,a+1)}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(p,3));g.setIndex(idx);g.computeVertexNormals();return g})(),
       strip:new THREE.BoxGeometry(1,1,1),
       hood:new THREE.SphereGeometry(.5,16,10,Math.PI*.85,Math.PI*1.3,0,Math.PI*.64),
       peak:new THREE.ConeGeometry(.26,.8,10,1,true),
@@ -2574,6 +2770,8 @@ const Guides=(()=>{
     // quest marker
     const mk=new THREE.Group();mk.position.y=8.05;mk.scale.setScalar(1.5);const dia=mesh(K.marker,K.gold,0,0,0,1,1.7,1);dia.castShadow=false;mk.add(dia);const ring=mesh(K.markerRing,K.gold,0,-.62,0);ring.rotation.x=Math.PI/2;ring.castShadow=false;mk.add(ring);
     const halo=new THREE.Sprite(K.goldGlow);halo.scale.setScalar(2.2);mk.add(halo);mk.visible=false;root.add(mk);
+    // Layered collar and fasteners create a readable guild silhouette without touching personal identities.
+    for(const side of [-1,1]){const clasp=mesh(K.gem,K.metal,side*.48,4.65,.43,.32,.44,.25);root.add(clasp);root.add(mesh(K.strip,M.trim,side*.48,4.65,.49,.025,.15,.018));}
     g.marker=mk;g.markerDia=dia;g.markerRing=ring;g.markerGlow=halo;
     m.grp.add(root);m.head.add(cap);g.kitRoot=root;g.cap=cap;g.trim=M.trim;
   }
@@ -2694,7 +2892,7 @@ const Guides=(()=>{
           if(g.gest==="present"){A[0].rotation.x+=(-.95-A[0].rotation.x)*k;A[0].rotation.z+=(-.5-A[0].rotation.z)*k;A[1].rotation.x+=(-.95-A[1].rotation.x)*k;A[1].rotation.z+=(.5-A[1].rotation.z)*k}
           else if(g.gest==="point"){A[1].rotation.x+=(-1.5-A[1].rotation.x)*k;A[1].rotation.z+=(.12-A[1].rotation.z)*k;m.head.rotation.x-=.08*k}
           else if(g.gest==="bow"){m.head.rotation.x+=.5*k;A[0].rotation.x+=(.18-A[0].rotation.x)*k;A[1].rotation.x+=(.18-A[1].rotation.x)*k}}}
-      if(speaking){const p=.5+.5*Math.sin(time*14);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=1.1+.9*p}else g.trim.emissiveIntensity=1.1;
+      if(speaking&&!reduced){const p=.5+.5*Math.sin(time*7);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=1.1+.9*p}else g.trim.emissiveIntensity=1.1;
       // cloth and props
       if(g.cape){const sw=reduced?0:Math.sin(time*1.1+m.phase)*.035,tr=clamp(Math.abs(g.yawVel)*.25,0,.5),side=clamp(-g.yawVel*.15,-.25,.25);
         g.cape[0].rotation.x=.2+sw+tr;g.cape[1].rotation.x=.05+sw*1.4+tr*.5;g.cape[2].rotation.x=.04+sw*1.8;g.cape[0].rotation.z=side;g.cape[1].rotation.z=side*.6}
@@ -2955,7 +3153,7 @@ const Guides=(()=>{
   }
 
   // ---- answers. Every answer is computed from loaded data; nothing is guessed. Each returns {text, html, gest}.
-  const CHIPS=["What is this district","What's new","Who is working here","Open tasks"];
+  const CHIPS=["What is this district","What's new","Who is working here","Open tasks","Recommend my next task","Connect my tools"];
   const noteBtn=(n,sub)=>`<button class="bl" type="button" data-n="${esc(n.name)}"><b>${esc(n.name)}</b><small>${sub}</small></button>`;
   function overviewR(top,d){
     const ns=notesIn(top),mocs=ns.filter(n=>n.fm.type==="moc"),types={};ns.forEach(n=>{const t=n.fm.type||"untyped";types[t]=(types[t]||0)+1});
@@ -2980,6 +3178,15 @@ const Guides=(()=>{
     if(!ts.length)return {text:"No open task points at a note in this district.",html:"",gest:"nod"};
     const open=ts.filter(isOpen).length;
     return {text:`${plural(ts.length,"task")} not done here, ${open} open. Highest bounty first.`,html:ts.map(t=>`<button class="bl" type="button" data-n="${esc(t.note)}"><b>${esc(t.title||t.id)} <em class="bounty">+${BOUNTY[t.priority]||80} XP</em></b><small>${esc(t.id)} · ${esc(t.status)}${t.agent?" · "+esc(agentName(t.agent)):" · unassigned"} · ${esc(t.note)}</small></button>`).join(""),gest:"present"};
+  }
+  function nextWorkR(top){
+    const tasks=snap().tasks.filter(t=>isOpen(t)&&inDistrict(top,t.note)).sort((a,b)=>(BOUNTY[b.priority]||80)-(BOUNTY[a.priority]||80)||String(a.id).localeCompare(String(b.id)));
+    if(!tasks.length)return {text:"No unclaimed task is open here. Review recent changes or ask another district's Warden.",html:chips(),gest:"nod"};
+    const t=tasks[0];return {text:`Start with ${t.title||t.id}. It is ${t.priority||"medium"} priority. Read its linked note before claiming it in the task board.`,html:noteBtn({name:t.note},`${esc(t.id)} · ${esc(t.status)} · +${BOUNTY[t.priority]||80} XP on completion`),gest:"point"};
+  }
+  function toolsR(top){
+    const ns=notesIn(top).filter(n=>/mcp|connector|integration|tool registry|agent api|onboarding/i.test(n.name)).slice(0,6);
+    return {text:"Your tools join through the vault's agent API or MCP connection. Follow the connection notes for identity and access. Never paste credentials into a note or floor chat.",html:ns.length?ns.map(n=>noteBtn(n,esc(n.folder||""))).join(""):"<p>Connection setup is in the Live and onboarding panels. This district has no matching connection note.</p>",gest:"present"};
   }
   function landmarksR(top,d){
     const Bld=Campus.buildings(),tall=notesIn(top).filter(n=>Bld[n.id]).map(n=>({n,h:Bld[n.id].h,deg:n.out.size+n.back.size})).sort((a,b)=>b.h-a.h||b.deg-a.deg).slice(0,6);
@@ -3014,6 +3221,8 @@ const Guides=(()=>{
     if(/what(?:'s| is)? (?:this|the) (?:district|place|area)|about (?:this|the) district|what is here|what'?s here/.test(ql))return overviewR(top,d);
     if(/what'?s new|new here|recent|changed|updated|latest/.test(ql))return whatsNewR(top);
     if(/who(?:'s| is)?\s*(?:working|here|around|standing)|anyone (?:here|working)|working here/.test(ql))return whoHereR(top);
+    if(/recommend|next task|start working|where (?:should|can) i start/.test(ql))return nextWorkR(top);
+    if(/connect|integration|\bmcp\b|my tools|tool setup/.test(ql))return toolsR(top);
     if(/open tasks?|tasks?\b|commissions?|to-?do|work here|what needs doing/.test(ql))return openTasksR(top);
     if(/landmark|tallest|biggest/.test(ql))return landmarksR(top,d);
     const rs=best(top,q).slice(0,5);
@@ -3069,6 +3278,7 @@ const Guides=(()=>{
   return {boot,render,bind,answer,reply,list,openFor,talk,close,ledger,current,CHIPS,isTalking:()=>D.open,still};
 })();
 (function(){const t=setInterval(()=>{if(typeof Campus!=="undefined"&&Campus.ok()){clearInterval(t);Guides.boot()}},300)})();
+
 
 // =====================================================================
 // Live layer: Supabase Postgres + Realtime.
@@ -3190,11 +3400,7 @@ const Live=(()=>{
   const refresh=()=>{if(sheet.open&&sheet.view==="agents")renderSheet()};
 
   // ---- play layer: XP, levels, messages, celebrations, sound
-  const Sound=(()=>{let ctx=null;const on=()=>store.get("vault.sound",true);
-    const ac=()=>{if(!on())return null;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume()}catch{return null}return ctx};
-    const tone=(f,t0,len,type="sine",gain=.08)=>{const c=ac();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,c.currentTime+t0);g.gain.setValueAtTime(0,c.currentTime+t0);g.gain.linearRampToValueAtTime(gain,c.currentTime+t0+.012);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+t0+len);o.connect(g).connect(c.destination);o.start(c.currentTime+t0);o.stop(c.currentTime+t0+len+.05)};
-    return {on,set:v=>store.set("vault.sound",!!v),tick:()=>tone(880,0,.08,"triangle",.03),chime:()=>{tone(660,0,.18,"sine",.05);tone(990,.09,.22,"sine",.04)},done:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,i*.09,.3,"triangle",.06))},levelup:()=>{[392,523,659,784,1047,1319].forEach((f,i)=>tone(f,i*.1,.5,"sine",.07));tone(196,0,1.2,"sine",.05)},say:()=>{tone(740,0,.07,"square",.015);tone(880,.08,.07,"square",.015)}};
-  })();
+  const Sound={on:()=>store.get("vault.sound",true),set:v=>{store.set("vault.sound",!!v);if(typeof VaultAudio!=="undefined")VaultAudio.setEnabled(v)},tick:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.play('ui')},chime:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('write')},done:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('complete')},levelup:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('level')},say:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('say')}};
   function pushLevels(){const m=new Map();stats.forEach((r,k)=>m.set(k,Identity.level(r.xp)));if(Campus.setLevels)Campus.setLevels(m)}
   // every Sentinel id that stands for an actor: the autonomous agent, a person's walkers, and their owned tool sessions
   const sentinelIds=actor=>{const ids=[];if(agents.has(actor))ids.push(actor);members.forEach((mm,uid)=>{if(mm.display_name===actor)people.forEach(p=>{if(p.userId===uid)ids.push('member:'+uid+':'+p.session)})});sessions.forEach((p,key)=>{if(p.agent===actor&&isLive(p))ids.push('session:'+key)});return ids};
@@ -3403,13 +3609,72 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
 })();
 
 
-// ---------- title: cold open, wordmark, main menu. Everything here is code; no assets are loaded.
+
+// A work navigator backed only by loaded notes and the live task snapshot.
+const Journey = (() => {
+  let dialog,nav,content,selected=Districts.all[0].folder,opener;
+  let journeys=new Map(),evidence=[],progressMessage="",loaded=false,pending=false;
+  async function request(body){
+    const session=await Live.session();if(!session?.access_token)throw new Error("Sign in to save district progress.");
+    const response=await fetch(window.VAULT_CONFIG.url+"/functions/v1/district-progress",{method:"POST",headers:{"content-type":"application/json",apikey:window.VAULT_CONFIG.anonKey,Authorization:"Bearer "+session.access_token},body:JSON.stringify(body),signal:AbortSignal.timeout(10000)});
+    const result=await response.json();if(!response.ok||!result.ok)throw new Error("District progress could not be saved. Your notes and tasks remain available.");return result;
+  }
+  async function persist(action,extra={}){
+    if(pending)return;pending=true;const district=selected;progressMessage="Saving district progress…";if(dialog?.open)draw();
+    try{if(!loaded){const state=await request({action:"list"});journeys=new Map(state.journeys.map(j=>[j.district,j]));evidence=state.evidence;loaded=true}
+      const result=await request({action,district,...extra});journeys.set(district,result.journey);
+      if(action==="evidence"){const state=await request({action:"list"});evidence=state.evidence}
+      progressMessage="District progress saved to your account.";
+    }catch{progressMessage="Progress is unavailable. This visit is not saved; notes and tasks remain available."}
+    finally{pending=false;if(dialog?.open){draw();if(selected!==district)persist("visit")}}
+  }
+  const node=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e};
+  const button=(text,fn)=>{const b=node('button',text,'btn');b.type='button';b.onclick=fn;return b};
+  const notes=()=>typeof NOTES==='undefined'?[]:NOTES;
+  const tasks=()=>typeof Live==='undefined'?[]:Live.snapshot().tasks;
+  function launchTab(tab){close();sheet.atab=tab;openSheet('agents')}
+  function read(name){const n=notes().find(x=>x.name===name);if(n){close();open(n)}}
+  function draw(query=''){
+    const d=Districts.get(selected);content.replaceChildren();
+    content.append(node('p','Knowledge district · '+d.folder,'journey-eyebrow'),node('h2',d.title),node('p',d.purpose));
+    const kit=node('ol');d.kit.forEach(s=>kit.append(node('li',s)));content.append(kit);
+    const saved=journeys.get(selected);const state=node('p',saved?.first_visit?'Visited · '+new Date(saved.last_visit).toLocaleDateString():'No saved visit yet.','note-s');content.append(state);
+    if(progressMessage){const message=node('p',progressMessage,'note-s');message.setAttribute('role','status');content.append(message)}
+    const pin=button(saved?.shortlisted?'Remove from district shortlist':'Shortlist this district',()=>persist('shortlist',{enabled:!saved?.shortlisted}));pin.disabled=pending;content.append(pin);
+    const actions=node('div',undefined,'journey-actions');actions.append(button('Live task board',()=>launchTab('board')),button('Connect a tool',()=>launchTab('connect')),button('Write a note',()=>launchTab('desk')));content.append(actions);
+    const linked=Districts.tasksFor(selected,notes(),tasks());content.append(node('h3','Work in this district · '+linked.length));
+    if(!linked.length)content.append(node('p','No unfinished task points at a loaded note in this district.','note-s'));
+    linked.slice(0,8).forEach(t=>{const card=node('div',undefined,'journey-task');card.append(node('strong',t.title),node('p',`${t.status} · ${t.priority||'medium'} · ${t.agent||'unassigned'}`),button('Read '+t.note,()=>read(t.note)),button('Manage on board',()=>launchTab('board')));content.append(card)});
+    const completed=Districts.completedWork(selected,notes(),tasks());
+    content.append(node('h3','Completed team work · '+completed.length),node('p','Save verified task references. These records describe team work, not personal authorship.','note-s'));
+    completed.slice(0,8).forEach(t=>{const row=node('div',undefined,'journey-task');row.append(node('strong',t.title),node('p',t.result),button('Read '+t.note,()=>read(t.note)));const recorded=evidence.some(e=>e.district===selected&&e.task_id===t.id);const save=button(recorded?'Evidence saved':'Save completed work evidence',()=>persist('evidence',{task_id:t.id}));save.disabled=pending||recorded;row.append(save);content.append(row)});
+    const search=node('input');search.type='search';search.placeholder='Search this district';search.setAttribute('aria-label','Search notes in '+d.folder);search.value=query;
+    const list=node('div',undefined,'journey-notes');const count=node('h3');
+    const renderResults=()=>{const results=Districts.notesFor(selected,notes(),search.value);count.textContent='Source notes · '+results.length;list.replaceChildren();results.slice(0,80).forEach(n=>list.append(button(n.name,()=>read(n.name))));if(!results.length)list.append(node('p','No matching notes are loaded.','note-s'));if(results.length>80)list.append(node('p','Showing 80 notes. Search to narrow the results.','note-s'))};
+    search.oninput=renderResults;content.append(count,search,list);renderResults();
+    nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.folder===selected)));
+  }
+  function close(){if(dialog?.open)dialog.close();opener?.focus()}
+  function show(folder){boot();if(Districts.get(folder))selected=folder;opener=document.activeElement;draw();if(!dialog.open)dialog.showModal();dialog.querySelector('.journey-close').focus();persist('visit')}
+  function boot(){
+    if(dialog)return;
+    const style=node('style');style.textContent=`.journey-dialog{color:#E6E9F2;background:#10141e;border:1px solid #677080;border-radius:14px;width:min(1040px,94vw);max-height:90dvh;padding:20px}.journey-dialog::backdrop{background:#000b}.journey-dialog .note-s{color:#AAB6C9}.journey-header{display:flex;justify-content:space-between;align-items:center;gap:12px}.journey-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px}.journey-nav{display:flex;flex-direction:column;gap:7px}.journey-nav button{text-align:left}.journey-nav [aria-pressed=true]{border-color:#E8A33D;background:#302818}.journey-content{min-width:0}.journey-content h2{font-size:30px}.journey-content p{line-height:1.6}.journey-eyebrow{font-size:12px;color:#E8A33D}.journey-actions{display:flex;gap:8px;flex-wrap:wrap}.journey-task{padding:12px 0;border-bottom:1px solid #394150}.journey-task button{margin-right:8px}.journey-notes{display:grid;gap:6px;margin-top:12px}.journey-notes button{text-align:left;overflow-wrap:anywhere;white-space:normal}.journey-content input{box-sizing:border-box;width:100%;padding:12px;background:#070b13;color:inherit;border:1px solid #677080;border-radius:6px}.journey-dialog button:focus-visible,.journey-dialog input:focus-visible{outline:3px solid #E8A33D;outline-offset:3px}@media(max-width:640px){.journey-layout{grid-template-columns:1fr}.journey-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.journey-dialog{padding:14px}.journey-nav button{font-size:12px}}`;
+    document.head.append(style);dialog=node('dialog',undefined,'journey-dialog');dialog.setAttribute('aria-labelledby','journey-title');
+    const header=node('div',undefined,'journey-header');const title=node('h2','District navigator');title.id='journey-title';header.append(title,button('Close',close));header.lastChild.classList.add('journey-close');
+    const layout=node('div',undefined,'journey-layout');nav=node('nav',undefined,'journey-nav');nav.setAttribute('aria-label','Knowledge districts');content=node('section',undefined,'journey-content');
+    Districts.all.forEach(d=>{const b=button(d.folder,()=>{selected=d.folder;draw();persist('visit')});b.dataset.folder=d.folder;nav.append(b)});layout.append(nav,content);dialog.append(header,layout);dialog.addEventListener('close',()=>opener?.focus());dialog.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();close()}});document.body.append(dialog);
+  }
+  return {boot,show,close,refresh:()=>{if(dialog?.open)draw()}};
+})();
+
+// ---------- title: code-only camera choreography, skyline, postprocessing and menu.
+// Original PCM Foley is generated offline by scripts/generate_audio.py; score is synthesized live.
 // The cold open is a three-shot cutscene rendered live in three.js: (1) night sky tilting down onto a campus rising from
 // the plain, (2) a low push down a lit avenue with sentinels walking, (3) dawn over the skyline as the wordmark lands.
 // Shots crossfade through render targets; letterbox, grain, light leaks, slates and the WebAudio score are code too.
 // Title.start() -> Promise that resolves once the player chooses "Enter the Vault". The overlay then dissolves over the live app.
 const Title=(()=>{
-const VERSION="v2.1",TAG="Architecting a Humane Future";
+const VERSION="v3.0",TAG="Architecting a Humane Future";
 const K={seen:"vault.title.seen",sound:"vault.sound",cut:"vault.title.cutscene",q:"vault.quality"};
 const S=(typeof store!=="undefined")?store:{get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const today=()=>new Date().toISOString().slice(0,10);
@@ -3421,7 +3686,7 @@ const CSS=`
 #title canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #title .tv{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 62%,transparent 40%,rgba(2,3,8,.55) 78%,rgba(2,3,8,.92) 100%)}
 #title .tgrain{position:absolute;inset:-120px;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,transparent 1px 3px)}
-#title .tgrain.noise{opacity:.11;background-repeat:repeat;background-size:128px 128px;animation:tgrain .6s steps(6) infinite}
+#title .tgrain.noise{opacity:.045;background-repeat:repeat;background-size:128px 128px;animation:tgrain .6s steps(6) infinite}
 @keyframes tgrain{0%{transform:translate(0,0)}17%{transform:translate(-37px,21px)}33%{transform:translate(29px,-44px)}50%{transform:translate(-52px,-13px)}67%{transform:translate(18px,47px)}83%{transform:translate(61px,-29px)}100%{transform:translate(0,0)}}
 #title .tleak{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0;background:radial-gradient(ellipse 60% 70% at 14% 38%,rgba(232,163,61,.55),transparent 60%),radial-gradient(ellipse 50% 40% at 88% 72%,rgba(255,214,150,.28),transparent 60%)}
 #title .tleak.go{animation:tleak 1.5s ease-out}
@@ -3461,13 +3726,17 @@ const CSS=`
 #title .skip{position:absolute;right:18px;bottom:18px;font-family:var(--mono,monospace);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8A93AD;border:1px solid rgba(138,147,173,.35);padding:8px 14px;border-radius:999px;background:rgba(5,7,14,.5);transition:color .2s,border-color .2s,opacity .5s;pointer-events:auto}
 #title .skip:hover{color:#fff;border-color:var(--gold)}
 #title.menu .skip{opacity:0;pointer-events:none}
-#title .mm{position:absolute;left:0;right:0;top:50%;display:grid;justify-items:center;gap:6px;opacity:0;transform:translateY(24px);transition:opacity .8s .2s,transform .9s .2s var(--t-ease);pointer-events:none}
-#title.menu .mm{opacity:1;transform:none;pointer-events:auto}
+#title .mm{position:absolute;left:50%;top:50%;width:min(380px,calc(100% - 48px));box-sizing:border-box;display:grid;justify-items:stretch;gap:8px;padding:18px 20px;background:rgba(5,10,24,.84);border:1px solid rgba(212,168,67,.22);border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);opacity:0;transform:translate(-50%,24px);transition:opacity .8s .2s,transform .9s .2s var(--t-ease);pointer-events:none}
+#title.menu .mm{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#title.menu .tgrain.noise{opacity:.018;animation:none}
+#title.menu .tv{background:linear-gradient(180deg,rgba(2,3,8,.12),rgba(2,3,8,.08) 36%,rgba(2,3,8,.30) 70%,rgba(2,3,8,.64)),radial-gradient(ellipse at 50% 50%,transparent 24%,rgba(2,3,8,.38) 82%)}
+#title.menu .word,#title.menu .tag{text-shadow:0 2px 24px rgba(0,0,0,.72)}
+#title.menu .sub{color:#EDC46C;text-shadow:0 2px 14px #050A18}
 #title .mm button{font-family:var(--display,"Space Grotesk",sans-serif);font-weight:600;font-size:clamp(17px,1.5vw,22px);letter-spacing:.18em;text-transform:uppercase;color:#C9CFDF;padding:12px 28px;position:relative;border-radius:4px;transition:color .18s,transform .18s var(--t-ease)}
 #title .mm button::before{content:"";position:absolute;left:8px;top:50%;width:0;height:1px;background:var(--gold);transition:width .22s var(--t-ease)}
 #title .mm button:hover,#title .mm button.on{color:#fff;transform:translateX(6px)}
 #title .mm button:hover::before,#title .mm button.on::before{width:12px}
-#title .mm button.pri{color:#fff;border:1px solid rgba(232,163,61,.55);background:linear-gradient(180deg,rgba(232,163,61,.18),rgba(232,163,61,.06));box-shadow:0 0 0 1px rgba(232,163,61,.12) inset,0 18px 40px -22px var(--gold);margin-bottom:10px;padding:14px 40px}
+#title .mm button.pri{color:#fff;border:1px solid rgba(232,163,61,.55);background:#D4A843;color:#15100A;box-shadow:0 0 0 1px rgba(255,236,190,.12) inset,0 12px 30px -20px var(--gold);margin-bottom:10px;padding:14px 40px}
 #title .mm button.pri:hover,#title .mm button.pri.on{background:var(--gold);color:#1a1204;border-color:var(--gold);transform:translateX(0) scale(1.02)}
 #title .mm button.pri::before{display:none}
 #title .mm button:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
@@ -3503,15 +3772,15 @@ const Score=(()=>{let ctx=null,master=null,nodes=[],timer=0;
   function start(off){off=clamp(+off||0,0,14);if(ctx||!on())return;try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
     if(ctx.state==="suspended")ctx.resume();
     const now=ctx.currentTime,t=now-off;master=ctx.createGain();master.gain.setValueAtTime(0,now);master.gain.linearRampToValueAtTime(.55,now+(off?1.2:2.5));
-    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.setValueAtTime(420,t);lp.frequency.linearRampToValueAtTime(1900,t+9);lp.Q.value=.6;
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.setValueAtTime(420+1480*clamp(off/9,0,1),now);lp.frequency.linearRampToValueAtTime(1900,Math.max(now+.01,t+9));lp.Q.value=.6;
     const dl=ctx.createDelay(1);dl.delayTime.value=.37;const fb=ctx.createGain();fb.gain.value=.34;const wet=ctx.createGain();wet.gain.value=.32;
     lp.connect(master);lp.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(master);master.connect(ctx.destination);
     // pad: two detuned saws per note on a D minor 9 voicing, slow LFO on the filter
     const pad=[73.42,110,146.83,174.61,220,261.63];
     pad.forEach((f,i)=>{[-6,6].forEach(d=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=i<2?"sawtooth":"triangle";o.frequency.value=f;o.detune.value=d+(i%2?3:-3);
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045,t+3+i*.4);g.gain.setValueAtTime(.045,t+14);g.gain.linearRampToValueAtTime(0,t+18.5);
-      o.connect(g).connect(lp);o.start(t);o.stop(t+19);nodes.push(o)})});
-    const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.11;lg.gain.value=260;lfo.connect(lg).connect(lp.frequency);lfo.start(t);lfo.stop(t+19);nodes.push(lfo);
+      g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.045,Math.max(now+.3,t+3+i*.4));g.gain.setValueAtTime(.045,Math.max(now+.31,t+14));g.gain.linearRampToValueAtTime(0,Math.max(now+.32,t+18.5));
+      o.connect(g).connect(lp);o.start(now);o.stop(t+19);nodes.push(o)})});
+    const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.11;lg.gain.value=260;lfo.connect(lg).connect(lp.frequency);lfo.start(now);lfo.stop(t+19);nodes.push(lfo);
     // arpeggio: D F A C E G A D, eighth notes at 68 bpm, enters with the city, opens up with the wordmark
     const arp=[293.66,349.23,440,523.25,659.25,783.99,880,1174.66];const step=60/68/2;
     for(let n=0,k=0;t+2.6+n*step<t+17;n++){if(n%8===7)continue;const f=arp[k%arp.length]*(n>=24?1:.5);k++;const at=t+2.6+n*step;if(at<now)continue;
@@ -3646,20 +3915,35 @@ function makeCity(canvas,quality){
   const rim=new THREE.DirectionalLight(0x5b9bf0,.25);rim.position.set(60,30,80);scene.add(rim);
   // crossfade compositor
   const rtA=new THREE.WebGLRenderTarget(2,2),rtB=new THREE.WebGLRenderTarget(2,2);
-  const postU={a:{value:rtA.texture},b:{value:rtB.texture},f:{value:0}};
+  const postU={a:{value:rtA.texture},b:{value:rtB.texture},f:{value:0},pixel:{value:new THREE.Vector2(1,1)}};
   const post=new THREE.Scene(),ortho=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
   post.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({uniforms:postU,depthTest:false,depthWrite:false,
     vertexShader:"varying vec2 vU;void main(){vU=uv;gl_Position=vec4(position.xy,0.,1.);}",
-    fragmentShader:"uniform sampler2D a,b;uniform float f;varying vec2 vU;void main(){vec4 A=texture2D(a,vU),B=texture2D(b,vU);float k=smoothstep(0.,1.,f);vec3 c=mix(A.rgb,B.rgb,k)+vec3(.91,.64,.24)*.22*k*(1.-k);gl_FragColor=vec4(c,1.);}"})));
+    fragmentShader:`uniform sampler2D a,b;uniform float f;uniform vec2 pixel;varying vec2 vU;
+      vec3 frame(vec2 uv){return mix(texture2D(a,uv).rgb,texture2D(b,uv).rgb,smoothstep(0.,1.,f));}
+      void main(){vec3 c=frame(vU);vec3 bloom=vec3(0.);
+        bloom+=max(frame(vU+pixel*vec2(3.,0.))-.65,0.);
+        bloom+=max(frame(vU-pixel*vec2(3.,0.))-.65,0.);
+        bloom+=max(frame(vU+pixel*vec2(0.,3.))-.65,0.);
+        bloom+=max(frame(vU-pixel*vec2(0.,3.))-.65,0.);
+        c+=bloom*.085;float k=smoothstep(0.,1.,f);c+=vec3(.91,.64,.24)*.22*k*(1.-k);
+        float lum=dot(c,vec3(.2126,.7152,.0722));c=mix(vec3(lum),c,1.08);
+        c=mix(c,c*vec3(.94,.98,1.07),.28*(1.-smoothstep(.15,.6,lum)));
+        c=mix(c,c*vec3(1.05,1.015,.96),.25*smoothstep(.35,.85,lum));
+        c*=1.-.21*smoothstep(.18,.72,length(vU-.5));gl_FragColor=vec4(c,1.);
+      }`})));
   let w=0,h=0;function size(){const W2=canvas.clientWidth||innerWidth,H2=canvas.clientHeight||innerHeight;if(W2===w&&H2===h)return;w=W2;h=H2;r.setSize(w,h,false);
-    [camA,camB].forEach(c=>{c.aspect=w/h;c.updateProjectionMatrix()});const pr=r.getPixelRatio();rtA.setSize(Math.round(w*pr),Math.round(h*pr));rtB.setSize(Math.round(w*pr),Math.round(h*pr))}
+    [camA,camB].forEach(c=>{c.aspect=w/h;c.updateProjectionMatrix()});const pr=r.getPixelRatio();rtA.setSize(Math.round(w*pr),Math.round(h*pr));rtB.setSize(Math.round(w*pr),Math.round(h*pr));postU.pixel.value.set(1/(w*pr),1/(h*pr))}
   // camera rigs; each places a camera for cutscene time t. No noise, no shake: every move is an eased curve.
   const tgt=new THREE.Vector3(),lerp=(a,b,k)=>a+(b-a)*k;
   const wide=Math.max(1,Math.min(1.5,(innerHeight/innerWidth)*1.78));// pull back on portrait screens
   function shotSky(c,t){const u=clamp(t/CUT.x2,0,1),tilt=ease(clamp((t-.7)/4.2,0,1));
     c.position.set(lerp(-26,-14,u),lerp(5,16,u),SPAN*.78*wide-u*16);tgt.set(lerp(-14,0,tilt),lerp(170,10,tilt),lerp(-80,0,tilt));c.fov=lerp(52,46,u)}
   function shotStreet(c,t){const u=clamp((t-CUT.x1)/(9.3-CUT.x1),0,1),e=u*u*(3-2*u)*.35+u*.65;
-    const z=streetZ(t);c.position.set(RX+Math.sin(u*2.2)*.5,lerp(2.5,4.3,e),z);tgt.set(RX+Math.sin(u*2.2+.5)*1.3,lerp(2.2,4.4,e),z-34);c.fov=lerp(56,48,u)}
+    const z=streetZ(t);
+    // Babylon Curve3 camera rail when the shared engine is present; legacy rail keeps offline startup usable.
+    const rail=typeof VaultEngine!=="undefined"&&VaultEngine.sampleRoute?VaultEngine.sampleRoute([[RX,2.5,SPAN*.44],[RX+.3,2.8,SPAN*.34],[RX+.5,3.5,SPAN*.18],[RX+.4,4.3,SPAN*.04]],e):null;
+    if(rail)c.position.set(rail[0],rail[1],rail[2]);else c.position.set(RX+Math.sin(u*2.2)*.5,lerp(2.5,4.3,e),z);tgt.set(RX+Math.sin(u*2.2+.5)*1.3,lerp(2.2,4.4,e),z-34);c.fov=lerp(56,48,u)}
   function shotDawn(c,t,orbit){const u=ease(clamp((t-CUT.x2)/6.6,0,1));const a=-1.02+u*.3+orbit;const d=SPAN*lerp(.86,.78,u)*wide;
     c.position.set(Math.sin(a)*d,SPAN*lerp(.2,.27,u),Math.cos(a)*d);tgt.set(0,lerp(9,14,u),0);c.fov=lerp(40,36,u)}
   const SHOTS=[{a:-1,b:CUT.x1+.7,f:shotSky},{a:CUT.x1,b:CUT.x2+.7,f:shotStreet},{a:CUT.x2,b:1e9,f:shotDawn}];
@@ -3679,7 +3963,7 @@ function makeCity(canvas,quality){
     const live=SHOTS.filter(s=>t>=s.a&&t<s.b);
     if(live.length>1){const A=live[0],B=live[1];place(camA,A,t,orbit);place(camB,B,t,orbit);postU.f.value=(t-B.a)/(A.b-B.a);
       r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(rtB);r.render(scene,camB);r.setRenderTarget(null);r.render(post,ortho)}
-    else{place(camA,live[0]||SHOTS[2],t,orbit);r.setRenderTarget(null);r.render(scene,camA)}}
+    else{place(camA,live[0]||SHOTS[2],t,orbit);if(hi){postU.f.value=0;r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(null);r.render(post,ortho)}else{r.setRenderTarget(null);r.render(scene,camA)}}}
   function dispose(){FIG.forEach(f=>{scene.remove(f.m.grp);try{SentinelMesh.dispose(f.m.grp)}catch(e){}});FIG.length=0;scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}});
     post.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});rtA.dispose();rtB.dispose();r.dispose();try{r.forceContextLoss()}catch(e){}}
   return{render,dispose};
@@ -3693,7 +3977,7 @@ function start(){
     const letters=s=>[...s].map(c=>`<span class="${c===" "?"sp":""}">${c===" "?"":c}</span>`).join("");
     root.innerHTML=`<canvas id="titleGl" aria-hidden="true"></canvas><div class="tleak" id="tLeak"></div><div class="tv"></div><div class="tgrain" id="tGrain"></div><div class="tbars"></div>
 <div class="layer"><div class="slate" id="tSlate">Collective AI Inc · 2026<i></i></div></div>
-<div class="tcap" id="tCap"><b>02</b>The campus, after dark</div>
+<div class="tcap" id="tCap"><b>02</b>Every agent has a place</div>
 <div class="layer"><div class="wm" id="tWm"><div class="word" id="tWord">${letters("COLLECTIVE AI")}<div class="sweep" id="tSweep"></div></div><div class="sub" id="tSub">VAULT</div><div class="rule" id="tRule"></div><div class="tag" id="tTag">${TAG}</div></div></div>
 <nav class="mm" id="tMenu" aria-label="Main menu"><button class="pri" data-act="enter">Enter the Vault</button><button data-act="settings">Settings</button><button data-act="credits">Credits</button></nav>
 <div class="panel" id="tSettings" role="dialog" aria-label="Settings"><div class="k">Settings</div><h2>Vault</h2>
@@ -3702,7 +3986,7 @@ function start(){
 <div class="row"><div>Quality<small>Low halves the pixel count and the skyline.</small></div><div class="seg" data-k="q"><button data-v="low">Low</button><button data-v="high">High</button></div></div>
 <div class="act"><button data-act="replay">Replay intro</button><button data-act="close">Done</button></div></div>
 <div class="panel" id="tCredits" role="dialog" aria-label="Credits"><div class="k">Credits</div><h2>Collective AI Vault</h2>
-<p>Collective AI Inc</p><p>JR Moyler (Hataalii), Co-Founder and CEO</p><p class="dim">Built with three.js. The skyline, the sentinels, the dawn, the score and every frame of this opening are generated in code at runtime; nothing is loaded from a file.</p>
+<p>Collective AI Inc</p><p>JR Moyler (Hataalii), Co-Founder and CEO</p><p class="dim">Built with three.js. The skyline, the sentinels, the dawn, the score and every frame of this opening are generated in code at runtime; the original Foley and ambience are generated as PCM audio in code.</p>
 <div class="act"><button data-act="close">Done</button></div></div>
 <button class="tsnd" id="tSnd" type="button">Tap for sound</button>
 <button class="skip" id="tSkip" type="button">Skip</button>
@@ -3734,7 +4018,7 @@ function start(){
       case"slateOff":$t("#tSlate").classList.remove("on");break;
       case"cap":cap.classList.add("on");break;
       case"capOff":cap.classList.remove("on");break;
-      case"leak":if(!inMenu){leak.classList.remove("go");void leak.offsetWidth;leak.classList.add("go")}break;
+      case"leak":if(!inMenu){if(typeof VaultAudio!=="undefined")VaultAudio.play("transition",{volume:.4});leak.classList.remove("go");void leak.offsetWidth;leak.classList.add("go")}break;
       case"letters":lettersEls.forEach((el,i)=>{if(noMotion||inMenu){el.classList.add("on");return}timers.push(setTimeout(()=>{el.classList.add("on");if(i%3===0)Score.tick(660+i*18,.06,.025)},i*70))});break;
       case"sweep":$t("#tSweep").classList.add("go");break;
       case"sub":$t("#tSub").classList.add("on");break;
@@ -3746,7 +4030,7 @@ function start(){
     function setSel(i){sel=(i+mbtns.length)%mbtns.length;mbtns.forEach((b,j)=>b.classList.toggle("on",j===sel))}
     // the picture runs on its own clock: the sting and the menu show the finished dawn shot, the menu slowly orbits it
     const sceneT=()=>cue===FULL&&!inMenu?clock:CUT.end+(inMenu?menuT:0);
-    function frame(now){raf=requestAnimationFrame(frame);const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
+    function frame(now){raf=requestAnimationFrame(frame);if(document.hidden){last=now;return}const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
       if(inMenu)menuT+=dt;else clock+=dt;
       while(cueI<cue.length&&clock>=cue[cueI][1]){fire(cue[cueI][0]);cueI++}
       if(city){try{city.render(sceneT(),now/1000,inMenu?menuT*.035:0)}catch(e){}}}
@@ -3754,7 +4038,7 @@ function start(){
     function still(){if(city)try{city.render(CUT.end,0,0)}catch(e){}}
     if(noMotion){toMenu();still();window.addEventListener("resize",still)}else raf=requestAnimationFrame(frame);
     // first user gesture starts the score (browser policy). "Tap for sound" joins it in time; any other gesture skips.
-    let gestured=false;function gesture(at){if(gestured)return;gestured=true;snd.classList.remove("on");Score.start(at||0)}
+    let gestured=false;function gesture(at){if(gestured)return;gestured=true;snd.classList.remove("on");Score.start(at||0);if(typeof VaultAudio!=="undefined")VaultAudio.unlock()}
     setCine();
     function skip(){gesture();if(!inMenu){clock=CUT.end;toMenu()}}
     snd.addEventListener("pointerdown",e=>e.stopPropagation());
@@ -3766,13 +4050,13 @@ function start(){
     function closePanel(){panel=null;$t("#tSettings").classList.remove("on");$t("#tCredits").classList.remove("on");mbtns[sel].focus({preventScroll:true})}
     function paintSettings(){const v={sound:String(soundOn()),cut:String(S.get(K.cut,true)!==false),q:S.get(K.q,"high")};root.querySelectorAll("#tSettings .seg").forEach(seg=>{const k=seg.dataset.k;seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.v===v[k]))})}
     $t("#tSettings").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const seg=b.closest(".seg");
-      if(seg){const k=seg.dataset.k;const v=b.dataset.v;if(k==="sound"){S.set(K.sound,v==="true");if(v==="false")Score.stop()}else if(k==="cut")S.set(K.cut,v==="true");else S.set(K.q,v);paintSettings();Score.tick(760,.06,.03);return}
+      if(seg){const k=seg.dataset.k;const v=b.dataset.v;if(k==="sound"){S.set(K.sound,v==="true");if(v==="false")Score.stop();else if(gestured)Score.start(0);if(typeof VaultAudio!=="undefined")VaultAudio.setEnabled(v==="true")}else if(k==="cut")S.set(K.cut,v==="true");else S.set(K.q,v);paintSettings();Score.tick(760,.06,.03);return}
       if(b.dataset.act==="replay"){replay();return}if(b.dataset.act==="close")closePanel()});
     $t("#tCredits").addEventListener("click",e=>{const b=e.target.closest("button[data-act=close]");if(b)closePanel()});
     function replay(){closePanel();root.classList.remove("menu");inMenu=false;S.set(K.seen,"");timers.forEach(clearTimeout);timers=[];
       ["#tSlate","#tSub","#tRule","#tTag"].forEach(s=>$t(s).classList.remove("on"));cap.classList.remove("on");$t("#tSweep").classList.remove("go");lettersEls.forEach(el=>el.classList.remove("on"));
       cue=noMotion?STILL:FULL;cueI=0;clock=0;Score.stop();gestured=false;setCine();gesture();if(noMotion){toMenu();still()}}
-    function enter(){if(done)return;done=true;Score.tick(880,.25,.06);Score.duck(.8);
+    function enter(){if(done)return;done=true;Score.tick(880,.25,.06);Score.duck(.8);if(typeof VaultAudio!=="undefined"){VaultAudio.play("complete",{volume:.38,bus:"work"});VaultAudio.ambient(true)}
       root.classList.add("out");cancelAnimationFrame(raf);timers.forEach(clearTimeout);
       const ms=noMotion?10:920;
       setTimeout(()=>{if(city)city.dispose();Score.stop();root.remove();style.remove();window.removeEventListener("keydown",key);window.removeEventListener("resize",still);resolve()},ms)}
@@ -3790,6 +4074,7 @@ function start(){
 return{start,version:VERSION};
 })();
 
+
 // ---------- boot: sign in, load the live vault, raise the campus
 (async function boot(){
   const gate=$("#gate");
@@ -3798,6 +4083,9 @@ return{start,version:VERSION};
     await Live.loadAll();
     buildTree("");
     Campus.boot();updateCrumb();
+    Journey.boot();
+    if(!document.getElementById("districtNavigator")){const b=document.createElement("button");b.id="districtNavigator";b.className="btn";b.textContent="13 districts";b.setAttribute("aria-label","Open district navigator");b.style.cssText="position:absolute;left:16px;bottom:86px;z-index:22";b.onclick=()=>Journey.show(cur?.top);document.getElementById("stage").append(b)}
+    if(Campus.onFrame)Campus.onFrame(()=>{const c=Campus.camera();if(!c)return;const forward=new THREE.Vector3();c.getWorldDirection(forward);VaultAudio.listener(c.position,forward);const p=Campus.position();if(p.walking){const old=window._vaultLastAudioPos;if(old&&Math.hypot(p.x-old.x,p.z-old.z)>.15)VaultAudio.footstep([p.x,c.position.y-1.6,p.z]);window._vaultLastAudioPos=p}else window._vaultLastAudioPos=null});
     if(!Campus.ok()){open(byName.get("🏠 Home"));sheet.full=true;syncSheet()}
     Live.syncMarkers();Live.pushAgents();Live.subscribe();Live.drawFloor();setTimeout(Live.brief,2500);
     const want=decodeURIComponent(location.hash.slice(1));if(want&&byName.get(want))open(byName.get(want));
@@ -3812,6 +4100,7 @@ return{start,version:VERSION};
     catch(err){$("#gErr").textContent=err.message||String(err);b.disabled=false;b.textContent="Enter the campus"}
   });
 })();
+
 
 </script>
 </body></html>

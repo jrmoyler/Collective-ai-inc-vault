@@ -4,7 +4,7 @@ tags:
 - moc
 type: moc
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # ZenFlow MOC
 
@@ -27,3 +27,5 @@ Architecture, governance and the agent lattice.
 - [[God Prompt Library]] (ZENITH + 20 Director God Prompts)
 
 - [[Director Codenames]]
+
+- [[District Handbook — Agent foundry]] — district work kit and source-grounded records.

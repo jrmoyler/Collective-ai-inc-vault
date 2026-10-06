@@ -110,7 +110,7 @@ figcaption{font:400 12px var(--mono);color:var(--faint);margin-top:10px;letter-s
   </div>
   <figure><img src="sentinel-concept.webp" alt="Concept sheet showing Agent, JR, Devon, Ahmad, Kenza and Member architectural Sentinel designs and two Claude owner bands" loading="lazy"><figcaption>Concept sheet. Design reference, not a render of the runtime mesh.</figcaption></figure>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="vendor/three-r128.min.js"></script>
 <!-- SENTINEL_MODULES -->
 <script>
 const $=s=>document.querySelector(s),canvas=$('#reference'),fallback=$('#referenceFallback'),osReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -212,3 +212,4 @@ function frame(t){requestAnimationFrame(frame);const real=Math.min(.05,(t-previo
 requestAnimationFrame(frame);
 if(Q.get('emote'))setTimeout(()=>models.forEach(m=>SentinelMesh.emote(m,Q.get('emote'),clock)),Number(Q.get('emoteDelay')||400));
 </script></body></html>
+

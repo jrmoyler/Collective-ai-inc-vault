@@ -1,8 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.svg"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0A0E1A"><meta name="application-name" content="Collective AI Vault"><meta property="og:title" content="Collective AI Vault"><meta property="og:image" content="icon-512.png">
 <title>Collective AI Vault</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="vendor/fonts.css">
 <style>
 /* The vault as a place. Ribbon | 3D campus (full bleed) | reader sheet that docks over the right edge.
    Dusk is the default scene. Dark UI follows dusk and night, light UI follows day. */
@@ -459,7 +458,7 @@ a.wl{transition:border-color .15s,color .15s}
     </div>
     <div class="plate" id="plate">
       <button class="ib x" id="plateX" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <div class="k">Campus plan · Oct 4, 2026</div>
+      <div class="k">Knowledge city · 13 districts</div>
       <h2>Collective AI</h2>
       <p id="plateP"></p>
       <dl><dt>Folder</dt><dd>One district</dd><dt>Note</dt><dd>One building. Taller means longer and more linked.</dd><dt>Link</dt><dd>A cable between rooftops, drawn for the note you open.</dd></dl>
@@ -493,6 +492,8 @@ a.wl{transition:border-color .15s,color .15s}
   <div class="err" id="gErr"></div>
   <button class="btn pri" id="gGo" type="submit">Enter the campus</button>
 </form></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
+<script src="vendor/three-r128.min.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="vendor/vault-libraries.js"></script>
 <script src="config.js"></script>
+

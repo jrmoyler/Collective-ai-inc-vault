@@ -4,7 +4,7 @@ tags:
 - moc
 type: moc
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # Products MOC
 
@@ -167,3 +167,5 @@ updated: 2026-10-04
 ## Catalogs
 - [[Master Product Catalog]] (115 products, 146 services, 262 tools)
 - [[MVP Build Guide]] (115 MVP briefs)
+
+- [[District Handbook — Product workshop]] — district work kit and source-grounded records.

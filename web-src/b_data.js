@@ -95,7 +95,7 @@ function home(){
   const recent=NOTES.filter(n=>["project","client"].includes(n.fm.type)).slice(0,10);
   const tagCount={};NOTES.forEach(n=>n.tags.forEach(t=>tagCount[t]=(tagCount[t]||0)+1));
   const topTags=Object.entries(tagCount).sort((a,b)=>b[1]-a[1]).slice(0,22);
-  return `<div class="hero"><div class="date">Sunday · Oct 4, 2026</div><h1>Collective AI Vault</h1><p>Architecting a Humane Future. Second brain for John-Ross Moyler (Hataalii).</p></div>
+  return `<div class="hero"><div class="date">${new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric",year:"numeric"})}</div><h1>Collective AI Vault</h1><p>Architecting a Humane Future. Second brain for John-Ross Moyler (Hataalii).</p></div>
   <div class="stats"><div class="stat"><b>${NOTES.length}</b><span>notes</span></div><div class="stat"><b>${cnt("operating")}/${divs.length}</b><span>divisions operating</span></div><div class="stat"><b>${NOTES.filter(n=>n.fm.type==="agent-blueprint").length}</b><span>agent blueprints</span></div><div class="stat"><b>${tasks.length}</b><span>open checklist items</span></div></div>
   <div class="mocs">${mocs.map(m=>`<button class="moc" data-id="${m.id}"><b>${esc(m.name.replace(/^\d+ — /,"").replace(" MOC",""))}</b><small>${m.out.size} notes</small></button>`).join("")}</div>
   <h2>Divisions</h2>
@@ -153,6 +153,7 @@ $("#stabs").addEventListener("click",e=>{const b=e.target.closest("button[data-s
 // ---------- open a note: read it and fly to it
 function open(n,push=true){
   if(!n)return;cur=n;
+  if(typeof VaultAudio!=="undefined")VaultAudio.district(n.top);
   if(push){hist=hist.slice(0,hpos+1);hist.push(n.id);hpos=hist.length-1}
   sheet.view="note";sheet.ntab="note";
   $("#back").disabled=$("#sBack").disabled=hpos<=0;$("#fwd").disabled=$("#sFwd").disabled=hpos>=hist.length-1;
@@ -161,6 +162,7 @@ function open(n,push=true){
   store.set("vault.last",n.name);
   Campus.focus(n);$("#plate").hidden=true;
   openSheet("note");updateCrumb();
+  if(typeof VaultEngine!=="undefined")VaultEngine.reveal($("#sbody"));
 }
 function updateCrumb(){const n=cur;$("#crumb").innerHTML=n?"Campus › "+(n.folder?esc(n.folder.replace(/\//g," › "))+" › ":"")+"<b>"+esc(n.name)+"</b>":"Campus";}
 function goBack(){if(hpos>0){hpos--;open(NOTES[hist[hpos]],false)}}
@@ -218,4 +220,5 @@ document.addEventListener("keydown",e=>{
   if(e.altKey&&e.key==="ArrowLeft")goBack();else if(e.altKey&&e.key==="ArrowRight")goFwd();
   else if(e.key==="/"){e.preventDefault();openSwitcher()}
 });
+
 

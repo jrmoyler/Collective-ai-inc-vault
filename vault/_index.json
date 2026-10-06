@@ -24,7 +24,10 @@
    "011 — Physical AI MOC",
    "Collective AI Mega Campus",
    "Vercel Projects",
-   "Director Codenames"
+   "Director Codenames",
+   "District Handbook — Atlas",
+   "District Handbook — Archive stacks",
+   "Drive Source Reconciliation Ledger"
   ],
   "path": "vault/00 - MOCs/000 — Collective AI Knowledge Base.md",
   "tags": [
@@ -46,7 +49,8 @@
    "God Prompt Library",
    "Synergy Node Handbook",
    "Full Synergy Node Catalog",
-   "Director Codenames"
+   "Director Codenames",
+   "District Handbook — Agent foundry"
   ],
   "path": "vault/00 - MOCs/001 — ZenFlow MOC.md",
   "tags": [
@@ -87,7 +91,8 @@
    "Human Foundry Division",
    "Volta Grid Division",
    "Hearth Nexus Division",
-   "Division Activation Scorecard"
+   "Division Activation Scorecard",
+   "District Handbook — Division council"
   ],
   "path": "vault/00 - MOCs/002 — Divisions MOC.md",
   "tags": [
@@ -252,7 +257,8 @@
    "Behavioral Ethics Audit",
    "Cognitive Assessment Layer",
    "Master Product Catalog",
-   "MVP Build Guide"
+   "MVP Build Guide",
+   "District Handbook — Product workshop"
   ],
   "path": "vault/00 - MOCs/003 — Products MOC.md",
   "tags": [
@@ -277,7 +283,8 @@
    "Chanel Taylor",
    "Coach Kay",
    "Dante Cook",
-   "Open Seats"
+   "Open Seats",
+   "District Handbook — Team commons"
   ],
   "path": "vault/00 - MOCs/004 — People MOC.md",
   "tags": [
@@ -301,7 +308,10 @@
    "SOP — Incident Response",
    "SOP — New Division Launch Protocol",
    "Knowledge Graph Matrix",
-   "MCP Matrix"
+   "MCP Matrix",
+   "District Handbook — Control room",
+   "District Handbook — Daily log",
+   "Decision Record Template"
   ],
   "path": "vault/00 - MOCs/005 — Operations MOC.md",
   "tags": [
@@ -318,7 +328,8 @@
    "NSF 26-508 Grant Strategy",
    "Client Billing Ledger",
    "Cap Table Structure",
-   "Vibe Society Financials"
+   "Vibe Society Financials",
+   "District Handbook — Finance chamber"
   ],
   "path": "vault/00 - MOCs/006 — Finance MOC.md",
   "tags": [
@@ -334,7 +345,8 @@
    "Division Palettes",
    "JR Voice Standard",
    "Hataalii Persona",
-   "Brand Tagline"
+   "Brand Tagline",
+   "District Handbook — Brand atelier"
   ],
   "path": "vault/00 - MOCs/007 — Brand MOC.md",
   "tags": [
@@ -350,7 +362,9 @@
    "Division Activation Scorecard",
    "Disney Three-Room Session",
    "48-Hour Flow Plan",
-   "Team Micro-Ecosystems"
+   "Team Micro-Ecosystems",
+   "District Handbook — Research observatory",
+   "Evidence Record Template"
   ],
   "path": "vault/00 - MOCs/008 — Research MOC.md",
   "tags": [
@@ -399,7 +413,9 @@
    "Mega Campus Water and Landscape Systems",
    "Mega Campus Security and Governance Systems",
    "MVP Build Guide",
-   "Vercel Projects"
+   "Vercel Projects",
+   "District Handbook — Delivery yard",
+   "Project Brief Template"
   ],
   "path": "vault/00 - MOCs/009 — Projects MOC.md",
   "tags": [
@@ -431,7 +447,8 @@
    "Physical AI Build Spec",
    "Physical AI Wearables Agent Spec",
    "Hardware Agentic Prompt Catalog",
-   "Full Synergy Node Catalog"
+   "Full Synergy Node Catalog",
+   "District Handbook — Physical systems lab"
   ],
   "path": "vault/00 - MOCs/011 — Physical AI MOC.md",
   "tags": [
@@ -1752,7 +1769,8 @@
   "folder": "05 - Operations",
   "links": [
    "ZenFlow Master Blueprint",
-   "Weekly Ops Sync"
+   "Weekly Ops Sync",
+   "Director Codenames"
   ],
   "path": "vault/05 - Operations/Airtable Operations Hub.md",
   "tags": [
@@ -4690,6 +4708,22 @@
   ],
   "type": "project"
  },
+ "Collective AI Tool Stack": {
+  "folder": "05 - Operations",
+  "links": [
+   "Revenue Plan — $21.7K per Month",
+   "Ahmad Muhammad",
+   "External Toolkit — 130 Tools",
+   "005 — Operations MOC"
+  ],
+  "path": "vault/05 - Operations/Collective AI Tool Stack.md",
+  "tags": [
+   "ops",
+   "tools",
+   "finance"
+  ],
+  "type": "system"
+ },
  "Collective AI Website": {
   "folder": "09 - Projects",
   "links": [
@@ -4951,11 +4985,11 @@
   "type": "device-agent"
  },
  "CollectiveOS": {
-  "folder": "10 - Archive",
+  "folder": "09 - Projects/Apps",
   "links": [
    "Vercel Projects"
   ],
-  "path": "vault/10 - Archive/CollectiveOS.md",
+  "path": "vault/09 - Projects/Apps/CollectiveOS.md",
   "tags": [
    "archive"
   ],
@@ -6169,6 +6203,22 @@
   ],
   "type": "synergy-node"
  },
+ "Daily Log — 2026-10-05": {
+  "folder": "05 - Operations",
+  "links": [
+   "Revenue Plan — $21.7K per Month",
+   "Collective AI Tool Stack",
+   "OSTINATO — First OpenAI Dot",
+   "Curb Ball",
+   "Weekly Ops Sync"
+  ],
+  "path": "vault/05 - Operations/Daily Log — 2026-10-05.md",
+  "tags": [
+   "ops",
+   "daily-log"
+  ],
+  "type": "log"
+ },
  "Dante Cook": {
   "folder": "04 - People",
   "links": [
@@ -6317,6 +6367,19 @@
    "control-surface"
   ],
   "type": "hardware"
+ },
+ "Decision Record Template": {
+  "folder": "05 - Operations",
+  "links": [
+   "005 — Operations MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/05 - Operations/Decision Record Template.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "template"
  },
  "Denzel McDougald": {
   "folder": "04 - People",
@@ -7075,6 +7138,201 @@
   ],
   "type": "device-agent"
  },
+ "District Handbook — Agent foundry": {
+  "folder": "02 - ZenFlow",
+  "links": [
+   "001 — ZenFlow MOC",
+   "ZenFlow Division",
+   "Aegis Protocol Spec",
+   "Agent Tier Registry",
+   "God Prompt Format Standard",
+   "ZenFlow Runbook",
+   "Zenith OS Spec"
+  ],
+  "path": "vault/02 - ZenFlow/District Handbook — Agent foundry.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Archive stacks": {
+  "folder": "10 - Archive",
+  "links": [
+   "000 — Collective AI Knowledge Base",
+   "The Collective Division",
+   "15-Division Model",
+   "Civic Core Fiduciary Veto"
+  ],
+  "path": "vault/10 - Archive/District Handbook — Archive stacks.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Atlas": {
+  "folder": "00 - MOCs",
+  "links": [
+   "000 — Collective AI Knowledge Base",
+   "The Collective Division",
+   "001 — ZenFlow MOC",
+   "002 — Divisions MOC",
+   "003 — Products MOC",
+   "004 — People MOC",
+   "005 — Operations MOC",
+   "006 — Finance MOC",
+   "007 — Brand MOC"
+  ],
+  "path": "vault/00 - MOCs/District Handbook — Atlas.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Brand atelier": {
+  "folder": "07 - Brand",
+  "links": [
+   "007 — Brand MOC",
+   "Nexus Labs Division",
+   "JR Voice Standard"
+  ],
+  "path": "vault/07 - Brand/District Handbook — Brand atelier.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Control room": {
+  "folder": "05 - Operations",
+  "links": [
+   "005 — Operations MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/05 - Operations/District Handbook — Control room.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Daily log": {
+  "folder": "Daily",
+  "links": [
+   "005 — Operations MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/Daily/District Handbook — Daily log.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Delivery yard": {
+  "folder": "09 - Projects",
+  "links": [
+   "009 — Projects MOC",
+   "Binary Loom Division",
+   "Mega Campus Cost Model (Oct 2026)",
+   "Mega Campus Financial Model",
+   "Mega Campus Power and Data Center Model (Oct 2026)"
+  ],
+  "path": "vault/09 - Projects/District Handbook — Delivery yard.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Division council": {
+  "folder": "01 - Divisions",
+  "links": [
+   "002 — Divisions MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/01 - Divisions/District Handbook — Division council.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Finance chamber": {
+  "folder": "06 - Finance",
+  "links": [
+   "006 — Finance MOC",
+   "Quantum Ledger Division"
+  ],
+  "path": "vault/06 - Finance/District Handbook — Finance chamber.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Physical systems lab": {
+  "folder": "11 - Physical AI",
+  "links": [
+   "011 — Physical AI MOC",
+   "Animus Prime Division",
+   "AP-01 Prime Shell v0.1 (Build Spec)",
+   "AP-02 Titan Bench Arm (Build Spec)",
+   "AP-03 Dexterous Hand Node (Build Spec)",
+   "CM-02 Habit Architecture Wearable (Build Spec)",
+   "CM-03 Cognitive Coaching Shell (Build Spec)",
+   "Device Registry Task Agent",
+   "Foundry Hardware Operating Standard"
+  ],
+  "path": "vault/11 - Physical AI/District Handbook — Physical systems lab.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Product workshop": {
+  "folder": "03 - Products",
+  "links": [
+   "003 — Products MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/03 - Products/District Handbook — Product workshop.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Research observatory": {
+  "folder": "08 - Research",
+  "links": [
+   "008 — Research MOC",
+   "ZenFlow Division",
+   "Division Activation Scorecard"
+  ],
+  "path": "vault/08 - Research/District Handbook — Research observatory.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Team commons": {
+  "folder": "04 - People",
+  "links": [
+   "004 — People MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/04 - People/District Handbook — Team commons.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
  "Division Activation Scorecard": {
   "folder": "08 - Research",
   "links": [
@@ -7176,6 +7434,24 @@
    "extended"
   ],
   "type": "person"
+ },
+ "Drive Source Reconciliation Ledger": {
+  "folder": "05 - Operations",
+  "links": [
+   "000 — Collective AI Knowledge Base",
+   "005 — Operations MOC",
+   "The Collective Division",
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Civic Core Fiduciary Veto",
+   "Division Activation Scorecard"
+  ],
+  "path": "vault/05 - Operations/Drive Source Reconciliation Ledger.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "reference"
  },
  "Drone Battery Safety Bay": {
   "folder": "11 - Physical AI/Foundry Hardware",
@@ -7982,6 +8258,19 @@
   ],
   "type": "device-agent"
  },
+ "Evidence Record Template": {
+  "folder": "08 - Research",
+  "links": [
+   "008 — Research MOC",
+   "ZenFlow Division"
+  ],
+  "path": "vault/08 - Research/Evidence Record Template.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "template"
+ },
  "Exclusive Essence": {
   "folder": "09 - Projects/Clients",
   "links": [
@@ -8199,7 +8488,9 @@
    "Family Legacy App",
    "Chanel Taylor Channel Package",
    "The Vibe Society",
-   "006 — Finance MOC"
+   "006 — Finance MOC",
+   "Revenue Plan — $21.7K per Month",
+   "Collective AI Tool Stack"
   ],
   "path": "vault/06 - Finance/Financial Position.md",
   "tags": [
@@ -18360,6 +18651,20 @@
   ],
   "type": "device-agent"
  },
+ "OSTINATO — First OpenAI Dot": {
+  "folder": "08 - Research",
+  "links": [
+   "Revenue Plan — $21.7K per Month",
+   "008 — Research MOC"
+  ],
+  "path": "vault/08 - Research/OSTINATO — First OpenAI Dot.md",
+  "tags": [
+   "research",
+   "agents",
+   "openai"
+  ],
+  "type": "research"
+ },
  "Observability Stack": {
   "folder": "03 - Products",
   "links": [
@@ -18808,7 +19113,7 @@
    "Hybrid Living Division",
    "003 — Products MOC"
   ],
-  "path": "vault/03 - Products/P.E.T.E.E.R.md",
+  "path": "vault/03 - Products/P.E.T.E.E.R..md",
   "tags": [
    "product",
    "spec"
@@ -20035,6 +20340,19 @@
   ],
   "type": "hardware"
  },
+ "Project Brief Template": {
+  "folder": "09 - Projects",
+  "links": [
+   "009 — Projects MOC",
+   "Binary Loom Division"
+  ],
+  "path": "vault/09 - Projects/Project Brief Template.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "template"
+ },
  "Prompt Calibration Board": {
   "folder": "11 - Physical AI/Foundry Hardware",
   "links": [
@@ -21005,6 +21323,22 @@
   ],
   "type": "product"
  },
+ "Revenue Plan — $21.7K per Month": {
+  "folder": "06 - Finance",
+  "links": [
+   "Financial Position",
+   "Collective AI Tool Stack",
+   "SOLOFORGE",
+   "006 — Finance MOC"
+  ],
+  "path": "vault/06 - Finance/Revenue Plan — $21.7K per Month.md",
+  "tags": [
+   "finance",
+   "revenue",
+   "plan"
+  ],
+  "type": "finance"
+ },
  "Risk Approval Console": {
   "folder": "11 - Physical AI/Foundry Hardware",
   "links": [
@@ -21595,7 +21929,8 @@
    "JR Voice Standard",
    "Knowledge_Keeper",
    "SOP — Incident Response",
-   "005 — Operations MOC"
+   "005 — Operations MOC",
+   "Director Codenames"
   ],
   "path": "vault/05 - Operations/SOPs/SOP — Agent Deployment Checklist.md",
   "tags": [
@@ -21637,7 +21972,10 @@
    "Division Palettes",
    "Exclusive Essence",
    "SignalBoard",
-   "005 — Operations MOC"
+   "005 — Operations MOC",
+   "Director Codenames",
+   "External Toolkit — 130 Tools",
+   "SwiftFP"
   ],
   "path": "vault/05 - Operations/SOPs/SOP — Content Publishing.md",
   "tags": [
@@ -21654,7 +21992,8 @@
    "Client Billing Ledger",
    "Financial Position",
    "Cap Table Structure",
-   "005 — Operations MOC"
+   "005 — Operations MOC",
+   "Director Codenames"
   ],
   "path": "vault/05 - Operations/SOPs/SOP — Financial Reporting.md",
   "tags": [
@@ -21669,7 +22008,9 @@
    "Director_Obsidian_Arc",
    "ZENITH",
    "SOP — Agent Deployment Checklist",
-   "005 — Operations MOC"
+   "005 — Operations MOC",
+   "Director Codenames",
+   "External Toolkit — 130 Tools"
   ],
   "path": "vault/05 - Operations/SOPs/SOP — Incident Response.md",
   "tags": [
@@ -21691,7 +22032,8 @@
    "Agent Tier Registry",
    "Division Palettes",
    "Collective AI — Company Charter",
-   "005 — Operations MOC"
+   "005 — Operations MOC",
+   "Director Codenames"
   ],
   "path": "vault/05 - Operations/SOPs/SOP — New Division Launch Protocol.md",
   "tags": [
@@ -26347,7 +26689,8 @@
   "folder": "05 - Operations",
   "links": [
    "Kenza Dawkins",
-   "Director_Operations"
+   "Director_Operations",
+   "Daily Log — 2026-10-05"
   ],
   "path": "vault/05 - Operations/Weekly Ops Sync.md",
   "tags": [

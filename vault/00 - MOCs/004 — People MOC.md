@@ -4,7 +4,7 @@ tags:
 - moc
 type: moc
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # People MOC
 
@@ -25,3 +25,5 @@ updated: 2026-10-04
 - [[Coach Kay]]
 - [[Dante Cook]]
 - [[Open Seats]]
+
+- [[District Handbook — Team commons]] — district work kit and source-grounded records.

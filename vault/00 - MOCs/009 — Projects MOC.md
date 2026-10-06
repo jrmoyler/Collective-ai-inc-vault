@@ -4,7 +4,7 @@ tags:
 - moc
 type: moc
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # Projects MOC
 
@@ -45,3 +45,7 @@ updated: 2026-10-04
 
 ## Apps and games
 - [[Vercel Projects]]
+
+- [[District Handbook — Delivery yard]] — district work kit and source-grounded records.
+
+- [[Project Brief Template]] — district work kit and source-grounded records.

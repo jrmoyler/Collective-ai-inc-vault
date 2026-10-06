@@ -4,7 +4,7 @@ tags:
 - moc
 type: moc
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # Finance MOC
 
@@ -17,3 +17,5 @@ updated: 2026-10-04
 - [[Client Billing Ledger]]
 - [[Cap Table Structure]]
 - [[Vibe Society Financials]]
+
+- [[District Handbook — Finance chamber]] — district work kit and source-grounded records.
