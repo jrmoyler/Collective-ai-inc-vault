@@ -14,6 +14,7 @@ const notes=JSON.parse(execFileSync('python3',['-c','import sys,json;sys.path.in
 const out=new URL('file://'+fs.mkdtempSync(path.join(os.tmpdir(),'vault-browser-qa-'))+'/');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const results=[];
+const thematic=JSON.parse(fs.readFileSync(new URL('../docs/source-district-definitions.json',import.meta.url),'utf8')).map(d=>({...d,kind:'thematic'}));
 for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],['mobile',{width:390,height:844},true]]){
  const page=await browser.newPage({viewport,reducedMotion:reduced?'reduce':'no-preference'});const errors=[],warnings=[];page.on('requestfailed',r=>console.log(name,'RESOURCE',r.url(),r.failure()?.errorText));
  page.on('pageerror',e=>{errors.push(e.message);console.log(name,'PAGEERROR',e.message)});page.on('console',m=>{if(m.type()==='error')errors.push(m.text());else if(m.type()==='warning')warnings.push(m.text())});
@@ -24,19 +25,22 @@ for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],
   const sb={auth:{getSession:async()=>({data:{session:{access_token:'qa-fixture-token'}}}),getUser:async()=>({data:{user:{id:uid}}}),signOut:async()=>({error:null})},from(name){let rows=[...(tables[name]||[])];const q={select:()=>q,order:()=>q,limit:n=>{rows=rows.slice(0,n);return q},range:(a,b)=>{rows=rows.slice(a,b+1);return q},eq:(k,v)=>{rows=rows.filter(r=>r[k]===v);return q},gt:()=>q,in:()=>q,upsert:()=>q,update:()=>q,insert:()=>q,maybeSingle:async()=>({data:rows[0]||null,error:null}),then(resolve){return Promise.resolve({data:rows,error:null}).then(resolve)}};return q},channel(){const ch={on:()=>ch,subscribe(fn){setTimeout(()=>fn('SUBSCRIBED'),20);return ch},track:async()=>{},presenceState:()=>({})};return ch},removeChannel(){},rpc:async()=>({data:null,error:null})};
   Object.defineProperty(window,'supabase',{configurable:true,get:()=>({createClient:()=>sb}),set(){}});
  },{notes,reduced});
+ await page.route('**/functions/v1/district-catalog',route=>route.fulfill({json:{ok:true,districts:thematic,coverage:[],collections:[]}}));
  const progress=new Map();let saved=0;
  await page.route('**/functions/v1/district-progress',async route=>{const body=route.request().postDataJSON();if(body.action==='list'){await route.fulfill({json:{ok:true,journeys:[...progress.values()],evidence:[]}});return}const j={user_id:'qa-fixture-user',district:body.district,first_visit:new Date().toISOString(),last_visit:new Date().toISOString(),shortlisted:body.enabled??progress.get(body.district)?.shortlisted??false};progress.set(body.district,j);saved++;await route.fulfill({json:{ok:true,journey:j}})});
  console.log(name,'navigating');await page.goto(address,{waitUntil:'domcontentloaded'});
  await page.waitForSelector('#title.menu',{timeout:30000});await page.screenshot({path:new URL(name+'-title.png',out).pathname});
  console.log(name,'entering');await page.getByRole('button',{name:'Enter the Vault',exact:true}).click({timeout:10000});console.log(name,'entered');
- await page.waitForSelector('#districtNavigator',{timeout:30000});await page.waitForFunction(()=>Campus.ok(),{timeout:30000});
+ // Software WebGL compiles the full city on CPU; this is a functional bound, not a frame-time claim.
+ await page.waitForSelector('#districtNavigator',{timeout:90000});await page.waitForFunction(()=>Campus.ok(),{timeout:30000});
  console.log(name,'campus ready');await page.evaluate(()=>{Campus.skipIntro();Campus.cycleTime();});await page.waitForTimeout(3000);
- const campus=await page.evaluate(()=>({notes:NOTES.length,districts:Campus.districts().length,gpu:Campus.ok(),drawCalls:Campus.renderer().info.render.calls,audio:VaultAudio.status(),versions:VaultEngine.versions}));
+ const campus=await page.evaluate(()=>({notes:NOTES.length,districts:Campus.districts().length,gpu:Campus.ok(),drawCalls:Campus.renderer().info.render.calls,audio:VaultAudio.status(),versions:VaultEngine.versions,landmarks:Campus.debug().landmarks.length,buildings:Campus.buildings().filter(Boolean).length}));
  await page.screenshot({path:new URL(name+'-world.png',out).pathname});
+ if(name==='desktop'){await page.evaluate(()=>{const p=Campus.debug().landmarks.find(x=>x.folder==='17 - Synergy Nodes');if(p)Campus.flyAt(p.x,p.z,p.y,36,.65)});await page.waitForTimeout(1600);await page.screenshot({path:new URL(name+'-landmark.png',out).pathname});}
  await page.getByRole('button',{name:'Open district navigator'}).click();await page.getByText('District progress saved to your account.',{exact:true}).waitFor();
  const districtCount=await page.locator('.journey-nav button').count();
  await page.getByRole('button',{name:'Shortlist this district',exact:true}).click();await page.getByRole('button',{name:'Remove from district shortlist',exact:true}).waitFor();
- await page.getByRole('button',{name:'11 - Physical AI',exact:true}).click();await page.getByRole('heading',{name:'Physical systems lab',exact:true}).waitFor();
+ await page.locator('.journey-nav button[data-folder="11 - Physical AI"]').click();await page.getByRole('heading',{name:'Physical systems lab',exact:true}).waitFor();
  await page.getByRole('searchbox',{name:'Search notes in 11 - Physical AI'}).fill('Wearable');
  await page.screenshot({path:new URL(name+'-district.png',out).pathname});
  await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('.journey-dialog').open);
@@ -45,5 +49,5 @@ for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],
  const reader=await page.evaluate(()=>({inlineTransform:document.getElementById('sheet').style.transform,hasContent:document.getElementById('sbody').textContent.length>100}));
  results.push({name,viewport,reduced,title:await page.title(),campus,districtCount,saved,reader,errors,warnings});await page.close();
 }
-await browser.close();server.close();fs.writeFileSync(new URL('results.json',out),JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2));
-if(results.some(r=>r.errors.length||r.districtCount!==13||!r.campus.gpu||r.reader.inlineTransform))process.exitCode=1;
+await browser.close();server.close();fs.writeFileSync(new URL('results.json',out),JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2));console.log('Evidence directory:',out.pathname);
+if(results.some(r=>r.errors.length||r.districtCount!==19||r.campus.districts!==19||r.campus.landmarks!==19||r.campus.buildings!==r.campus.notes||!r.campus.gpu||r.reader.inlineTransform))process.exitCode=1;

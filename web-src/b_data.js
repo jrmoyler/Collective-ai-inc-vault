@@ -153,7 +153,7 @@ $("#stabs").addEventListener("click",e=>{const b=e.target.closest("button[data-s
 // ---------- open a note: read it and fly to it
 function open(n,push=true){
   if(!n)return;cur=n;
-  if(typeof VaultAudio!=="undefined")VaultAudio.district(n.top);
+  if(typeof VaultAudio!=="undefined")VaultAudio.district(typeof Districts!=="undefined"?Districts.worldTop(n):n.top);
   if(push){hist=hist.slice(0,hpos+1);hist.push(n.id);hpos=hist.length-1}
   sheet.view="note";sheet.ntab="note";
   $("#back").disabled=$("#sBack").disabled=hpos<=0;$("#fwd").disabled=$("#sFwd").disabled=hpos>=hist.length-1;

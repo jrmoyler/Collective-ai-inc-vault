@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#7F1D1D'
 status: chartered
-updated: 2026-10-04
+updated: 2026-10-06
 director: KEYSTONE
 division_no: 5
 ---
@@ -283,3 +283,149 @@ Five body-worn devices from the [[Wearable Catalog]]. All are prototypes staged 
 | [[Hardhat Sensor Clip]] | helmet clip | ~$115-$190 | Requires site PPE compatibility test. |
 | [[Open-House Key Token]] | key fob | ~$75-$125 | No personal tracking beyond appointment logs. |
 | [[StructSense Belt Pod]] | belt/lumbar pod | ~$110-$180 | Work-safety assist only. |
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Terra Axis. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (6)
+◆ Property acquisition intelligence and investment analysis
+◆ Smart property management for residential and
+commercial portfolios
+◆ Smart home integration and IoT deployment for
+properties
+◆ Property renovation and improvement project
+management (Columbus operations)
+◆ Electrical contracting services (Columbus operations)
+◆ PropTech consulting for real estate developers
+TECHNOLOGY STACK (12 tools)
+◆ Mapbox — geographic visualization and mapping
+◆ Home Assistant — IoT device management and
+automation
+◆ Plaid — financial data integration for property
+management
+◆ Twilio — SMS/call communication for tenants and
+contractors
+◆ Bridge API / MLS Data — real estate listing data
+◆ QuickBooks — property business accounting
+◆ Zillow API / CoStar — market data and valuation
+◆ n8n — workflow automation for property operations
+◆ Supabase / PostgreSQL — backend database
+◆ Stripe — payment processing
+◆ Claude API — analysis, estimation, and reporting
+◆ MQTT — IoT device communication protocol
+REVENUE MODEL
+SaaS platform subscriptions (Terra Vision, HomeHub) +
+marketplace transaction fees + property management
+revenue + Columbus contracting revenue
+SYNERGY NODES
+Habitat Intelligence ◆ Volt Nexus (Helios Grid — pending SEC
+clearance)
+```
+
+### Specialist delivery owners
+[[Terra Axis — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 05 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:bc9b40da75cb37a402f5 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Terra Axis status is **chartered, not operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** December 2, 2025 Document Status: Version 1.0 (Completed)
+
+### Source section 1
+```text
+3.0 Products & Services
+Terra Axis merges physical development with a proprietary software suite. We do not just sell land; we sell the intelligence to manage, visualize, and power it.
+3.1 "Terra Vision": Generative Design & Compliance Engine
+* The Concept: An AI-powered application that instantly bridges the gap between a homeowner's imagination and regulatory reality.
+* How It Works: Users input a property address and describe a desired project (e.g., "add a 500 sq ft ADU to the backyard").
+   * Compliance Layer: The system cross-references local zoning laws, setbacks, and building codes in real-time to validate feasibility.
+   * Visualization Layer: Leveraging Nexus Labs’ rendering engine, it generates a photo-realistic, architecturally accurate 3D rendering of the completed project on the actual site.
+3.2 "HomeHub": The AI Property Sentinel
+* The Concept: A "Headless Property Manager" for landlords that operates 24/7. It is not just a dashboard; it is an active agent.
+* How It Works:
+   * Tenant Interface: Tenants report issues (e.g., "leaky faucet") to a ZenFlow voice agent. The AI troubleshoots the issue first to avoid unnecessary calls.
+   * Service Routing: If a repair is needed, HomeHub automatically connects with a vetted provider, schedules the appointment, and processes the invoice.
+   * Landlord Insights: The landlord receives "Executive Summaries"—concise insights on portfolio health, expense trends, and tenant satisfaction—without being bogged down in daily texts.
+3.3 "Axis Market": Live Valuation & Analytics Platform
+* The Concept: A "Stock Market" interface for real estate that brings radical transparency to property values.
+* How It Works:
+   * Live Ticker: Users select a specific timeframe (e.g., "Last 6 Months," "Year-to-Date") to see the live fluctuation of specific property values and neighborhood indices, visualized like a stock chart.
+   * Predictive Trends: Unlike Zillow which looks backward, Axis Market uses ZenFlow’s predictive modeling to forecast future value based on zoning changes, planned infrastructure, and market sentiment.
+3.4 "The Helios Grid": Decentralized Solar Network
+* The Concept: A distributed energy infrastructure where every Terra Axis property acts as a node in a decentralized power plant.
+* How It Works: We install solar infrastructure on all residential and commercial developments.
+   * Smart Distribution: The system intelligently routes energy where it is needed—powering the home, charging EVs, or sending excess back to the grid.
+   * Tokenized Energy: Using Quantum Genesis (Web3), excess energy is tokenized. A homeowner can literally sell their extra sunlight to a neighbor, creating a peer-to-peer energy economy.
+```
+
+### Source section 2
+```text
+4.0 Market Analysis
+4.1 Target Market
+* Homeowners & Renovators: Primary users for Terra Vision, needing clarity on complex projects.
+* Independent Landlords: The core B2B market for HomeHub, specifically those with 1-10 units who cannot afford full-service management.
+* Real Estate Investors: Users of Axis Market who require institutional-grade data to make buy/sell decisions.
+* Eco-Conscious Developers: Partners for the Helios Grid implementation.
+4.2 Competitive Landscape
+* Terra Vision: Competes with traditional architects (slow, expensive) and basic design apps (lack compliance data). Our advantage is the regulatory integration.
+* HomeHub: Competes with fragmented property management software (AppFolio, Buildium). Our advantage is the autonomous AI agent that actively solves problems rather than just logging them.
+* Axis Market: Competes with Zillow/Redfin (lagging indicators). Our advantage is predictive analytics and live-ticker visualization.
+```
+
+### Source section 3
+```text
+5.0 Go-to-Market & Commercialization
+5.1 Strategy
+* Phase 1: SaaS Penetration (Year 1): Launch Terra Vision and HomeHub to generate immediate cash flow and data without heavy capital expenditure.
+* Phase 2: Data Monetization (Year 2): Launch Axis Market as a premium subscription for investors, powered by the data collected in Phase 1.
+* Phase 3: Physical Development (Year 3): Utilize revenue and data to break ground on "Axis Living" physical developments, fully integrated with the Helios Grid.
+5.2 Monetization
+* Terra Vision: Freemium model with "Pay-Per-Project" compliance reports ($49/report).
+* HomeHub: Subscription model ($20/unit/month).
+* Axis Market: Tiered subscription ($29/month Pro Tier).
+* Helios Grid: Utility revenue and transaction fees on peer-to-peer energy trades.
+```
+
+### Source section 4
+```text
+6.0 Role Within Collective AI
+Terra Axis serves as the "Hardware" to Collective AI's "Software," grounding the digital portfolio in physical assets.
+* Synergy with ZenFlow: Terra Axis buildings are the "bodies" that ZenFlow agents inhabit, proving the utility of agentic AI in the physical world.
+* Synergy with Quantum Ledger: Financial transactions for HomeHub run through Quantum Business; energy trading on the Helios Grid validates Quantum Genesis.
+* Synergy with Civic Core: Terra Axis provides the physical infrastructure for "Tech Hubs" required by the Digital Equity Initiative.
+```
+
+## Delivery ownership
+- [[Terra Axis Division]]
+- [[002 — Divisions MOC]]
+- [[Terra Axis — Complete Specialist Roster]]
+
+## Source
+- [Terra Axis Business Plan](https://docs.google.com/document/d/1XhOb7rymkIDCjGGNSqzxsgx5F0Bgan3D6fgq7_B7dHE/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Terra Axis Business Plan](https://docs.google.com/document/d/1XhOb7rymkIDCjGGNSqzxsgx5F0Bgan3D6fgq7_B7dHE/edit?usp=drivesdk)
+
+<!-- drive-expansion:934cd645b6674744fcbd -->
+
+## Source interface and operating records
+
+- [[API-04 Helios Grid Telemetry API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:4c31ae49d6b5dc4fd566 -->

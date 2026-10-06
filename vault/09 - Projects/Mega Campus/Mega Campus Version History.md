@@ -7,7 +7,7 @@ tags:
 type: campus-history
 owner: JR Moyler (Hataalii)
 source: Sept 16 register; memory v3.0; Drive v2.0, Breakdown, Ghana; repo history
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # Mega Campus Version History
 
@@ -94,3 +94,30 @@ Every known version of the [[Collective AI Mega Campus]]. JR confirmed the Sept 
 - [[Mega Campus Financial Model]]
 - [[Mega Campus 3D Anatomy Map]]
 - [[Mega Campus Investor and Regional Materials]]
+
+## Drive source expansion — 2026-10-06
+
+## Primary Drive editions disposition — 2026-10-06
+| Drive edition | Historical scope | Current treatment |
+|---|---|---|
+| Master Technical Breakdown, Q1 2026 | 150 acres, 630,000 sq ft, thirteen facilities, five districts | Historical source; timeline above already preserves it |
+| Updated Mega Campus Blueprint v2, June 2026 | 180-acre recommendation with 150 minimum/220 future-proof; approximately 1.05–1.20M sq ft target | Superseded planning edition |
+| Master Development Dossier v2, June 2026 | 180-acre campus and planning-cost assumptions | Superseded cost/development study |
+
+The v2 cost dossier explicitly labels cost figures planning-level estimates, uses a ±20% range, and calls its 0.94 regional factor an assumption requiring validation. The approximate targets in the source do not replace the September register's exact program.
+
+Current canon remains 220 acres, 35 facilities, 2,045,000 sq ft and six physical campus districts. Current vault navigation districts are a separate system. Helios Grid remains blocked pending an SEC legal opinion. Neither an older energy table nor a facility concept authorizes deployment.
+
+The three sources have been accounted for as historical supporting material rather than imported as a competing live campus.
+
+## Source record
+- [Collective_AI_Campus_Master_Breakdown](https://docs.google.com/document/d/1LmoZY3Y-fVUNP1EYXwSUUvuVUS1l5qU-gQOgQiAjleU/edit?usp=drivesdk) — source covers; dossier cost methodology; master breakdown overview.
+- [Collective_AI_Updated_Mega_Campus_Blueprint_2026.pdf](https://drive.google.com/file/d/1T5Xt-eLBh0h1NMZYX8XLsV43Web2xQhv/view?usp=drivesdk) — source covers; dossier cost methodology; master breakdown overview.
+- [CAI_MasterDevelopmentDossier_v2_FIXED.pdf](https://drive.google.com/file/d/1SNC1QfbVZW1Iww1i4mAjsJM0NBEZ8oSZ/view?usp=drivesdk) — source covers; dossier cost methodology; master breakdown overview.
+
+### Source records
+- [Collective_AI_Campus_Master_Breakdown](https://docs.google.com/document/d/1LmoZY3Y-fVUNP1EYXwSUUvuVUS1l5qU-gQOgQiAjleU/edit?usp=drivesdk)
+- [Collective_AI_Updated_Mega_Campus_Blueprint_2026.pdf](https://drive.google.com/file/d/1T5Xt-eLBh0h1NMZYX8XLsV43Web2xQhv/view?usp=drivesdk)
+- [CAI_MasterDevelopmentDossier_v2_FIXED.pdf](https://drive.google.com/file/d/1SNC1QfbVZW1Iww1i4mAjsJM0NBEZ8oSZ/view?usp=drivesdk)
+
+<!-- drive-expansion:5c0edd6c2385abdd5422 -->

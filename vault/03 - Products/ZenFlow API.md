@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: ZenFlow
 ---
 # ZenFlow API
@@ -42,3 +42,29 @@ MVP brief: [[MVP — ZenFlow API]] (from [[MVP Build Guide]])
 **Build / creation platform.** FastAPI. OAuth 2.0 + API key auth. Rate limiting via Redis. Documentation via OpenAPI/Swagger. Deployed on Docker / ZenFlow cloud infrastructure.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. ZenFlow is operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Developer API
+
+Public REST API enabling third-party developers to access ZenFlow's agent routing, orchestration, and Aegis Protocol compliance
+infrastructure. The commercial API layer.
+
+### Source build platform
+FastAPI. OAuth 2.0 + API key auth. Rate limiting via Redis. Documentation via OpenAPI/Swagger. Deployed on Docker / ZenFlow cloud
+infrastructure.
+
+### Ownership
+- [[ZenFlow Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 5; ZenFlow API product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:9b1485efe4ef2cfeadb1 -->

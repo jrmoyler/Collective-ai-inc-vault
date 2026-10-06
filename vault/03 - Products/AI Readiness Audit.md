@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: offer
-updated: 2026-10-04
+updated: 2026-10-06
 division: The Collective
 ---
 # AI Readiness Audit
@@ -46,3 +46,28 @@ Source: [[Master Product Catalog]]
 ## Web build
 
 - [[AI Readiness Audit Platform]] — Next.js + Claude + Supabase build on Vercel (the-collective-ai-assessment-platfo.vercel.app).
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. The Collective is operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Consulting Deliverable
+
+Comprehensive assessment of an enterprise's AI readiness: data infrastructure, workforce capability, process maturity, and governance
+posture. Produces a scored readiness report with prioritized action roadmap.
+
+### Source build platform
+Claude API for report generation. Custom assessment framework. Delivered as PDF/DOCX. Built with The Collective's consulting template library.
+
+### Ownership
+- [[The Collective Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 6; AI Readiness Audit product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:c00b1ae12b20f55d9936 -->

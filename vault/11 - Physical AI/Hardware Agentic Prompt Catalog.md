@@ -10,7 +10,7 @@ type: hub
 owner: JR Moyler (Hataalii)
 parts: 7
 source: Hardware Agentic Prompt Catalog
-updated: 2026-10-04
+updated: 2026-10-06
 prompt_count: 116
 ---
 # Hardware Agentic Prompt Catalog
@@ -427,3 +427,149 @@ Each division note has a "Hardware prompts" section listing its prompts.
 - [[Titan Directorate]] · [[Prime Directorate]] · [[Sky Vector]] · [[Ground Vector]]
 - [[Aegis Protocol]] · [[Knowledge Keeper]] · [[Zenith OS]]
 - [[002 — Divisions MOC]] · [[003 — Products MOC]] · [[JR Moyler]]
+
+## Drive source audit — original catalog edition
+
+> [!info] Source edition scope
+> This is a comparison against the original Drive document, not a new deployment claim. The current catalog and linked item notes above remain in place. Source source-phase revenue figures and hardware costs are targets/estimates. Current canonical division numbers, Director Codenames, [[Agent Tier Registry]] and [[Civic Core Fiduciary Veto]] override older labels/authority. Different wearable editions have different scopes; retain each edition rather than combine their item counts.
+
+### Source-defined scope
+```text
+Collective AI Inc · Hardware & Agentic Prompt Catalog · Confidential Page 1
+COLLECTIVE AI INC
+MASTER HARDWARE &
+AGENTIC PROMPT
+CATALOG
+Image Generation Prompts for Every Hardware Asset
+Drones · Androids · Robots · Autonomous Fleet · Wearables · Campus Units
+All 20 Divisions + Parent Company · Hardware Foundry · Agentic Foundry · 120-Tool Toolkit
+Architecting a Humane Future · Columbus, Ohio · JR Moyler / Hataalii · 2026Collective AI Inc · Hardware & Agentic Prompt Catalog · Confidential Page 2
+TABLE OF CONTENTS
+PART 1 — DRONE FLEET
+· Sky Vector — Delivery & Logistics Drones
+· Obsidian Arc — Security & Surveillance Drones
+· Juris Guard — Enforcement Drones
+· Vital Helix — Medical Response Drones
+· Kinetic Edge — Athletic Tracking Drones
+· Gaia Synthesis — Agricultural Field Drones
+· Aether Link — Mesh Relay Drones
+· Terra Axis — Infrastructure Inspection Drones
+· ZenFlow — Intelligence Relay Drones
+· Vector Shift — Combat/Recon Variants
+· Cross-Campus Swarm Assets
+PART 2 — ANDROID FLEET — CAMPUS UNITS
+· Solar-Powered Androids (Gaia Synthesis)
+· Hydro-Powered Androids (Aether Link)
+· Social / Welcome Androids (Animus Prime — Prime Directorate)
+· Security Androids (Obsidian Arc)
+· Medical Androids (Vital Helix)
+· Agricultural Androids (Gaia Synthesis)
+· Education Androids (Hybrid Living)
+· Logistics / Courier Androids (Vector Shift)
+· Research Androids (ZenFlow / Binary Loom)
+· Longevity & Wellness Androids (Eon Core / Vital Helix)
+PART 3 — INDUSTRIAL ROBOTS — TITAN DIRECTORATE
+· Titan Construction Robots
+· Titan Manufacturing Robots
+· Titan Agricultural Robots (Gaia Synthesis)
+· Titan Medical Assembly Robots (Vital Helix)
+· Titan Infrastructure Maintenance Robots (Terra Axis)
+PART 4 — AUTONOMOUS FLEET VEHICLES
+· Ground Vector Long-Haul Fleet Trucks
+· Ground Vector Urban Last-Mile Vans
+· Ground Vector Medical Rapid Response
+· Ground Vector Agricultural Transport
+· Ground Vector Campus Shuttle (Nomad Nexus)
+PART 5 — DIVISION HARDWARE ASSETS — ALL 20 + PARENT
+· Parent Company (Collective AI Inc)
+· ZenFlow · The Collective · Hybrid Living · Nexus Labs
+· Terra Axis · Vital Helix · Binary Loom · Gaia Synthesis
+· Vector Shift · Animus Prime · Aether Link · Obsidian Arc
+· Kinetic Edge · Civic Core · Quantum Ledger
+· Juris Guard · Signal Velocity · Nomad Nexus · Eon Core · Cognara Mind
+PART 6 — AGENTIC FOUNDRY INTEGRATION PROMPTS
+· ZenFlow Agent-Driven Hardware Control PromptsCollective AI Inc · Hardware & Agentic Prompt Catalog · Confidential Page 3
+· n8n Workflow Integration Prompts (per division)
+· MCP Server Hardware Prompts
+· 120-Toolkit Agentic Hardware Stacks
+PART 7 — CROSS-CAMPUS SCENE PROMPTS
+· Campus Zone Scenes (Core, Foundry, Biosphere, Public Interface)
+· Multi-Division Hardware Family Shots
+· Cinematic Hero & Product Reveal PromptsCollective AI Inc · Hardware & Agentic Prompt Catalog · Confidential Page 4
+PART 1
+DRONE FLEET
+Image generation prompts for all aerial drone units across every division. Use with Nano Banana 2, GPT Image 2, Midjourney, or
+Grok Imagine.
+VECTOR SHIFT — SKY VECTOR
+Everything Moves.
+SV-01 Sky Vector Delivery Drone — Full Body Design Sheet MODE 6 — Full Body Design Sheet | --ar 3:2
+full body Sky Vector autonomous delivery drone design sheet, hexagonal carbon fiber frame, four variable-pitch rotors, underbelly payload bay with
+magnetic lock, VS circuit eagle mark on dorsal hull, Void Navy #0A1628 body with Velocity Silver #CBD5E1 chrome trim, Arc Cobalt sensor array crown,
+annotation callouts: rotor assembly, payload bay latch, LiDAR sensor cluster, mesh transceiver fin, clean white background, industrial product design spec
+sheet --ar 3:2
+■ TOOLKIT: Sky Vector Route Agent (ZenFlow Tier 3) + Vector Hub n8n webhook on delivery complete
+SV-02 Sky Vector Drone — Front/Back Reference MODE 5 — Front-Back View | 
+```
+
+### Existing named coverage verified against extracted source
+- [[AL-03 Mesh Relay Drone]]
+- [[Aegis Protocol]]
+- [[Agent Health Monitor]]
+- [[Apex System]]
+- [[Atlas Platform]]
+- [[Bio-Digital Twin]]
+- [[BioAge Engine]]
+- [[Collective AI Mega Campus]]
+- [[Collective Times]]
+- [[Creator Nexus]]
+- [[Custom Script]]
+- [[Digital Equity Initiative]]
+- [[Ground Vector]]
+- [[Ground Vector Fleet]]
+- [[Helios Grid]]
+- [[Knowledge Keeper]]
+- [[Natural Script]]
+- [[Neuro-Pulse]]
+- [[P.E.T.E.E.R.]]
+- [[P.E.T.E.E.R. Framework]]
+- [[Prime Directorate]]
+- [[Protocol Builder]]
+- [[Quantum Alpha]]
+- [[Quantum Genesis]]
+- [[Signal Ring]]
+- [[Sky Net Infrastructure]]
+- [[Terra Vision]]
+- [[Titan Directorate]]
+
+### Closing source build/governance instructions
+```text
+: eight drone variants in formation above, three android types
+standing in foreground, two Titan robots flanking, three Ground Vector trucks at dock behind, amber and teal light from below, deep navy sky, every piece of
+hardware visible, cinematic product reveal shot, photorealistic --ar 21:9
+HH-02 Drone Fleet Formation — Hero Shot MODE 1 — Scene | --ar 21:9
+all eight Collective AI division drones in precise formation over the campus at dusk: Sky Vector delivery center, Obsidian Arc sentinel flanking, Vital Helix
+medical rear-left, Kinetic Edge tracking rear-right, Gaia Synthesis agricultural front-left, Aether Link mesh front-right, Juris Guard enforcement center-left,
+Terra Axis inspection center-right, each drone in its division brand color accent, deep navy sky, cinematic aerial formation shot --ar 21:9
+HH-03 Android Family — Plaza Scene MODE 1 — Scene | --ar 21:9
+all campus android types assembled in a wide campus plaza at golden hour, solar android left with green photovoltaic panels, hydro android second-left with
+aqua channels, social android center warm white Arc Cyan, medical android second-right white and teal, security android far-right obsidian black, each
+clearly distinct in their division brand, human figures interacting naturally with each, cinematic product reveal, photorealistic --ar 21:9
+HH-04 Complete Hardware Ecosystem — Architectural Scene MODE 2 — Architectural | --ar 16:9
+stunning, photograph of the Collective AI Mega Campus at twilight showing all hardware systems active and visible: drone fleet overhead, androids on
+pathways, autonomous trucks at dock, Titan robots at construction zone, smart buildings with sensor networks glowing, the entire ecosystem in one shot,
+amber and teal ambient, cinematic architectural visualization, hyperrealistic --ar 16:9Collective AI Inc · Hardware & Agentic Prompt Catalog · Confidential Page 24Collective AI Inc · Hardware & Agentic Prompt Catalog · Confidential Page 25
+COLLECTIVE AI INC
+Architecting a Humane Future
+Columbus, Ohio · collectiveai.com · 2026
+This catalog is confidential. All hardware concepts, prompt specifications, agent architectures, and brand assets are proprietary to
+Collective AI Inc.
+
+```
+
+## Source
+- [Collective_AI_Hardware_Agentic_Prompt_Catalog.pdf](https://drive.google.com/file/d/18OwJbzwjRv5GiW4okU9d4paBkuuLumi8/view?usp=drivesdk) — opening scope and closing governance/build notes; full text compared against existing item names. Reviewed 2026-10-06.
+
+### Source records
+- [Collective_AI_Hardware_Agentic_Prompt_Catalog.pdf](https://drive.google.com/file/d/18OwJbzwjRv5GiW4okU9d4paBkuuLumi8/view?usp=drivesdk)
+
+<!-- drive-expansion:0ae54ef1dc73a2d985f4 -->

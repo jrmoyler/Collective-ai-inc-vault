@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: blocked
-updated: 2026-10-04
+updated: 2026-10-06
 division: Terra Axis
 ---
 # Helios Grid
@@ -53,3 +53,29 @@ MVP brief: [[MVP — Helios Grid]] (from [[MVP Build Guide]])
 > Helios Grid stays blocked pending an SEC legal opinion from [[Juris Guard Division]]. No deployment until clearance is issued.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Terra Axis is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Energy Infrastructure Platform
+
+BLOCKED — Pending SEC legal opinion. Smart energy grid management and distributed energy trading platform. Under Juris Guard
+review for securities compliance before activation.
+
+### Source build platform
+STATUS: BLOCKED. Platform architecture designed (IoT energy sensors + blockchain settlement via Quantum Genesis) but not deployed. Juris
+Guard must issue SEC clearance before build proceeds.
+
+### Ownership
+- [[Terra Axis Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 12; Helios Grid product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:ff598f2b69b2c47e83fb -->

@@ -5,7 +5,7 @@
   "description": "Collective AI second brain: live 3D vault, agent API, MCP servers and git mirror",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "build": "node scripts/build_vendor.mjs && python3 scripts/build_web.py",

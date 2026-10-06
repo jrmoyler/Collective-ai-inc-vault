@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Animus Prime
 ---
 # Robot Fleet Management
@@ -43,3 +43,29 @@ Catalog name: **Robot Fleet Management Platform**
 **Build / creation platform.** React web dashboard. FastAPI backend. WebSocket for real-time status. PostgreSQL for fleet registry. OTA update system via secure firmware distribution.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Animus Prime is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Enterprise Software Platform
+
+Enterprise fleet management for Titan robot installations. Remote monitoring, software updates, task scheduling, performance
+benchmarking, and ROI reporting for enterprise manufacturing clients.
+
+### Source build platform
+React web dashboard. FastAPI backend. WebSocket for real-time status. PostgreSQL for fleet registry. OTA update system via secure firmware
+distribution.
+
+### Ownership
+- [[Animus Prime Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 32; Robot Fleet Management product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:f597bdf977b32bb9f8b6 -->

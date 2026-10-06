@@ -5,7 +5,7 @@ tags:
 - architecture
 type: spec
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-06
 ---
 # ZenFlow Master Blueprint
 
@@ -32,3 +32,45 @@ Every output carries an Aegis clearance. See [[Aegis Protocol Spec]].
 - [[001 — ZenFlow MOC]]
 - [[ZenFlow Division]]
 - [[ZenFlow Runbook]]
+
+## Complete foundry engineering reference
+The configuration source defines service, database, queue, endpoint, deployment, observability, release and security contracts. Targets in that source require deployment evidence.
+
+- [[ZenFlow Foundry — Service and Routing Architecture]]
+- [[ZenFlow Foundry — PostgreSQL Schema Contracts]]
+- [[ZenFlow Foundry — Redis Queue and Cache Contracts]]
+- [[ZenFlow Foundry — FastAPI Endpoint Contracts]]
+- [[ZenFlow Foundry — Model Client and Cost Configuration]]
+- [[ZenFlow Foundry — Container and Cluster Configuration]]
+- [[ZenFlow Foundry — Metrics Alerts and Dashboards]]
+- [[ZenFlow Foundry — Release and Rollback Pipeline]]
+- [[ZenFlow Foundry — Security and Authentication Architecture]]
+- [[ZenFlow Foundry — Production Launch Checklist]]
+
+## Source
+- [Collective_AI_Agent_Foundry_Config_Spec.pdf](https://drive.google.com/file/d/1uDkAakG4a5U7_yer5VW6WWY1YzRZmfiO/view?usp=drivesdk) — Sections 01–10. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Agent_Foundry_Config_Spec.pdf](https://drive.google.com/file/d/1uDkAakG4a5U7_yer5VW6WWY1YzRZmfiO/view?usp=drivesdk)
+
+<!-- drive-expansion:49b8115cc1ebd0e2120f -->
+
+## G-COSA source architecture
+The corrected G-COSA source specifies cognitive layers, per-node overseers, verification and loop detection, RabbitMQ/SSE transport, and typed frame/control contracts. Its 25-node baseline is a historical allocation; the Physical AI Foundry source proposes a separate 30-node allocation. Neither document proves hardware acquisition.
+
+- [[G-COSA — Physical Compute Matrix]]
+- [[G-COSA — Nine-Layer Cognitive Architecture]]
+- [[G-COSA — Execution Harness and Verification Loop]]
+- [[G-COSA — Reasoning Emotion and Coordination Subsystems]]
+- [[G-COSA — ZenFlow Gateway Transport]]
+- [[G-COSA — Continuous Cognitive Loop]]
+- [[G-COSA — Cognitive Frame and Control Policy Contracts]]
+- [[G-COSA — Staged Implementation Order]]
+
+## Source
+- [G-COSA Comprehensive Architecture & Blueprint](https://docs.google.com/document/d/1usMY1CnWbXdS05CPL13_DLNpL4y1AE0-YsIuRa4tTcM/edit?usp=drivesdk) — Sections 1–8. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [G-COSA Comprehensive Architecture & Blueprint](https://docs.google.com/document/d/1usMY1CnWbXdS05CPL13_DLNpL4y1AE0-YsIuRa4tTcM/edit?usp=drivesdk)
+
+<!-- drive-expansion:cf2232955d73db7a20ca -->

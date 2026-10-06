@@ -8,7 +8,7 @@ type: division
 owner: JR Moyler (Hataalii)
 accent: '#92400E'
 status: chartered
-updated: 2026-10-04
+updated: 2026-10-06
 director: WAYFARER
 division_no: 19
 ---
@@ -284,3 +284,276 @@ Five body-worn devices from the [[Wearable Catalog]]. All are prototypes staged 
 | [[Field Guide Ear Cue]] | ear cue | ~$110-$180 | Translation consent required. |
 | [[Passport Lanyard Controller]] | lanyard | ~$90-$150 | No sensitive travel docs stored on-device. |
 | [[Explorer Shoulder Pod]] | shoulder clip | ~$135-$220 | Visible capture state required. |
+
+## Drive source — service and delivery platform catalog
+
+The source lists the following offerings, technology stack, revenue model and synergy interfaces for Nomad Nexus. They are source-defined plans, not proof of sales or all capabilities being deployed. Current charter status and numbering above remain authoritative. Source software/model versions are historical. Source civic veto claims are superseded by [[Civic Core Fiduciary Veto]].
+
+### Complete service and stack specification
+```text
+SERVICES (7)
+◆ Digital nomad platform access with visa, housing, and
+intelligence tools
+◆ Employer remote work benefit programs
+◆ Relocation consulting for individuals and remote teams
+◆ Co-living partner network access and booking
+◆ Emergency response coordination for nomad community
+members
+◆ Nomad community retreats and destination events
+◆ Nomad business structure and tax intelligence
+(information, not advice)
+TECHNOLOGY STACK (14 tools)
+◆ Mapbox — destination and housing visualization
+◆ Numbeo API — cost of living and safety index data
+◆ Speed test API — internet connectivity data
+◆ Circle.so / Discord — community platform
+◆ Eventbrite — community event management
+◆ Stripe — subscription and booking payments
+◆ Supabase — platform backend database
+◆ n8n — visa monitoring and alert automation
+◆ Claude API — destination intelligence synthesis
+◆ Calendly — consultation scheduling
+◆ Rippling / Workday API — employer HR integration
+◆ Twilio — SMS emergency alerts
+◆ React Native — mobile app
+◆ Next.js — web platform
+REVENUE MODEL
+Individual subscriptions + employer partnership
+contracts + booking commissions + premium
+intelligence reports
+SYNERGY NODES
+Nomad Grid
+```
+
+### Specialist delivery owners
+[[Nomad Nexus — Complete Specialist Roster]] defines all 30 source specialist roles and their tools. Current leadership remains in [[Director Codenames]].
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — Division 18 — services, stack, revenue model and synergy interfaces. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:ec74231551cb60a494b0 -->
+
+## Source business plan — product packaging and delivery model
+
+> [!warning] Historical business-plan assumptions
+> This document is a planning source, not a confirmation of revenue, customers, funding received, incorporation of a subsidiary, certification or delivered performance. Current Nomad Nexus status is **chartered, not operating**. Current charter numbering, directors, palette and operating boundaries above take precedence. Source dates and year-based launch forecasts are historical. Current recorded company reality remains 0 paying customers and $0 MRR as of Sept 2026. Hardware performance and medical efficacy statements below are unvalidated source claims; physical autonomy needs staged Aegis approval and health outputs need clinical review. Civic Core’s former veto is superseded by [[Civic Core Fiduciary Veto]]. Helios Grid remains blocked pending an SEC legal opinion. Source Ahmed/Ahmad Mohammed references refer to current canon [[Ahmad Muhammad]].
+
+**Source date/status:** May 10, 2026
+
+### Source section 1
+```text
+3.0 Products & Services
+
+
+### 3.1 NomadOS: Life-in-Motion Operating System
+
+
+NomadOS is the control center for the globally mobile life. It doesn't just track where you've been — it tells you where to go next and why.
+
+
+Core capabilities:
+- Global cost-of-living dashboard (450+ cities, updated monthly, filterable by lifestyle type)
+- Personal nomad score: a composite index combining visa access, tax optimization, quality of life, and infrastructure for the user's specific passport and income profile
+- Calendar-integrated location planning (plans your next 3–6 months based on visa duration, seasonal pricing, and personal preferences)
+- Community matching by city and region (connects users with vetted nomads and professionals already in each location)
+- Direct integration with VisaPilot and NexusStay
+
+
+### 3.2 VisaPilot: Visa & Relocation Intelligence
+
+
+VisaPilot eliminates the information asymmetry that makes international mobility unnecessarily stressful.
+
+
+Core capabilities:
+- 195-country database: entry requirements, duration of stay, renewal rules, and digital nomad visa program details — updated in real time as policy changes are published
+- Real-time policy change alerts for the user's active and planned destinations
+- Personalized visa path recommendations based on passport, intended duration, and income source
+- Document checklist automation (generates the exact required documents for each application)
+- Embassy appointment tracking and deadline calendar integration
+- "Visa arbitrage" optimizer: surfaces the best available visa options the user hasn't considered
+
+
+### 3.3 NexusStay: Co-Living & Co-Working Network
+
+
+NexusStay brings quality standards and community curation to the co-living market.
+
+
+Core capabilities:
+- Partner property onboarding with standardized quality scoring (internet speed, workspace ergonomics, community atmosphere, neighborhood safety, transport access)
+- Dynamic pricing engine (real-time availability and pricing across all properties)
+- Community rating system (reviews from verified nomads, not tourists)
+- Terra Axis integration: Collective AI-owned properties serve as flagship NexusStay nodes
+- Enterprise team accommodation: group rates and multi-city packages for distributed teams traveling or meeting in person
+
+
+### 3.4 FlowMap: Remote Work Optimization Platform
+
+
+FlowMap is built for the enterprise remote work problem that no consumer app addresses.
+
+
+Core capabilities:
+- Tax liability modeling across jurisdictions (calculates employee and employer tax exposure based on where team members are working from)
+- Internet speed and infrastructure scoring by location (real-world remote work productivity assessment, not just theoretical speed tests)
+- Time-zone collaboration heatmaps for distributed teams (identifies the optimal overlap windows for meeting scheduling)
+- Digital nomad visa arbitrage optimizer for distributed teams (finds compliant location configurations that minimize collective tax burden)
+
+
+---
+
+
+## 4.0 Market Analysis
+
+
+### Target Market
+
+
+- Digital Nomads: The 35 million+ global digital nomads who currently operate with fragmented tools, incomplete visa information, and no unified planning infrastructure.
+- Remote-First Professionals: Employed professionals who work remotely and want to optimize where they live without creating legal or tax exposure.
+- Distributed Enterprise Teams: Companies managing remote teams across jurisdictions who need compliance, infrastructure quality, and time-zone coordination in one tool.
+- Location-Independent Entrepreneurs: Founders and freelancers whose income follows them and who need financial clarity across borders.
+
+
+### Competitive Landscape
+
+
+- Visa Information Sites (VisaHQ, iVisa): Application services, not intelligence platforms. No personalization, no real-time alerts, no integration with housing or financial planning.
+- Co-Living Networks (Selina, Outsite, Sonder): Hospitality businesses, not productivity infrastructure. Quality inconsistent, community features surface-level.
+- Remote Work Tools (Remote, Deel): Employer-of-record and payroll compliance for companies hiring across borders — not designed for individuals managing their own mobility.
+
+
+### Competitive Advantage
+
+
+- Full-Stack Mobility: NomadOS + VisaPilot + NexusStay + FlowMap is the only platform that addresses visa, housing, finance, and enterprise team management in one ecosystem. Competitors own one piece. Nomad Nexus owns the entire stack.
+- Physical Infrastructure Advantage: Terra Axis properties give Nomad Nexus co-living nodes that competitors can't replicate without years of real estate development.
+- Collective AI operates as a distributed team: Every product decision is tested against how the company actually works. Nomad Nexus is built from lived operational experience, not market research.
+
+
+---
+
+
+## 5.0 Go-to-Market & Monetization Strategy
+
+
+### Phase 1 — Internal & Community Seeding (Year 3, Months 1–6)
+
+
+Launch NomadOS and VisaPilot with the Collective AI team as the first users. Seed to the remote-work and nomad community via Nexus Labs content channels and The Collective's enterprise network.
+
+
+### Phase 2 — NexusStay Network Launch (Year 3, Months 7–12)
+
+
+Open NexusStay to partner property applications. Target 20 city nodes in Year 3 with Terra Axis properties as anchors. Begin enterprise FlowMap pilots with The Collective's enterprise clients who have distributed teams.
+
+
+### Phase 3 — Enterprise Channel & Global Scale (Year 4+)
+
+
+Expand FlowMap as a standalone enterprise product. Build partnerships with HR platforms (Workday, Rippling) and remote work consultancies for distribution. Scale NexusStay to 100+ city nodes.
+
+
+### Pricing Model
+
+
+- Explorer: NomadOS dashboard + VisaPilot basic — $29/month
+- Navigator: Full NomadOS + VisaPilot Pro + NexusStay access — $89/month
+- Enterprise: FlowMap distributed team suite + custom relocation support + dedicated mobility agent — custom pricing
+
+
+---
+
+
+## 6.0 Role Within Collective AI
+
+
+Nomad Nexus makes the Collective AI model of distributed, mobile, AI-native work legible to the world. It proves that location independence is not a lifestyle — it's an operating model — and gives every professional and organization the infrastructure to run that model well.
+
+
+Key cross-division dependencies:
+- Terra Axis: Co-living property network, smart habitat node integration for NexusStay
+- Quantum Ledger: Multi-currency accounts, cross-border tax modeling, nomad financial planning
+- Hybrid Living: Nomad-native curriculum, skills development for location-independent professionals
+- Civic Core: Digital equity for globally displaced communities and refugee populations
+- Signal Velocity: Nomad audience growth and acquisition infrastructure
+
+
+---
+
+
+## 7.0 Financial Plan
+
+
+### Funding
+
+
+Nomad Nexus is a Year 3 division, capitalized through Collective AI's Series B round.
+
+
+### Revenue Projections
+
+
+- Year 3: $320,000 (NomadOS/VisaPilot subscriptions + first 5 enterprise FlowMap pilots)
+- Year 4: $1,400,000 (NexusStay network live in 20 cities, 3,000 active subscribers, 15 enterprise accounts)
+- Year 5: $4,500,000 (global scale, 100-city NexusStay network, enterprise channel partnerships)
+
+
+### Revenue Streams
+
+
+- Consumer Subscriptions: Explorer and Navigator tier MRR
+- Enterprise Contracts: Annual FlowMap agreements with distributed team management and compliance support
+- NexusStay Property Revenue: Booking commissions from partner properties and direct revenue from Terra Axis-owned nodes
+- Visa Service Fees: Premium VisaPilot services for complex applications and expedited guidance
+
+
+### Cost Structure
+
+
+- Year 3 Burn: ~$420,000 (2 platform engineers, 1 visa intelligence analyst, NexusStay property onboarding, ZenFlow integration costs)
+- Path to Profitability: Year 4, driven by subscription volume and NexusStay booking revenue
+
+
+---
+
+
+## 8.0 Visual Identity
+
+
+- Division Name: Nomad Nexus
+- Brand Line: "The World Is Your Infrastructure."
+- Logo Concept: A compass rose — eight points, clean vector geometry — overlaid on a subtle global grid. The compass needle points northeast in bright teal. The grid suggests the entire world as navigable territory.
+- Color Palette: Nomad Void #050A0E (60%) / Deep Ocean #0B1520 (30%) / Horizon Teal #0D9488 (10%) / Sand White #F8FAFC
+- Typeface: Tracked sand-white caps, condensed weight. Wordmark: "NOMAD NEXUS."
+- Tone: Freedom made operational. The romance of movement, engineered into infrastructure. Dark, precise, globally aware — built for people who take mobility seriously.
+
+```
+
+## Delivery ownership
+- [[Nomad Nexus Division]]
+- [[002 — Divisions MOC]]
+- [[Nomad Nexus — Complete Specialist Roster]]
+
+## Source
+- [Nomad Nexus: Business Plan (Final & Complete)](https://docs.google.com/document/d/1ej4eirWVXKe3RVU1-K46qYisDRNdTz6PywILhuiIhDY/edit?usp=drivesdk) — products/platform, markets, delivery strategy and ecosystem role. Reviewed 2026-10-06.
+
+### Source records
+- [Nomad Nexus: Business Plan (Final & Complete)](https://docs.google.com/document/d/1ej4eirWVXKe3RVU1-K46qYisDRNdTz6PywILhuiIhDY/edit?usp=drivesdk)
+
+<!-- drive-expansion:a1e7994091707e9478a2 -->
+
+## Source interface and operating records
+
+- [[API-09 Nomad Nexus Intelligence API]]
+- [[API Matrix]]
+
+### Source records
+- [Collective_AI_API_Matrix.pdf](https://drive.google.com/file/d/14CeOA7wd1msMmI8PPoastdsUOC-fr-LJ/view?usp=drivesdk)
+
+<!-- drive-expansion:a6c328090b964029a93c -->

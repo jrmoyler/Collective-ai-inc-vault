@@ -10,7 +10,7 @@ type: hub
 items: 105
 owner: JR Moyler (Hataalii)
 source: Foundry Infrastructure Hardware Catalog
-updated: 2026-10-04
+updated: 2026-10-06
 cost_low: 26920
 cost_high: 74530
 ---
@@ -231,3 +231,167 @@ The catalog does not split items into purchase phases. Its governance page says 
 | Audio/Privacy Fixture | 1 |
 
 Related: [[Aegis Protocol]], [[Knowledge Keeper]], [[Design System Bible v3]], [[002 — Divisions MOC]], [[Collective AI — Company Charter]].
+
+## Drive source audit — original catalog edition
+
+> [!info] Source edition scope
+> This is a comparison against the original Drive document, not a new deployment claim. The current catalog and linked item notes above remain in place. Source source-phase revenue figures and hardware costs are targets/estimates. Current canonical division numbers, Director Codenames, [[Agent Tier Registry]] and [[Civic Core Fiduciary Veto]] override older labels/authority. Different wearable editions have different scopes; retain each edition rather than combine their item counts.
+
+### Source-defined scope
+```text
+COLLECTIVE AI INC - INTERNAL HARDWARE CATALOG Page 1
+COLLECTIVE AI INC
+FOUNDRY INFRASTRUCTURE
+HARDWARE CATALOG
+Parent Company + 20 Divisions - 105 non-wearable physical AI products
+Scope Parent company + 20 divisions. Five distinct hardware products per entity. 105 catalog
+entries total.
+Design System Dark backgrounds, restrained amber authority, division accent colors, high-contrast
+product cards, and no text over images.
+Source
+Hardware
+Collective AI Physical AI Foundry hardware: Raspberry Pi, Jetson, BLE microcontrollers,
+cameras, audio, haptics, LoRa, fabrication, power, racks, storage, and safety equipment.
+Safety Gate Physical autonomy remains staged under Aegis-Hold until testing, human review,
+logging, and deployment safety checks are complete.
+Private operating blueprint - prototype catalog - generated for JR Moyler / HataaliiCOLLECTIVE AI INC - INTERNAL HARDWARE CATALOG Page 2
+Operating Standard
+• This catalog excludes ordinary nodes, terminals, field kits, badges, and wrist monitors. It focuses on control panels, smart
+furniture, camera rigs, environmental fixtures, storage systems, charging docks, safety hardware, test jigs, display walls, shelves,
+benches, and field infrastructure.
+• Every product turns the Foundry into a managed physical operating environment: devices are labeled, registered, powered safely,
+routed through the right VLAN, and logged into Knowledge Keeper where appropriate.
+• Product concepts intentionally avoid duplicate names and repetitive roles. Each division receives five distinct pieces of hardware
+aligned to its brand persona and operational function.
+• Safety-critical infrastructure, actuation, drones, robots, LiPo charging, and data-sensitive stations remain under staged
+Aegis-Hold/Aegis-Review governance until testing is complete.
+Catalog Overview
+Entity 5 Non-Repeating Product Concepts
+Collective AI Inc Aegis Status Beacon, Portfolio Map Table, Prototype Registry Shelf, Founder Command Desk Insert,
+Device Charging Locker
+ZenFlow ZenFlow Command Deck, Agent Eval Light Rail, Knowledge Keeper Archive Pedestal, Prompt
+Calibration Board, Director Routing Wall
+The Collective Client Strategy Table, Proposal Approval Console, Workshop Insight Wall, Consultant Kit Dock, Value
+Map Control Board
+Hybrid Living Cohort Engagement Light Bar, Skill Drill Board, Instructor Teleprompter Rail, Student Lab Kit Dock,
+Learning Mode Door Sign
+Nexus Labs Podcast Table Core, Four-Angle Director Rig, Voice Dataset Booth, Clip Mining Control Pad, Studio
+Status Beacon
+Terra Axis Property Scan Arch, HomeHub Wall Controller, Blueprint Review Table, Inspection Gear Locker, Site
+Risk Beacon
+Vital Helix Breathwork Guidance Lamp, Clinical Data Cart, Bio Sensor Calibration Tray, Recovery Check-In Mat,
+Consent Status Panel
+Binary Loom Universal Sensor Test Jig, Firmware Flashing Dock, Cable Harness Board, Prototype Burn-In Rack,
+Print Farm Operations Board
+Quantum Ledger Risk Approval Console, Market Pulse Light Strip, Cold Ledger Lockbox, Options Thesis Board, Wallet
+QR Scan Stand
+Kinetic Edge Reaction-Time Wall Panel, Jump Readiness Mat, Coach Drill Console, Camera Calibration Gate,
+Equipment Checkout Rack
+Obsidian Arc Aegis Lockbox, Workshop E-Stop Network, Perimeter Motion Stake, Privacy Shutter Array, Incident
+Review Console
+Civic Core Community Intake Kiosk Cart, Mutual Aid Supply Shelf, Listening Circle Recorder Stand, Volunteer
+Dispatch Board, Public Service Beacon
+Aether Link Mesh Health Wall, Portable Signal Mast, Translation Booth Core, Comms Failover Crate, Device
+Pairing Station
+Gaia Synthesis Environmental Sensor Stake, Greenhouse Control Panel, Crop Imaging Rail, Compost Telemetry Bin,
+Field Sample Cabinet
+Vector Shift Dispatch Launch Board, Cargo Smart Rack, Drone Battery Safety Bay, Route Test Floor Grid, Mob
+```
+
+### Existing named coverage verified against extracted source
+- [[Ad Creative Review Pad]]
+- [[Aegis Lockbox]]
+- [[Aegis Review Dais]]
+- [[Aegis Status Beacon]]
+- [[Agent Eval Light Rail]]
+- [[Android Vision Cradle]]
+- [[Apex System]]
+- [[Axiom Gear Wall]]
+- [[Behavior Loop Light]]
+- [[Bio Archive Cabinet]]
+- [[Bio Sensor Calibration Tray]]
+- [[Blueprint Review Table]]
+- [[Breathwork Guidance Lamp]]
+- [[Cable Harness Board]]
+- [[Camera Calibration Gate]]
+- [[Cargo Smart Rack]]
+- [[Clause Annotation Pad]]
+- [[Client Strategy Table]]
+- [[Clinical Data Cart]]
+- [[Clip Mining Control Pad]]
+- [[Coach Drill Console]]
+- [[Cognitive Load Console]]
+- [[Cognitive Research Shelf]]
+- [[Cohort Engagement Light Bar]]
+- [[Cold Ledger Lockbox]]
+- [[Comms Failover Crate]]
+- [[Community Intake Kiosk Cart]]
+- [[Compost Telemetry Bin]]
+- [[Consent Status Panel]]
+- [[Consultant Kit Dock]]
+
+### Closing source build/governance instructions
+```text
+ad for pausing impulsive decisions,
+scoring options, and triggering review
+workflows.
+Safety Gate Advisory tool only.
+Hardware
+Stack
+Pi 5, haptic buttons, rotary selector, LED
+states, NFC user key.
+Signals /
+Outputs
+Cognara decision workflow, ZenFlow,
+Juris/Quantum handoff when needed.
+Agents /
+APIs
+Desk. Industrial
+Design
+Rose controls with clear friction states.COLLECTIVE AI INC - INTERNAL HARDWARE CATALOG Page 46
+Cognitive Research Shelf STORAGE SYSTEM
+Form Factor storage system Budget ~$250-$750
+Purpose NFC/QR shelf for tests, cards, study devices,
+consent packets, and research artifacts.
+Safety Gate Consent packets stored securely.
+Hardware
+Stack
+Pi scanner, NFC labels, environmental sensor,
+display, lockable bins.
+Signals /
+Outputs
+Cognara research registry, Knowledge
+Keeper.
+Agents /
+APIs
+Research room. Industrial
+Design
+Rose labels and shield motifs.COLLECTIVE AI INC - INTERNAL HARDWARE CATALOG Page 47
+Build Governance and Source Notes
+Built from the uploaded Collective AI Physical AI Foundry blueprint and Build Spec, especially the operating architecture, Mac mini
+local cloud, network segmentation, physical AI shell catalog, fabrication bench, actuation lab, drone lab, and purchase phases.
+Brand treatment follows the uploaded Design System Bible: dark backgrounds, restrained gold, division accents, high contrast, and
+clean card-based layouts.
+Rule Operating Requirement
+Identity Every device receives a device ID, owner, division, firmware version, physical label, and registry
+entry before deployment.
+Network Unknown or experimental devices start on VLAN 80 Quarantine. Production devices move only
+after Binary Loom QA and Aegis review.
+Data Sensitive client, health, legal, civic, financial, and behavioral data stays local/encrypted unless a
+reviewed workflow permits export.
+Power LiPo and battery systems require fire-safe charging, thermal monitoring where possible, and
+labeled storage.
+Autonomy Drones, robots, actuation benches, and safety-critical systems remain human-supervised and
+e-stop protected.
+Brand Parent assets use Deep Navy, Amber Gold, Electric Teal, Bright White, Muted Silver, and dark
+card surfaces. Division assets use one division accent.
+
+```
+
+## Source
+- [Collective_AI_Foundry_Infrastructure_Hardware_Catalog.pdf](https://drive.google.com/file/d/1U7i00dm4WMQCpdq7gSGAYS1J-VIqharz/view?usp=drivesdk) — opening scope and closing governance/build notes; full text compared against existing item names. Reviewed 2026-10-06.
+
+### Source records
+- [Collective_AI_Foundry_Infrastructure_Hardware_Catalog.pdf](https://drive.google.com/file/d/1U7i00dm4WMQCpdq7gSGAYS1J-VIqharz/view?usp=drivesdk)
+
+<!-- drive-expansion:e0c470a1a17e3d45edb2 -->

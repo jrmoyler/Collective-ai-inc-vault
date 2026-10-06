@@ -10,7 +10,7 @@ owner: JR Moyler (Hataalii)
 pages: 58
 agents: 85
 source: Physical AI Wearables Agent Spec
-updated: 2026-10-04
+updated: 2026-10-06
 products: 56
 ---
 # Physical AI Wearables Agent Spec
@@ -157,3 +157,199 @@ Agent-integrated build spec (120-Tool Toolkit Edition) for Collective AI's physi
 - [[ZenFlow API]]
 - [[n8n Workflow Blueprint]]
 - [[002 — Divisions MOC]]
+
+## Drive source audit — original catalog edition
+
+> [!info] Source edition scope
+> This is a comparison against the original Drive document, not a new deployment claim. The current catalog and linked item notes above remain in place. Source source-phase revenue figures and hardware costs are targets/estimates. Current canonical division numbers, Director Codenames, [[Agent Tier Registry]] and [[Civic Core Fiduciary Veto]] override older labels/authority. Different wearable editions have different scopes; retain each edition rather than combine their item counts.
+
+### Source-defined scope
+```text
+Collective AI Inc · Physical AI & Wearables · Agent-Integrated Build Spec · Page 1
+COLLECTIVE AI INC
+PHYSICAL AI & WEARABLES
+Agent-Integrated Build Spec — 120-Tool Toolkit Edition
+Every product integrates specific ZenFlow agents, Anthropic APIs, n8n workflows, and MCP servers.
+Hardware from the Physical AI Foundry catalog. Intelligence from the 120-tool Collective AI stack.
+Owner JR Moyler / Hataalii — Collective AI Inc
+Classification Private Operating Blueprint
+Entities 1 Parent + 10 Divisions (partial — priority divisions)
+Products 56 total products
+Agent Layer ZenFlow 600-agent lattice — Tiers 1-4
+API Layer Anthropic claude-sonnet-4-6 / claude-haiku-4-5 / claude-opus-4-6
+Workflow Layer 150 n8n workflows — named per product
+MCP Layer ZenFlow MCP, Notion, Slack, GitHub, Sentry, HuggingFace, Blockscout, LSEG + more
+Safety Gate Aegis Protocol — all physical motion Aegis-cleared before execution
+Architecting a Humane FutureCollective AI Inc · Physical AI & Wearables · Agent-Integrated Build Spec · Page 2
+TABLE OF CONTENTS
+PARENT Collective AI Inc 6 products
+D-01 ZenFlow 5 products
+D-02 The Collective 5 products
+D-03 Hybrid Living 5 products
+D-04 Nexus Labs 5 products
+D-08 Quantum Ledger 5 products
+D-09 Kinetic Edge 5 products
+D-10 Obsidian Arc 5 products
+D-15 Animus Prime 5 products
+D-14 Vector Shift 5 products
+D-20 Cognara Mind 5 productsCollective AI Inc · Physical AI & Wearables · Agent-Integrated Build Spec · Page 3
+PARENT COMPANY
+COLLECTIVE AI INC
+The physical command layer for a 20-division AI venture studio.
+CAI-W01 Wearable
+ZENITH COMMAND BAND
+JR's wrist becomes the Foundry's nerve center.
+A custom smartband for the Founder/CEO that delivers real-time ZenFlow agent status, Aegis Protocol alerts, and division KPI pulses via haptic
+codes. BLE-synced to the Aegis Command Station and ZenFlow API. Vibration patterns are mapped to division health states — green pulse for
+aegis_clear, amber double-tap for aegis_review, red triple for aegis_hold.
+Hardware
+• Adafruit Feather nRF52840 Sense
+• Adafruit DRV2605L Haptic Controller
+• IMU ICM-20948
+• PowerBoost 1000 + LiPo cell
+• 3D-printed Bambu A1 PETG/TPU wristband
+ZenFlow Agents
+• ZENITH Overseer (Tier 1)
+• Aegis Protocol Guardian
+• Knowledge Keeper
+• Agent Health Monitor
+APIs
+• ZenFlow Agent API /v1/aegis/queue
+• ZenFlow /v1/agents/health
+• Anthropic claude-sonnet-4-6
+• Slack alert webhook
+n8n Workflows
+• ZenFlow Agent Health Monitor (n8n)
+• Aegis Incident Reporter (n8n)
+• Daily Agent Performance Digest (n8n)
+MCPs
+• ZenFlow Internal API MCP
+• Slack MCP
+• n8n MCP
+Use Case
+JR receives a haptic pulse pattern and knows instantly — without looking
+at a screen — whether a division agent is blocked, an Aegis flag is
+queued, or the cluster is healthy. Operates 24/7 with 72-hour battery life.
+Build Outcome
+Always-on Foundry health wristband — Aegis alerts, agent status, KPI
+pulses via haptic codes.
+Est. Budget
+~$130–$190Collective AI Inc · Physical AI & Wearables · Agent-Integrated Build Spec · Page 4
+CAI-W02 Wearable
+HERALD BADGE NODE
+Collective AI identity, always on body.
+A smart clip badge worn by all Foundry team members. Captures ambient session audio in 30-second snippets, sends BLE summaries to the
+nearest Pi gateway, and logs action items to the Knowledge Keeper via the ZenFlow API. Haptic confirmation acknowledges receipt. Each badge
+is registered in the ZenFlow agent registry as a sensor endpoint with its own device identity.
+Hardware
+• Seeed XIAO ESP32S3 Sense
+• Adafruit DRV2605L Haptic Controller
+• Circuit Playground Bluefruit
+• PowerBoost 1000 + LiPo
+• 3D-printed Bambu A1 TPU badge shell
+ZenFlow Agents
+• Knowledge Keeper
+• Task Agent (transcription)
+• Blueprint Architect (badge config)
+APIs
+• ZenFlow /v1/knowledge/write
+• Anthropic claude-haiku-4-5 (transcription)
+• BLE Gateway A
+```
+
+### Existing named coverage verified against extracted source
+- [[AI Readiness Audit]]
+- [[AI Tutor Task Agent]]
+- [[Aegis Protocol]]
+- [[Aegis Protocol Guardian]]
+- [[Aether Link Mesh Extension Task Agent]]
+- [[Agent Health Monitor]]
+- [[Agent Spawner]]
+- [[Apex System]]
+- [[Apex System Performance Agent]]
+- [[Athlete Recovery Alert Agent]]
+- [[Atlas Platform]]
+- [[Audit Intelligence Task Agent]]
+- [[Behavioral Pattern Analysis Agent]]
+- [[Biomechanical Analysis Task Agent]]
+- [[Blueprint Architect]]
+- [[Client Intelligence Task Agent]]
+- [[Coaching Cue Dispatch Task Agent]]
+- [[Cognitive Coach Task Agent]]
+- [[Cognitive Load Monitor Task Agent]]
+- [[Cohort Manager Task Agent]]
+- [[Collective Times]]
+- [[Collective Times Content Writer Task Agent]]
+- [[Creator Nexus]]
+- [[Creator Nexus Brief Generator]]
+- [[Creator Nexus Vault Agent]]
+- [[Creator Track]]
+- [[Crypto Risk Monitor Agent]]
+- [[Curriculum Synthesis Task Agent]]
+- [[Data Ingestion Task Agent]]
+- [[DeFi Risk Monitor Agent]]
+
+### Closing source build/governance instructions
+```text
+w Internal API MCP (local cache)
+• n8n MCP
+Use Case
+Cognara Mind deploys to an off-site corporate wellness event. The field kit
+runs full coaching sessions on local inference, no internet required. On
+return, the Behavioral Pattern Analysis Agent's session data syncs to the
+Foundry NAS and the Airtable habit tracking system automatically.
+Build Outcome
+Portable behavioral coaching kit — offline AI coach, post-session report,
+auto-sync on mesh reconnect.
+Est. Budget
+~$380–$510Collective AI Inc · Physical AI & Wearables · Agent-Integrated Build Spec · Page 58
+CM-W05 Wearable
+NEURO-PULSE WRISTBAND
+Cognitive performance, measured from the wrist.
+Cognara Mind's cognitive performance wearable. Captures continuous motion, orientation, and environmental signals that the Psychographic
+Profile Agent uses to build a longitudinal cognitive performance map. The wristband delivers context-sensitive haptic cues for: focus session start,
+distraction alert, cognitive load peak warning, and recovery prompt — all timed by the Habit Architecture Agent.
+Hardware
+• Arduino Nano 33 BLE Sense Rev2
+• IMU BNO085 (orientation + motion)
+• Adafruit DRV2605L Haptic Controller
+• Adafruit Feather nRF52840 Sense (BLE hub)
+• PowerBoost 1000 + LiPo
+• 3D-printed Bambu A1 PETG Signal Rose wristband
+ZenFlow Agents
+• Psychographic Profile Agent
+• Habit Architecture Agent
+• Cognitive Load Monitor Task Agent
+• Knowledge Keeper
+APIs
+• ZenFlow /v1/agents (haptic event dispatch)
+• Anthropic claude-haiku-4-5 (cognitive load inference)
+• Airtable API
+• BLE Gateway API
+n8n Workflows
+• Habit Architecture Workflow (n8n)
+• Behavioral Pattern Digest (n8n — longitudinal update)
+MCPs
+• Airtable MCP
+• ZenFlow Internal API MCP
+Use Case
+The user enters a deep work block. The Cognitive Load Monitor Task
+Agent detects sustained focus from motion stability and delivers a single
+confirming pulse — 'you're in flow'. 90 minutes later, a double pulse
+signals optimal break timing. The Psychographic Profile Agent logs the
+session and refines the user's cognitive performance model.
+Build Outcome
+Cognitive performance wristband — flow state detection, load warning,
+timed break cues, longitudinal profile.
+Est. Budget
+~$150–$210
+
+```
+
+## Source
+- [Collective_AI_Physical_AI_Wearables_Agent_Spec.pdf](https://drive.google.com/file/d/1RciKlBu78QWILMzOGKmt8I5s-P3dQmv-/view?usp=drivesdk) — opening scope and closing governance/build notes; full text compared against existing item names. Reviewed 2026-10-06.
+
+### Source records
+- [Collective_AI_Physical_AI_Wearables_Agent_Spec.pdf](https://drive.google.com/file/d/1RciKlBu78QWILMzOGKmt8I5s-P3dQmv-/view?usp=drivesdk)
+
+<!-- drive-expansion:198793662b223b15c695 -->

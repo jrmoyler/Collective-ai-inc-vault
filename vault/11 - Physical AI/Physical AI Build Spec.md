@@ -9,7 +9,7 @@ type: hub
 owner: JR Moyler (Hataalii)
 source: Physical AI Build Spec
 status: specified
-updated: 2026-10-04
+updated: 2026-10-06
 entities: 21
 products: 65
 ---
@@ -266,3 +266,182 @@ products: 65
 - [[003 — Products MOC]]
 - [[Aegis Protocol Spec]]
 - [[Synergy Node Handbook]]
+
+## Drive source audit — original catalog edition
+
+> [!info] Source edition scope
+> This is a comparison against the original Drive document, not a new deployment claim. The current catalog and linked item notes above remain in place. Source source-phase revenue figures and hardware costs are targets/estimates. Current canonical division numbers, Director Codenames, [[Agent Tier Registry]] and [[Civic Core Fiduciary Veto]] override older labels/authority. Different wearable editions have different scopes; retain each edition rather than combine their item counts.
+
+### Source-defined scope
+```text
+Collective AI Inc · Physical AI Build Spec · Parent + 20 Divisions · Page 1
+COLLECTIVE AI INC
+PHYSICAL AI BUILD SPEC
+Parent Company + All 20 Divisions — Hardware Product Catalog
+Every product built exclusively from Collective AI Physical AI Foundry hardware.
+Prototype to working product — one build spec per product, one section per entity.
+Owner JR Moyler / Hataalii — Collective AI Inc
+Classification Private Operating Blueprint
+Entities 1 Parent Company + 20 Divisions = 21 sections
+Products 5 parent + 60 division (3 per division) = 65 total products
+Hardware Source Physical AI Foundry Catalog (2025–2026)
+Safety Gate Aegis-Hold — all physical autonomy staged
+Architecting a Humane FutureCollective AI Inc · Physical AI Build Spec · Parent + 20 Divisions · Page 2
+TABLE OF CONTENTS
+PARENT Collective AI Inc 5 products
+D-01 ZenFlow 3 products
+D-02 The Collective 3 products
+D-03 Hybrid Living 3 products
+D-04 Nexus Labs 3 products
+D-05 Terra Axis 3 products
+D-06 Vital Helix 3 products
+D-07 Binary Loom 3 products
+D-08 Quantum Ledger 3 products
+D-09 Kinetic Edge 3 products
+D-10 Obsidian Arc 3 products
+D-11 Civic Core 3 products
+D-12 Aether Link 3 products
+D-13 Gaia Synthesis 3 products
+D-14 Vector Shift 3 products
+D-15 Animus Prime 3 products
+D-16 Juris Guard 3 products
+D-17 Signal Velocity 3 products
+D-18 Nomad Nexus 3 products
+D-19 Eon Core 3 products
+D-20 Cognara Mind 3 productsCollective AI Inc · Physical AI Build Spec · Parent + 20 Divisions · Page 3
+PARENT COMPANY
+COLLECTIVE AI INC
+Architecting a Humane Future — the parent brand in hardware.
+P-01
+AEGIS COMMAND STATION
+The nerve center of the Foundry — one desk to rule the stack.
+The parent company's primary physical command terminal. A rackmounted Mac mini cluster controller, NAS gateway, UniFi network console,
+and ambient ZenFlow agent shell in one branded workstation. Every department node is visible and reachable from this single point.
+Hardware
+• Mac mini M4 Pro 64GB (parent command node)
+• Synology DS1825+ 8-bay NAS + 8×12TB HDDs
+• UniFi Dream Machine Pro Max
+• UniFi Enterprise XG 24 (10GbE core switch)
+• CyberPower Rackmount UPS 1500VA
+• Raspberry Pi 5 + Whisplay HAT (ambient ZenFlow shell)
+• ReSpeaker 4-Mic Array v2.0
+• Sonnet RackMac mini rack mount
+Outcome
+Unified Foundry command center — 30-node visibility, NAS storage,
+ambient AI shell, zero-trust network gateway.
+Est. Budget
+~$3,500–$5,000 (excluding Mac mini fleet)
+P-02
+HERALD BROADCAST NODE
+The Collective AI brand, spoken aloud and broadcast to the room.
+A dedicated voice/display broadcast terminal for the parent brand. Presents live portfolio metrics, division status dashboards, and brand
+narrative on a Whisplay display — always on, always branded.
+Hardware
+• Raspberry Pi 5 8GB
+• Whisplay HAT (display + mic + RGB LEDs + buttons)
+• ReSpeaker 4-Mic Array v2.0
+• Adafruit I2S 3W Stereo Speaker Bonnet
+• Pi Camera Module 3 (presence trigger)
+• Raspberry Pi M.2 HAT+ + 1TB NVMe
+• PiSugar 3 Plus Battery
+• 3D-printed Bambu A1 branded enclosure shell
+Outcome
+Always-on ambient brand terminal — portfolio metrics display,
+voice-query, division status broadcast.
+Est. Budget
+~$310–$420Collective AI Inc · Physical AI Build Spec · Parent + 20 Divisions · Page 4
+P-03
+MESH SENTINEL ARRAY
+The Foundry's invisible nervous system — every signal accounted for.
+The parent company's off-grid communications backbone. A distributed LoRa mesh network spanning the entire Foundry, yard, and mobile field
+units. Reports device heartbeats, GPS positions, and agent status to the Aegis Command Station.
+Hardware
+• LILYGO T-Beam Meshtastic nodes (×4 indoor/outdoor)
+• Heltec V3 Meshtastic nodes (×6 room relays)
+• LILYGO T-Deck Meshtastic (field terminal with keyboard)
+• Raspberry Pi 5 (MQTT bridge gateway)
+• Waterproof 3D-printed Bambu P1S ASA node enclosures
+
+```
+
+### Existing named coverage verified against extracted source
+- [[Apex System]]
+- [[Axis Market]]
+- [[Bio-Digital Twin]]
+- [[Creator Nexus]]
+- [[Ground Vector]]
+- [[Knowledge Keeper]]
+- [[Natural Script]]
+- [[Physical AI Build Spec]]
+- [[Quantum Genesis]]
+
+### Closing source build/governance instructions
+```text
+AI Inc · Physical AI Build Spec · Parent + 20 Divisions · Page 44
+D-20
+COGNARA MIND
+Behavioral science and cognitive intelligence — in hardware.
+CM-01
+COGNARA BEHAVIOR NODE
+Behavioral signal capture at the physical edge.
+Cognara Mind's ambient behavioral sensing station. Captures voice tone, micro-gesture, and environmental context via BLE and IMU sensors
+— all routed to the Cognara Mac mini for behavioral pattern analysis.
+Hardware
+• Raspberry Pi 5 8GB
+• ReSpeaker 4-Mic Array v2.0 (voice tone capture)
+• IMU BNO085 (micro-gesture + motion)
+• Pi Camera Module 3 (facial context, opt-in only)
+• Arduino Nano 33 BLE Sense Rev2
+• Whisplay HAT
+• Pi M.2 HAT+ + 1TB NVMe
+• 3D-printed Bambu A1 behavioral lab enclosure
+Outcome
+Ambient behavioral sensing node — voice tone, micro-gesture,
+environmental context, pattern logging.
+Est. Budget
+~$380–$510
+CM-02
+HABIT ARCHITECTURE WEARABLE
+The nudge engine — behavior change you can feel.
+A BLE wearable that delivers precisely timed haptic nudges based on behavioral AI outputs from the Cognara Mac mini. Captures response
+signals and feeds them back into the habit formation model.
+Hardware
+• Adafruit Feather nRF52840 Sense
+• Adafruit DRV2605L Haptic Controller
+• IMU ICM-20948 (response motion capture)
+• PowerBoost 1000 + LiPo
+• Arduino Nano 33 BLE Sense Rev2
+• 3D-printed Bambu A1 PETG/TPU wristband
+Outcome
+Behavioral nudge wristband — timed haptic cues, BLE response
+capture, habit model feedback loop.
+Est. Budget
+~$150–$210Collective AI Inc · Physical AI Build Spec · Parent + 20 Divisions · Page 45
+CM-03
+COGNITIVE COACHING SHELL
+Your behavioral coach, embodied.
+Cognara Mind's conversational coaching terminal. A voice-first Pi shell with ambient display and far-field mic for real-time cognitive coaching
+sessions — running Cognara's behavioral agent locally.
+Hardware
+• Raspberry Pi 5 8GB
+• Whisplay HAT (display + ambient UI)
+• ReSpeaker 4-Mic Array v2.0
+• Adafruit I2S Speaker Bonnet
+• NVIDIA Jetson Orin Nano Super (local model inference)
+• Pi M.2 HAT+ + 1TB NVMe
+• 3D-printed Bambu P1S desk coaching shell
+Outcome
+Conversational cognitive coaching terminal — local behavioral AI,
+voice interaction, session logging.
+Est. Budget
+~$530–$720
+
+```
+
+## Source
+- [Collective_AI_Physical_AI_Build_Spec.pdf](https://drive.google.com/file/d/1_5wCwYshLiSmL4_86_r8vBDX29eHqm4Q/view?usp=drivesdk) — opening scope and closing governance/build notes; full text compared against existing item names. Reviewed 2026-10-06.
+
+### Source records
+- [Collective_AI_Physical_AI_Build_Spec.pdf](https://drive.google.com/file/d/1_5wCwYshLiSmL4_86_r8vBDX29eHqm4Q/view?usp=drivesdk)
+
+<!-- drive-expansion:1eb267267e7789622773 -->

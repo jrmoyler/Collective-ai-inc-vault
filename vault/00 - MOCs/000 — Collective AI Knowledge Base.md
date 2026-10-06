@@ -42,3 +42,17 @@ Root map of the vault. 30 divisions, 600 agents, one founder.
 - [[District Handbook — Archive stacks]] — district work kit and source-grounded records.
 
 - [[Drive Source Reconciliation Ledger]] — district work kit and source-grounded records.
+
+## Drive source expansion — 2026-10-06
+
+## Source-grounded operating records
+- [[Source Corpus Reading Map]]
+- [[Daily Capture Template]]
+
+## Source record
+- [Collective_AI_Learning_Build_Curriculumpdf](https://drive.google.com/file/d/1_lEwtlwI1FqW17nZVwIcGQSYc3iUlTPF/view?usp=drivesdk) — source-linked operating record index.
+
+### Source records
+- [Collective_AI_Learning_Build_Curriculumpdf](https://drive.google.com/file/d/1_lEwtlwI1FqW17nZVwIcGQSYc3iUlTPF/view?usp=drivesdk)
+
+<!-- drive-expansion:9558d4adaaacc4ee3494 -->

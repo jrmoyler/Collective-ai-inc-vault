@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Animus Prime
 ---
 # Robot Learning Platform
@@ -42,3 +42,29 @@ MVP brief: [[MVP — Robot Learning Platform]] (from [[MVP Build Guide]])
 **Build / creation platform.** Python ML pipeline (PyTorch). Data aggregation from deployed robots via FastAPI. Staged rollout manager in custom backend. Robot simulation validation via Isaac Sim before deployment.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Animus Prime is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** ML Training Infrastructure
+
+Machine learning infrastructure enabling Titan robots to improve from operational experience. Aggregates task performance data, trains
+improved models, and deploys updates across deployed fleet via staged rollouts.
+
+### Source build platform
+Python ML pipeline (PyTorch). Data aggregation from deployed robots via FastAPI. Staged rollout manager in custom backend. Robot simulation
+validation via Isaac Sim before deployment.
+
+### Ownership
+- [[Animus Prime Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 32; Robot Learning Platform product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:8f4c06cee8c750ff83cb -->

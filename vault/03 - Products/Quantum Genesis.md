@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Quantum Ledger
 ---
 # Quantum Genesis
@@ -42,3 +42,29 @@ MVP brief: [[MVP — Quantum Genesis]] (from [[MVP Build Guide]])
 **Build / creation platform.** Solidity for smart contracts. Hardhat for development environment. Ethers.js / Viem for Web3 interaction. IPFS for decentralized storage. Alchemy / Infura for node infrastructure. Vercel for frontend.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Quantum Ledger is operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Web3 & Blockchain Platform
+
+Collective AI's blockchain and Web3 infrastructure. DeFi protocol intelligence, smart contract deployment, NFT infrastructure, decentralized
+governance tools, and Web3 developer APIs. Justin Howell leads Web3 development.
+
+### Source build platform
+Solidity for smart contracts. Hardhat for development environment. Ethers.js / Viem for Web3 interaction. IPFS for decentralized storage. Alchemy /
+Infura for node infrastructure. Vercel for frontend.
+
+### Ownership
+- [[Quantum Ledger Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 18; Quantum Genesis product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:dc6e2138bc21af9ea65b -->

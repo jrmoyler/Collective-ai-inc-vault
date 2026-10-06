@@ -27,7 +27,9 @@
    "Director Codenames",
    "District Handbook — Atlas",
    "District Handbook — Archive stacks",
-   "Drive Source Reconciliation Ledger"
+   "Drive Source Reconciliation Ledger",
+   "Source Corpus Reading Map",
+   "Daily Capture Template"
   ],
   "path": "vault/00 - MOCs/000 — Collective AI Knowledge Base.md",
   "tags": [
@@ -284,7 +286,25 @@
    "Coach Kay",
    "Dante Cook",
    "Open Seats",
-   "District Handbook — Team commons"
+   "District Handbook — Team commons",
+   "Role Assignment and Handoff Matrix",
+   "Team Learning Path and Competency Gates",
+   "SOP — Team Onboarding",
+   "Talent Placement Interview",
+   "Senior Advisor Observation Memo",
+   "Learning Module — AI Fundamentals and History",
+   "Learning Module — Introduction to Machine Learning",
+   "Learning Module — Understanding Large Language Models",
+   "Learning Module — Mastering Prompt Engineering",
+   "Learning Module — Retrieval-Augmented Generation Systems",
+   "Learning Module — AI Agents and Workflow Automation",
+   "Learning Module — Building MVPs with AI",
+   "Learning Module — MCPs and Advanced Integration",
+   "Learning Module — APIs and Integration Patterns",
+   "Learning Module — Advanced AI Applications and Future Trends",
+   "Learning Reference Editions",
+   "Workbook Artifact Record",
+   "LLM Engineering Practice Path"
   ],
   "path": "vault/00 - MOCs/004 — People MOC.md",
   "tags": [
@@ -311,7 +331,41 @@
    "MCP Matrix",
    "District Handbook — Control room",
    "District Handbook — Daily log",
-   "Decision Record Template"
+   "Decision Record Template",
+   "Workflow Delivery Record Template",
+   "SOP — Team Onboarding",
+   "Daily Capture Template",
+   "Source Corpus Reading Map",
+   "CRM Pipeline and Next-Action Protocol",
+   "Client AI Readiness Interview",
+   "Client Kickoff Agenda and First-Week Record",
+   "Contract Review Work Record",
+   "Operations Architect Delivery Scorecard",
+   "API-01 ZenFlow Orchestration API",
+   "API-02 Knowledge Keeper API",
+   "API-03 CAI Product Catalog API",
+   "API-04 Helios Grid Telemetry API",
+   "API-05 Apex Performance API",
+   "API-06 Quantum Alpha Trading API",
+   "API-07 Civic Core Resource Matching API",
+   "API-08 Bio-Digital Twin API",
+   "API-09 Nomad Nexus Intelligence API",
+   "API-10 Signal Velocity Growth API",
+   "API-11 Juris Guard Compliance API",
+   "API-12 Nexus Labs Content Intelligence API",
+   "API-13 Gaia Field Sensor API",
+   "API-14 VectorShift Route Optimization API",
+   "API-15 Aether Link Translation API",
+   "API-16 Hybrid Living Learning API",
+   "API-17 Obsidian Arc Threat Intelligence API",
+   "API-18 Cognara Behavioral Pattern API",
+   "API-19 Binary Loom Infrastructure API",
+   "API-20 Eon Core Longevity Intelligence API",
+   "API Matrix",
+   "Vault Note and Access Contracts",
+   "Tool Evaluation and Routing Contract",
+   "Operating Principles and Source Reconciliation",
+   "Primary Source Reading Map"
   ],
   "path": "vault/00 - MOCs/005 — Operations MOC.md",
   "tags": [
@@ -329,7 +383,11 @@
    "Client Billing Ledger",
    "Cap Table Structure",
    "Vibe Society Financials",
-   "District Handbook — Finance chamber"
+   "District Handbook — Finance chamber",
+   "Universal Pricing Framework — Historical Logic",
+   "Pricing Proposal Worksheet",
+   "Financial Forecast Assumption Register",
+   "Strategic Financial Pro Forma — January 2026"
   ],
   "path": "vault/00 - MOCs/006 — Finance MOC.md",
   "tags": [
@@ -346,7 +404,13 @@
    "JR Voice Standard",
    "Hataalii Persona",
    "Brand Tagline",
-   "District Handbook — Brand atelier"
+   "District Handbook — Brand atelier",
+   "Designer Production Brief",
+   "Content Campaign Production System",
+   "Campaign Publication Checklist",
+   "Campaign Measurement Plan",
+   "Design Rule Reconciliation Record",
+   "Prompt Catalog Production Record"
   ],
   "path": "vault/00 - MOCs/007 — Brand MOC.md",
   "tags": [
@@ -364,7 +428,13 @@
    "48-Hour Flow Plan",
    "Team Micro-Ecosystems",
    "District Handbook — Research observatory",
-   "Evidence Record Template"
+   "Evidence Record Template",
+   "Artifact Review Rubric",
+   "Campaign Evidence Register",
+   "Operator Build Layers and Common Misreadings",
+   "Creative Reference Attribution Review",
+   "AI Architecture Research Map",
+   "Prompt Evaluation Record"
   ],
   "path": "vault/00 - MOCs/008 — Research MOC.md",
   "tags": [
@@ -415,7 +485,9 @@
    "MVP Build Guide",
    "Vercel Projects",
    "District Handbook — Delivery yard",
-   "Project Brief Template"
+   "Project Brief Template",
+   "Project Delivery Record Template",
+   "Website Production Checklist"
   ],
   "path": "vault/00 - MOCs/009 — Projects MOC.md",
   "tags": [
@@ -459,7 +531,13 @@
  },
  "15-Division Model": {
   "folder": "10 - Archive",
-  "links": [],
+  "links": [
+   "Universal Pricing Framework — Historical Logic",
+   "Ahmad Muhammad",
+   "Source Corpus Reading Map",
+   "Financial Position",
+   "000 — Collective AI Knowledge Base"
+  ],
   "path": "vault/10 - Archive/15-Division Model.md",
   "tags": [
    "archive"
@@ -491,7 +569,8 @@
    "Agent Tier Registry",
    "450-Agent Lattice",
    "Master Product Catalog",
-   "MVP — 30-Agent Division Lattice"
+   "MVP — 30-Agent Division Lattice",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/30-Agent Division Lattice.md",
   "tags": [
@@ -706,6 +785,21 @@
    "gaia-synthesis"
   ],
   "type": "prompt"
+ },
+ "AI Architecture Research Map": {
+  "folder": "08 - Research",
+  "links": [
+   "Learning Module — Understanding Large Language Models",
+   "Evidence Record Template",
+   "Artifact Review Rubric",
+   "Nexus Labs Division"
+  ],
+  "path": "vault/08 - Research/AI Architecture Research Map.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "research-map"
  },
  "AI Content Engine": {
   "folder": "03 - Products",
@@ -1128,6 +1222,363 @@
   ],
   "type": "prompt"
  },
+ "API Matrix": {
+  "folder": "05 - Operations",
+  "links": [
+   "API-01 ZenFlow Orchestration API",
+   "ZenFlow Division",
+   "API-02 Knowledge Keeper API",
+   "API-03 CAI Product Catalog API",
+   "The Collective Division",
+   "API-04 Helios Grid Telemetry API",
+   "Terra Axis Division",
+   "API-05 Apex Performance API",
+   "Kinetic Edge Division",
+   "API-06 Quantum Alpha Trading API",
+   "Quantum Ledger Division",
+   "API-07 Civic Core Resource Matching API",
+   "Civic Core Division",
+   "API-08 Bio-Digital Twin API",
+   "Vital Helix Division",
+   "API-09 Nomad Nexus Intelligence API",
+   "Nomad Nexus Division",
+   "API-10 Signal Velocity Growth API",
+   "Signal Velocity Division",
+   "API-11 Juris Guard Compliance API",
+   "Juris Guard Division",
+   "API-12 Nexus Labs Content Intelligence API",
+   "Nexus Labs Division",
+   "API-13 Gaia Field Sensor API",
+   "Gaia Synthesis Division",
+   "API-14 VectorShift Route Optimization API",
+   "VectorShift Division",
+   "API-15 Aether Link Translation API",
+   "Aether Link Division",
+   "API-16 Hybrid Living Learning API",
+   "Hybrid Living Division",
+   "API-17 Obsidian Arc Threat Intelligence API",
+   "Obsidian Arc Division",
+   "API-18 Cognara Behavioral Pattern API",
+   "Cognara Mind Division",
+   "API-19 Binary Loom Infrastructure API",
+   "Binary Loom Division",
+   "API-20 Eon Core Longevity Intelligence API",
+   "Eon Core Division",
+   "Tool Evaluation and Routing Contract",
+   "Collective AI Tool Stack",
+   "External Toolkit — 130 Tools",
+   "005 — Operations MOC"
+  ],
+  "path": "vault/05 - Operations/API Matrix.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-01 ZenFlow Orchestration API": {
+  "folder": "05 - Operations",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "ZenFlow Division"
+  ],
+  "path": "vault/05 - Operations/API-01 ZenFlow Orchestration API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-02 Knowledge Keeper API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "ZenFlow Division"
+  ],
+  "path": "vault/05 - Operations/API-02 Knowledge Keeper API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-03 CAI Product Catalog API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/05 - Operations/API-03 CAI Product Catalog API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-04 Helios Grid Telemetry API": {
+  "folder": "05 - Operations",
+  "links": [
+   "Helios Grid",
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Terra Axis Division"
+  ],
+  "path": "vault/05 - Operations/API-04 Helios Grid Telemetry API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-05 Apex Performance API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Kinetic Edge Division"
+  ],
+  "path": "vault/05 - Operations/API-05 Apex Performance API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-06 Quantum Alpha Trading API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Quantum Ledger Division"
+  ],
+  "path": "vault/05 - Operations/API-06 Quantum Alpha Trading API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-07 Civic Core Resource Matching API": {
+  "folder": "05 - Operations",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Civic Core Division"
+  ],
+  "path": "vault/05 - Operations/API-07 Civic Core Resource Matching API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-08 Bio-Digital Twin API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Vital Helix Division"
+  ],
+  "path": "vault/05 - Operations/API-08 Bio-Digital Twin API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-09 Nomad Nexus Intelligence API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Nomad Nexus Division"
+  ],
+  "path": "vault/05 - Operations/API-09 Nomad Nexus Intelligence API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-10 Signal Velocity Growth API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Signal Velocity Division"
+  ],
+  "path": "vault/05 - Operations/API-10 Signal Velocity Growth API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-11 Juris Guard Compliance API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Juris Guard Division"
+  ],
+  "path": "vault/05 - Operations/API-11 Juris Guard Compliance API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-12 Nexus Labs Content Intelligence API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Nexus Labs Division"
+  ],
+  "path": "vault/05 - Operations/API-12 Nexus Labs Content Intelligence API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-13 Gaia Field Sensor API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Gaia Synthesis Division"
+  ],
+  "path": "vault/05 - Operations/API-13 Gaia Field Sensor API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-14 VectorShift Route Optimization API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "VectorShift Division"
+  ],
+  "path": "vault/05 - Operations/API-14 VectorShift Route Optimization API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-15 Aether Link Translation API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Aether Link Division"
+  ],
+  "path": "vault/05 - Operations/API-15 Aether Link Translation API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-16 Hybrid Living Learning API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/05 - Operations/API-16 Hybrid Living Learning API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-17 Obsidian Arc Threat Intelligence API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Obsidian Arc Division"
+  ],
+  "path": "vault/05 - Operations/API-17 Obsidian Arc Threat Intelligence API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-18 Cognara Behavioral Pattern API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Cognara Mind Division"
+  ],
+  "path": "vault/05 - Operations/API-18 Cognara Behavioral Pattern API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-19 Binary Loom Infrastructure API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Binary Loom Division"
+  ],
+  "path": "vault/05 - Operations/API-19 Binary Loom Infrastructure API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "API-20 Eon Core Longevity Intelligence API": {
+  "folder": "05 - Operations",
+  "links": [
+   "API Matrix",
+   "MCP Matrix",
+   "Knowledge Graph Matrix",
+   "005 — Operations MOC",
+   "Eon Core Division"
+  ],
+  "path": "vault/05 - Operations/API-20 Eon Core Longevity Intelligence API.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
  "Access Key Fob": {
   "folder": "11 - Physical AI/Wearables",
   "links": [
@@ -1395,7 +1846,8 @@
    "Babel AI",
    "Truth Lens",
    "Master Product Catalog",
-   "MVP — Aether Link API Suite"
+   "MVP — Aether Link API Suite",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Aether Link API Suite.md",
   "tags": [
@@ -1511,7 +1963,13 @@
    "Truth Lens Glass Clip",
    "Comms Key Beacon",
    "Physical AI Wearables Agent Spec",
-   "Aether Link Mesh Extension Task Agent"
+   "Aether Link Mesh Extension Task Agent",
+   "Civic Core Fiduciary Veto",
+   "Aether Link — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-15 Aether Link Translation API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Aether Link Division.md",
   "tags": [
@@ -1560,6 +2018,23 @@
    "sept-16-register"
   ],
   "type": "campus-facility"
+ },
+ "Aether Link — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Aether Link Division",
+   "Director_Aether_Link",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Aether Link — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Agent Eval Light Rail": {
   "folder": "11 - Physical AI/Foundry Hardware",
@@ -1779,6 +2254,21 @@
   ],
   "type": "system"
  },
+ "Algae Loop": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Gaia Synthesis Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Algae Loop.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Alpha Ear Cue": {
   "folder": "11 - Physical AI/Wearables",
   "links": [
@@ -1941,7 +2431,11 @@
    "Obstacle Avoidance Agent",
    "Field Telemetry Task Agent",
    "Teleoperation Mapping Task Agent",
-   "LeRobot Training Data Collector"
+   "LeRobot Training Data Collector",
+   "Civic Core Fiduciary Veto",
+   "Animus Prime — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad"
   ],
   "path": "vault/01 - Divisions/Animus Prime Division.md",
   "tags": [
@@ -1950,6 +2444,23 @@
    "chartered"
   ],
   "type": "division"
+ },
+ "Animus Prime — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Animus Prime Division",
+   "Director_Animus_Prime",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Animus Prime — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Annual Impact Report": {
   "folder": "03 - Products",
@@ -2000,7 +2511,10 @@
    "003 — Products MOC",
    "MVP — Apex System",
    "MVP Build Guide",
-   "Master Product Catalog"
+   "Master Product Catalog",
+   "The Apex System",
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad"
   ],
   "path": "vault/03 - Products/Apex System.md",
   "tags": [
@@ -2059,6 +2573,21 @@
   ],
   "type": "division"
  },
+ "Arc Intel": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Arc Intel.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Architect Medallion": {
   "folder": "11 - Physical AI/Wearables",
   "links": [
@@ -2098,7 +2627,8 @@
   "folder": "04 - People",
   "links": [
    "Open Seats",
-   "004 — People MOC"
+   "004 — People MOC",
+   "Senior Advisor Observation Memo"
   ],
   "path": "vault/04 - People/Arthur Fayne.md",
   "tags": [
@@ -2106,6 +2636,21 @@
    "former"
   ],
   "type": "person"
+ },
+ "Artifact Review Rubric": {
+  "folder": "08 - Research",
+  "links": [
+   "Team Learning Path and Competency Gates",
+   "Project Delivery Record Template",
+   "Evidence Record Template",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/08 - Research/Artifact Review Rubric.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
  },
  "Astral Forge Division": {
   "folder": "01 - Divisions/Pending",
@@ -2162,6 +2707,21 @@
    "wearables"
   ],
   "type": "device-agent"
+ },
+ "Atlas Frame": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Animus Prime Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Atlas Frame.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Atlas Learner Pendant": {
   "folder": "11 - Physical AI/Wearables",
@@ -2604,7 +3164,8 @@
    "Observability Stack",
    "Binary Loom Cloud Platform",
    "Master Product Catalog",
-   "MVP — Binary Loom DevOps Platform"
+   "MVP — Binary Loom DevOps Platform",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Binary Loom DevOps Platform.md",
   "tags": [
@@ -2684,7 +3245,13 @@
    "Firmware Key Puck",
    "Cable Tech Sleeve Pod",
    "Debug Palm Strap",
-   "Build Lens Clip"
+   "Build Lens Clip",
+   "Civic Core Fiduciary Veto",
+   "Binary Loom — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-19 Binary Loom Infrastructure API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Binary Loom Division.md",
   "tags": [
@@ -2693,6 +3260,23 @@
    "operating"
   ],
   "type": "division"
+ },
+ "Binary Loom — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Binary Loom Division",
+   "Director_Binary_Loom",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Binary Loom — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Bio Archive Cabinet": {
   "folder": "11 - Physical AI/Foundry Hardware",
@@ -2816,7 +3400,8 @@
    "Gaia Synthesis Division",
    "Director_Gaia_Synthesis",
    "Master Product Catalog",
-   "MVP — Bioremediation Management Platform"
+   "MVP — Bioremediation Management Platform",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Bioremediation Management Platform.md",
   "tags": [
@@ -2846,6 +3431,21 @@
    "garment-clip"
   ],
   "type": "wearable"
+ },
+ "Blackbox VPN": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Blackbox VPN.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Blueprint Architect": {
   "folder": "11 - Physical AI/Agent Specs",
@@ -2940,6 +3540,21 @@
    "wellness-fixture"
   ],
   "type": "hardware"
+ },
+ "Bug Hunter": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Binary Loom Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Bug Hunter.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Build Lens Clip": {
   "folder": "11 - Physical AI/Wearables",
@@ -3268,6 +3883,36 @@
   ],
   "type": "archive"
  },
+ "CIT v5 — Source Interaction and Intelligence Contracts": {
+  "folder": "03 - Products/CIT Reference",
+  "links": [
+   "Collective Intelligence Terminal",
+   "Quantum Ledger Division",
+   "ZenFlow Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/CIT Reference/CIT v5 — Source Interaction and Intelligence Contracts.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "CIT v7 — Source Interaction and Intelligence Contracts": {
+  "folder": "03 - Products/CIT Reference",
+  "links": [
+   "Collective Intelligence Terminal",
+   "Quantum Ledger Division",
+   "ZenFlow Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/CIT Reference/CIT v7 — Source Interaction and Intelligence Contracts.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "CIT v7.0": {
   "folder": "03 - Products",
   "links": [
@@ -3475,6 +4120,34 @@
   ],
   "type": "prompt"
  },
+ "CRISPR Shield": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Vital Helix Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/CRISPR Shield.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "CRM Pipeline and Next-Action Protocol": {
+  "folder": "05 - Operations",
+  "links": [
+   "SOP — Client Onboarding",
+   "The Collective Division"
+  ],
+  "path": "vault/05 - Operations/CRM Pipeline and Next-Action Protocol.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "playbook"
+ },
  "CRO Platform": {
   "folder": "03 - Products",
   "links": [
@@ -3639,6 +4312,50 @@
   ],
   "type": "hardware"
  },
+ "Campaign Evidence Register": {
+  "folder": "08 - Research",
+  "links": [
+   "Evidence Record Template",
+   "Campaign Publication Checklist",
+   "Signal Velocity Division"
+  ],
+  "path": "vault/08 - Research/Campaign Evidence Register.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
+ },
+ "Campaign Measurement Plan": {
+  "folder": "07 - Brand",
+  "links": [
+   "Content Campaign Production System",
+   "Campaign Evidence Register",
+   "Financial Position",
+   "Signal Velocity Division"
+  ],
+  "path": "vault/07 - Brand/Campaign Measurement Plan.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "measurement-plan"
+ },
+ "Campaign Publication Checklist": {
+  "folder": "07 - Brand",
+  "links": [
+   "Campaign Evidence Register",
+   "SOP — Content Publishing",
+   "Content Campaign Production System",
+   "Nexus Labs Division"
+  ],
+  "path": "vault/07 - Brand/Campaign Publication Checklist.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "checklist"
+ },
  "Cap Table Structure": {
   "folder": "06 - Finance",
   "links": [
@@ -3759,7 +4476,8 @@
    "Cognara Mind Division",
    "Change Management Intelligence Suite",
    "Master Product Catalog",
-   "MVP — Change Management Intelligence Program"
+   "MVP — Change Management Intelligence Program",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Change Management Intelligence Program.md",
   "tags": [
@@ -3897,7 +4615,12 @@
    "Volunteer Key Token",
    "Neighborhood Safety Clip",
    "Listening Circle Stone",
-   "Civic Access Ring"
+   "Civic Access Ring",
+   "Civic Core — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-07 Civic Core Resource Matching API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Civic Core Division.md",
   "tags": [
@@ -3909,7 +4632,9 @@
  },
  "Civic Core Fiduciary Veto": {
   "folder": "10 - Archive",
-  "links": [],
+  "links": [
+   "Role Assignment and Handoff Matrix"
+  ],
   "path": "vault/10 - Archive/Civic Core Fiduciary Veto.md",
   "tags": [
    "archive"
@@ -3935,6 +4660,23 @@
    "sept-16-register"
   ],
   "type": "campus-facility"
+ },
+ "Civic Core — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Civic Core Division",
+   "Director_Civic_Core",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Civic Core — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Civic Core — Digital Champions": {
   "folder": "09 - Projects/Games",
@@ -4044,6 +4786,36 @@
   ],
   "type": "wearable"
  },
+ "Clean Code Audit": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Binary Loom Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Clean Code Audit.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "Client AI Readiness Interview": {
+  "folder": "05 - Operations",
+  "links": [
+   "Pricing Proposal Worksheet",
+   "CRM Pipeline and Next-Action Protocol",
+   "Project Delivery Record Template",
+   "The Collective Division"
+  ],
+  "path": "vault/05 - Operations/Client AI Readiness Interview.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "questionnaire"
+ },
  "Client Billing Ledger": {
   "folder": "06 - Finance",
   "links": [
@@ -4079,6 +4851,21 @@
    "edge-terminal"
   ],
   "type": "device-agent"
+ },
+ "Client Kickoff Agenda and First-Week Record": {
+  "folder": "05 - Operations",
+  "links": [
+   "SOP — Client Onboarding",
+   "Project Delivery Record Template",
+   "Client Billing Ledger",
+   "The Collective Division"
+  ],
+  "path": "vault/05 - Operations/Client Kickoff Agenda and First-Week Record.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
  },
  "Client Signal Ring": {
   "folder": "11 - Physical AI/Wearables",
@@ -4421,7 +5208,13 @@
    "Habit Architecture Agent",
    "Knowledge Keeper (Device Agent)",
    "Psychographic Profile Agent",
-   "Cognitive Load Monitor Task Agent"
+   "Cognitive Load Monitor Task Agent",
+   "Civic Core Fiduciary Veto",
+   "Cognara Mind — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-18 Cognara Behavioral Pattern API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Cognara Mind Division.md",
   "tags": [
@@ -4430,6 +5223,23 @@
    "chartered"
   ],
   "type": "division"
+ },
+ "Cognara Mind — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Cognara Mind Division",
+   "Director_Cognara_Mind",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Cognara Mind — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Cognitive Assessment Layer": {
   "folder": "03 - Products",
@@ -4831,7 +5641,8 @@
    "Atlas Platform",
    "Creator Track",
    "Master Product Catalog",
-   "MVP — Collective Intelligence Skool Community"
+   "MVP — Collective Intelligence Skool Community",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Collective Intelligence Skool Community.md",
   "tags": [
@@ -5232,6 +6043,21 @@
   ],
   "type": "wearable"
  },
+ "Content Campaign Production System": {
+  "folder": "07 - Brand",
+  "links": [
+   "Campaign Evidence Register",
+   "Campaign Publication Checklist",
+   "Campaign Measurement Plan",
+   "Nexus Labs Division"
+  ],
+  "path": "vault/07 - Brand/Content Campaign Production System.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "brand"
+ },
  "Content Distribution Engine": {
   "folder": "03 - Products",
   "links": [
@@ -5239,7 +6065,8 @@
    "Director_Signal_Velocity",
    "Nexus Labs Division",
    "Master Product Catalog",
-   "MVP — Content Distribution Engine"
+   "MVP — Content Distribution Engine",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Content Distribution Engine.md",
   "tags": [
@@ -5280,6 +6107,19 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Contract Review Work Record": {
+  "folder": "05 - Operations",
+  "links": [
+   "Juris Guard Division",
+   "Decision Record Template"
+  ],
+  "path": "vault/05 - Operations/Contract Review Work Record.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
  },
  "ContractForge": {
   "folder": "03 - Products",
@@ -5410,6 +6250,20 @@
    "smart-ring"
   ],
   "type": "wearable"
+ },
+ "Creative Reference Attribution Review": {
+  "folder": "08 - Research",
+  "links": [
+   "Campaign Evidence Register",
+   "Designer Production Brief",
+   "Nexus Labs Division"
+  ],
+  "path": "vault/08 - Research/Creative Reference Attribution Review.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "source-review"
  },
  "Creative_Director": {
   "folder": "02 - ZenFlow/Agents",
@@ -6203,6 +7057,22 @@
   ],
   "type": "synergy-node"
  },
+ "Daily Capture Template": {
+  "folder": "Daily",
+  "links": [
+   "Weekly Ops Sync",
+   "Decision Record Template",
+   "Project Delivery Record Template",
+   "005 — Operations MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/Daily/Daily Capture Template.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
+ },
  "Daily Log — 2026-10-05": {
   "folder": "05 - Operations",
   "links": [
@@ -6268,6 +7138,21 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Data Weave": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Binary Loom Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Data Weave.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Daycare Network Sites": {
   "folder": "09 - Projects/Clients",
@@ -6381,6 +7266,21 @@
   ],
   "type": "template"
  },
+ "Deepfake Shield": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Deepfake Shield.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Denzel McDougald": {
   "folder": "04 - People",
   "links": [
@@ -6413,16 +7313,48 @@
   ],
   "type": "wearable"
  },
+ "Design Rule Reconciliation Record": {
+  "folder": "07 - Brand",
+  "links": [
+   "Color Locks",
+   "Designer Production Brief",
+   "Design System Bible v3",
+   "Nexus Labs Division"
+  ],
+  "path": "vault/07 - Brand/Design Rule Reconciliation Record.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "brand"
+ },
  "Design System Bible v3": {
   "folder": "07 - Brand",
   "links": [
    "Color Locks",
-   "Division Palettes"
+   "Division Palettes",
+   "Designer Production Brief"
   ],
   "path": "vault/07 - Brand/Design System Bible v3.md",
   "tags": [
    "brand",
    "design-system"
+  ],
+  "type": "brand"
+ },
+ "Designer Production Brief": {
+  "folder": "07 - Brand",
+  "links": [
+   "Color Locks",
+   "Division Palettes",
+   "Design System Bible v3",
+   "Website Production Checklist",
+   "Nexus Labs Division"
+  ],
+  "path": "vault/07 - Brand/Designer Production Brief.md",
+  "tags": [
+   "drive-source",
+   "district-content"
   ],
   "type": "brand"
  },
@@ -6662,7 +7594,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "SPECTRUM — God Prompt"
+   "SPECTRUM — God Prompt",
+   "Aether Link — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Aether_Link.md",
   "tags": [
@@ -6680,7 +7613,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "TALOS — God Prompt"
+   "TALOS — God Prompt",
+   "Animus Prime — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Animus_Prime.md",
   "tags": [
@@ -6698,7 +7632,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "NIMBUS — God Prompt"
+   "NIMBUS — God Prompt",
+   "Binary Loom — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Binary_Loom.md",
   "tags": [
@@ -6716,7 +7651,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "COMMONS — God Prompt"
+   "COMMONS — God Prompt",
+   "Civic Core — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Civic_Core.md",
   "tags": [
@@ -6734,7 +7670,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "MIRROR — God Prompt"
+   "MIRROR — God Prompt",
+   "Cognara Mind — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Cognara_Mind.md",
   "tags": [
@@ -6752,7 +7689,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "TELOMERE — God Prompt"
+   "TELOMERE — God Prompt",
+   "Eon Core — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Eon_Core.md",
   "tags": [
@@ -6770,7 +7708,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "CANOPY — God Prompt"
+   "CANOPY — God Prompt",
+   "Gaia Synthesis — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Gaia_Synthesis.md",
   "tags": [
@@ -6791,7 +7730,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "MENTOR — God Prompt"
+   "MENTOR — God Prompt",
+   "Hybrid Living — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Hybrid_Living.md",
   "tags": [
@@ -6809,7 +7749,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "LEX — God Prompt"
+   "LEX — God Prompt",
+   "Juris Guard — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Juris_Guard.md",
   "tags": [
@@ -6827,7 +7768,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "PODIUM — God Prompt"
+   "PODIUM — God Prompt",
+   "Kinetic Edge — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Kinetic_Edge.md",
   "tags": [
@@ -6848,7 +7790,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "MARQUEE — God Prompt"
+   "MARQUEE — God Prompt",
+   "Nexus Labs — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Nexus_Labs.md",
   "tags": [
@@ -6866,7 +7809,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "WAYFARER — God Prompt"
+   "WAYFARER — God Prompt",
+   "Nomad Nexus — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Nomad_Nexus.md",
   "tags": [
@@ -6884,7 +7828,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "BASTION — God Prompt"
+   "BASTION — God Prompt",
+   "Obsidian Arc — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Obsidian_Arc.md",
   "tags": [
@@ -6950,7 +7895,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "STERLING — God Prompt"
+   "STERLING — God Prompt",
+   "Quantum Ledger — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Quantum_Ledger.md",
   "tags": [
@@ -6968,7 +7914,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "CATALYST — God Prompt"
+   "CATALYST — God Prompt",
+   "Signal Velocity — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Signal_Velocity.md",
   "tags": [
@@ -6987,7 +7934,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "KEYSTONE — God Prompt"
+   "KEYSTONE — God Prompt",
+   "Terra Axis — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Terra_Axis.md",
   "tags": [
@@ -7010,7 +7958,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "SAGE — God Prompt"
+   "SAGE — God Prompt",
+   "The Collective — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_The_Collective.md",
   "tags": [
@@ -7028,7 +7977,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "CONVOY — God Prompt"
+   "CONVOY — God Prompt",
+   "VectorShift — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_VectorShift.md",
   "tags": [
@@ -7046,7 +7996,8 @@
    "Ethics_Executive",
    "Agent Tier Registry",
    "Aegis Protocol Spec",
-   "CADUCEUS — God Prompt"
+   "CADUCEUS — God Prompt",
+   "Vital Helix — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_Vital_Helix.md",
   "tags": [
@@ -7066,7 +8017,8 @@
    "Aegis Protocol Spec",
    "CORTEX — God Prompt",
    "Physical AI Wearables Agent Spec",
-   "CORTEX Director"
+   "CORTEX Director",
+   "ZenFlow — Complete Specialist Roster"
   ],
   "path": "vault/02 - ZenFlow/Agents/Director_ZenFlow.md",
   "tags": [
@@ -7205,6 +8157,33 @@
   ],
   "type": "handbook"
  },
+ "District Handbook — Clients and Delivery": {
+  "folder": "05 - Operations",
+  "links": [
+   "010 — Clients MOC",
+   "SOP — Client Onboarding",
+   "AI Readiness Audit",
+   "AI Readiness Audit Platform",
+   "CRM Pipeline and Next-Action Protocol",
+   "Client AI Readiness Interview",
+   "Client Billing Ledger",
+   "Client Intelligence Task Agent",
+   "Client Kickoff Agenda and First-Week Record",
+   "KG-03 The Collective Client Intelligence Graph",
+   "MVP — AI Readiness Audit",
+   "Project Brief Template",
+   "Project Delivery Record Template",
+   "Talent Placement Interview",
+   "The Collective Division",
+   "Workflow Delivery Record Template"
+  ],
+  "path": "vault/05 - Operations/District Handbook — Clients and Delivery.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
  "District Handbook — Control room": {
   "folder": "05 - Operations",
   "links": [
@@ -7260,6 +8239,74 @@
   ],
   "type": "handbook"
  },
+ "District Handbook — Facilities and Infrastructure": {
+  "folder": "09 - Projects",
+  "links": [
+   "Collective AI Mega Campus",
+   "Mega Campus Version History",
+   "Mega Campus Cost Model (Oct 2026)",
+   "Aether Link Campus Mesh",
+   "Aether Link Mesh Operations Spire",
+   "Civic Core Public Hub",
+   "Clone Alpha Android Fleet",
+   "Cognara Mind Behavioral Intelligence Institute",
+   "Eden Spire",
+   "Employee Commons and Wellness Village",
+   "EnerGenius + Helios Central Utility Plant",
+   "EnerGenius CHP Microgrid",
+   "Eon Core Longevity Research Pavilion",
+   "Gaia Synthesis Bio-Energy Center",
+   "Glyph Forge Works",
+   "Juris Guard Regulatory Command Wing",
+   "Kinetic Edge Performance Center",
+   "Kinetic Energy Operations Center (KEOC)",
+   "Materials + Inventory Warehouse",
+   "Mega Campus 3D Anatomy Map",
+   "Mega Campus Comparables",
+   "Mega Campus Financial Model",
+   "Mega Campus Investor and Regional Materials",
+   "Mega Campus Mobility and Logistics",
+   "Mega Campus Power and Data Center Infrastructure",
+   "Mega Campus Power and Data Center Model (Oct 2026)",
+   "Mega Campus Security and Governance Systems",
+   "Mega Campus Water and Landscape Systems",
+   "Mega Campus — Brain and Governance District",
+   "Mega Campus — Energy and Mesh District",
+   "Mega Campus — Knowledge and Media District",
+   "Mega Campus — Living Systems District",
+   "Mega Campus — Manufacturing and Logistics District",
+   "Mega Campus — Public and Community District",
+   "Nexus Labs Production Complex",
+   "Nomad Nexus Global Mobility Hub",
+   "Royal Library & Hybrid Living Academy",
+   "Signal Velocity Growth War Room",
+   "Terra Axis Living Systems Yard",
+   "The Care Village — Hearth Nexus",
+   "The Energy Commons — Volta Grid",
+   "The Exchange Pavilion — Mercantile Circuit",
+   "The Human Systems Institute — Human Foundry",
+   "The Living Provision — Nourish Grid",
+   "The Matter Works — Materia Nova",
+   "The Neural Block",
+   "The Orbital Foundry — Astral Forge",
+   "The Prism",
+   "The Resilience House — Praesidium Mutual",
+   "The Trust Vault — Sovereign Key",
+   "The Vault",
+   "The Water Observatory — Aqua Meridian",
+   "Titan Works",
+   "Vector Hub",
+   "Visitor, Security and Campus Operations Center",
+   "Vitality Center",
+   "009 — Projects MOC"
+  ],
+  "path": "vault/09 - Projects/District Handbook — Facilities and Infrastructure.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
  "District Handbook — Finance chamber": {
   "folder": "06 - Finance",
   "links": [
@@ -7267,6 +8314,83 @@
    "Quantum Ledger Division"
   ],
   "path": "vault/06 - Finance/District Handbook — Finance chamber.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Governance and Decisions": {
+  "folder": "05 - Operations",
+  "links": [
+   "Aegis Protocol Spec",
+   "Civic Core Fiduciary Veto",
+   "Division Activation Scorecard",
+   "AI Governance Framework Suite",
+   "Aegis Protocol",
+   "Agent Tier Registry",
+   "Campaign Evidence Register",
+   "Contract Intelligence Platform",
+   "Contract Lifecycle Management",
+   "Contract Review Work Record",
+   "ContractForge",
+   "Decision Record Template",
+   "Director Codenames",
+   "Drive Source Reconciliation Ledger",
+   "Ethical AI Framework",
+   "Financial Forecast Assumption Register",
+   "Foundry Hardware Build Governance Rules",
+   "Helios Grid",
+   "Juris Guard Division",
+   "JurisIQ",
+   "KG-02 ZenFlow Agent Decision Graph",
+   "KG-05 Juris Guard AI Regulation Ontology",
+   "MVP Governance Flags",
+   "RegPulse",
+   "Role Assignment and Handoff Matrix",
+   "005 — Operations MOC"
+  ],
+  "path": "vault/05 - Operations/District Handbook — Governance and Decisions.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Learning and Curriculum": {
+  "folder": "08 - Research",
+  "links": [
+   "P.E.T.E.E.R. Framework",
+   "Atlas Platform",
+   "Hybrid Living Division",
+   "AI Fundamentals Course",
+   "Artifact Review Rubric",
+   "Atlas_Onboarding",
+   "Corporate AI Training Track",
+   "Creator Track",
+   "Creator Track Certification",
+   "Learning Module — AI Agents and Workflow Automation",
+   "Learning Module — AI Fundamentals and History",
+   "Learning Module — APIs and Integration Patterns",
+   "Learning Module — Advanced AI Applications and Future Trends",
+   "Learning Module — Building MVPs with AI",
+   "Learning Module — Introduction to Machine Learning",
+   "Learning Module — MCPs and Advanced Integration",
+   "Learning Module — Mastering Prompt Engineering",
+   "Learning Module — Retrieval-Augmented Generation Systems",
+   "Learning Module — Understanding Large Language Models",
+   "Learning Science Integration System",
+   "MVP — AI Fundamentals Course",
+   "MVP — Learning Science Integration System",
+   "MVP — P.E.T.E.E.R. Framework",
+   "P.E.T.E.E.R.",
+   "P.E.T.E.E.R_Core",
+   "Stackable AI Certifications",
+   "Team Learning Path and Competency Gates",
+   "The Forge Learning Studio",
+   "008 — Research MOC"
+  ],
+  "path": "vault/08 - Research/District Handbook — Learning and Curriculum.md",
   "tags": [
    "district-handbook",
    "source-grounded"
@@ -7320,6 +8444,61 @@
   ],
   "type": "handbook"
  },
+ "District Handbook — Synergy Nodes": {
+  "folder": "02 - ZenFlow",
+  "links": [
+   "Synergy Node Handbook",
+   "Full Synergy Node Catalog",
+   "SOLOFORGE",
+   "D-01 Resonance Media",
+   "D-02 Ascension Campus",
+   "D-03 Quantum Commerce Grid",
+   "D-04 Oracle Relay",
+   "D-05 Kinetic Scholar",
+   "D-06 Founder Ark",
+   "D-07 Signal Court",
+   "D-08 Ghost Protocol",
+   "D-09 Aegis Forge",
+   "D-10 Blackbox Citadel",
+   "D-11 Mythos",
+   "D-12 Nomad Market",
+   "D-13 BioSovereign",
+   "D-14 TerraMind",
+   "D-15 Sovereign Assets",
+   "D-16 Civilization Twin",
+   "D-17 Civic Nervous System",
+   "D-18 Eden Logistics",
+   "D-19 Mecha Orchard",
+   "D-20 Momentum Voyages",
+   "SYN-01 Sentinel Guardian",
+   "SYN-02 Apex Recovery Station",
+   "SYN-03 Terra Gaia Survey Drone",
+   "SYN-04 Herald Campus Kiosk",
+   "SYN-05 Resonance Compliance Rig",
+   "SYN-06 Aether Relay Drone",
+   "SYN-07 Aurum Biosignal Band",
+   "SYN-08 Prime Shepherd Rover",
+   "SYN-09 Cognara Consulting Kit",
+   "SYN-10 Gaia Field Rover",
+   "SYN-11 Nexus Signal Broadcast Node",
+   "SYN-12 Nomad Intelligence Kit",
+   "SYN-13 Binary Forge Station",
+   "SYN-14 Terra Habitat Sentinel",
+   "SYN-15 Signal Cohort Badge",
+   "SYN-16 Civic Babel Kiosk",
+   "SYN-17 Eon Performance Lab",
+   "SYN-18 Quantum Signal Terminal",
+   "SYN-19 Vital Neuro Wristband",
+   "SYN-20 Zenith Orchestration Tower",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/District Handbook — Synergy Nodes.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
  "District Handbook — Team commons": {
   "folder": "04 - People",
   "links": [
@@ -7327,6 +8506,69 @@
    "The Collective Division"
   ],
   "path": "vault/04 - People/District Handbook — Team commons.md",
+  "tags": [
+   "district-handbook",
+   "source-grounded"
+  ],
+  "type": "handbook"
+ },
+ "District Handbook — Tools and Integrations": {
+  "folder": "05 - Operations",
+  "links": [
+   "MCP Matrix",
+   "Established MCP Servers",
+   "Collective AI Tool Stack",
+   "Binary Loom API Gateway",
+   "Collective Intelligence MCP Server",
+   "Developer Tools Suite",
+   "External Toolkit — 130 Tools",
+   "G-COSA — Execution Harness and Verification Loop",
+   "G-COSA — Physical Compute Matrix",
+   "Integration Fabric",
+   "KG-01 Collective AI Master Entity Graph",
+   "KG-02 ZenFlow Agent Decision Graph",
+   "KG-03 The Collective Client Intelligence Graph",
+   "KG-04 Quantum Ledger Asset Relationship Graph",
+   "KG-05 Juris Guard AI Regulation Ontology",
+   "KG-06 Kinetic Edge Athlete Performance Graph",
+   "KG-07 Vital Helix Bio-Digital Twin Graph",
+   "KG-08 Gaia Synthesis Environmental Knowledge Graph",
+   "KG-09 Nomad Nexus Destination Intelligence Graph",
+   "KG-10 Signal Velocity Content Performance Graph",
+   "KG-11 Hybrid Learning Path Knowledge Graph",
+   "KG-12 Obsidian Arc Threat Intelligence Graph",
+   "KG-13 Aether Link Communication Network Graph",
+   "KG-14 VectorShift Logistics Intelligence Graph",
+   "KG-15 Terra Axis Property Intelligence Graph",
+   "KG-16 Civic Core Community Resource Graph",
+   "KG-17 Binary Loom Infrastructure Dependency Graph",
+   "KG-18 Cognara Behavioral Psychographic Graph",
+   "KG-19 Eon Core Longevity Biomarker Graph",
+   "KG-20 Nexus Labs Content Narrative Graph",
+   "Knowledge Graph Tools",
+   "MCP-01 ZenFlow Orchestration MCP",
+   "MCP-02 Knowledge Keeper MCP",
+   "MCP-03 Ace Knowledge Graph MCP",
+   "MCP-04 Notion Operations MCP",
+   "MCP-05 GitHub Intelligence MCP",
+   "MCP-06 Quantum Intelligence MCP",
+   "MCP-07 Athlete Performance MCP",
+   "MCP-08 Content Intelligence MCP",
+   "MCP-09 Civic Resource MCP",
+   "MCP-10 Vital Health Intelligence MCP",
+   "MCP-11 Growth Signal MCP",
+   "MCP-12 Regulatory Intelligence MCP",
+   "MCP-13 Gaia Field Intelligence MCP",
+   "MCP-14 Infrastructure Ops MCP",
+   "MCP-15 Nomad Mobility MCP",
+   "MCP-16 Threat Intelligence MCP",
+   "MCP-17 Behavioral Personalization MCP",
+   "MCP-18 Longevity Intelligence MCP",
+   "MCP-19 Atlas Learning MCP",
+   "MCP-20 Connectivity Network MCP",
+   "005 — Operations MOC"
+  ],
+  "path": "vault/05 - Operations/District Handbook — Tools and Integrations.md",
   "tags": [
    "district-handbook",
    "source-grounded"
@@ -7343,6 +8585,24 @@
    "research"
   ],
   "type": "research"
+ },
+ "Division Ecosystem — Partner Dossier Source Snapshot": {
+  "folder": "02 - ZenFlow/Source Reconciliation",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Source Reconciliation/Division Ecosystem — Partner Dossier Source Snapshot.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Division Palettes": {
   "folder": "07 - Brand",
@@ -7757,7 +9017,8 @@
    "Nomad Nexus Platform",
    "Visa Intelligence Database",
    "Master Product Catalog",
-   "MVP — Employer Partner Portal"
+   "MVP — Employer Partner Portal",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Employer Partner Portal.md",
   "tags": [
@@ -7997,7 +9258,13 @@
    "Eon Memory Pendant",
    "Vitality Ear Cue",
    "Legacy Ring",
-   "Longevity Lanyard"
+   "Longevity Lanyard",
+   "Civic Core Fiduciary Veto",
+   "Eon Core — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-20 Eon Core Longevity Intelligence API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Eon Core Division.md",
   "tags": [
@@ -8024,6 +9291,23 @@
    "sept-16-register"
   ],
   "type": "campus-facility"
+ },
+ "Eon Core — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Eon Core Division",
+   "Director_Eon_Core",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Eon Core — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Eon Memory Pendant": {
   "folder": "11 - Physical AI/Wearables",
@@ -8077,7 +9361,8 @@
    "Eon Biological Age Platform",
    "Binary Loom Division",
    "Master Product Catalog",
-   "MVP — Eon Wearable Integration Hub"
+   "MVP — Eon Wearable Integration Hub",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Eon Wearable Integration Hub.md",
   "tags": [
@@ -8479,6 +9764,22 @@
   ],
   "type": "device-agent"
  },
+ "Financial Forecast Assumption Register": {
+  "folder": "06 - Finance",
+  "links": [
+   "Strategic Financial Pro Forma — January 2026",
+   "Ahmad Muhammad",
+   "Financial Position",
+   "Revenue Plan — $21.7K per Month",
+   "Quantum Ledger Division"
+  ],
+  "path": "vault/06 - Finance/Financial Forecast Assumption Register.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
+ },
  "Financial Position": {
   "folder": "06 - Finance",
   "links": [
@@ -8587,6 +9888,21 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Flux Drone": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "VectorShift Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Flux Drone.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Forge Roster": {
   "folder": "05 - Operations",
@@ -8818,7 +10134,10 @@
    "Knowledge Keeper",
    "Design System Bible v3",
    "002 — Divisions MOC",
-   "Collective AI — Company Charter"
+   "Collective AI — Company Charter",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Apex System"
   ],
   "path": "vault/11 - Physical AI/Foundry Infrastructure Hardware Catalog.md",
   "tags": [
@@ -8921,7 +10240,37 @@
    "Aegis Protocol Spec",
    "ZenFlow Master Blueprint",
    "ZENITH",
-   "001 — ZenFlow MOC"
+   "001 — ZenFlow MOC",
+   "Agent Tier Registry",
+   "Aegis Protocol Guardian",
+   "Agent Health Monitor",
+   "Apex System",
+   "Bio-Digital Twin",
+   "Cohort Manager Task Agent",
+   "Collective Times",
+   "Creator Nexus",
+   "Director_Operations",
+   "Evidence Integrity Task Agent",
+   "Full Synergy Node Catalog",
+   "AI Tutor Task Agent",
+   "Aether Link Mesh Extension Task Agent",
+   "Apex System Performance Agent",
+   "Behavioral Pattern Analysis Agent",
+   "Client Intelligence Task Agent",
+   "Cognitive Coach Task Agent",
+   "Collective Times Content Writer Task Agent",
+   "Creator Nexus Brief Generator",
+   "Creator Track",
+   "Digital Equity Initiative",
+   "Ground Vector",
+   "Ground Vector Navigation Agent",
+   "Habit Architecture Agent",
+   "Learning Path Agent",
+   "Natural Script",
+   "Network Anomaly Detection Agent",
+   "P.E.T.E.E.R.",
+   "P.E.T.E.E.R. Framework",
+   "Physical Security Task Agent"
   ],
   "path": "vault/02 - ZenFlow/Synergy Nodes/Full Synergy Node Catalog.md",
   "tags": [
@@ -8930,6 +10279,292 @@
    "catalog"
   ],
   "type": "hub"
+ },
+ "G-COSA — ARC-R Coordination Layer Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — ARC-R Coordination Layer Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — COSA Executive Kernel Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — COSA Executive Kernel Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — Cognitive Frame and Control Policy Contracts": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC",
+   "ZenFlow Master Blueprint"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Cognitive Frame and Control Policy Contracts.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "G-COSA — Continuous Cognitive Loop": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC",
+   "ZenFlow Master Blueprint"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Continuous Cognitive Loop.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "G-COSA — Curvature Detection Engine Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Curvature Detection Engine Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — Execution Harness and Verification Loop": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC",
+   "ZenFlow Master Blueprint"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Execution Harness and Verification Loop.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "G-COSA — Geodesic Planner Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Geodesic Planner Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — Geometric Regime Atlas Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Geometric Regime Atlas Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — HGLAR Reasoning Framework Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — HGLAR Reasoning Framework Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — HRM Inference Substrate Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — HRM Inference Substrate Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — MELD and ERC Affective-Social Sensing Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — MELD and ERC Affective-Social Sensing Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — Natural Gradient Optimizer Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Natural Gradient Optimizer Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — Nine-Layer Cognitive Architecture": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC",
+   "ZenFlow Master Blueprint"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Nine-Layer Cognitive Architecture.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "G-COSA — Physical Compute Matrix": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC",
+   "ZenFlow Master Blueprint"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Physical Compute Matrix.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "G-COSA — Reasoning Emotion and Coordination Subsystems": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC",
+   "ZenFlow Master Blueprint"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Reasoning Emotion and Coordination Subsystems.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "G-COSA — Staged Implementation Order": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC",
+   "ZenFlow Master Blueprint"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Staged Implementation Order.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "G-COSA — Symbiotic AI Governance Design Contract": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "G-COSA — Physical Compute Matrix",
+   "Agent Tier Registry",
+   "ZenFlow Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — Symbiotic AI Governance Design Contract.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "G-COSA — ZenFlow Gateway Transport": {
+  "folder": "02 - ZenFlow/G-COSA",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC",
+   "ZenFlow Master Blueprint"
+  ],
+  "path": "vault/02 - ZenFlow/G-COSA/G-COSA — ZenFlow Gateway Transport.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "GS-01 GS-6X Agri Monitor Drone — Full Body Design Sheet — Prompt": {
   "folder": "11 - Physical AI/Hardware Prompts",
@@ -9349,7 +10984,13 @@
    "Greenhouse Pendant",
    "Harvester Glove Controller",
    "Climate Hat Clip",
-   "Eco Survey Ring"
+   "Eco Survey Ring",
+   "Civic Core Fiduciary Veto",
+   "Gaia Synthesis — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-13 Gaia Field Sensor API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Gaia Synthesis Division.md",
   "tags": [
@@ -9358,6 +10999,23 @@
    "chartered"
   ],
   "type": "division"
+ },
+ "Gaia Synthesis — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Gaia Synthesis Division",
+   "Director_Gaia_Synthesis",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Gaia Synthesis — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Gaia Urban Farming Platform": {
   "folder": "03 - Products",
@@ -9635,7 +11293,27 @@
    "MIRROR — God Prompt",
    "Director_Cognara_Mind",
    "Cognara Mind Division",
-   "Civic Core Fiduciary Veto"
+   "Civic Core Fiduciary Veto",
+   "AI Readiness Audit",
+   "AI Workforce Transformation Program",
+   "Aegis Protocol",
+   "Annual Impact Report",
+   "Apex System",
+   "Axis Market",
+   "Behavioral Ethics Audit",
+   "Bio-Digital Twin",
+   "Collective Times",
+   "Community Creators Program",
+   "Creator Nexus",
+   "Creator Track",
+   "Custom Script",
+   "Devon Scott",
+   "Digital Equity Initiative",
+   "Dr. Joseph Johnson",
+   "Ethical AI Framework",
+   "God Prompt Library",
+   "Ground Vector",
+   "Helios Grid"
   ],
   "path": "vault/02 - ZenFlow/God Prompt Library.md",
   "tags": [
@@ -10348,7 +12026,30 @@
    "Zenith OS",
    "002 — Divisions MOC",
    "003 — Products MOC",
-   "JR Moyler"
+   "JR Moyler",
+   "Civic Core Fiduciary Veto",
+   "AL-03 Mesh Relay Drone",
+   "Agent Health Monitor",
+   "Apex System",
+   "Atlas Platform",
+   "Bio-Digital Twin",
+   "BioAge Engine",
+   "Collective AI Mega Campus",
+   "Collective Times",
+   "Creator Nexus",
+   "Custom Script",
+   "Digital Equity Initiative",
+   "Ground Vector Fleet",
+   "Natural Script",
+   "Neuro-Pulse",
+   "P.E.T.E.E.R.",
+   "P.E.T.E.E.R. Framework",
+   "Protocol Builder",
+   "Quantum Alpha",
+   "Quantum Genesis",
+   "Signal Ring",
+   "Sky Net Infrastructure",
+   "Terra Vision"
   ],
   "path": "vault/11 - Physical AI/Hardware Agentic Prompt Catalog.md",
   "tags": [
@@ -10600,7 +12301,13 @@
    "Transcription Task Agent",
    "Curriculum Synthesis Task Agent",
    "Nexus Labs Content Relay Task Agent",
-   "P.E.T.E.E.R. Assessment Task Agent"
+   "P.E.T.E.E.R. Assessment Task Agent",
+   "Civic Core Fiduciary Veto",
+   "Hybrid Living — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-16 Hybrid Living Learning API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Hybrid Living Division.md",
   "tags": [
@@ -10609,6 +12316,23 @@
    "operating"
   ],
   "type": "division"
+ },
+ "Hybrid Living — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Hybrid Living Division",
+   "Director_Hybrid_Living",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Hybrid Living — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Icon World Studios Acquisition": {
   "folder": "10 - Archive",
@@ -10699,6 +12423,21 @@
    "control-panel"
   ],
   "type": "hardware"
+ },
+ "Infinite Scale": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Binary Loom Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Infinite Scale.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Influencer Key Tile": {
   "folder": "11 - Physical AI/Wearables",
@@ -10954,7 +12693,10 @@
  "JR Moyler": {
   "folder": "04 - People",
   "links": [
-   "004 — People MOC"
+   "004 — People MOC",
+   "Weekly Ops Sync",
+   "Role Assignment and Handoff Matrix",
+   "Daily Capture Template"
   ],
   "path": "vault/04 - People/JR Moyler.md",
   "tags": [
@@ -11099,7 +12841,13 @@
    "Privilege Lanyard",
    "Deposition Ear Cue",
    "Evidence Chain Fob",
-   "Clause Marker Pen Clip"
+   "Clause Marker Pen Clip",
+   "Civic Core Fiduciary Veto",
+   "Juris Guard — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-11 Juris Guard Compliance API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Juris Guard Division.md",
   "tags": [
@@ -11127,6 +12875,23 @@
    "sept-16-register"
   ],
   "type": "campus-facility"
+ },
+ "Juris Guard — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Juris Guard Division",
+   "Director_Juris_Guard",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Juris Guard — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "JurisIQ": {
   "folder": "03 - Products",
@@ -11774,7 +13539,13 @@
    "Vital Helix Integration Task Agent",
    "Scout Intelligence Agent",
    "Research Director",
-   "Prospect Profile Generator Task Agent"
+   "Prospect Profile Generator Task Agent",
+   "Civic Core Fiduciary Veto",
+   "Kinetic Edge — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-05 Apex Performance API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Kinetic Edge Division.md",
   "tags": [
@@ -11802,6 +13573,23 @@
    "sept-16-register"
   ],
   "type": "campus-facility"
+ },
+ "Kinetic Edge — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Kinetic Edge Division",
+   "Director_Kinetic_Edge",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Kinetic Edge — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Kinetic Energy Operations Center (KEOC)": {
   "folder": "09 - Projects/Mega Campus",
@@ -12155,6 +13943,21 @@
   ],
   "type": "prompt"
  },
+ "LLM Engineering Practice Path": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Reference Editions",
+   "Artifact Review Rubric",
+   "Prompt Evaluation Record",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/LLM Engineering Practice Path.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "curriculum"
+ },
  "LOG-01 Logistics Campus Android — Full Body Design Sheet — Prompt": {
   "folder": "11 - Physical AI/Hardware Prompts",
   "links": [
@@ -12327,6 +14130,175 @@
   ],
   "type": "hardware"
  },
+ "Learning Module — AI Agents and Workflow Automation": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — Retrieval-Augmented Generation Systems",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — AI Agents and Workflow Automation.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — AI Fundamentals and History": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — AI Fundamentals and History.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — APIs and Integration Patterns": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — MCPs and Advanced Integration",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — APIs and Integration Patterns.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — Advanced AI Applications and Future Trends": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — APIs and Integration Patterns",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — Advanced AI Applications and Future Trends.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — Building MVPs with AI": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — AI Agents and Workflow Automation",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — Building MVPs with AI.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — Introduction to Machine Learning": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — AI Fundamentals and History",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — Introduction to Machine Learning.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — MCPs and Advanced Integration": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — Building MVPs with AI",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — MCPs and Advanced Integration.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — Mastering Prompt Engineering": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — Understanding Large Language Models",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — Mastering Prompt Engineering.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — Retrieval-Augmented Generation Systems": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — Mastering Prompt Engineering",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — Retrieval-Augmented Generation Systems.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
+ "Learning Module — Understanding Large Language Models": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Module — Introduction to Machine Learning",
+   "Team Learning Path and Competency Gates",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Module — Understanding Large Language Models.md",
+  "tags": [
+   "drive-source",
+   "district-content",
+   "learning",
+   "curriculum"
+  ],
+  "type": "curriculum"
+ },
  "Learning Path Agent": {
   "folder": "11 - Physical AI/Agent Specs",
   "links": [
@@ -12352,6 +14324,21 @@
   ],
   "type": "device-agent"
  },
+ "Learning Reference Editions": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Team Learning Path and Competency Gates",
+   "Workbook Artifact Record",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Learning Reference Editions.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "curriculum"
+ },
  "Learning Science Integration System": {
   "folder": "03 - Products",
   "links": [
@@ -12360,7 +14347,8 @@
    "Hybrid Living Division",
    "Atlas Platform",
    "Master Product Catalog",
-   "MVP — Learning Science Integration System"
+   "MVP — Learning Science Integration System",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Learning Science Integration System.md",
   "tags": [
@@ -12421,7 +14409,8 @@
    "Director_Juris_Guard",
    "Dr. Joseph Johnson",
    "Master Product Catalog",
-   "MVP — Legal Analytics Dashboard"
+   "MVP — Legal Analytics Dashboard",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Legal Analytics Dashboard.md",
   "tags": [
@@ -12526,6 +14515,21 @@
    "ear-cue"
   ],
   "type": "wearable"
+ },
+ "Lockdown OS": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Lockdown OS.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Logistics Integration Platform": {
   "folder": "03 - Products",
@@ -12655,6 +14659,21 @@
    "wellness-fixture"
   ],
   "type": "hardware"
+ },
+ "Loom Mesh": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Binary Loom Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Loom Mesh.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "MARQUEE — God Prompt": {
   "folder": "02 - ZenFlow/God Prompts",
@@ -16762,6 +18781,21 @@
   ],
   "type": "wearable"
  },
+ "Macro-Build": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Animus Prime Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Macro-Build.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Manipulation Training Data Collector": {
   "folder": "11 - Physical AI/Agent Specs",
   "links": [
@@ -16999,6 +19033,21 @@
    "sept-16-register"
   ],
   "type": "campus-facility"
+ },
+ "Matrix Towers": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Gaia Synthesis Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Matrix Towers.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Me vs Me — Seven Reflections": {
   "folder": "09 - Projects",
@@ -17549,6 +19598,21 @@
   ],
   "type": "device-agent"
  },
+ "Mimic Face": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Animus Prime Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Mimic Face.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "MindFrame": {
   "folder": "03 - Products",
   "links": [
@@ -18033,6 +20097,22 @@
   ],
   "type": "wearable"
  },
+ "Neuro-Bridge": {
+  "folder": "10 - Archive/Product Naming",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Aether Link Division",
+   "003 — Products MOC",
+   "Neuro-Bridge R&D"
+  ],
+  "path": "vault/10 - Archive/Product Naming/Neuro-Bridge.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Neuro-Bridge R&D": {
   "folder": "03 - Products",
   "links": [
@@ -18040,7 +20120,10 @@
    "003 — Products MOC",
    "MVP — Neuro-Bridge BCI",
    "MVP Build Guide",
-   "Master Product Catalog"
+   "Master Product Catalog",
+   "Neuro-Bridge",
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad"
   ],
   "path": "vault/03 - Products/Neuro-Bridge R&D.md",
   "tags": [
@@ -18206,7 +20289,13 @@
    "Creator Nexus Vault Agent",
    "Research Director",
    "Skool Community Monitor Agent",
-   "Scene Classification Task Agent"
+   "Scene Classification Task Agent",
+   "Civic Core Fiduciary Veto",
+   "Nexus Labs — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-12 Nexus Labs Content Intelligence API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Nexus Labs Division.md",
   "tags": [
@@ -18247,6 +20336,23 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Nexus Labs — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Nexus Labs Division",
+   "Director_Nexus_Labs",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Nexus Labs — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Nexus Studios": {
   "folder": "03 - Products",
@@ -18364,7 +20470,13 @@
    "Roam Key Beacon",
    "Field Guide Ear Cue",
    "Passport Lanyard Controller",
-   "Explorer Shoulder Pod"
+   "Explorer Shoulder Pod",
+   "Civic Core Fiduciary Veto",
+   "Nomad Nexus — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-09 Nomad Nexus Intelligence API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Nomad Nexus Division.md",
   "tags": [
@@ -18408,6 +20520,23 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Nomad Nexus — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Nomad Nexus Division",
+   "Director_Nomad_Nexus",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Nomad Nexus — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Non-Profit AI Incubator": {
   "folder": "03 - Products",
@@ -18464,6 +20593,21 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Nutri-Mist": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Gaia Synthesis Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Nutri-Mist.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "OA-01 Cipher Guardian Node": {
   "folder": "11 - Physical AI/Build Spec",
@@ -18769,7 +20913,13 @@
    "Knowledge Keeper (Device Agent)",
    "Spatial Intelligence Task Agent",
    "Evidence Integrity Task Agent",
-   "SOC Incident Commander Task Agent"
+   "SOC Incident Commander Task Agent",
+   "Civic Core Fiduciary Veto",
+   "Obsidian Arc — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-17 Obsidian Arc Threat Intelligence API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Obsidian Arc Division.md",
   "tags": [
@@ -18778,6 +20928,23 @@
    "operating"
   ],
   "type": "division"
+ },
+ "Obsidian Arc — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Obsidian Arc Division",
+   "Director_Obsidian_Arc",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Obsidian Arc — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Obsidian SOC Platform": {
   "folder": "03 - Products",
@@ -18945,6 +21112,64 @@
   ],
   "type": "wearable"
  },
+ "Operating Principles and Source Reconciliation": {
+  "folder": "05 - Operations",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Aegis Protocol Spec",
+   "005 — Operations MOC",
+   "The Collective Division"
+  ],
+  "path": "vault/05 - Operations/Operating Principles and Source Reconciliation.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "Operations Architect Delivery Scorecard": {
+  "folder": "05 - Operations",
+  "links": [
+   "Workflow Delivery Record Template",
+   "SOP — Team Onboarding",
+   "Artifact Review Rubric",
+   "Binary Loom Division"
+  ],
+  "path": "vault/05 - Operations/Operations Architect Delivery Scorecard.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
+ },
+ "Operator Build Layers and Common Misreadings": {
+  "folder": "08 - Research",
+  "links": [
+   "Artifact Review Rubric",
+   "Workflow Delivery Record Template",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/08 - Research/Operator Build Layers and Common Misreadings.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "reference"
+ },
+ "Optimizers": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Vital Helix Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Optimizers.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Options Desk Touch Token": {
   "folder": "11 - Physical AI/Wearables",
   "links": [
@@ -19002,6 +21227,21 @@
    "tier-3"
   ],
   "type": "agent-blueprint"
+ },
+ "Organ Foundry": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Vital Helix Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Organ Foundry.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Original IP Library": {
   "folder": "03 - Products",
@@ -19440,7 +21680,18 @@
    "002 — Divisions MOC",
    "003 — Products MOC",
    "Aegis Protocol Spec",
-   "Synergy Node Handbook"
+   "Synergy Node Handbook",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Apex System",
+   "Axis Market",
+   "Bio-Digital Twin",
+   "Creator Nexus",
+   "Ground Vector",
+   "Knowledge Keeper",
+   "Natural Script",
+   "Physical AI Build Spec",
+   "Quantum Genesis"
   ],
   "path": "vault/11 - Physical AI/Physical AI Build Spec.md",
   "tags": [
@@ -19671,6 +21922,150 @@
   ],
   "type": "build-spec-section"
  },
+ "Physical AI Foundry — Android and Drone Reference Atlas": {
+  "folder": "11 - Physical AI/Foundry Architecture",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Animus Prime Division",
+   "Binary Loom Division",
+   "ZenFlow Division",
+   "Foundry Infrastructure Hardware Catalog",
+   "011 — Physical AI MOC"
+  ],
+  "path": "vault/11 - Physical AI/Foundry Architecture/Physical AI Foundry — Android and Drone Reference Atlas.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "Physical AI Foundry — Operating Layers": {
+  "folder": "11 - Physical AI/Foundry Architecture",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Animus Prime Division",
+   "Binary Loom Division",
+   "ZenFlow Division",
+   "Foundry Infrastructure Hardware Catalog",
+   "011 — Physical AI MOC"
+  ],
+  "path": "vault/11 - Physical AI/Foundry Architecture/Physical AI Foundry — Operating Layers.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "Physical AI Foundry — Purchase Phase Gates": {
+  "folder": "11 - Physical AI/Foundry Architecture",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Animus Prime Division",
+   "Binary Loom Division",
+   "ZenFlow Division",
+   "Foundry Infrastructure Hardware Catalog",
+   "011 — Physical AI MOC"
+  ],
+  "path": "vault/11 - Physical AI/Foundry Architecture/Physical AI Foundry — Purchase Phase Gates.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "Physical AI Foundry — Safety and Deployment Gates": {
+  "folder": "11 - Physical AI/Foundry Architecture",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Animus Prime Division",
+   "Binary Loom Division",
+   "ZenFlow Division",
+   "Foundry Infrastructure Hardware Catalog",
+   "011 — Physical AI MOC"
+  ],
+  "path": "vault/11 - Physical AI/Foundry Architecture/Physical AI Foundry — Safety and Deployment Gates.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "Physical AI Foundry — Segmented Mesh and Private Cloud": {
+  "folder": "11 - Physical AI/Foundry Architecture",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Animus Prime Division",
+   "Binary Loom Division",
+   "ZenFlow Division",
+   "Foundry Infrastructure Hardware Catalog",
+   "011 — Physical AI MOC"
+  ],
+  "path": "vault/11 - Physical AI/Foundry Architecture/Physical AI Foundry — Segmented Mesh and Private Cloud.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "Physical AI Foundry — Shell Components and Fabrication Bench": {
+  "folder": "11 - Physical AI/Foundry Architecture",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Animus Prime Division",
+   "Binary Loom Division",
+   "ZenFlow Division",
+   "Foundry Infrastructure Hardware Catalog",
+   "011 — Physical AI MOC"
+  ],
+  "path": "vault/11 - Physical AI/Foundry Architecture/Physical AI Foundry — Shell Components and Fabrication Bench.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "Physical AI Foundry — Source and Sourcing Register": {
+  "folder": "11 - Physical AI/Foundry Architecture",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Animus Prime Division",
+   "Binary Loom Division",
+   "ZenFlow Division",
+   "Foundry Infrastructure Hardware Catalog",
+   "011 — Physical AI MOC"
+  ],
+  "path": "vault/11 - Physical AI/Foundry Architecture/Physical AI Foundry — Source and Sourcing Register.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "Physical AI Foundry — Thirty-Node Compute Allocation": {
+  "folder": "11 - Physical AI/Foundry Architecture",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Animus Prime Division",
+   "Binary Loom Division",
+   "ZenFlow Division",
+   "Foundry Infrastructure Hardware Catalog",
+   "011 — Physical AI MOC"
+  ],
+  "path": "vault/11 - Physical AI/Foundry Architecture/Physical AI Foundry — Thirty-Node Compute Allocation.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
  "Physical AI Wearables Agent Spec": {
   "folder": "11 - Physical AI",
   "links": [
@@ -19794,7 +22189,15 @@
    "Aegis Protocol Spec",
    "ZenFlow API",
    "n8n Workflow Blueprint",
-   "002 — Divisions MOC"
+   "002 — Divisions MOC",
+   "Civic Core Fiduciary Veto",
+   "AI Readiness Audit",
+   "Aegis Protocol",
+   "Apex System",
+   "Atlas Platform",
+   "Collective Times",
+   "Creator Nexus",
+   "Creator Track"
   ],
   "path": "vault/11 - Physical AI/Physical AI Wearables Agent Spec.md",
   "tags": [
@@ -20151,6 +22554,164 @@
   ],
   "type": "research"
  },
+ "Pricing Proposal Worksheet": {
+  "folder": "06 - Finance",
+  "links": [
+   "Revenue Plan — $21.7K per Month",
+   "SOP — Client Onboarding",
+   "Client Billing Ledger",
+   "The Collective Division"
+  ],
+  "path": "vault/06 - Finance/Pricing Proposal Worksheet.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
+ },
+ "Primary Source Reading Map": {
+  "folder": "05 - Operations",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Civic Core Fiduciary Veto",
+   "Division Ecosystem — Partner Dossier Source Snapshot",
+   "Vault Note and Access Contracts",
+   "MCP Matrix",
+   "Established MCP Servers",
+   "MCP-01 ZenFlow Orchestration MCP",
+   "MCP-02 Knowledge Keeper MCP",
+   "MCP-03 Ace Knowledge Graph MCP",
+   "Knowledge Graph Matrix",
+   "Knowledge Graph Tools",
+   "KG-01 Collective AI Master Entity Graph",
+   "KG-02 ZenFlow Agent Decision Graph",
+   "KG-03 The Collective Client Intelligence Graph",
+   "API-01 ZenFlow Orchestration API",
+   "API-02 Knowledge Keeper API",
+   "API-03 CAI Product Catalog API",
+   "API-04 Helios Grid Telemetry API",
+   "API-05 Apex Performance API",
+   "ZenFlow — Autopoietic Blueprint Source Reconciliation",
+   "G-COSA — Physical Compute Matrix",
+   "G-COSA — Nine-Layer Cognitive Architecture",
+   "G-COSA — Execution Harness and Verification Loop",
+   "G-COSA — Reasoning Emotion and Coordination Subsystems",
+   "G-COSA — ZenFlow Gateway Transport",
+   "Operating Principles and Source Reconciliation",
+   "Collective AI Mega Campus",
+   "Design Rule Reconciliation Record",
+   "Design System Bible v3",
+   "Designer Production Brief",
+   "Source Corpus Reading Map",
+   "Hardware Agentic Prompt Catalog",
+   "AL-03 Mesh Relay Drone",
+   "Aegis Protocol",
+   "Agent Health Monitor",
+   "Apex System",
+   "Full Synergy Node Catalog",
+   "Aegis Protocol Guardian",
+   "Learning Reference Editions",
+   "Operator Build Layers and Common Misreadings",
+   "Mega Campus Version History",
+   "Prompt Catalog Production Record",
+   "Wearable Catalog",
+   "Aegis Key Fob",
+   "Android Control Ring",
+   "Apex Shoe Pod",
+   "Architect Medallion",
+   "Foundry Infrastructure Hardware Catalog",
+   "Ad Creative Review Pad",
+   "Aegis Lockbox",
+   "Aegis Review Dais",
+   "Aegis Status Beacon",
+   "Access Key Fob",
+   "Advisor Ear Cue",
+   "Agent Spine Clip",
+   "AI Tutor Task Agent",
+   "Aether Link Mesh Extension Task Agent",
+   "Physical AI Wearables Agent Spec",
+   "AI Readiness Audit",
+   "004 — People MOC",
+   "007 — Brand MOC",
+   "008 — Research MOC",
+   "Workbook Artifact Record",
+   "000 — Collective AI Knowledge Base",
+   "005 — Operations MOC",
+   "006 — Finance MOC",
+   "Physical AI Build Spec",
+   "Axis Market",
+   "Bio-Digital Twin",
+   "Creator Nexus",
+   "Physical AI Foundry — Operating Layers",
+   "Physical AI Foundry — Thirty-Node Compute Allocation",
+   "Physical AI Foundry — Segmented Mesh and Private Cloud",
+   "Physical AI Foundry — Shell Components and Fabrication Bench",
+   "Physical AI Foundry — Android and Drone Reference Atlas",
+   "G-COSA — Geometric Regime Atlas Design Contract",
+   "G-COSA — Curvature Detection Engine Design Contract",
+   "G-COSA — Geodesic Planner Design Contract",
+   "G-COSA — Natural Gradient Optimizer Design Contract",
+   "G-COSA — ARC-R Coordination Layer Design Contract",
+   "LLM Engineering Practice Path",
+   "AI Architecture Research Map",
+   "MVP Build Guide",
+   "MVP — Natural Script",
+   "MVP — Collective Times",
+   "MVP — Environmental Intelligence Platform",
+   "MVP — Kinetic IQ",
+   "Daily Capture Template",
+   "JR Moyler",
+   "Pricing Proposal Worksheet",
+   "Role Assignment and Handoff Matrix",
+   "Tool Evaluation and Routing Contract",
+   "External Toolkit — 130 Tools",
+   "Collective AI Tool Stack",
+   "Workflow Delivery Record Template",
+   "n8n Workflow Blueprint",
+   "ZenFlow Foundry — Service and Routing Architecture",
+   "ZenFlow Foundry — PostgreSQL Schema Contracts",
+   "ZenFlow Foundry — Redis Queue and Cache Contracts",
+   "ZenFlow Foundry — FastAPI Endpoint Contracts",
+   "ZenFlow Foundry — Model Client and Cost Configuration",
+   "Synergy Node Handbook",
+   "AI Fundamentals Course",
+   "Atlas Platform",
+   "God Prompt Library",
+   "AI Workforce Transformation Program",
+   "Aether Link Division",
+   "Zenith OS",
+   "ZenFlow Agent Foundry",
+   "ZenFlow Marketplace",
+   "Knowledge Keeper",
+   "ZenFlow — Complete Specialist Roster",
+   "Director_ZenFlow",
+   "The Collective — Complete Specialist Roster",
+   "Director_The_Collective",
+   "Hybrid Living — Complete Specialist Roster",
+   "15-Division Model",
+   "Website Production Checklist",
+   "Creative Reference Attribution Review",
+   "Campaign Evidence Register",
+   "Campaign Measurement Plan",
+   "Campaign Publication Checklist",
+   "Content Campaign Production System",
+   "Financial Forecast Assumption Register",
+   "Universal Pricing Framework — Historical Logic",
+   "CIT v7 — Source Interaction and Intelligence Contracts",
+   "Collective Intelligence Terminal",
+   "CIT v5 — Source Interaction and Intelligence Contracts",
+   "ZenFlow — Neural Hub Historical Integration Ledger",
+   "ZenFlow — Agent Platform Deployment Strategy Source",
+   "Prompt Evaluation Record",
+   "ZenFlow Division"
+  ],
+  "path": "vault/05 - Operations/Primary Source Reading Map.md",
+  "tags": [
+   "source-provenance"
+  ],
+  "type": "source-index"
+ },
  "Prime Directorate": {
   "folder": "03 - Products",
   "links": [
@@ -20244,6 +22805,21 @@
   ],
   "type": "device-agent"
  },
+ "Prime Unit 1": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Animus Prime Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Prime Unit 1.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Print Farm Operations Board": {
   "folder": "11 - Physical AI/Foundry Hardware",
   "links": [
@@ -20270,7 +22846,8 @@
    "Director_Obsidian_Arc",
    "Juris Guard Division",
    "Master Product Catalog",
-   "MVP — Privacy Engineering Platform"
+   "MVP — Privacy Engineering Platform",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Privacy Engineering Platform.md",
   "tags": [
@@ -20353,6 +22930,20 @@
   ],
   "type": "template"
  },
+ "Project Delivery Record Template": {
+  "folder": "09 - Projects",
+  "links": [
+   "Artifact Review Rubric",
+   "Website Production Checklist",
+   "Binary Loom Division"
+  ],
+  "path": "vault/09 - Projects/Project Delivery Record Template.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
+ },
  "Prompt Calibration Board": {
   "folder": "11 - Physical AI/Foundry Hardware",
   "links": [
@@ -20372,6 +22963,36 @@
    "test-jig"
   ],
   "type": "hardware"
+ },
+ "Prompt Catalog Production Record": {
+  "folder": "07 - Brand",
+  "links": [
+   "Designer Production Brief",
+   "Design Rule Reconciliation Record",
+   "Financial Position",
+   "Nexus Labs Division"
+  ],
+  "path": "vault/07 - Brand/Prompt Catalog Production Record.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "brand"
+ },
+ "Prompt Evaluation Record": {
+  "folder": "08 - Research",
+  "links": [
+   "Campaign Evidence Register",
+   "Artifact Review Rubric",
+   "LLM Engineering Practice Path",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/08 - Research/Prompt Evaluation Record.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
  },
  "Prompt Stone Pocket Puck": {
   "folder": "11 - Physical AI/Wearables",
@@ -20434,7 +23055,8 @@
    "Director_Terra_Axis",
    "JR Moyler",
    "Master Product Catalog",
-   "MVP — Property Maintenance OS"
+   "MVP — Property Maintenance OS",
+   "003 — Products MOC"
   ],
   "path": "vault/03 - Products/Property Maintenance OS.md",
   "tags": [
@@ -20646,6 +23268,21 @@
    "environmental-fixture"
   ],
   "type": "hardware"
+ },
+ "Pulse Sensors": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Gaia Synthesis Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Pulse Sensors.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "QL-01 Aurum Trading Terminal (Build Spec)": {
   "folder": "11 - Physical AI/Build Spec",
@@ -20922,7 +23559,12 @@
    "Quantum Genesis Token Logger Task Agent",
    "Regulatory Compliance Monitor Agent",
    "Quantum Alpha Institutional Report Generator Agent",
-   "Distribution Agent"
+   "Distribution Agent",
+   "Civic Core Fiduciary Veto",
+   "Quantum Ledger — Complete Specialist Roster",
+   "Director Codenames",
+   "API-06 Quantum Alpha Trading API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Quantum Ledger Division.md",
   "tags": [
@@ -20931,6 +23573,23 @@
    "operating"
   ],
   "type": "division"
+ },
+ "Quantum Ledger — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Quantum Ledger Division",
+   "Director_Quantum_Ledger",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Quantum Ledger — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Quantum Wealth": {
   "folder": "03 - Products",
@@ -21021,6 +23680,36 @@
    "tier-3"
   ],
   "type": "agent-blueprint"
+ },
+ "Rapid Rx": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Vital Helix Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Rapid Rx.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "Rapid-App": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Binary Loom Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Rapid-App.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Reaction Arm Band": {
   "folder": "11 - Physical AI/Wearables",
@@ -21469,6 +24158,28 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Role Assignment and Handoff Matrix": {
+  "folder": "04 - People",
+  "links": [
+   "JR Moyler",
+   "Devon Scott",
+   "Ahmad Muhammad",
+   "Kenza Dawkins",
+   "Denzel McDougald",
+   "Dr. Joseph Johnson",
+   "Justin Howell",
+   "Arthur Fayne",
+   "Stanley Constant",
+   "Civic Core Fiduciary Veto",
+   "The Collective Division"
+  ],
+  "path": "vault/04 - People/Role Assignment and Handoff Matrix.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "reference"
  },
  "Route Commander Ring": {
   "folder": "11 - Physical AI/Wearables",
@@ -21953,7 +24664,10 @@
    "ROI_Calculator",
    "Case_Study_Scribe",
    "SOP — Content Publishing",
-   "005 — Operations MOC"
+   "005 — Operations MOC",
+   "Client AI Readiness Interview",
+   "CRM Pipeline and Next-Action Protocol",
+   "Client Kickoff Agenda and First-Week Record"
   ],
   "path": "vault/05 - Operations/SOPs/SOP — Client Onboarding.md",
   "tags": [
@@ -22039,6 +24753,23 @@
   "tags": [
    "sop",
    "ops"
+  ],
+  "type": "sop"
+ },
+ "SOP — Team Onboarding": {
+  "folder": "05 - Operations",
+  "links": [
+   "SOP — Client Onboarding",
+   "JR Moyler",
+   "Devon Scott",
+   "Role Assignment and Handoff Matrix",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/05 - Operations/SOP — Team Onboarding.md",
+  "tags": [
+   "drive-source",
+   "district-content"
   ],
   "type": "sop"
  },
@@ -22827,6 +25558,21 @@
   ],
   "type": "synergy-node"
  },
+ "SafeZone": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/SafeZone.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Scene Classification Task Agent": {
   "folder": "11 - Physical AI/Agent Specs",
   "links": [
@@ -22954,6 +25700,21 @@
   ],
   "type": "product"
  },
+ "Senior Advisor Observation Memo": {
+  "folder": "04 - People",
+  "links": [
+   "Arthur Fayne",
+   "Financial Position",
+   "Decision Record Template",
+   "The Collective Division"
+  ],
+  "path": "vault/04 - People/Senior Advisor Observation Memo.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
+ },
  "Sentinel Panic Ring": {
   "folder": "11 - Physical AI/Wearables",
   "links": [
@@ -22987,6 +25748,21 @@
   ],
   "type": "product"
  },
+ "Sentry Drones": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Sentry Drones.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Servo Calibration Frame": {
   "folder": "11 - Physical AI/Foundry Hardware",
   "links": [
@@ -23006,6 +25782,21 @@
    "test-fixture"
   ],
   "type": "hardware"
+ },
+ "Shift Haul": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "VectorShift Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Shift Haul.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Shift Protocol": {
   "folder": "03 - Products",
@@ -23110,7 +25901,13 @@
    "Creator CTA Pendant",
    "Live Room Ear Cue",
    "Influencer Key Tile",
-   "Conversion Sleeve Cue"
+   "Conversion Sleeve Cue",
+   "Civic Core Fiduciary Veto",
+   "Signal Velocity — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-10 Signal Velocity Growth API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Signal Velocity Division.md",
   "tags": [
@@ -23138,6 +25935,23 @@
    "sept-16-register"
   ],
   "type": "campus-facility"
+ },
+ "Signal Velocity — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Signal Velocity Division",
+   "Director_Signal_Velocity",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Signal Velocity — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "SignalBoard": {
   "folder": "03 - Products",
@@ -23224,6 +26038,37 @@
   ],
   "type": "device-agent"
  },
+ "Sky Lane OS": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "VectorShift Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Sky Lane OS.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "Sky Net": {
+  "folder": "10 - Archive/Product Naming",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Aether Link Division",
+   "003 — Products MOC",
+   "Sky Net Infrastructure"
+  ],
+  "path": "vault/10 - Archive/Product Naming/Sky Net.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Sky Net Infrastructure": {
   "folder": "03 - Products",
   "links": [
@@ -23231,7 +26076,10 @@
    "003 — Products MOC",
    "MVP — Sky Net Infrastructure",
    "MVP Build Guide",
-   "Master Product Catalog"
+   "Master Product Catalog",
+   "Sky Net",
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad"
   ],
   "path": "vault/03 - Products/Sky Net Infrastructure.md",
   "tags": [
@@ -23310,6 +26158,21 @@
   ],
   "type": "product"
  },
+ "Soft Touch": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Animus Prime Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Soft Touch.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Soil Steward Boot Pod": {
   "folder": "11 - Physical AI/Wearables",
   "links": [
@@ -23329,6 +26192,28 @@
    "boot-pod"
   ],
   "type": "wearable"
+ },
+ "Source Corpus Reading Map": {
+  "folder": "00 - MOCs",
+  "links": [
+   "Designer Production Brief",
+   "Website Production Checklist",
+   "Team Learning Path and Competency Gates",
+   "Project Delivery Record Template",
+   "Workflow Delivery Record Template",
+   "Pricing Proposal Worksheet",
+   "Content Campaign Production System",
+   "Campaign Evidence Register",
+   "Role Assignment and Handoff Matrix",
+   "Daily Capture Template",
+   "The Collective Division"
+  ],
+  "path": "vault/00 - MOCs/Source Corpus Reading Map.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "moc"
  },
  "Sovereign Command Ring": {
   "folder": "11 - Physical AI/Wearables",
@@ -23372,6 +26257,21 @@
    "pending"
   ],
   "type": "division"
+ },
+ "Span Clinics": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Vital Helix Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Span Clinics.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Spatial Intelligence Task Agent": {
   "folder": "11 - Physical AI/Agent Specs",
@@ -23481,6 +26381,21 @@
    "wearable"
   ],
   "type": "device-agent"
+ },
+ "Strategic Financial Pro Forma — January 2026": {
+  "folder": "10 - Archive",
+  "links": [
+   "Financial Position",
+   "Revenue Plan — $21.7K per Month",
+   "Financial Forecast Assumption Register",
+   "Quantum Ledger Division"
+  ],
+  "path": "vault/10 - Archive/Strategic Financial Pro Forma — January 2026.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "archive"
  },
  "Strategy Lapel Pin": {
   "folder": "11 - Physical AI/Wearables",
@@ -23704,7 +26619,38 @@
    "SYN-20 Zenith Orchestration Tower",
    "D-05 Kinetic Scholar",
    "D-17 Civic Nervous System",
-   "Civic Core Fiduciary Veto"
+   "Civic Core Fiduciary Veto",
+   "Agent Tier Registry",
+   "AI Fundamentals Course",
+   "Aegis Protocol",
+   "Apex System",
+   "Atlas Platform",
+   "Axis Market",
+   "Bio-Digital Twin",
+   "Collective Intelligence Terminal",
+   "Collective Times",
+   "Corporate AI Training Track",
+   "Creator Nexus",
+   "Creator Track",
+   "Custom Script",
+   "Devon Scott",
+   "Distribution Agent",
+   "Financial Position",
+   "Hataalii Persona",
+   "Helios Grid",
+   "Justin Howell",
+   "Knowledge Keeper",
+   "Neuro-Pulse",
+   "Nexus Studios",
+   "Nomad Nexus Platform",
+   "P.E.T.E.E.R.",
+   "P.E.T.E.E.R. Framework",
+   "Quantum Alpha",
+   "Quantum Business",
+   "Quantum Genesis",
+   "Quantum Wealth",
+   "Robot Fleet Management",
+   "SOC Platform"
   ],
   "path": "vault/02 - ZenFlow/Synergy Node Handbook.md",
   "tags": [
@@ -23712,6 +26658,21 @@
    "synergy"
   ],
   "type": "spec"
+ },
+ "Synth-Protein": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Gaia Synthesis Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Synth-Protein.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "TA-01 TAI-8 Infrastructure Inspection Drone — Full Body Design Sheet — Prompt": {
   "folder": "11 - Physical AI/Hardware Prompts",
@@ -24126,6 +27087,35 @@
   ],
   "type": "prompt"
  },
+ "Talent Placement Interview": {
+  "folder": "04 - People",
+  "links": [
+   "Open Seats",
+   "Team Learning Path and Competency Gates",
+   "SOP — Team Onboarding",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Talent Placement Interview.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "questionnaire"
+ },
+ "Team Learning Path and Competency Gates": {
+  "folder": "04 - People",
+  "links": [
+   "SOP — Team Onboarding",
+   "Artifact Review Rubric",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Team Learning Path and Competency Gates.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "learning-path"
+ },
  "Team Micro-Ecosystems": {
   "folder": "08 - Research",
   "links": [
@@ -24329,7 +27319,12 @@
    "Blueprint Ring",
    "Hardhat Sensor Clip",
    "Open-House Key Token",
-   "StructSense Belt Pod"
+   "StructSense Belt Pod",
+   "Civic Core Fiduciary Veto",
+   "Terra Axis — Complete Specialist Roster",
+   "Director Codenames",
+   "API-04 Helios Grid Telemetry API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Terra Axis Division.md",
   "tags": [
@@ -24357,6 +27352,23 @@
   ],
   "type": "campus-facility"
  },
+ "Terra Axis — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Terra Axis Division",
+   "Director_Terra_Axis",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Terra Axis — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
  "Terra Vision": {
   "folder": "03 - Products",
   "links": [
@@ -24372,6 +27384,37 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Terra-Seed": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Gaia Synthesis Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Terra-Seed.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "The Apex System": {
+  "folder": "10 - Archive/Product Naming",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Kinetic Edge Division",
+   "003 — Products MOC",
+   "Apex System"
+  ],
+  "path": "vault/10 - Archive/Product Naming/The Apex System.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "The Architect's Ascendance": {
   "folder": "09 - Projects/Games",
@@ -24518,7 +27561,14 @@
    "OCR + Structure Task Agent",
    "Audit Intelligence Task Agent",
    "Engagement Monitor Task Agent",
-   "Workshop Facilitator Task Agent"
+   "Workshop Facilitator Task Agent",
+   "Civic Core Fiduciary Veto",
+   "The Collective — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-03 CAI Product Catalog API",
+   "API Matrix",
+   "Operating Principles and Source Reconciliation"
   ],
   "path": "vault/01 - Divisions/The Collective Division.md",
   "tags": [
@@ -24540,6 +27590,23 @@
    "spec"
   ],
   "type": "product"
+ },
+ "The Collective — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "The Collective Division",
+   "Director_The_Collective",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/The Collective — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "The Energy Commons — Volta Grid": {
   "folder": "09 - Projects/Mega Campus",
@@ -24578,6 +27645,21 @@
   ],
   "type": "campus-facility"
  },
+ "The Forge API": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Binary Loom Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/The Forge API.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "The Forge Learning Studio": {
   "folder": "09 - Projects/Apps",
   "links": [
@@ -24615,6 +27697,21 @@
   ],
   "type": "campus-facility"
  },
+ "The Iron Gate": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/The Iron Gate.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "The Living Provision — Nourish Grid": {
   "folder": "09 - Projects/Mega Campus",
   "links": [
@@ -24632,6 +27729,21 @@
    "pending-division"
   ],
   "type": "campus-facility"
+ },
+ "The Living Wall": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Gaia Synthesis Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/The Living Wall.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "The Matter Works — Materia Nova": {
   "folder": "09 - Projects/Mega Campus",
@@ -24756,6 +27868,51 @@
   ],
   "type": "campus-facility"
  },
+ "The Shift Hub": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "VectorShift Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/The Shift Hub.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "The Swarm": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Gaia Synthesis Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/The Swarm.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "The Titan Arm": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Animus Prime Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/The Titan Arm.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "The Trust Vault — Sovereign Key": {
   "folder": "09 - Projects/Mega Campus",
   "links": [
@@ -24821,6 +27978,21 @@
    "building"
   ],
   "type": "project"
+ },
+ "The Watchtower": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/The Watchtower.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "The Water Observatory — Aqua Meridian": {
   "folder": "09 - Projects/Mega Campus",
@@ -24932,6 +28104,38 @@
   ],
   "type": "campus-facility"
  },
+ "Tool Evaluation and Routing Contract": {
+  "folder": "05 - Operations",
+  "links": [
+   "External Toolkit — 130 Tools",
+   "Collective AI Tool Stack",
+   "API Matrix",
+   "Established MCP Servers",
+   "Knowledge Graph Tools",
+   "005 — Operations MOC",
+   "ZenFlow Division"
+  ],
+  "path": "vault/05 - Operations/Tool Evaluation and Routing Contract.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
+ "Trace ID": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Obsidian Arc Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Trace ID.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Transcription Task Agent": {
   "folder": "11 - Physical AI/Agent Specs",
   "links": [
@@ -24998,6 +28202,21 @@
   ],
   "type": "agent-blueprint"
  },
+ "Triage AI": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Vital Helix Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Triage AI.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Truth Lens": {
   "folder": "03 - Products",
   "links": [
@@ -25048,6 +28267,22 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Universal Pricing Framework — Historical Logic": {
+  "folder": "06 - Finance",
+  "links": [
+   "Ahmad Muhammad",
+   "Financial Position",
+   "Revenue Plan — $21.7K per Month",
+   "Civic Core Fiduciary Veto",
+   "The Collective Division"
+  ],
+  "path": "vault/06 - Finance/Universal Pricing Framework — Historical Logic.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "finance"
  },
  "Universal Sensor Test Jig": {
   "folder": "11 - Physical AI/Foundry Hardware",
@@ -25352,6 +28587,25 @@
   ],
   "type": "hardware"
  },
+ "Vault Note and Access Contracts": {
+  "folder": "05 - Operations",
+  "links": [
+   "Evidence Record Template",
+   "Decision Record Template",
+   "Project Brief Template",
+   "Daily Capture Template",
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Aegis Protocol Spec",
+   "005 — Operations MOC",
+   "ZenFlow Division"
+  ],
+  "path": "vault/05 - Operations/Vault Note and Access Contracts.md",
+  "tags": [
+   "source-specification"
+  ],
+  "type": "reference-spec"
+ },
  "Vector Hub": {
   "folder": "09 - Projects/Mega Campus",
   "links": [
@@ -25370,6 +28624,21 @@
    "sept-16-register"
   ],
   "type": "campus-facility"
+ },
+ "Vector Load": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "VectorShift Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Vector Load.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "VectorShift Division": {
   "folder": "01 - Divisions",
@@ -25484,7 +28753,13 @@
    "Agent Health Monitor",
    "Logistics Tracker Task Agent",
    "Mesh Relay Flight Agent",
-   "Aether Link Mesh Extension Task Agent"
+   "Aether Link Mesh Extension Task Agent",
+   "Civic Core Fiduciary Veto",
+   "VectorShift — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-14 VectorShift Route Optimization API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/VectorShift Division.md",
   "tags": [
@@ -25514,6 +28789,23 @@
    "nextjs"
   ],
   "type": "project"
+ },
+ "VectorShift — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "VectorShift Division",
+   "Director_VectorShift",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/VectorShift — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
  },
  "Vercel Projects": {
   "folder": "09 - Projects",
@@ -25576,6 +28868,36 @@
    "projects"
   ],
   "type": "hub"
+ },
+ "Vertex IDE": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Binary Loom Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Vertex IDE.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "Verti-Port": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "VectorShift Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Verti-Port.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Vibe Society Financials": {
   "folder": "06 - Finance",
@@ -25754,7 +29076,13 @@
    "Clinic Smart Lanyard",
    "Physical AI Wearables Agent Spec",
    "Vital Helix Integration Task Agent",
-   "Injury Risk Monitor Task Agent"
+   "Injury Risk Monitor Task Agent",
+   "Civic Core Fiduciary Veto",
+   "Vital Helix — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-08 Bio-Digital Twin API",
+   "API Matrix"
   ],
   "path": "vault/01 - Divisions/Vital Helix Division.md",
   "tags": [
@@ -25802,6 +29130,38 @@
    "spec"
   ],
   "type": "product"
+ },
+ "Vital Helix — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Vital Helix Division",
+   "Director_Vital_Helix",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/Vital Helix — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "Vital OS": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Vital Helix Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Vital OS.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Vitality Center": {
   "folder": "09 - Projects/Mega Campus",
@@ -26176,7 +29536,17 @@
    "ZENITH",
    "Design System Bible v3",
    "002 — Divisions MOC",
-   "003 — Products MOC"
+   "003 — Products MOC",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "Creator Nexus",
+   "Creator Nexus Vault Agent",
+   "Knowledge Keeper",
+   "Physical AI Build Spec",
+   "Quantum Alpha",
+   "Quantum Alpha Signal Agent",
+   "Wearable Catalog",
+   "Apex System"
   ],
   "path": "vault/11 - Physical AI/Wearable Catalog.md",
   "tags": [
@@ -26685,6 +30055,21 @@
   ],
   "type": "spec-section"
  },
+ "Website Production Checklist": {
+  "folder": "09 - Projects",
+  "links": [
+   "JR Voice Standard",
+   "SOP — Client Onboarding",
+   "Project Delivery Record Template",
+   "Binary Loom Division"
+  ],
+  "path": "vault/09 - Projects/Website Production Checklist.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "checklist"
+ },
  "Weekly Ops Sync": {
   "folder": "05 - Operations",
   "links": [
@@ -26717,6 +30102,33 @@
    "showroom-storage"
   ],
   "type": "hardware"
+ },
+ "Workbook Artifact Record": {
+  "folder": "04 - People/Learning",
+  "links": [
+   "Learning Reference Editions",
+   "Project Delivery Record Template",
+   "Hybrid Living Division"
+  ],
+  "path": "vault/04 - People/Learning/Workbook Artifact Record.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
+ },
+ "Workflow Delivery Record Template": {
+  "folder": "05 - Operations",
+  "links": [
+   "n8n Workflow Blueprint",
+   "Binary Loom Division"
+  ],
+  "path": "vault/05 - Operations/Workflow Delivery Record Template.md",
+  "tags": [
+   "drive-source",
+   "district-content"
+  ],
+  "type": "template"
  },
  "Workflows — Aether Link": {
   "folder": "05 - Operations/n8n",
@@ -27422,7 +30834,17 @@
    "MCP Tool Integration Test Agent",
    "Device Registry Task Agent",
    "Agent Health Monitor",
-   "Director_Operations (Device Agent)"
+   "Director_Operations (Device Agent)",
+   "Civic Core Fiduciary Veto",
+   "ZenFlow — Complete Specialist Roster",
+   "Director Codenames",
+   "Ahmad Muhammad",
+   "API-01 ZenFlow Orchestration API",
+   "API-02 Knowledge Keeper API",
+   "API Matrix",
+   "Vault Note and Access Contracts",
+   "Tool Evaluation and Routing Contract",
+   "Primary Source Reading Map"
   ],
   "path": "vault/01 - Divisions/ZenFlow Division.md",
   "tags": [
@@ -27442,6 +30864,186 @@
   "tags": [
    "zenflow",
    "roadmap"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — Container and Cluster Configuration": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — Container and Cluster Configuration.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — FastAPI Endpoint Contracts": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — FastAPI Endpoint Contracts.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — Metrics Alerts and Dashboards": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — Metrics Alerts and Dashboards.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — Model Client and Cost Configuration": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — Model Client and Cost Configuration.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — PostgreSQL Schema Contracts": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — PostgreSQL Schema Contracts.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — Production Launch Checklist": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — Production Launch Checklist.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — Redis Queue and Cache Contracts": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — Redis Queue and Cache Contracts.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — Release and Rollback Pipeline": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — Release and Rollback Pipeline.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — Security and Authentication Architecture": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — Security and Authentication Architecture.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow Foundry — Service and Routing Architecture": {
+  "folder": "02 - ZenFlow/Foundry Engineering",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "ZenFlow Master Blueprint",
+   "ZenFlow Agent Foundry",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Foundry Engineering/ZenFlow Foundry — Service and Routing Architecture.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
   ],
   "type": "spec"
  },
@@ -27524,7 +31126,25 @@
    "Aegis Protocol Spec",
    "001 — ZenFlow MOC",
    "ZenFlow Division",
-   "ZenFlow Runbook"
+   "ZenFlow Runbook",
+   "ZenFlow Foundry — Service and Routing Architecture",
+   "ZenFlow Foundry — PostgreSQL Schema Contracts",
+   "ZenFlow Foundry — Redis Queue and Cache Contracts",
+   "ZenFlow Foundry — FastAPI Endpoint Contracts",
+   "ZenFlow Foundry — Model Client and Cost Configuration",
+   "ZenFlow Foundry — Container and Cluster Configuration",
+   "ZenFlow Foundry — Metrics Alerts and Dashboards",
+   "ZenFlow Foundry — Release and Rollback Pipeline",
+   "ZenFlow Foundry — Security and Authentication Architecture",
+   "ZenFlow Foundry — Production Launch Checklist",
+   "G-COSA — Physical Compute Matrix",
+   "G-COSA — Nine-Layer Cognitive Architecture",
+   "G-COSA — Execution Harness and Verification Loop",
+   "G-COSA — Reasoning Emotion and Coordination Subsystems",
+   "G-COSA — ZenFlow Gateway Transport",
+   "G-COSA — Continuous Cognitive Loop",
+   "G-COSA — Cognitive Frame and Control Policy Contracts",
+   "G-COSA — Staged Implementation Order"
   ],
   "path": "vault/02 - ZenFlow/ZenFlow Master Blueprint.md",
   "tags": [
@@ -27566,6 +31186,77 @@
   ],
   "type": "spec"
  },
+ "ZenFlow — Agent Platform Deployment Strategy Source": {
+  "folder": "02 - ZenFlow/Source Reconciliation",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Source Reconciliation/ZenFlow — Agent Platform Deployment Strategy Source.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "ZenFlow — Autopoietic Blueprint Source Reconciliation": {
+  "folder": "02 - ZenFlow/Source Reconciliation",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Source Reconciliation/ZenFlow — Autopoietic Blueprint Source Reconciliation.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
+ "ZenFlow — Complete Specialist Roster": {
+  "folder": "02 - ZenFlow/Complete Rosters",
+  "links": [
+   "Director Codenames",
+   "Agent Tier Registry",
+   "Civic Core Fiduciary Veto",
+   "ZenFlow Division",
+   "Director_ZenFlow",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Complete Rosters/ZenFlow — Complete Specialist Roster.md",
+  "tags": [
+   "drive-source",
+   "reference-spec"
+  ],
+  "type": "spec"
+ },
+ "ZenFlow — Neural Hub Historical Integration Ledger": {
+  "folder": "02 - ZenFlow/Source Reconciliation",
+  "links": [
+   "Agent Tier Registry",
+   "Director Codenames",
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "ZenFlow Division",
+   "Binary Loom Division",
+   "001 — ZenFlow MOC"
+  ],
+  "path": "vault/02 - ZenFlow/Source Reconciliation/ZenFlow — Neural Hub Historical Integration Ledger.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
+ },
  "Zenith OS": {
   "folder": "03 - Products",
   "links": [
@@ -27597,6 +31288,21 @@
    "product"
   ],
   "type": "spec"
+ },
+ "Zero Point": {
+  "folder": "03 - Products/Source Concepts",
+  "links": [
+   "Civic Core Fiduciary Veto",
+   "Ahmad Muhammad",
+   "Aether Link Division",
+   "003 — Products MOC"
+  ],
+  "path": "vault/03 - Products/Source Concepts/Zero Point.md",
+  "tags": [
+   "source-specification",
+   "historical-plan"
+  ],
+  "type": "reference-spec"
  },
  "Zukan Arena": {
   "folder": "09 - Projects/Games",
@@ -27633,7 +31339,9 @@
    "Workflows — Aether Link",
    "Workflows — VectorShift",
    "Workflows — Civic Core",
-   "Workflows — Gaia Synthesis"
+   "Workflows — Gaia Synthesis",
+   "Workflow Delivery Record Template",
+   "SOP — Agent Deployment Checklist"
   ],
   "path": "vault/05 - Operations/n8n Workflow Blueprint.md",
   "tags": [

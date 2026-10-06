@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Binary Loom
 ---
 # Observability Stack
@@ -43,3 +43,29 @@ Catalog name: **Platform Observability Stack**
 **Build / creation platform.** OpenTelemetry collector. Prometheus + Grafana stack. ELK (Elasticsearch + Logstash + Kibana). Loki for log aggregation. Sentry for error tracking. All containerized via Docker.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Binary Loom is operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** DevOps Infrastructure
+
+Full observability infrastructure for all Binary Loom-hosted platforms: distributed tracing (OpenTelemetry), metrics (Prometheus/Grafana),
+logging (ELK/Loki), and error tracking (Sentry).
+
+### Source build platform
+OpenTelemetry collector. Prometheus + Grafana stack. ELK (Elasticsearch + Logstash + Kibana). Loki for log aggregation. Sentry for error tracking.
+All containerized via Docker.
+
+### Ownership
+- [[Binary Loom Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 16; Observability Stack product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:958c819ce15c67f8c5f6 -->

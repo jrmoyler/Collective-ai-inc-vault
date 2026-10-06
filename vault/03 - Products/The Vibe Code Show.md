@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Nexus Labs
 ---
 # The Vibe Code Show
@@ -42,3 +42,29 @@ MVP brief: [[MVP — The Vibe Code Show]] (from [[MVP Build Guide]])
 **Build / creation platform.** Recorded via StreamYard / Riverside.fm. Edited in DaVinci Resolve / CapCut. Distributed via YouTube API, X, Instagram. Clips repurposed via Opus Clip.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Nexus Labs is operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Content Series
+
+JR's flagship content program. Covers AI building, venture studio strategy, and the Collective AI ecosystem. Distributed across YouTube,
+X, Instagram, and the Skool community.
+
+### Source build platform
+Recorded via StreamYard / Riverside.fm. Edited in DaVinci Resolve / CapCut. Distributed via YouTube API, X, Instagram. Clips repurposed via
+Opus Clip.
+
+### Ownership
+- [[Nexus Labs Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 10; The Vibe Code Show product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:caa2776816435621b4e8 -->

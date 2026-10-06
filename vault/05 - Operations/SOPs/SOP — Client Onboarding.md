@@ -6,7 +6,7 @@ tags:
 type: sop
 owner: JR Moyler (Hataalii)
 status: active
-updated: 2026-10-04
+updated: 2026-10-06
 researched: 2026-10-04
 ---
 # SOP — Client Onboarding
@@ -44,3 +44,40 @@ researched: 2026-10-04
 
 ## Linked
 - [[005 — Operations MOC]]
+
+## Tooling check (CV-005, 2026-10-05)
+
+Every step and link checked against the vault. Nothing above this section was edited.
+
+**Links:** all resolve (Kenza Dawkins, Proposal_Builder, Scope_Guardian, ROI_Calculator, Case_Study_Scribe, Airtable Operations Hub, The Collective Division, Chanel Taylor Channel Package, Client Billing Ledger, Weekly Ops Sync, SOP — Content Publishing).
+
+**Confirmed**
+- The four agents report to Director_The_Collective.
+- The full-payment-first default matches Chanel Taylor Channel Package and Financial Position.
+- The SOLOFORGE rule (three active divisions) matches the Synergy Mandate text on The Collective Division.
+
+**Needs a fix**
+- Six team Onboarding notes (Kenza, Devon, Ahmad, Denzel, Dr. Joseph Johnson, Justin) link to this SOP. It covers clients only. No SOP covers team or partner onboarding, which Kenza's note says she owns.
+- The header names the Airtable Operations Hub as the system. The hub note documents no leads, clients or task-board table.
+- Stage 3 "shared folder and task board" names no tool.
+
+## Drive source expansion — 2026-10-06
+
+## Full playbook companion
+[[Client AI Readiness Interview]] preserves the source discovery questions; [[CRM Pipeline and Next-Action Protocol]] supplies a complete next-action pipeline; [[Client Kickoff Agenda and First-Week Record]] adds the 48-hour handoff, 60-minute agenda and first-week delivery record.
+
+The dedicated onboarding playbook's progression is explicit: client agreement → assigned project lead → finalized contract and initial invoice → sales-to-delivery handoff → signed-and-paid welcome → kickoff → written decisions → first tangible deliverable. These are process specifications. They do not establish a signed contract, paid invoice or active client.
+
+The older playbook references Slack/Teams and calendar invitations. Use the actually agreed client channel and current authorized sharing tool, rather than creating a new system solely because it appears in a source.
+
+## Source record
+- [Collective AI: The Client Onboarding Playbook](https://docs.google.com/document/d/1Cmh7WGMGuh-uKbOTRstgv04hy4TGAJ1UfVvpHsWotfw/edit?usp=drivesdk) — client onboarding phases; CRM workflow; readiness questionnaire.
+- [Collective AI: The CRM & Lead Tracking Playbook](https://docs.google.com/document/d/1KmmhRprAIx292-6TxoEj-HxRUzXivH9LniP2X5fsqDg/edit?usp=drivesdk) — client onboarding phases; CRM workflow; readiness questionnaire.
+- [New Client AI Readiness Questionnaire](https://docs.google.com/document/d/1XXXPcdhHXSSOwygnKk196yhQO8FXEuNO-9y7FEtAf-Y/edit?usp=drivesdk) — client onboarding phases; CRM workflow; readiness questionnaire.
+
+### Source records
+- [Collective AI: The Client Onboarding Playbook](https://docs.google.com/document/d/1Cmh7WGMGuh-uKbOTRstgv04hy4TGAJ1UfVvpHsWotfw/edit?usp=drivesdk)
+- [Collective AI: The CRM & Lead Tracking Playbook](https://docs.google.com/document/d/1KmmhRprAIx292-6TxoEj-HxRUzXivH9LniP2X5fsqDg/edit?usp=drivesdk)
+- [New Client AI Readiness Questionnaire](https://docs.google.com/document/d/1XXXPcdhHXSSOwygnKk196yhQO8FXEuNO-9y7FEtAf-Y/edit?usp=drivesdk)
+
+<!-- drive-expansion:883780f5af59ca2a9f22 -->

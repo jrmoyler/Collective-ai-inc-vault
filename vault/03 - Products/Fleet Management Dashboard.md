@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: VectorShift
 ---
 # Fleet Management Dashboard
@@ -42,3 +42,29 @@ MVP brief: [[MVP — Fleet Management Dashboard]] (from [[MVP Build Guide]])
 **Build / creation platform.** React dashboard. Mapbox for real-time vehicle tracking. WebSocket for live updates. FastAPI backend. PostgreSQL + TimescaleDB for telemetry data.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. VectorShift is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Operations Platform
+
+Real-time fleet operations dashboard for Ground Vector and Sky Vector. Vehicle tracking, mission status, battery/fuel monitoring,
+maintenance scheduling, and performance analytics.
+
+### Source build platform
+React dashboard. Mapbox for real-time vehicle tracking. WebSocket for live updates. FastAPI backend. PostgreSQL + TimescaleDB for telemetry
+data.
+
+### Ownership
+- [[VectorShift Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 30; Fleet Management Dashboard product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:12b844f1022c7d7a80d9 -->

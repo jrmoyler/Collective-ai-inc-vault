@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Hybrid Living
 ---
 # Stackable AI Certifications
@@ -45,3 +45,28 @@ Catalog name: **AI Certification Program**
 Related: [[Quantum Ledger Division]]
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Hybrid Living is operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Certification ProductCOLLECTIVE AI INC ◆ MASTER PRODUCT & SERVICE CATALOG ◆ CONFIDENTIAL PAGE 9
+
+Stackable AI practitioner certifications across three tracks: AI Fundamentals, AI Implementation Specialist, and AI Architect. Recognized by
+The Collective as entry criteria for consulting roles.
+
+### Source build platform
+Atlas LMS. Certification PDFs generated via Python/reportlab. Blockchain credential verification via Quantum Ledger integration.
+
+### Ownership
+- [[Hybrid Living Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 8; Stackable AI Certifications product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:472cd26c458ccc57ac22 -->

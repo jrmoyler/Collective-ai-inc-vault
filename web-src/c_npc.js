@@ -17,8 +17,9 @@ const Guides=(()=>{
   const wrap=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
   const clamp=(v,a,b)=>v<a?a:v>b?b:v;
   const district=top=>Campus.districts().find(d=>d.top===top)||null;
-  const notesIn=top=>NOTES.filter(n=>n.top===top);
-  const inDistrict=(top,name)=>{const n=name&&byName.get(name);return !!n&&n.top===top};
+  const worldTop=n=>typeof Districts!=="undefined"?Districts.worldTop(n):n.top;
+  const notesIn=top=>NOTES.filter(n=>worldTop(n)===top);
+  const inDistrict=(top,name)=>{const n=name&&byName.get(name);return !!n&&worldTop(n)===top};
   const clean=s=>String(s).replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g,"$1").replace(/[#>*|`_]/g," ").replace(/\s+/g," ").trim();
   const link=n=>`<a class="wl" data-n="${esc(n.name)}">${esc(n.name)}</a>`;
   const snap=()=>{try{return Live.snapshot()}catch(e){return {tasks:[],acts:[],agents:[],presence:[],stats:[]}}};
@@ -554,7 +555,7 @@ const Guides=(()=>{
     let m;
     if(m=ql.match(/^(?:where(?:'s| is| are)?|find|take me to|go to|show me|fly to)\s+(.+?)\??$/)){
       const want=m[1].replace(/^(the|a)\s+/,"");const r=best(top,want)[0]||NOTES.map(n=>({n,s:n.name.toLowerCase().includes(want)?1:0})).find(r=>r.s);
-      if(r){setTimeout(()=>{if(D.open)close(false);open(r.n)},D.open?900:60);return {text:`${r.n.name} is ${r.n.top===top?"in this district":"in "+r.n.top}. Flying there.`,html:"",gest:"point"}}
+      if(r){setTimeout(()=>{if(D.open)close(false);open(r.n)},D.open?900:60);return {text:`${r.n.name} is ${worldTop(r.n)===top?"in this district":"in "+worldTop(r.n)}. Flying there.`,html:"",gest:"point"}}
       return {text:`I do not have a note called “${want}”. Try one of these.`,html:chips(),gest:"nod"};
     }
     if(/what(?:'s| is)? (?:this|the) (?:district|place|area)|about (?:this|the) district|what is here|what'?s here/.test(ql))return overviewR(top,d);
@@ -617,4 +618,3 @@ const Guides=(()=>{
   return {boot,render,bind,answer,reply,list,openFor,talk,close,ledger,current,CHIPS,isTalking:()=>D.open,still};
 })();
 (function(){const t=setInterval(()=>{if(typeof Campus!=="undefined"&&Campus.ok()){clearInterval(t);Guides.boot()}},300)})();
-

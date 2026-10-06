@@ -1,5 +1,4 @@
-import { createClient } from 'jsr:@supabase/supabase-js@2';
-const districts = ['00 - MOCs','01 - Divisions','02 - ZenFlow','03 - Products','04 - People','05 - Operations','06 - Finance','07 - Brand','08 - Research','09 - Projects','10 - Archive','11 - Physical AI','Daily'];
+import { createClient } from 'npm:@supabase/supabase-js@2.117.2';
 const headers = {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization,apikey,content-type','Access-Control-Allow-Methods':'POST,OPTIONS','content-type':'application/json'};
 const reply = (body:unknown,status=200) => new Response(JSON.stringify(body),{status,headers});
 Deno.serve(async req => {
@@ -37,7 +36,10 @@ Deno.serve(async req => {
   if(journeys.error||evidence.error) return reply({error:'Progress unavailable'},500);
   return reply({ok:true,journeys:journeys.data,evidence:evidence.data});
  }
- if(!districts.includes(body.district)||!['visit','shortlist','evidence'].includes(body.action)) return reply({error:'Invalid district or action'},400);
+ if(typeof body.district!=='string'||body.district.length<1||body.district.length>100||!['visit','shortlist','evidence'].includes(body.action)) return reply({error:'Invalid district or action'},400);
+ const district=await db.from('vault_districts').select('id').eq('id',body.district).maybeSingle();
+ if(district.error)return reply({error:'District registry unavailable'},500);
+ if(!district.data)return reply({error:'Unknown district'},400);
  if(body.action==='shortlist'&&typeof body.enabled!=='boolean') return reply({error:'enabled must be boolean'},400);
  if(body.action==='evidence'&&(typeof body.task_id!=='string'||body.task_id.length<1||body.task_id.length>160)) return reply({error:'task_id required'},400);
  const {data,error}=await db.rpc('record_district_progress',{p_district:body.district,p_action:body.action,p_enabled:body.enabled===true,p_task_id:body.action==='evidence'?body.task_id:null});

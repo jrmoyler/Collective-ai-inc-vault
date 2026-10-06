@@ -33,6 +33,7 @@ const FOG_GLSL=p=>`#ifdef USE_FOG
  float ff=1.0-exp(-dens*dens*fd*fd);float sa=pow(max(dot(fp/fd,uSunDir),0.0),5.0);
  gl_FragColor.rgb=mix(gl_FragColor.rgb,mix(fogColor,uSunFog,sa*0.8),ff);}
 #endif`;
+let districtAssets=null;
 let decor=null,roofProps=null,drones=null,motes=null,lampHalo=null,water=null,lastAmb=0;
 const _c1=new THREE.Color(),_c2=new THREE.Color();
 const cam={tx:0,ty:0,tz:0,yaw:.5,pitch:.62,dist:700},goal=Object.assign({},cam);
@@ -112,7 +113,8 @@ function tiersFor(cx,cz,fw,fd,h,rnd,style=0){
 function layout(){
   const CELL=15,PAD=1.9;
   const groups=new Map();
-  NOTES.forEach(n=>{const parts=(n.folder||"").split("/");const top=parts[0]||"Root";const sub=parts.length>1?parts[1]:"·";if(!groups.has(top))groups.set(top,new Map());const g=groups.get(top);if(!g.has(sub))g.set(sub,[]);g.get(sub).push(n)});
+  if(typeof Districts!=="undefined")Districts.all.forEach(d=>groups.set(d.folder,new Map()));
+  NOTES.forEach(n=>{const parts=(n.folder||"").split("/");const top=typeof Districts!=="undefined"&&Districts.worldTop?Districts.worldTop(n):parts[0]||"Root";const sub=parts.length>1?parts[1]:"·";if(!groups.has(top))groups.set(top,new Map());const g=groups.get(top);if(!g.has(sub))g.set(sub,[]);g.get(sub).push(n)});
   const ds=[...groups].map(([top,subs])=>({top,subs,count:[...subs.values()].reduce((a,s)=>a+s.length,0)})).sort((a,b)=>b.count-a.count);
   const total=ds.reduce((a,d)=>a+(d.count+4)*CELL*CELL*PAD,0);
   const Wd=Math.sqrt(total*1.3),Hd=total/Wd;
@@ -120,7 +122,7 @@ function layout(){
   const rects=squarify(ds.map(d=>({d,v:d.count+4})),-Wd/2,-Hd/2,Wd,Hd);
   rects.forEach(r=>{
     const d=r.it.d,ROAD=9,px=r.x+ROAD/2,pz=r.y+ROAD/2,pw=r.w-ROAD,pd=r.h-ROAD;
-    DIST.push({top:d.top,name:d.top.replace(/^\d+ - /,""),x:px,z:pz,w:pw,d:pd,count:d.count,color:FOLDER_COLORS[d.top]||"#8A93AD"});
+    DIST.push({top:d.top,name:d.top.replace(/^\d+ - /,""),x:px,z:pz,w:pw,d:pd,count:d.count,color:(typeof Districts!=="undefined"?Districts.get(d.top)?.color:null)||FOLDER_COLORS[d.top]||"#8A93AD"});
     const subs=[...d.subs].map(([name,list])=>({name,list,v:list.length+1})).sort((a,b)=>b.v-a.v);
     const inner=4;
     squarify(subs.map(s=>({s,v:s.v})),px+inner,pz+inner,pw-2*inner,pd-2*inner).forEach(q=>{
@@ -138,7 +140,7 @@ function layout(){
         h=clamp(h*.86,4,56);
         const mf=Math.min(cw,cd)*(.7+.16*rnd);
         const fw=clamp(Math.min(cw*.84,mf*(.9+.2*hash01(note.name+"w"))),3.5,16),fd=clamp(Math.min(cd*.84,mf*(.9+.2*hash01(note.name+"d"))),3.5,16);
-        B[note.id]={id:note.id,cx,cz,fw,fd,h,rnd,style:districtStyle(d.top),tiers:tiersFor(cx,cz,fw,fd,h,rnd,districtStyle(d.top))};
+        B[note.id]={id:note.id,cx,cz,fw,fd,h,rnd,worldTop:d.top,style:districtStyle(d.top),tiers:tiersFor(cx,cz,fw,fd,h,rnd,districtStyle(d.top))};
       });
     });
   });
@@ -329,7 +331,7 @@ function buildInstances(prev){
   const aCol=new Float32Array(N*3),aTint=new Float32Array(N*4),aSt=new Float32Array(N*4),aExt=new Float32Array(N*4);
   const wall=new THREE.Color(),c2=new THREE.Color(),tmp=new THREE.Color();
   inst.forEach((it,i)=>{
-    const n=NOTES[it.b.id],rnd=it.b.rnd,deg=n.out.size+n.back.size,ty=n.fm.type,col=colorOf(n);
+    const n=NOTES[it.b.id],rnd=it.b.rnd,deg=n.out.size+n.back.size,ty=n.fm.type,col=(typeof Districts!=="undefined"?Districts.get(it.b.worldTop)?.color:null)||FOLDER_COLORS[it.b.worldTop]||colorOf(n);
     wall.set(0x232a3d).lerp(c2.set(col),.11+.06*rnd).multiplyScalar(.82+.36*hash01(n.name+it.k));wall.convertSRGBToLinear();
     aCol.set([wall.r,wall.g,wall.b],i*3);
     tmp.set(col).convertSRGBToLinear();
@@ -654,7 +656,7 @@ function buildDecor(){
   decor.add(instMesh(canG,M.canopy,pl.map((p,i)=>({x:p.x,y:.3,z:p.z,sx:1,sy:.55,sz:1,c:tc.setHSL(.27,.4,.38).clone()})),false));
   // roof plant: HVAC boxes in the corners, solar rows on some roofs, masts with aviation lights on tall towers
   const hv=[],ms=[],so=[],hc=new THREE.Color();
-  B.forEach(b=>{if(!b)return;const t=b.tiers[b.tiers.length-1],nm=NOTES[b.id].name,k=R(nm+"roof");if(Math.min(t.w,t.d)<4.6)return;
+  B.forEach(b=>{if(!b||districtAssets?.userData.records.some(r=>r.noteId===b.id))return;const t=b.tiers[b.tiers.length-1],nm=NOTES[b.id].name,k=R(nm+"roof");if(Math.min(t.w,t.d)<4.6)return;
     const green=k>=.74;const n=1+Math.floor(R(nm+"n")*3);
     if(!green)for(let i=0;i<n;i++){const sx=i%2?1:-1,sz=(i>>1)%2||R(nm+"z"+i)<.5?1:-1,w=1+R(nm+"w"+i)*1.1,d=.9+R(nm+"d"+i)*.9,h=.7+R(nm+"h"+i)*.8;
       hv.push({x:t.x+sx*(t.w/2-.8-w/2),y:t.y1,z:t.z+sz*(t.d/2-.8-d/2),sx:w,sy:h,sz:d,c:hc.setHSL(.6,.05,.32+R(nm+"c"+i)*.25).clone()})}
@@ -743,6 +745,10 @@ function build(prev){
   ground=new THREE.Mesh(new THREE.PlaneGeometry(GSIDE,GSIDE),groundMat);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
   if(!water){water=makeWater();scene.add(water)}water.material.uniforms.uSide.value=GSIDE;
   buildInstances(prev);buildNav();
+  if(typeof DistrictAssets!=="undefined"){
+    DistrictAssets.dispose(districtAssets);districtAssets=DistrictAssets.build(DIST,B,NOTES);scene.add(districtAssets);
+    DIST.forEach(d=>{d.landmark=districtAssets.userData.records.find(r=>r.folder===d.top)||null});
+  }
   const lamps=buildDecor();tex.userData.light=paintLightMap(lamps);if(groundUni)groundUni.t_light.value=tex.userData.light;
   fitShadow();applyState();buildChips();setMarkers(tasksMarks);
   renderer.shadowMap.needsUpdate=true;dirty=true;
@@ -865,6 +871,9 @@ function updateLabels(){
   if(!walk&&far>150)DIST.forEach(d=>cands.push({x:d.x+d.w/2,y:58,z:d.z+d.d/2,t:d.name,s:d.count+" notes",cls:"dl",prio:far>260?50:20,c:d.color}));
   if(sel<0||far>90){let k=0;LAND.forEach(id=>{const b=B[id];if(!b)return;const d=Math.hypot(b.cx-cp.x,b.cz-cp.z);if(d<(walk?160:420)&&far<300&&k<12){addB(id,"",40-d*.01);k++}})}
   if(walk||far<130){const near=[];NOTES.forEach(n=>{const b=B[n.id];const d=Math.hypot(b.cx-cp.x,b.cz-cp.z);if(d<(walk?85:95))near.push({id:n.id,sc:n.out.size+n.back.size-d*.08})});near.sort((a,b)=>b.sc-a.sc).slice(0,16).forEach((o,k)=>addB(o.id,"",30-k*.5))}
+  if(districtAssets&&(walk||far<240))districtAssets.userData.records.forEach(r=>{
+    if(Math.hypot(r.x-cp.x,r.z-cp.z)<(walk?100:220))cands.push({x:r.x,y:r.y+6*r.scale,z:r.z,t:r.title,s:"Open district work kit",cls:"dl",prio:45,c:DIST.find(d=>d.top===r.folder)?.color||"#D4A843"});
+  });
   if(Campus.labelCands&&Campus.labelCands.length)cands.push(...Campus.labelCands);
   cands.sort((a,b)=>b.prio-a.prio);
   const taken=[];let used=0;
@@ -1070,6 +1079,15 @@ cv.addEventListener("pointermove",e=>{
   dirty=true;
 });
 const pickers=[],frameHooks=[];
+pickers.push(ray=>{
+  if(!districtAssets||typeof DistrictAssets==="undefined")return false;
+  const intersection=ray.intersectObjects(districtAssets.children,false)[0],record=DistrictAssets.hit(intersection);
+  if(!record)return false;
+  // Respect occlusion: an asset behind a note building must not steal that building's click.
+  const noteHit=iMesh?ray.intersectObject(iMesh,false)[0]:null;if(noteHit&&noteHit.distance<intersection.distance-.05)return false;
+  if(typeof Journey!=="undefined")Journey.show(record.folder);else if(record.sourceNotes.length){const note=byName.get(record.sourceNotes[0]);if(note)open(note)}
+  return true;
+});
 function endPtr(e){const p=ptrs.get(e.pointerId);if(!p)return;ptrs.delete(e.pointerId);cv.classList.remove("drag");if(ptrs.size<2)pinch=null;
   if(!moved&&ptrs.size===0&&e.type==="pointerup"&&p.btn===0){const r=cv.getBoundingClientRect();rc.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-((e.clientY-r.top)/r.height*2-1)},camera);if(pickers.some(f=>f(rc,e)))return;const id=pick(e.clientX,e.clientY);if(id>=0)open(NOTES[id])}}
 cv.addEventListener("pointerup",endPtr);cv.addEventListener("pointercancel",endPtr);
@@ -1130,9 +1148,18 @@ function step(dt){
   if(Math.abs(sx)>.3||Math.abs(sy2)>.3){shiftNow.x+=sx*ks;shiftNow.y+=sy2*ks;applyShift();dirty=true}
 }
 let renderWasActive=false;
-const renderBudget={scale:1,slow:0,fast:0,samples:0,ms:0,changes:0};
+const renderBudget={scale:1,slow:0,fast:0,extreme:0,samples:0,ms:0,changes:0};
 function sampleRenderBudget(ms){
-  if(!Number.isFinite(ms)||ms<=0||ms>150)return;
+  if(!Number.isFinite(ms)||ms<=0){renderBudget.extreme=0;return}
+  // Three consecutive very slow visible frames trigger a bounded emergency step.
+  // A single tab/task stall cannot poison the normal average or force a reduction.
+  if(ms>150){
+    if(++renderBudget.extreme<3)return;
+    renderBudget.extreme=0;renderBudget.slow=0;renderBudget.fast=0;renderBudget.samples=0;renderBudget.ms=0;
+    if(renderBudget.scale>.6){renderBudget.scale=Math.max(.6,renderBudget.scale-.15);renderBudget.changes++;resize()}
+    return;
+  }
+  renderBudget.extreme=0;
   renderBudget.ms+=ms;renderBudget.samples++;
   if(renderBudget.samples<90)return;
   const average=renderBudget.ms/renderBudget.samples;renderBudget.samples=0;renderBudget.ms=0;
@@ -1228,17 +1255,29 @@ function shift(el){
   else{shiftGoal.x=0;shiftGoal.y=el.offsetHeight/2}
   dirty=true;
 }
-function rebuild(prevNames){
+function rebuild(prevNames,options={}){
   if(!C.ok)return;const selName=sel>=0?NOTES.find(n=>n.id===sel)?.name:null;
+  const view=options.preserveCamera?{cam:{...cam},goal:{...goal},walk,auto}:null;
   build(prevNames);if(cur)cur=byName.get(cur.name)||null;
   if(selName&&byName.get(selName))select(byName.get(selName));else{sel=-1;nbr=new Map();applyState()}
   AG.forEach(m=>{m.noteId=-1;m.phaseName='placed'});setAgents(lastAgents);
+  if(view){
+    Object.assign(cam,view.cam);Object.assign(goal,view.goal);walk=view.walk;auto=view.auto;
+    if(walk){
+      // Catalog regrouping can put a new building under the member. Keep the walking
+      // view and heading, moving only to a nearby free street cell when necessary.
+      const [x,z]=cellOf(goal.tx,goal.tz);
+      if(!free(x,z)){const [fx,fz]=nearestFree(x,z);if(free(fx,fz)){cam.tx=goal.tx=NAV.ox+(fx+.5)*NAV.cell;cam.tz=goal.tz=NAV.oz+(fz+.5)*NAV.cell}else exitWalk()}
+      if(walk){const x0=goal.tx,z0=goal.tz;collide();if(goal.tx!==x0||goal.tz!==z0){cam.tx=goal.tx;cam.tz=goal.tz}}
+    }
+    applyCamera();dirty=true;
+  }
 }
 function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
 return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,
   // integration points for other modules (guides, title, world): read-only handles plus hooks
-  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,tex:TEX,renderBudget:{...renderBudget},
+  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,tex:TEX,landmarks:districtAssets?.userData.records||[],renderBudget:{...renderBudget},
     // testing only: pin the local clock to a decimal hour (null restores the real clock) and recompute the sky
     setClock:h=>{SOL.clockOverride=h==null?null:+h;if(C.ok)applyMode("auto")}})};
 })();

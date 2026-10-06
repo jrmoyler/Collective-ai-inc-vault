@@ -8,7 +8,7 @@ type: agent-blueprint
 model: claude-sonnet-5-5
 owner: JR Moyler (Hataalii)
 status: active
-updated: 2026-10-04
+updated: 2026-10-06
 codename: MARQUEE
 division: Nexus Labs
 clearance: Aegis-Review
@@ -59,3 +59,14 @@ Full system prompt: [[MARQUEE — God Prompt]] (from the ZenFlow God Prompt Libr
 - Clearance: Level 3 — Media Production and Distribution Platform Access
 - Aegis: Aegis-Clear for owned content; Aegis-Review for sp…
 - Activation order: 9 of 21
+
+## Complete source roster
+[[Nexus Labs — Complete Specialist Roster]] holds all 30 source specialist role definitions, prompts, tool stacks and creation platforms. These are reference specifications; the live registry determines which agents are provisioned.
+
+## Source
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk) — Division 04. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Agent_Roster_FULL.pdf](https://drive.google.com/file/d/1Om7opB_fIK8U_ex55VTiuvM4chEEYVgU/view?usp=drivesdk)
+
+<!-- drive-expansion:f15767c343ec721a33bb -->

@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Eon Core
 ---
 # Eon Community and Intelligence
@@ -46,3 +46,29 @@ Catalog name: **Eon Core Community & Intelligence Platform**
 > Per the catalog, all health and longevity recommendations from Vital Helix and Eon Core require clinical oversight before delivery. Aegis-Review is mandatory. See [[Aegis Protocol]].
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Eon Core is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Community + Content Platform
+
+Longevity practitioner community, weekly research intelligence briefings, cohort outcome sharing, and peer accountability structures. The
+social infrastructure that sustains long-term protocol adherence.
+
+### Source build platform
+Circle.so or Skool for community. Weekly intelligence generated via Claude API synthesis of PubMed/bioRxiv feeds. Email via Beehiiv. Community
+events via Zoom.
+
+### Ownership
+- [[Eon Core Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 40; Eon Community and Intelligence product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:65b267733c6ec611f4ac -->

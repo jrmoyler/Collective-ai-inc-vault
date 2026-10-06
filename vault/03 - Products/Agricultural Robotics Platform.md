@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Animus Prime
 ---
 # Agricultural Robotics Platform
@@ -42,3 +42,29 @@ MVP brief: [[MVP — Agricultural Robotics Platform]] (from [[MVP Build Guide]])
 **Build / creation platform.** ROS2 on agricultural-hardened robot hardware. Computer vision via PyTorch / YOLOv8 for crop detection. SLAM via RTK-GPS + visual odometry. Coordination with Gaia Synthesis platform API.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Animus Prime is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** AgriTech Robot Platform
+
+Agricultural robot deployment platform. Developed with Gaia Synthesis's operational requirements. Covers crop harvesting, soil monitoring,
+precision spraying, and autonomous field navigation in unstructured agricultural environments.
+
+### Source build platform
+ROS2 on agricultural-hardened robot hardware. Computer vision via PyTorch / YOLOv8 for crop detection. SLAM via RTK-GPS + visual odometry.
+Coordination with Gaia Synthesis platform API.
+
+### Ownership
+- [[Animus Prime Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 32; Agricultural Robotics Platform product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:528a3db9a99a03334cd1 -->

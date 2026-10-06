@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Juris Guard
 ---
 # AI Governance Framework Suite
@@ -42,3 +42,29 @@ MVP brief: [[MVP — AI Governance Framework Suite]] (from [[MVP Build Guide]])
 **Build / creation platform.** Policy documentation in Notion + PDF export via reportlab. Compliance monitoring via custom Python audit scripts. Regulatory tracking via automated feed monitoring. Claude API for framework drafting.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Juris Guard is operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** Governance Platform
+
+Complete AI governance policy framework for enterprises. Risk classification, human oversight requirements, transparency standards,
+audit logging, and compliance reporting. Based on Collective AI's Aegis Protocol.
+
+### Source build platform
+Policy documentation in Notion + PDF export via reportlab. Compliance monitoring via custom Python audit scripts. Regulatory tracking via
+automated feed monitoring. Claude API for framework drafting.
+
+### Ownership
+- [[Juris Guard Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 34; AI Governance Framework Suite product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:5257ec81fc3f8161350a -->

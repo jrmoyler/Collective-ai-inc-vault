@@ -6,7 +6,7 @@ tags:
 type: product
 owner: JR Moyler (Hataalii)
 status: spec
-updated: 2026-10-04
+updated: 2026-10-06
 division: Gaia Synthesis
 ---
 # Gaia Urban Farming Platform
@@ -42,3 +42,29 @@ MVP brief: [[MVP — Gaia Urban Farming Platform]] (from [[MVP Build Guide]])
 **Build / creation platform.** IoT sensors (MQTT protocol). Custom React dashboard. Python analytics backend. FastAPI. AWS IoT Core for sensor management. Claude API for crop optimization recommendations.
 
 Source: [[Master Product Catalog]]
+
+## Drive catalog specification — 2026-10-06
+
+> [!info] Reference plan
+> Source product definition and platform plan. It does not prove a shipped product, live API, paying customer or current price. Gaia Synthesis is chartered, not operating. Older division numbering, software versions and launch stages are historical. Helios Grid remains blocked pending an SEC legal opinion; health/longevity outputs require clinical oversight.
+
+**Source product type:** AgriTech Platform
+
+AI-powered urban and vertical farming management. Sensor-driven crop optimization: light, nutrients, CO2, temperature, humidity. Yield
+prediction, anomaly detection, and operator dashboards.
+
+### Source build platform
+IoT sensors (MQTT protocol). Custom React dashboard. Python analytics backend. FastAPI. AWS IoT Core for sensor management. Claude API
+for crop optimization recommendations.
+
+### Ownership
+- [[Gaia Synthesis Division]]
+- [[003 — Products MOC]]
+
+## Source
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk) — page 28; Gaia Urban Farming Platform product definition and build platform. Read in full from Drive on 2026-10-06.
+
+### Source records
+- [Collective_AI_Master_Product_Catalog.pdf](https://drive.google.com/file/d/1SW1vqDw2sXulgURl_Ia_xMog3IDoV2f_/view?usp=drivesdk)
+
+<!-- drive-expansion:c5e8b7fd21cc7b4afca6 -->
