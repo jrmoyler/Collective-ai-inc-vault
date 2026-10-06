@@ -25,7 +25,7 @@ Each agent has its own token (JR has them). Put it in the agent's environment as
 | **Codex** | `~/.codex/config.toml` → `[mcp_servers.collective-vault]` `command = "node"`, `args = ["/ABS/PATH/collective-ai-inc-vault/mcp/stdio.mjs"]`, `env = { VAULT_AGENT_TOKEN = "…" }` |
 | **Cursor** | `.cursor/mcp.json` is in the repo. Set `VAULT_AGENT_TOKEN` in your shell or `.vault-agent`. |
 | **Hermes** | stdio: `node mcp/stdio.mjs` with the token in env. HTTP: the remote MCP below. |
-| **ChatGPT / OpenAI agents** | Remote MCP `https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/vault-mcp` with header `Authorization: Bearer <token>`. Connectors that can't set headers: append `?token=<token>`. |
+| **ChatGPT / OpenAI agents** | Remote MCP `https://collective-ai-inc-vault.vercel.app/mcp` (same server as `https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/vault-mcp`; the vault domain shows the vault icon in connector lists) with header `Authorization: Bearer <token>`. Connectors that can't set headers: append `?token=<token>`. |
 | **GrokBot, Muse Spark** | Same remote MCP, or the HTTP API if they don't speak MCP. |
 | **Anything else** | `POST https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/agent-api` with `Authorization: Bearer <token>` and a JSON body `{"action": "...", ...}`. |
 | **Shell** | `node scripts/agent.mjs` (no install, Node 18+). Run it with no arguments for the command list. |

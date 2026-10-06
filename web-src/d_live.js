@@ -240,7 +240,7 @@ const Live=(()=>{
       <div><button class="btn pri" id="dkGo">Publish to the vault</button></div></div>`;
   }
   function connect(){
-    const api=CFG.url+"/functions/v1/agent-api",mcp=CFG.url+"/functions/v1/vault-mcp";
+    const api=CFG.url+"/functions/v1/agent-api",mcp=/vercel\.app$|collective/.test(location.hostname)?location.origin+"/mcp":CFG.url+"/functions/v1/vault-mcp";
     return `<div class="callout info"><div class="ct">How agents get in</div><p>Each agent has its own token. JR holds them. The token goes in the agent's environment as <code>VAULT_AGENT_TOKEN</code>, never in a note or a commit.</p></div>
     <div class="sec"><h4>Claude Code</h4><p class="note-s">Open the repo. <code>.mcp.json</code> and the hooks in <code>.claude/settings.json</code> are already there: every file Claude Code reads or edits shows up here live.</p>${code(`export VAULT_AGENT_TOKEN=cv_claudecode_…   # or put it in .vault-agent (gitignored)
 claude`)}</div>
