@@ -218,6 +218,19 @@ const Identity=(()=>{
       L('bevel',.24,.38,.06,s*.05,-.12,.22,1,0,-.12);                                      // tasset
       L('cap',.05,.2,.2,s*.14,-1.24,0,4);L('box',.012,.06,.06,s*.168,-1.24,0,2);           // knee hinge, lit pin
       L('bevel',.24,.6,.1,0,-1.75,-.2,1);L('bevel',.16,.14,.12,0,-2.86,-.22,1)}            // calf plate, heel spur
+    // Traveler cloak. k=5 is cloth on the body mesh, so it costs no extra draw call.
+    // Upper panels sit on the spine (y>=3.38). The hem sits on the hips (y<3.38) so a bow does not drive cloth through the thighs.
+    // The power core backs up to about z=-0.64; every cloth face stays behind z=-0.70.
+    const cloak={jr:1.08,devon:.96,ahmad:1.02,kenza:.74,member:.68,agent:.86}[f];
+    const cw=.98*b*cloak;
+    T('bevel',cw*1.08,.24,.2,0,4.78,-.82,5,0,.18);
+    T('taper',cw*.9,.78,.1,0,4.22,-.88,5,0,.05);
+    T('taper',cw*1.02,1.35,.09,0,3.05,-.9,5,0,.03);
+    T('taper',cw*.7,1.1,.06,0,3.18,-.78,5,0,.02);
+    T('taper',cw*.48,.95,.07,-cw*.34,3.02,-.8,5,.16,.06);
+    T('taper',cw*.48,.95,.07,cw*.34,3.02,-.8,5,-.16,.06);
+    if(f==='jr'||f==='devon'||f==='ahmad')T('bevel',cw*.62,.14,.12,0,4.62,-.74,1);
+    if(f==='kenza'||f==='member'||f==='agent')H('bevel',.48*cloak,.16,.34,0,.9,-.28,5,0,-.22);
     // ---- cosmetic tier from level: more lit trim per tier; the mesh adds the aura ring from tier 2.
     const tr=tier(lvl);
     if(tr>=1){for(const s of S)T('box',.4*b,.02,.03,s*.74*b,4.86,.305,2,-s*.26);T('box',.7*b,.02,.03,0,3.24,.285,2)}  // pauldron edge lights, belt line
@@ -335,7 +348,7 @@ function environment(renderer){
   if(ENV||!renderer||!THREE.PMREMGenerator)return ENV;
   try{
     const pm=new THREE.PMREMGenerator(renderer),s=new THREE.Scene(),g=new THREE.SphereGeometry(10,32,16),c=[],p=g.attributes.position;
-    const top=new THREE.Color('#1C2747'),mid=new THREE.Color('#5A4430'),bot=new THREE.Color('#05070F');
+    const top=new THREE.Color('#6E9BC4'),mid=new THREE.Color('#C4B48A'),bot=new THREE.Color('#2A241C');
     for(let i=0;i<p.count;i++){const y=p.getY(i)/10,col=y>0?mid.clone().lerp(top,Math.min(1,y*1.7)):mid.clone().lerp(bot,Math.min(1,-y*3));c.push(col.r,col.g,col.b)}
     g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));s.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
     const soft=(w,h,x,y,z,col)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));m.position.set(x,y,z);m.lookAt(0,0,0);s.add(m)};
@@ -348,11 +361,11 @@ function environment(renderer){
 // ---- materials. One program per surface kind, shared by every Sentinel; uniforms are per figure.
 // Common pieces: bind-pose position and normal for triplanar detail and the visor scan; a fresnel rim weighted toward
 // top edges; status-driven glow.
-const V_HEAD='attribute float glow;\nvarying float vGlow;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
-const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vLocal=position;vLocalN=normal;';
+const V_HEAD='attribute float glow;\nattribute float cloth;\nuniform float uTime;\nuniform float uSway;\nvarying float vGlow;\nvarying float vCloth;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
+const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vLocal=position;vLocalN=normal;\n\tfloat hem=smoothstep(4.35,2.55,position.y)*cloth;\n\ttransformed.x+=sin(uTime*1.7+position.x*1.8)*0.11*hem*uSway;\n\ttransformed.z+=sin(uTime*1.15+position.y)*0.045*hem*uSway;';
 const F_HEAD=`uniform vec3 uRim;uniform float uRimGain;uniform float glowGain;uniform float uTime;uniform float uScan;uniform float uCircuit;
 uniform sampler2D tDetail;uniform sampler2D tCircuit;uniform sampler2D tIri;uniform float uTexOn;uniform float uIriOn;
-varying float vGlow;varying vec3 vLocal;varying vec3 vLocalN;
+varying float vGlow;varying float vCloth;varying vec3 vLocal;varying vec3 vLocalN;
 float triplanar(sampler2D t,vec3 p,vec3 n,float s){vec3 w=pow(abs(n),vec3(4.0));w/=max(dot(w,vec3(1.0)),1e-4);
   return texture2D(t,p.zy*s).g*w.x+texture2D(t,p.xz*s).g*w.y+texture2D(t,p.xy*s).g*w.z;}
 `;
@@ -364,20 +377,21 @@ function surface(kind,U,opts){
   // r128 standard materials already enable derivatives; expose an extension request
   // for versions that read material.extensions without assuming it exists.
   m.extensions={...(m.extensions||{}),derivatives:true};
-  const detail=kind==='armor'?TEX.plating:kind==='trim'||kind==='visor'?null:TEX.carbon,scale=kind==='armor'?.9:3.2,amt=kind==='armor'?.85:kind==='joint'?.5:.55;
+  const detail=kind==='armor'?TEX.plating:kind==='trim'||kind==='visor'?null:TEX.carbon,scale=kind==='armor'?1.4:2.2,amt=kind==='armor'?.35:kind==='joint'?.25:.22;
   m.onBeforeCompile=s=>{
-    Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn});
+    Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uSway:U.sway,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn});
     s.vertexShader=V_HEAD+s.vertexShader.replace('#include <begin_vertex>',V_BODY);
     let f=s.fragmentShader;
     f=f.replace('#include <color_fragment>',`#include <color_fragment>
 \tfloat sDetail=uTexOn>0.5?triplanar(tDetail,vLocal,vLocalN,${scale.toFixed(2)}):0.55;
-\tdiffuseColor.rgb*=mix(1.0,0.5+0.92*sDetail,uTexOn*${amt.toFixed(2)});
+\tdiffuseColor.rgb*=mix(mix(1.0,0.5+0.92*sDetail,uTexOn*${amt.toFixed(2)}),1.0,vCloth);
 \t// Fine machined lines use derivative filtering to avoid distant shimmer. No texture download required.
 \tvec3 seamP=vLocal*${kind==='armor'?'9.0':'28.0'};vec3 seamW=fwidth(seamP)+vec3(0.003);
 \tvec3 seamD=abs(fract(seamP-0.5)-0.5);vec3 seams=vec3(1.0)-smoothstep(vec3(0.015),vec3(0.015)+seamW,seamD);
-\tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.055':'0.025'};
-\tdiffuseColor.rgb*=1.0-machining;`);
-    f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0);');
+\tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.03':'0.012'}*(1.0-vCloth);
+\tdiffuseColor.rgb*=1.0-machining*0.22;
+\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(1.02,0.94,0.82)*(0.9+0.14*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);`);
+    f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=mix(clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0),0.94,vCloth);');
     let em=RIM;
     if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
     if(kind==='armor')em+=`\n\tif(uCircuit>0.0&&uTexOn>0.5){float c=triplanar(tCircuit,vLocal,vLocalN,0.7);float flow=0.35+0.65*pow(0.5+0.5*sin(vLocal.y*3.0-uTime*2.2),3.0);totalEmissiveRadiance+=uRim*c*uCircuit*flow*glowGain;}`;
@@ -389,7 +403,7 @@ function surface(kind,U,opts){
 \t totalEmissiveRadiance+=uRim*(0.22+band*0.7)*glowGain;}`;
     f=f.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\t'+em);
     s.fragmentShader=F_HEAD+f};
-  m.customProgramCacheKey=()=>'sentinel-machined-v2-'+kind;return m;
+  m.customProgramCacheKey=()=>'sentinel-painted-v5-'+kind;return m;
 }
 
 // ---- skeleton. Rigid skinning: each plate follows one bone, so armor never smears.
@@ -416,11 +430,11 @@ function put(t,geo,q,origin,col,glow,shade,bone){
   const P=geo.attributes.position,N=geo.attributes.normal,E=geo.attributes.edge;
   for(let i=0;i<P.count;i++){const ly=P.getY(i),k=shade*(E.getX(i)?1.13:1)*(glow?1:.9+.2*(ly+.5));
     _v.fromBufferAttribute(P,i).applyMatrix4(_m);t.pos.push(_v.x,_v.y,_v.z);_v.fromBufferAttribute(N,i).applyMatrix3(_n).normalize();t.nrm.push(_v.x,_v.y,_v.z);
-    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.bone.push(bone,0,0,0)}
+    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.cloth.push(q.k===5?1:0);t.bone.push(bone,0,0,0)}
 }
 function geometryOf(t){const g=new THREE.BufferGeometry(),n=t.glow.length,w=new Float32Array(n*4);for(let i=0;i<n;i++)w[i*4]=1;
   g.setAttribute('position',new THREE.Float32BufferAttribute(t.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(t.nrm,3));g.setAttribute('color',new THREE.Float32BufferAttribute(t.col,3));
-  g.setAttribute('glow',new THREE.Float32BufferAttribute(t.glow,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(t.bone,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(w,4));
+  g.setAttribute('glow',new THREE.Float32BufferAttribute(t.glow,1));g.setAttribute('cloth',new THREE.Float32BufferAttribute(t.cloth,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(t.bone,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(w,4));
   g.computeBoundingSphere();g.boundingSphere.radius*=1.35;return g}
 function terminal(a,f,pal){
   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=180;const ctx=canvas.getContext('2d');
@@ -439,23 +453,23 @@ function makeSentinel(a){
   const g=shared(),f=Identity.form(a.form||'agent'),pal=Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],f),level=a.level|0;
   const owner=a.ownerColor&&Identity.HEX.test(a.ownerColor)?a.ownerColor:null,bp=Identity.blueprint(f,{owner:!!owner,level}),tone=Identity.tones(pal,owner).map(lin);
   const tier=bp.tier|0,grp=new THREE.Group(),white=new THREE.Color(1,1,1),seed=hash(a.id||f),buf={},rest=restOf(bp);
-  const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0}};
+  const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},sway:{value:.28},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0}};
   // Each plate gets its own shade (0.86 to 1.08) so neighboring panels read as separate pieces of metal.
   bp.parts.forEach((q,i)=>{
     const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
-    const shade=lit?1:.86+.22*hash(seed+i),col=kind==='armor'?white:tone[q.k],origin=bp.pivots[q.slot]||[0,0,0];
-    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],bone:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
+    const shade=lit?1:.86+.22*hash(seed+i),col=q.k===5?tone[q.k].clone().lerp(lin('#C4A574'),.42):(kind==='armor'?white:tone[q.k]),origin=bp.pivots[q.slot]||[0,0,0];
+    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],bone:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
   });
   // bones in bind pose (no rotation), positioned relative to their parent
   const bones=BONES.map(name=>{const b=new THREE.Bone();b.name=name;return b});
   bones.forEach((b,i)=>{const p=PARENT[i],x=rest[i*3]-(p<0?0:rest[p*3]),y=rest[i*3+1]-(p<0?0:rest[p*3+1]),z=rest[i*3+2]-(p<0?0:rest[p*3+2]);b.position.set(x,y,z);(p<0?grp:bones[p]).add(b)});
   grp.updateMatrixWorld(true);const skeleton=new THREE.Skeleton(bones),I=new THREE.Matrix4();
-  const env=ENV?{envMap:ENV,envMapIntensity:1}:{},MATS={
-    body:()=>surface('body',U,{roughness:.5,metalness:ENV?.62:.4,...env}),
-    armor:()=>surface('armor',U,{color:tone[1],roughness:.28,metalness:ENV?.88:.5,...env}),
-    trim:()=>surface('trim',U,{roughness:.35,metalness:.2}),
-    joint:()=>surface('joint',U,{roughness:.62,metalness:ENV?.7:.4,...env}),
-    visor:()=>surface('visor',U,{roughness:.07,metalness:ENV?.9:.5,...(ENV?{envMap:ENV,envMapIntensity:1.5}:{})})};
+  const env=ENV?{envMap:ENV}:{},MATS={
+    body:()=>surface('body',U,{roughness:.88,metalness:.02,envMapIntensity:.35,...env}),
+    armor:()=>surface('armor',U,{color:tone[1],roughness:.74,metalness:.05,envMapIntensity:.4,...env}),
+    trim:()=>surface('trim',U,{roughness:.45,metalness:.04}),
+    joint:()=>surface('joint',U,{roughness:.9,metalness:.02,envMapIntensity:.25,...env}),
+    visor:()=>surface('visor',U,{roughness:.18,metalness:.12,...(ENV?{envMap:ENV,envMapIntensity:.35}:{})})};
   const surfaces={};
   for(const kind of ['body','armor','trim','joint','visor'])if(buf[kind]){const mesh=new THREE.SkinnedMesh(geometryOf(buf[kind]),MATS[kind]());mesh.name='sentinel-'+kind;grp.add(mesh);mesh.bind(skeleton,I);surfaces[kind]=mesh}
   const t=bp.terminal,plate=new THREE.Mesh(new THREE.PlaneGeometry(t.w,t.h),new THREE.MeshBasicMaterial({map:terminal(a,f,pal)}));plate.position.set(t.x-rest[SPINE*3],t.y-rest[SPINE*3+1],t.z);bones[SPINE].add(plate);
@@ -628,7 +642,7 @@ function pose(m,t,status,opt){
   const G0=GLOW[status]||GLOW.idle,gk=first||red?1:rate(dt,4);a.glow+=(G0[0]-a.glow)*gk;a.rim+=(G0[1]-a.rim)*gk;
   let pulse=1;
   if(!red){pulse=status==='working'||status==='in use'?1+.12*Math.sin(t*6+ph)*Math.sin(t*1.1):status==='thinking'?1+.25*Math.sin(t*3.1+ph):status==='blocked'?.6+.4*Math.max(0,Math.sin(t*1.4+ph))*(hash(Math.floor(t*12))>.25?1:.3):1+.08*Math.sin(t*2.6+ph)}
-  const U=m.uniforms;U.glow.value=a.glow*pulse+glowBoost;U.rim.value=a.rim+(m.emote?.25:0);U.time.value=red?0:t;
+  const U=m.uniforms;U.glow.value=a.glow*pulse+glowBoost;U.rim.value=a.rim+(m.emote?.25:0);U.time.value=red?0:t;U.sway.value=red?0:.28+.85*a.walkW+(m.emote?.4:0);
   U.scan.value=red?5.3:5.3+.2*Math.sin(t*(status==='reading'?2.4:1.1)+ph);
   if(m.accent&&m.accent.emissive)m.accent.emissiveIntensity=0;
   // props, faded in and out

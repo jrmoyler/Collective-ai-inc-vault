@@ -105,6 +105,19 @@ const Identity=(()=>{
       L('bevel',.24,.38,.06,s*.05,-.12,.22,1,0,-.12);                                      // tasset
       L('cap',.05,.2,.2,s*.14,-1.24,0,4);L('box',.012,.06,.06,s*.168,-1.24,0,2);           // knee hinge, lit pin
       L('bevel',.24,.6,.1,0,-1.75,-.2,1);L('bevel',.16,.14,.12,0,-2.86,-.22,1)}            // calf plate, heel spur
+    // Traveler cloak. k=5 is cloth on the body mesh, so it costs no extra draw call.
+    // Upper panels sit on the spine (y>=3.38). The hem sits on the hips (y<3.38) so a bow does not drive cloth through the thighs.
+    // The power core backs up to about z=-0.64; every cloth face stays behind z=-0.70.
+    const cloak={jr:1.08,devon:.96,ahmad:1.02,kenza:.74,member:.68,agent:.86}[f];
+    const cw=.98*b*cloak;
+    T('bevel',cw*1.08,.24,.2,0,4.78,-.82,5,0,.18);
+    T('taper',cw*.9,.78,.1,0,4.22,-.88,5,0,.05);
+    T('taper',cw*1.02,1.35,.09,0,3.05,-.9,5,0,.03);
+    T('taper',cw*.7,1.1,.06,0,3.18,-.78,5,0,.02);
+    T('taper',cw*.48,.95,.07,-cw*.34,3.02,-.8,5,.16,.06);
+    T('taper',cw*.48,.95,.07,cw*.34,3.02,-.8,5,-.16,.06);
+    if(f==='jr'||f==='devon'||f==='ahmad')T('bevel',cw*.62,.14,.12,0,4.62,-.74,1);
+    if(f==='kenza'||f==='member'||f==='agent')H('bevel',.48*cloak,.16,.34,0,.9,-.28,5,0,-.22);
     // ---- cosmetic tier from level: more lit trim per tier; the mesh adds the aura ring from tier 2.
     const tr=tier(lvl);
     if(tr>=1){for(const s of S)T('box',.4*b,.02,.03,s*.74*b,4.86,.305,2,-s*.26);T('box',.7*b,.02,.03,0,3.24,.285,2)}  // pauldron edge lights, belt line

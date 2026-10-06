@@ -320,6 +320,10 @@ const Guides=(()=>{
 #gPrompt small{color:#97A0BA;font-family:var(--mono);font-size:10.5px}
 @media (hover:none){#gPrompt kbd{font-size:0}#gPrompt kbd::before{content:"●";font-size:11px}}
 @media (max-width:760px){
+ #gPrompt{left:auto;right:10px;bottom:calc(52px + env(safe-area-inset-bottom,0px));max-width:min(230px,calc(100vw - 160px));transform:none;font-size:12.5px;padding:6px 10px 6px 6px;z-index:12}
+ #gPrompt.on{transform:none}
+ #gPrompt span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ #gPrompt small{display:none}
  #wd{bottom:calc(8px + env(safe-area-inset-bottom,0px));width:calc(100% - 16px)}
  #wd .wd-card{grid-template-columns:64px 1fr;gap:12px;padding:16px 12px 10px}
  #wd .wd-por{width:64px;height:64px;border-radius:10px}#wd .wd-arch{display:none}

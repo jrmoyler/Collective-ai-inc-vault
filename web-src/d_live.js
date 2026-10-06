@@ -190,7 +190,7 @@ const Live=(()=>{
     const ids=[...agents.keys()].filter(id=>id!=="repo-sync"),live=ids.filter(id=>isLive(pres.get(id))).length,owned=[...sessions.values()].filter(isLive).length;
     el.hidden=false;
     // Phones start with the floor folded to its header so the city stays visible.
-    if(!el.dataset.ready){el.dataset.ready="1";if(matchMedia("(max-width:760px)").matches)el.classList.add("min")}
+    if(!el.dataset.ready){el.dataset.ready="1";if(matchMedia("(max-width:760px)").matches)el.classList.add("min");if(matchMedia("(pointer: coarse) and (max-width:980px), (max-height:520px)").matches)el.classList.add("min")}
     el.innerHTML=`<h3 role="button" tabindex="0" aria-expanded="${!el.classList.contains("min")}" aria-label="On the floor: show or hide"><span>On the floor<i class="fchev" aria-hidden="true">▾</i></span><b>${connected||pollT?(live+owned?(live+owned)+" live":"quiet"):"connecting"}${pollT&&!connected?" · polling":""}</b></h3>${rowsHTML(true,true)}${sessionRows()}${ids.length-live?`<div class="watch">${ids.length-live} agents offline · <a class="wl" id="floorAll">see all</a></div>`:""}
       <div class="ticker">${acts.slice(0,4).map(a=>`<div><b>${esc(agentName(a.actor))}</b> ${esc(a.kind)} ${esc(a.note||a.text||"")}</div>`).join("")||"<div>No activity yet</div>"}</div>
       <div class="watch">Watching now: ${esc(watchers.join(", ")||me.name)}</div>`;
