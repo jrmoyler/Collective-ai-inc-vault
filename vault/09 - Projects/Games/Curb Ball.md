@@ -15,7 +15,7 @@ owner: JR Moyler (Hataalii)
 source: Vercel (team jrmoyler93-7522s-projects) + GitHub repos
 status: building
 created: 2026-04-19
-updated: 2026-10-04
+updated: 2026-10-05
 division: Unassigned
 framework: vite
 last_deploy: 2026-04-27
@@ -65,6 +65,19 @@ The latest production deployment (Apr 27, 2026, 03:34 UTC) ended in ERROR; the R
 - 2026-04-26 — Fix game canvas visual composition
 - 2026-04-26 — Fix broken GameCanvas.tsx merge — restore clean feature branch version
 - 2026-04-26 — Fix Vercel JSON syntax for deployment
+
+
+## Deploy diagnosis (CV-008, 2026-10-05)
+
+**Failed deploy:** dpl_CbFirbBvT6iG5SPgpkaV26LGRsXC, production, Apr 27 2026 03:34 UTC. Triggered by merge of PR #39 ("Refactor GameCanvas layout, HUD, and controls").
+
+**Root cause:** `src/components/GameCanvas.tsx` has 6 syntax errors from a bad merge. The merge kept two versions of the same code:
+- Lines 54-57 declare `roadTopY` and `controlsTopY` twice (duplicate const declarations).
+- Lines 1306-1433 have mismatched JSX tags: a `</div>` closing an open `<svg>`, a stray `>` inside a JSX element, and a `</Button>` closing an open `<div>`.
+
+The build (`vite build`) fails at the transform step. Nothing wrong with the Vercel config or the framework. The fix is in the repo: remove the duplicated constant declarations (keep one set) and repair the JSX tag mismatches around lines 1306-1433.
+
+**Status:** diagnosed. Fix and redeploy need GitHub repo access (pending Jr completing the app installation) and Jr's go-ahead.
 
 ## Linked
 

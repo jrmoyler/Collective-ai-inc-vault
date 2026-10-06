@@ -25,7 +25,7 @@ activation_order: 3
 # NIMBUS — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director LOOM. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Binary_Loom]] · Division: [[Binary Loom Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -95,3 +95,7 @@ Your style: Systems engineer's directness. Precise about specs, timelines, and f
 - [[Observability Stack]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: LOOM (God Prompts), LOOM (dossiers).

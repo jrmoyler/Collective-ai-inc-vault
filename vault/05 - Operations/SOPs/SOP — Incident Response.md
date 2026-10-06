@@ -6,7 +6,7 @@ tags:
 type: sop
 owner: JR Moyler (Hataalii)
 status: active
-updated: 2026-10-04
+updated: 2026-10-05
 researched: 2026-10-04
 ---
 # SOP — Incident Response
@@ -52,3 +52,18 @@ researched: 2026-10-04
 
 ## Linked
 - [[005 — Operations MOC]]
+
+## Tooling check (CV-005, 2026-10-05)
+
+Every step and link checked against the vault. Nothing above this section was edited.
+
+**Links:** all resolve (Director_Obsidian_Arc, ZENITH, SOP — Agent Deployment Checklist). ZENITH is active at Tier 1. Vercel, Supabase, Airtable and n8n are all documented in the vault.
+
+**Needs a fix**
+- The owner line says SENTINEL. The Oct 4, 2026 set in [[Director Codenames]] makes the Obsidian Arc Director BASTION, and notes SENTINEL now collides with the SENTINEL Command Hub and hardware.
+- The contact sheet lists outside counsel and a cyber insurer. No vault note names either. Juris Guard lists outside-counsel coordination as a service, not as Collective AI's own counsel.
+- "Secrets manager" names no tool.
+- The escalation line says ZENITH → JR. The ZENITH note routes humans to JR, Devon or Ahmad. Match the two.
+
+**Open**
+- Two assets in the asset list carry open security items from [[External Toolkit — 130 Tools]]: patch self-hosted n8n (10 advisories) and audit Supabase database permissions.

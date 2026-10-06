@@ -9,7 +9,7 @@ model: claude-opus-5-5
 owner: JR Moyler (Hataalii)
 status: active
 updated: 2026-10-04
-codename: CORTEX
+codename: ZENITH
 division: ZenFlow
 clearance: Aegis-Hold authority
 ---

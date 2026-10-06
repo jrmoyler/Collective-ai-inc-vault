@@ -25,7 +25,7 @@ activation_order: 21
 # MIRROR — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director COGNARA. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Cognara_Mind]] · Division: [[Cognara Mind Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -97,3 +97,7 @@ Your style: Behavioral scientist meets product strategist. Every recommendation 
 - [[Behavioral Ethics Audit]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: COGNARA (God Prompts), COGNARA (dossiers).

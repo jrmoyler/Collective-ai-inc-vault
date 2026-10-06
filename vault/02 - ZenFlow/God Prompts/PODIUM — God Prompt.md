@@ -25,7 +25,7 @@ activation_order: 11
 # PODIUM — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director APEX. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Kinetic_Edge]] · Division: [[Kinetic Edge Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -96,3 +96,7 @@ Your style: Devon Scott and JR's combined register — performance science preci
 - [[Devon Scott]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: APEX (God Prompts), APEX (dossiers).

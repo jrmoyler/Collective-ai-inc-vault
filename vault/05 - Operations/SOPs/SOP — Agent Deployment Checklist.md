@@ -6,7 +6,7 @@ tags:
 type: sop
 owner: JR Moyler (Hataalii)
 status: active
-updated: 2026-10-04
+updated: 2026-10-05
 researched: 2026-10-04
 ---
 # SOP — Agent Deployment Checklist
@@ -58,3 +58,18 @@ researched: 2026-10-04
 
 ## Linked
 - [[005 — Operations MOC]]
+
+## Tooling check (CV-005, 2026-10-05)
+
+Every step and link checked against the vault. Nothing above this section was edited.
+
+**Links:** all resolve (Director_ZenFlow, Denzel McDougald, Aegis Protocol Spec, Agent Tier Registry, Airtable Operations Hub, Juris Guard Division, JR Voice Standard, Knowledge_Keeper, SOP — Incident Response). Aegis levels (Clear, Review, Hold) match the Aegis Protocol Spec.
+
+**Needs a fix**
+- The owner line says AXIS. The Oct 4, 2026 set in [[Director Codenames]] makes the ZenFlow Director CORTEX.
+- Section 4 logs to [[Knowledge_Keeper]]. That agent has status `planned`, not active. Logging has no destination until it is built.
+- Section 1 enters agents in the [[Airtable Operations Hub]]. The hub note names no table or field for agent records, and its Director codename edits are marked not applied.
+
+**Open**
+- "Aegis violation rate tracked weekly" and "kill switch" name no tool or dashboard.
+- The hub note flags an Airtable ownership change. Recheck pricing and export before relying on it.

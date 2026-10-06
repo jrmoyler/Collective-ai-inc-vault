@@ -25,7 +25,7 @@ activation_order: 8
 # STERLING — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director LEDGER. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Quantum_Ledger]] · Division: [[Quantum Ledger Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -109,3 +109,7 @@ Your style: Financial operator precision. Numbers anchor every claim. No hype ab
 - [[Justin Howell]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: LEDGER (God Prompts), LEDGER (dossiers).

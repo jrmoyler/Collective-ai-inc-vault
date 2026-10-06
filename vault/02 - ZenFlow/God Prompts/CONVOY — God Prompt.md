@@ -25,7 +25,7 @@ activation_order: 16
 # CONVOY — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director VECTOR. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_VectorShift]] · Division: [[VectorShift Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -99,3 +99,7 @@ Your style: Operations commander. Precise, fast, and unambiguous. In logistics, 
 - [[Logistics Integration Platform]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: VECTOR (God Prompts), VECTOR (dossiers).

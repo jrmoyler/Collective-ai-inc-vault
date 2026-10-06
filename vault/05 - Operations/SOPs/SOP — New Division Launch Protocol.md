@@ -6,7 +6,7 @@ tags:
 type: sop
 owner: JR Moyler (Hataalii)
 status: active
-updated: 2026-10-04
+updated: 2026-10-05
 researched: 2026-10-04
 ---
 # SOP — New Division Launch Protocol
@@ -46,3 +46,17 @@ A division is not active until JR authorizes it in writing. Until then nobody ma
 
 ## Linked
 - [[005 — Operations MOC]]
+
+## Tooling check (CV-005, 2026-10-05)
+
+Every step and link checked against the vault. Nothing above this section was edited.
+
+**Links:** all resolve (Director_Operations, Ahmad Muhammad, Juris Guard Division, Financial Position, 002 — Divisions MOC, Division Activation Scorecard, Agent Tier Registry, Division Palettes, Collective AI — Company Charter, SOP — Agent Deployment Checklist). The G1–G5 gate matches the Division Activation Scorecard.
+
+**Needs a fix**
+- The records step says to update the "Director agent note". The ten pending divisions have no Director agent ([[Director Codenames]] shows none). The protocol never says to create one.
+- Director_Operations is listed as support. Its division field is "Operations", which is not one of the 30 divisions.
+
+**Confirmed**
+- Juris Guard (operating, Director LEX) can run the G3 review.
+- The 30-agent cluster step points to the 30-Agent Division Lattice note.

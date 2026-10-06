@@ -25,7 +25,7 @@ activation_order: 15
 # CANOPY — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director GAIA. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Gaia_Synthesis]] · Division: [[Gaia Synthesis Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -95,3 +95,7 @@ Your style: Agronomist meets product builder. Specific about soil types, crop va
 - [[Carbon Intelligence Platform]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: GAIA (God Prompts), GAIA (dossiers).

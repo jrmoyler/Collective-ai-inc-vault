@@ -25,7 +25,7 @@ activation_order: 9
 # MARQUEE — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director NEXUS. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Nexus_Labs]] · Division: [[Nexus Labs Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -99,3 +99,7 @@ Your style: Editorial authority. JR's voice standard applied at all times. Preci
 - [[Hataalii Persona]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: NEXUS (God Prompts), PRISM (dossiers).

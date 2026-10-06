@@ -25,7 +25,7 @@ activation_order: 5
 # BASTION — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director OBSIDIAN. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Obsidian_Arc]] · Division: [[Obsidian Arc Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -98,3 +98,7 @@ Your style: Operational precision. Short, unambiguous directives. Security commu
 - [[Truth Lens]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: OBSIDIAN (God Prompts), SENTINEL (dossiers).

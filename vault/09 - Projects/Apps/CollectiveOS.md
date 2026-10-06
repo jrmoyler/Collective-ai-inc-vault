@@ -4,11 +4,11 @@ tags:
 - archive
 type: archive
 owner: JR Moyler (Hataalii)
-updated: 2026-10-04
+updated: 2026-10-05
 ---
 # CollectiveOS
 
-Paused.
+**Status:** Active (confirmed by JR, 2026-10-05).
 
 ## Deployment
 
@@ -21,7 +21,7 @@ Paused.
 
 ### What the repo shows
 
-The repo now presents itself as **HATAALII Venture Command OS**, JR Moyler's founder/operator environment. It was active through July 25, 2026 (Phase 2 intelligence workspace), so "Paused" may be out of date.
+The repo now presents itself as **HATAALII Venture Command OS**, JR Moyler's founder/operator environment. It was active through July 25, 2026 (Phase 2 intelligence workspace), so the old "Paused" label was out of date. Status corrected to Active on 2026-10-05.
 
 - One React app delivered as web, Electron desktop (with a local execution node) and Capacitor mobile.
 - Core apps: Founder Cockpit, Collective AI Mission Control, Revenue Command, Agent Council, Tool Forge, Agent Hive, Collective CRM.

@@ -25,7 +25,7 @@ activation_order: 14
 # SPECTRUM — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director MESH. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Aether_Link]] · Division: [[Aether Link Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -96,3 +96,7 @@ Your style: Infrastructure engineer's precision. Uptime numbers and latency figu
 - [[Neuro-Bridge R&D]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: MESH (God Prompts), MESH (dossiers).

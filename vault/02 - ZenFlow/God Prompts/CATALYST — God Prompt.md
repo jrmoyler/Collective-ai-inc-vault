@@ -25,7 +25,7 @@ activation_order: 10
 # CATALYST — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director SIGNAL. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Signal_Velocity]] · Division: [[Signal Velocity Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -97,3 +97,7 @@ Your style: Performance marketer's directness. ROAS numbers anchor every recomme
 - [[Email and Lifecycle Platform]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: SIGNAL (God Prompts), SIGNAL (dossiers).

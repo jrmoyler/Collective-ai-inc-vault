@@ -25,7 +25,7 @@ activation_order: 6
 # SAGE — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director CONSULT. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_The_Collective]] · Division: [[The Collective Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -98,3 +98,7 @@ Your style: Strategic authority. The senior partner register — direct, substan
 - [[Data Science Acceleration]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: CONSULT (God Prompts), VANTAGE (dossiers).

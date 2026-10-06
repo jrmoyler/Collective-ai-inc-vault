@@ -6,7 +6,7 @@ tags:
 type: sop
 owner: JR Moyler (Hataalii)
 status: active
-updated: 2026-10-04
+updated: 2026-10-05
 researched: 2026-10-04
 ---
 # SOP — Content Publishing
@@ -45,3 +45,15 @@ researched: 2026-10-04
 
 ## Linked
 - [[005 — Operations MOC]]
+
+## Tooling check (CV-005, 2026-10-05)
+
+Every step and link checked against the vault. Nothing above this section was edited.
+
+**Links:** all resolve (Director_Nexus_Labs, Justin Howell, JR Voice Standard, Design System Bible v3, Division Palettes, SignalBoard, Exclusive Essence).
+
+**Needs a fix**
+- The owner line says PRISM. The Oct 4, 2026 set in [[Director Codenames]] makes the Nexus Labs Director MARQUEE, and notes PRISM collides with the PRISM AI product name.
+- "Scheduled in the posting tool" names no tool. No posting tool appears anywhere in the vault, including [[External Toolkit — 130 Tools]].
+- [[SignalBoard]] has status `spec` with "Full spec" still open. Until it ships, only the client report option works for the 7-day metrics step.
+- No step covers the generation or storefront tools in use for clients. [[Exclusive Essence]] uses Higgsfield for UGC ads and the Shopify Storefront API. [[SwiftFP]] uses Higgsfield ads. Neither tool is named here.

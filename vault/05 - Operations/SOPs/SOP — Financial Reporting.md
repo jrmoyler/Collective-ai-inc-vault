@@ -6,7 +6,7 @@ tags:
 type: sop
 owner: JR Moyler (Hataalii)
 status: active
-updated: 2026-10-04
+updated: 2026-10-05
 researched: 2026-10-04
 ---
 # SOP — Financial Reporting
@@ -49,3 +49,22 @@ researched: 2026-10-04
 
 ## Linked
 - [[005 — Operations MOC]]
+
+## Tooling check (CV-005, 2026-10-05)
+
+Every step and link checked against the vault. Nothing above this section was edited.
+
+**Links:** all resolve (Ahmad Muhammad, Director_Quantum_Ledger, Client Billing Ledger, Financial Position, Cap Table Structure).
+
+**Confirmed**
+- The CFO spelling matches the vault standard.
+- The per-division P&L rule fits the 9 operating divisions.
+- The paying-customer and MRR line fits Financial Position (0 customers, $0 MRR).
+
+**Needs a fix**
+- The owner line says LEDGER. The Oct 4, 2026 set in [[Director Codenames]] makes the Quantum Ledger Director STERLING.
+- The reconcile step names no accounting system. QuickBooks and Xero appear only in product build stacks (Quantum Business and the MVP notes), not as the company's books.
+- The quarterly step updates [[Cap Table Structure]]. Per CV-004 that note is still a template with no figures.
+
+**Open**
+- "Civic Core money tracked separately" refers to a chartered division, not an operating one. Fine as a forward rule. It has no account to track yet.

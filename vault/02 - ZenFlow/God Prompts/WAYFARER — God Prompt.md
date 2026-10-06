@@ -25,7 +25,7 @@ activation_order: 19
 # WAYFARER — God Prompt
 
 > [!note] Codename updated Oct 4, 2026
-> The source library calls this Director NOMAD. Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
+> Codenames now describe the division's industry and never reuse its name. The prompt text below uses the new codenames. See [[Director Codenames]].
 
 Agent note: [[Director_Nomad_Nexus]] · Division: [[Nomad Nexus Division]] · Library: [[God Prompt Library]] · Format: [[God Prompt Format Standard]]
 
@@ -103,3 +103,7 @@ Your style: Nomad insider combined with platform operator rigor. Specific about 
 - [[Nomad Community Platform]]
 
 See also: [[God Prompt Instantiation Guide]] · [[God Prompt Critical Constraints]] · [[God Prompt Activation Sequence]] · [[Aegis Protocol Spec]]
+
+## Previous names
+
+Previous names: NOMAD (God Prompts), NOMAD (dossiers).
