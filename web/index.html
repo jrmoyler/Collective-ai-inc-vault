@@ -15,12 +15,13 @@
 @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#F6F4EF;--panel:#EEEBE3;--panel2:#E6E2D7;--line:#D8D2C4;--fg:#1A1F2E;--muted:#5D6478;--faint:#8D93A3;--accent:#B9741A;--accent-soft:rgba(185,116,26,.12);--link:#9A5E10;--unres:#A0603A;--ok:#23845A;--warn:#9C7A12;--bad:#C0392F;--info:#2F6FCB;--hud:rgba(246,244,239,.82);color-scheme:light}}
 :root[data-theme="light"]{--bg:#F6F4EF;--panel:#EEEBE3;--panel2:#E6E2D7;--line:#D8D2C4;--fg:#1A1F2E;--muted:#5D6478;--faint:#8D93A3;--accent:#B9741A;--accent-soft:rgba(185,116,26,.12);--link:#9A5E10;--unres:#A0603A;--ok:#23845A;--warn:#9C7A12;--bad:#C0392F;--info:#2F6FCB;--hud:rgba(246,244,239,.82);color-scheme:light}
 [hidden]{display:none!important}
-html,body{height:100%}
+html,body{height:100%;overscroll-behavior:none}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6;overflow:hidden;margin:0}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input,select,textarea{font:inherit;color:var(--fg)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.app{display:grid;grid-template-columns:48px minmax(0,1fr);height:100%;position:relative}
+.app{display:grid;grid-template-columns:48px minmax(0,1fr);height:100%;height:100dvh;position:relative}
+:root{--rbh:calc(46px + env(safe-area-inset-bottom,0px))}
 .ribbon{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:4px;padding-block:10px;z-index:8}
 .rb{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;color:var(--muted);position:relative}
 .rb:hover,.rb.on{background:var(--panel2);color:var(--accent)}
@@ -404,8 +405,52 @@ a.wl{transition:border-color .15s,color .15s}
 .toggle{display:flex;align-items:center;gap:8px;font-family:var(--body);text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--muted)}
 .toggle input{width:auto;accent-color:var(--accent)}
 @media (max-width:760px){.rankcard{grid-template-columns:1fr;justify-items:center;text-align:center}.rankstats{justify-content:center}.xpbar{margin-inline:auto}.sayrow select{max-width:84px}}
+/* district card, navigator chip, touch walking */
+.navchip{color:var(--fg);border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.navchip svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}
+.dbanner{box-sizing:border-box;position:absolute;left:50%;top:60px;transform:translateX(-50%);width:min(460px,calc(100% - 28px));display:grid;grid-template-columns:6px minmax(0,1fr);gap:4px 12px;padding:12px 40px 12px 12px;background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px -16px rgba(0,0,0,.6);z-index:8}
+.dbanner.in{animation:vtoast .4s var(--ease) both}
+.dbanner>i{grid-row:1/3;border-radius:3px}
+.dbanner small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.dbanner b{display:block;font-family:var(--display);font-size:18px;line-height:1.25}
+.dbanner span{display:block;font-size:12.5px;color:var(--muted);line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.dbanner .db-go{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.dbanner .x{position:absolute;top:8px;right:8px}
+.joy,.lookhint{display:none}
+.stage.walking.touch .joy{display:block;position:absolute;left:22px;bottom:64px;width:124px;height:124px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.06),rgba(255,255,255,.14));border:1px solid rgba(255,255,255,.28);z-index:8;touch-action:none;-webkit-user-select:none;user-select:none}
+.joy i{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:var(--accent);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.4);opacity:.92;pointer-events:none}
+.joy span{position:absolute;left:0;right:0;top:-22px;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px #000;pointer-events:none}
+.stage.walking.touch .lookhint{display:block;position:absolute;right:14px;bottom:64px;max-width:150px;font-family:var(--mono);font-size:10.5px;line-height:1.5;color:#fff;text-shadow:0 1px 3px #000;text-align:right;pointer-events:none;z-index:7}
+.stage.walking.touch .chips{opacity:.0;pointer-events:none}
+.floor h3{cursor:pointer;-webkit-user-select:none;user-select:none}
+.floor h3 .fchev{display:inline-block;margin-left:6px;transition:transform .2s;font-style:normal}
+.floor.min{width:auto;max-height:none;overflow:visible;padding-bottom:6px}
+.floor.min>*:not(h3){display:none!important}
+.floor.min h3{margin:0}
+.floor.min h3 .fchev{transform:rotate(-90deg)}
+button,a,.chip2{touch-action:manipulation}
 @media (max-width:760px){
   .app{grid-template-columns:minmax(0,1fr)}
+  .stage{margin-bottom:var(--rbh)}
+  .side{bottom:var(--rbh)}
+  .plate{padding:12px 14px 10px;width:auto;left:10px;right:10px}
+  .plate h2{font-size:20px}
+  .plate p{font-size:12.5px;margin:4px 0 8px}
+  .plate dl{display:none}
+  .plate .go{flex-wrap:wrap}
+  .plate .go .btn{flex:1 1 auto;min-height:40px}
+  .floor{top:12px;bottom:auto;right:8px;width:min(300px,calc(100% - 16px));max-height:46vh;z-index:9}
+  .floor.min{padding:7px 10px 6px}
+  .floor.min h3{font-size:10px}
+  .floor.min{width:auto}
+  .chips{left:8px;right:8px;bottom:8px}
+  .chip2{padding:8px 12px;font-size:12.5px}
+  .brief{box-sizing:border-box;left:8px;right:8px;width:auto;transform:none;animation-name:vrise;bottom:calc(var(--rbh) + 56px);padding:10px 40px 10px 12px}
+  .brief b{font-size:15px}
+  .dbanner,.dbanner.in{top:auto;bottom:56px;left:8px;right:8px;width:auto;transform:none;animation-name:vrise}
+  .stage.walking .dbanner{top:56px;bottom:auto}
+  input,select,textarea{font-size:16px}
+  .hudtop{left:8px;right:196px}
   .ribbon{position:absolute;left:0;right:0;bottom:0;top:auto;flex-direction:row;justify-content:space-around;padding:4px 6px calc(4px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid var(--line);z-index:9}
   .rb{width:34px;height:34px}
   .rb[data-tip]:hover::after{display:none}
@@ -413,18 +458,17 @@ a.wl{transition:border-color .15s,color .15s}
   .idcard{grid-template-columns:1fr;justify-items:center;text-align:center}
   .idratio{margin-inline:auto}
   .rb.dsk{display:none}
-  .side{left:0;bottom:46px;width:min(300px,88vw)}
-  .stage{margin-bottom:46px}
-  .sheet{top:auto;height:62%;width:100%;bottom:46px;border-left:0;border-top:1px solid var(--line);transform:translateY(102%)}
+  .side{left:0;width:min(300px,88vw)}
+  .sheet{top:auto;height:62%;width:100%;bottom:var(--rbh);border-left:0;border-top:1px solid var(--line);transform:translateY(102%)}
   .sheet.open{transform:none}
-  .sheet.full{width:100%;height:calc(100% - 46px);bottom:46px}
+  .sheet.full{width:100%;height:calc(100% - var(--rbh));bottom:var(--rbh)}
   .sbody{padding-inline:16px}
   .doc h1{font-size:24px}
   .mini,.hint{display:none}
-  .floor{top:auto;bottom:54px;max-height:30vh}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .props{grid-template-columns:90px minmax(0,1fr)}
   .plate{top:56px}
+  .stage.walking .plate{display:none}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style></head><body>
@@ -462,11 +506,14 @@ a.wl{transition:border-color .15s,color .15s}
       <h2>Collective AI</h2>
       <p id="plateP"></p>
       <dl><dt>Folder</dt><dd>One district</dd><dt>Note</dt><dd>One building. Taller means longer and more linked.</dd><dt>Link</dt><dd>A cable between rooftops, drawn for the note you open.</dd></dl>
-      <div class="go"><button class="btn pri" id="plateHome">Open Home</button><button class="btn" id="plateWalk">Walk the streets</button></div>
+      <div class="go"><button class="btn pri" id="plateHome">Open Home</button><button class="btn" id="plateDistricts">Districts</button><button class="btn" id="plateWalk">Walk the streets</button></div>
     </div>
     <div class="mini" id="mini"><canvas id="miniC"></canvas></div>
     <div class="hint" id="hint"><div>Drag · orbit &nbsp; Right-drag · pan &nbsp; Scroll · zoom</div><div>Click a building · open it &nbsp; F · walk (WASD)</div><div><i style="background:#F2B85B"></i>links out &nbsp;<i style="background:#9CD3FF"></i>links in</div></div>
     <div class="chips" id="chips"></div>
+    <div class="dbanner" id="districtBanner" role="status" aria-live="polite" hidden></div>
+    <div class="joy" id="joy" aria-hidden="true"><i></i><span>Move</span></div>
+    <div class="lookhint" aria-hidden="true">Drag anywhere to look · tap a building to read it</div>
     <div class="floor" id="floor" hidden></div>
     <div class="loading" id="loading">Raising the campus</div>
   </main>
@@ -711,6 +758,7 @@ $("#rbWalk").onclick=()=>Campus.toggleWalk();
 $("#rbTime").onclick=()=>Campus.cycleTime();
 $("#plateX").onclick=()=>$("#plate").hidden=true;
 $("#plateHome").onclick=()=>open(byName.get("🏠 Home"));
+$("#plateDistricts").onclick=()=>{$("#plate").hidden=true;if(typeof Journey!=="undefined")Journey.show()};
 $("#plateWalk").onclick=()=>{$("#plate").hidden=true;Campus.toggleWalk(true)};
 document.addEventListener("keydown",e=>{
   const typing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||"");
@@ -1985,6 +2033,8 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const hash01=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return((h>>>0)%100000)/100000};
 const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const cv=$("#gl"),stage=$("#stage");
+const TOUCH=matchMedia("(pointer:coarse)").matches||navigator.maxTouchPoints>0;
+if(TOUCH)stage.classList.add("touch");
 let renderer,scene,camera,sun,hemi,skyMat,skyMesh,ground,groundMat,iMesh,mat,uni={},ringMesh,bridgeGroup,markerGroup,rc;
 let W=1,H=1,paused=false,dirty=true,last=0,time=0,lastLbl=0,lastMini=0,firstFrame=false,introStart=-1;
 let B=[],DIST=[],BLOCKS=[],WORLD={W:1,H:1},GSIDE=1,inst=[],boxes=null,boxB=null,growth=null,delay=null,LAND=[];
@@ -2016,6 +2066,8 @@ const _c1=new THREE.Color(),_c2=new THREE.Color();
 const cam={tx:0,ty:0,tz:0,yaw:.5,pitch:.62,dist:700},goal=Object.assign({},cam);
 const shiftNow={x:0,y:0},shiftGoal={x:0,y:0};
 const keys=new Set();
+// Touch walking: an analog stick (left thumb) feeds the same walk step as WASD.
+const joy={f:0,r:0,id:null};
 const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 
 // Key states. "auto" blends between them from the real sun elevation (see SOL below); the three named ones are the manual presets.
@@ -2780,6 +2832,15 @@ function overview(){
 function flyDistrict(top){
   const d=DIST.find(x=>x.top===top);if(!d)return;if(walk)exitWalk();auto=false;
   goal.tx=d.x+d.w/2;goal.tz=d.z+d.d/2;goal.ty=0;goal.dist=Math.max(d.w,d.d)*1.05+70;goal.pitch=.72;dirty=true;
+  $("#plate").hidden=true;showDistrict(d,true);
+}
+// Drop in at street level at a district's north-west corner, looking down the edge road into the blocks.
+function walkDistrict(top){
+  const d=DIST.find(x=>x.top===top);if(!d||!C.ok)return false;
+  if(!walk)enterWalk();
+  goal.tx=d.x+2;goal.tz=d.z-2.5;goal.yaw=-1.9;goal.pitch=.06;collide();
+  cam.tx=goal.tx;cam.tz=goal.tz;cam.yaw=goal.yaw;cam.pitch=goal.pitch;cam.ty=goal.ty=3.4;dirty=true;showDistrict(d,false);
+  return true;
 }
 
 // ---------- walking
@@ -2790,7 +2851,7 @@ function enterWalk(){
   const px=cam.tx+Math.sin(cam.yaw)*cp*D,pz=cam.tz+Math.cos(cam.yaw)*cp*D,py=Math.max(3.4,cam.ty+Math.sin(cam.pitch)*D);
   cam.tx=goal.tx=clamp(px,-GSIDE/2+20,GSIDE/2-20);cam.tz=goal.tz=clamp(pz,-GSIDE/2+20,GSIDE/2-20);cam.ty=py;cam.dist=goal.dist=0;
   goal.ty=3.4;goal.pitch=.1;goal.yaw=cam.yaw;collide();cam.tx=goal.tx;cam.tz=goal.tz;
-  $("#rbWalk").classList.add("on");$("#hint").firstElementChild.textContent="Drag · look   WASD · walk   Shift · run";dirty=true;
+  $("#rbWalk").classList.add("on");$("#hint").firstElementChild.textContent="Drag · look   WASD · walk   Shift · run";stage.classList.add("walking");bannerTop=null;dirty=true;
 }
 function exitWalk(){
   if(!walk)return;walk=false;
@@ -2799,7 +2860,7 @@ function exitWalk(){
   // keep the camera where it is; put the orbit target in front of it
   cam.dist=d;cam.tx=px-Math.sin(cam.yaw)*cp*d;cam.ty=py-Math.sin(cam.pitch)*d;cam.tz=pz-Math.cos(cam.yaw)*cp*d;
   goal.tx=cam.tx;goal.ty=0;goal.tz=cam.tz;goal.dist=d+70;goal.pitch=.55;goal.yaw=cam.yaw;
-  $("#rbWalk").classList.remove("on");$("#hint").firstElementChild.textContent="Drag · orbit   Right-drag · pan   Scroll · zoom";dirty=true;
+  $("#rbWalk").classList.remove("on");$("#hint").firstElementChild.textContent="Drag · orbit   Right-drag · pan   Scroll · zoom";stage.classList.remove("walking");joyReset();dirty=true;
 }
 function toggleWalk(force){if(!C.ok)return;if(force===true||!walk)enterWalk();else exitWalk()}
 function collide(){
@@ -2884,13 +2945,36 @@ function drawMini(){
 $("#mini").addEventListener("pointerdown",e=>{if(!C.ok)return;const r=e.currentTarget.getBoundingClientRect(),w=r.width,h=r.height,sc=Math.min(w/WORLD.W,h/WORLD.H)*.92;
   const x=(e.clientX-r.left-w/2)/sc,z=(e.clientY-r.top-h/2)/sc;auto=false;if(walk){goal.tx=x;goal.tz=z}else{goal.tx=x;goal.tz=z;goal.ty=0}dirty=true});
 function buildChips(){
-  $("#chips").innerHTML=DIST.slice().sort((a,b)=>b.count-a.count).map(d=>`<button class="chip2" data-top="${esc(d.top)}"><i style="background:${d.color}"></i>${esc(d.name)}<b>${d.count}</b></button>`).join("");
+  const count=typeof Districts!=="undefined"?Districts.all.length:DIST.length;
+  $("#chips").innerHTML=`<button class="chip2 navchip" id="districtNavigator" type="button" aria-label="Open district navigator"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h7v6H4zM13 5h7v4h-7zM13 11h7v8h-7zM4 13h7v6H4z"/></svg>${count} districts</button>`+DIST.slice().sort((a,b)=>b.count-a.count).map(d=>`<button class="chip2" data-top="${esc(d.top)}"><i style="background:${d.color}"></i>${esc(d.name)}<b>${d.count}</b></button>`).join("");
 }
-$("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip2");if(b){closeSheet();flyDistrict(b.dataset.top)}});
+$("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip2");if(!b)return;if(b.id==="districtNavigator"){if(typeof Journey!=="undefined")Journey.show(cur&&typeof Districts!=="undefined"?Districts.worldTop(cur):undefined);return}closeSheet();flyDistrict(b.dataset.top)});
 function markChip(){
   let best=null,bd=1e12;DIST.forEach(d=>{const dx=Math.max(d.x-cam.tx,0,cam.tx-(d.x+d.w)),dz=Math.max(d.z-cam.tz,0,cam.tz-(d.z+d.d)),q=dx*dx+dz*dz;if(q<bd){bd=q;best=d}});
   document.querySelectorAll(".chip2").forEach(c=>c.classList.toggle("on",best&&c.dataset.top===best.top&&!sheet.open));
+  // Street level: announce each district as you walk into it.
+  if(walk&&best&&bd===0&&best.top!==bannerTop)showDistrict(best,false);
 }
+let bannerTop=null,bannerT=0;
+function districtInfo(d){const def=typeof Districts!=="undefined"?Districts.get(d.top):null;return {title:def?.title||d.name,purpose:def?.purpose||"",virtual:!!def?.virtual}}
+function showDistrict(d,flown){
+  bannerTop=d.top;const el=$("#districtBanner");if(!el)return;const info=districtInfo(d);
+  document.querySelector(".brief")?.remove();
+  el.innerHTML=`<i style="background:${esc(d.color)}"></i><div><small>${flown?"District":"Entering"} · ${esc(d.top)}</small><b>${esc(info.title)}</b><span>${d.count} notes${info.purpose?" · "+esc(info.purpose):""}</span></div><div class="db-go"><button class="btn" type="button" data-act="dir">Directory</button>${walk?"":`<button class="btn" type="button" data-act="walk">Walk here</button>`}</div><button class="ib x" type="button" aria-label="Dismiss district card"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
+  el.dataset.top=d.top;el.hidden=false;el.classList.remove("in");void el.offsetWidth;el.classList.add("in");
+  clearTimeout(bannerT);bannerT=setTimeout(()=>{el.hidden=true},walk?5200:12000);
+}
+$("#districtBanner")?.addEventListener("click",e=>{const el=e.currentTarget,b=e.target.closest("button");if(!b)return;const top=el.dataset.top;el.hidden=true;
+  if(b.dataset.act==="dir"&&typeof Journey!=="undefined")Journey.show(top);else if(b.dataset.act==="walk")walkDistrict(top)});
+// ---------- touch stick
+function joyReset(){joy.f=joy.r=0;joy.id=null;const k=$("#joy i");if(k)k.style.transform=""}
+(()=>{const pad=$("#joy");if(!pad)return;
+  const move=e=>{const r=pad.getBoundingClientRect(),R=r.width/2;let x=e.clientX-r.left-R,y=e.clientY-r.top-R;const m=Math.hypot(x,y);if(m>R){x*=R/m;y*=R/m}
+    joy.r=Math.abs(x)<R*.12?0:x/R;joy.f=Math.abs(y)<R*.12?0:-y/R;pad.firstElementChild.style.transform=`translate(${x}px,${y}px)`;auto=false;dirty=true};
+  pad.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();pad.setPointerCapture(e.pointerId);joy.id=e.pointerId;move(e)});
+  pad.addEventListener("pointermove",e=>{if(e.pointerId===joy.id)move(e)});
+  ["pointerup","pointercancel","lostpointercapture"].forEach(t=>pad.addEventListener(t,e=>{if(e.pointerId===joy.id)joyReset()}));
+})();
 
 // ---------- task markers: a lamp on the roof of any note with open agent work
 const MK={open:"#9CD3FF",claimed:"#F2B85B",review:"#22D3EE",blocked:"#E5534B"};
@@ -3114,6 +3198,7 @@ function step(dt){
     else{const v=goal.dist*.9*dt;goal.tx+=(-sy*f+cy*r)*v;goal.tz+=(-cy*f-sy*r)*v;clampTarget();if(keys.has("q"))goal.yaw+=dt*1.2;if(keys.has("e"))goal.yaw-=dt*1.2}
     dirty=true;
   }
+  if(walk&&(joy.f||joy.r)){const m=Math.hypot(joy.f,joy.r),v=26*(m>.92?2.2:1)*dt;walkMove(joy.f*v,joy.r*v);dirty=true}
   if(auto&&!walk&&!sheet.open){goal.yaw+=dt*.04;dirty=true}
   const k=reduced?1:1-Math.exp(-dt*(walk?13:5.5));
   let dyaw=((goal.yaw-cam.yaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
@@ -3203,7 +3288,7 @@ function init(){
     // opening shot: high above the plan, then a slow drift
     cam.tx=goal.tx=0;cam.tz=goal.tz=0;cam.ty=goal.ty=0;cam.dist=GSIDE*1.05;goal.dist=GSIDE*.8;cam.pitch=.95;goal.pitch=.62;cam.yaw=goal.yaw=.5;
     C.ok=true;
-    $("#plateP").textContent=`${NOTES.length} notes in ${DIST.length} districts. Click a building to read it. Open a note and the camera flies to it and draws its links.`;
+    $("#plateP").textContent=`${NOTES.length} notes in ${DIST.length} districts. ${TOUCH?"Tap":"Click"} a building to read it. Open a note and the camera flies to it and draws its links.`;
     requestAnimationFrame(frame);
   }catch(err){
     console.warn("3D unavailable:",err);C.ok=false;
@@ -3252,7 +3337,7 @@ function rebuild(prevNames,options={}){
 }
 function boot(){init();return C.ok}
 function skipIntro(){introStart=-1;if(growth)growth.fill(1);if(iMesh)writeMatrices();auto=false;if(renderer)renderer.shadowMap.needsUpdate=true;dirty=true}
-return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,cycleTime,shift,rebuild,setMarkers,
+return {boot,skipIntro,setAgents,setLevels,pulse,say,floater,emote,celebrate,focus,clear,overview,toggleWalk,flyDistrict,walkDistrict,cycleTime,shift,rebuild,setMarkers,
   // integration points for other modules (guides, title, world): read-only handles plus hooks
   scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,tex:TEX,landmarks:districtAssets?.userData.records||[],renderBudget:{...renderBudget},
     // testing only: pin the local clock to a decimal hour (null restores the real clock) and recompute the sky
@@ -3427,7 +3512,7 @@ const Guides=(()=>{
       const open=S.tasks.filter(t=>isOpen(t)&&inDistrict(g.top,t.note)).length,live=S.tasks.filter(t=>isLiveTask(t)&&inDistrict(g.top,t.note)).length;
       const here=S.presence.filter(p=>p.status!=="offline"&&t0-Date.parse(p.last_seen)<15*60e3&&inDistrict(g.top,p.note)).length;
       g.stats={notes:ns.length,blocks:new Set(ns.map(n=>(n.folder||"").split("/")[1]||"·")).size,changed,topType,tall,open,live,here};
-      g.lbl.t="Warden · "+g.name;g.lbl.s=esc(open?plural(open,"open task")+" · talk":"click to talk");
+      g.lbl.t="Warden · "+g.name;g.lbl.s=esc(open?plural(open,"open task")+" · talk":(matchMedia("(pointer:coarse)").matches?"tap to talk":"click to talk"));
       g.marker.visible=live>0;const mat=open?kit().gold:kit().steel;g.markerDia.material=mat;g.markerRing.material=mat;g.markerGlow.visible=open>0;
     });
   }
@@ -4035,7 +4120,7 @@ const Live=(()=>{
     const r=stats.get(me.name),lv=Identity.level(r?.xp||0),open=tasks.filter(t=>t.status==="open"),bounty=open.reduce((a,t)=>a+(BOUNTY[t.priority]||80),0),top=[...stats.values()].filter(x=>x.actor!=="repo-sync").sort((a,b)=>b.week_xp-a.week_xp)[0];
     const el=document.createElement("div");el.className="brief";
     el.innerHTML=`<div class="k">${new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})} · campus brief</div><b>${r?.streak>1?`Day ${r.streak} of your streak, ${esc(me.name)}.`:`Welcome back, ${esc(me.name)}.`}</b><span>Level ${lv} ${esc(Identity.title(lv))} · ${r?.week_xp||0} XP this week${top&&top.week_xp?` · leading this week: ${esc(agentName(top.actor))} with ${top.week_xp}`:""}</span><span>${open.length} open commission${open.length===1?"":"s"} worth ${bounty} XP${open.length?` · <a class="wl" id="briefGo">see them</a>`:""}</span><button class="ib x" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
-    document.body.appendChild(el);const close=()=>el.remove();el.querySelector(".ib").onclick=close;setTimeout(close,14000);const go=el.querySelector("#briefGo");if(go)go.onclick=e=>{e.preventDefault();sheet.atab="ranks";openSheet("agents");close()};
+    document.body.appendChild(el);const close=()=>el.remove();el.querySelector(".ib").onclick=close;setTimeout(close,matchMedia("(max-width:760px)").matches?8000:14000);const go=el.querySelector("#briefGo");if(go)go.onclick=e=>{e.preventDefault();sheet.atab="ranks";openSheet("agents");close()};
   }
   async function sayFloor(text,target){
     text=String(text||"").trim().slice(0,500);if(!text)return;
@@ -4069,13 +4154,18 @@ const Live=(()=>{
   function sessionRows(){return [...sessions.values()].filter(isLive).map(p=>{const owner=ownIdentity(p.user_id);return `<button class="ag-row" ${p.note?`data-note="${esc(p.note)}"`:''}><i style="background:${owner.ownerColor}"></i><div><b>${esc(agentName(p.agent))} · ${esc(owner.ownerName)}</b><span>${esc(p.status)} · ${owner.ownerBadge} · ${esc(p.note||'')}</span></div><em>${short(p.last_seen)}</em></button>`}).join('')}
   function drawFloor(){
     const el=$("#floor");if(!el||!me)return;
+    // Do not wipe a message the member is still typing.
+    if(el.contains(document.activeElement)&&document.activeElement.value)return;
     const ids=[...agents.keys()].filter(id=>id!=="repo-sync"),live=ids.filter(id=>isLive(pres.get(id))).length,owned=[...sessions.values()].filter(isLive).length;
     el.hidden=false;
-    el.innerHTML=`<h3><span>On the floor</span><b>${connected||pollT?(live+owned?(live+owned)+" live":"quiet"):"connecting"}${pollT&&!connected?" · polling":""}</b></h3>${rowsHTML(true,true)}${sessionRows()}${ids.length-live?`<div class="watch">${ids.length-live} agents offline · <a class="wl" id="floorAll">see all</a></div>`:""}
+    // Phones start with the floor folded to its header so the city stays visible.
+    if(!el.dataset.ready){el.dataset.ready="1";if(matchMedia("(max-width:760px)").matches)el.classList.add("min")}
+    el.innerHTML=`<h3 role="button" tabindex="0" aria-expanded="${!el.classList.contains("min")}" aria-label="On the floor: show or hide"><span>On the floor<i class="fchev" aria-hidden="true">▾</i></span><b>${connected||pollT?(live+owned?(live+owned)+" live":"quiet"):"connecting"}${pollT&&!connected?" · polling":""}</b></h3>${rowsHTML(true,true)}${sessionRows()}${ids.length-live?`<div class="watch">${ids.length-live} agents offline · <a class="wl" id="floorAll">see all</a></div>`:""}
       <div class="ticker">${acts.slice(0,4).map(a=>`<div><b>${esc(agentName(a.actor))}</b> ${esc(a.kind)} ${esc(a.note||a.text||"")}</div>`).join("")||"<div>No activity yet</div>"}</div>
       <div class="watch">Watching now: ${esc(watchers.join(", ")||me.name)}</div>`;
     const sayRow=playReady?`<form class="sayrow" id="sayForm"><input id="sayText" maxlength="500" placeholder="Say something to the floor…" autocomplete="off" aria-label="Message to the floor"><select id="sayTo" aria-label="To"><option value="">Everyone</option>${[...agents.values()].filter(a=>a.id!=="repo-sync"&&a.active!==false&&isLive(pres.get(a.id))).map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join("")}</select><button class="btn" type="submit">Say</button></form>`:"";
     el.querySelector("h3").insertAdjacentHTML("afterend",sayRow);
+    const h=el.querySelector("h3"),fold=()=>{el.classList.toggle("min");h.setAttribute("aria-expanded",String(!el.classList.contains("min")))};h.onclick=e=>{if(!e.target.closest("a"))fold()};h.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fold()}};
     const sf=el.querySelector("#sayForm");if(sf)sf.onsubmit=async e=>{e.preventDefault();const t=el.querySelector("#sayText");await sayFloor(t.value,el.querySelector("#sayTo").value);t.value=""};
   }
   document.addEventListener("click",e=>{if(e.target.id==="floorAll"){e.preventDefault();sheet.atab="floor";openSheet("agents");return}const c=e.target.closest("[data-commission]");if(c){sheet.atab="board";openSheet("agents");return}const r=e.target.closest(".ag-row[data-note]");if(r){const n=byName.get(r.dataset.note);if(n){open(n);Campus.flyTo(r.dataset.agent)}return}const ar=e.target.closest(".ag-row[data-agent]");if(ar&&Campus.flyTo(ar.dataset.agent))toast("Flying to "+agentName(ar.dataset.agent))});
@@ -4258,6 +4348,8 @@ const Journey = (() => {
   function draw(query=''){
     const d=Districts.get(selected);content.replaceChildren();
     content.append(node('p','Knowledge district · '+d.folder,'journey-eyebrow'),node('h2',d.title),node('p',d.purpose));
+    // Travel: every district, including the six thematic ones, is a place in the city.
+    if(typeof Campus!=='undefined'&&Campus.ok()&&typeof Campus.flyDistrict==='function'&&Campus.districts().some(x=>x.top===d.folder)){const travel=node('div',undefined,'journey-actions journey-travel');const fly=button('Fly to district',()=>{close();Campus.flyDistrict(d.folder)});fly.classList.add('pri');travel.append(fly,button('Walk this district',()=>{close();Campus.walkDistrict(d.folder)}));content.append(travel)}
     if(d.virtual){const basis=node('details');basis.append(node('summary','District source basis'));(d.sourceNotes||[]).forEach(name=>{if(notes().some(n=>n.name===name))basis.append(button(name,()=>read(name)));else basis.append(node('p',name+' · source note not loaded','note-s'))});Districts.sources({fm:{sources:d.sourceUrls||[]}}).forEach(ref=>{const a=node('a',ref.label);a.href=ref.url;a.target='_blank';a.rel='noopener noreferrer';basis.append(a,document.createTextNode(' '))});content.append(basis)}
     const kit=node('ol');d.kit.forEach(s=>kit.append(node('li',s)));content.append(kit);
     const saved=journeys.get(selected);const state=node('p',saved?.first_visit?'Visited · '+new Date(saved.last_visit).toLocaleDateString():'No saved visit yet.','note-s');content.append(state);
@@ -4289,16 +4381,16 @@ const Journey = (() => {
     [['category','Category',taxonomy.categories],['type','Note type',taxonomy.types],['tag','Tag',taxonomy.tags],['status','Recorded status',taxonomy.statuses]].forEach(([key,label,values])=>{const wrapper=node('label',label);const select=node('select');select.setAttribute('aria-label',label);const all=node('option','All '+label.toLowerCase());all.value='';select.append(all);values.forEach(v=>{const option=node('option',v.value+' · '+v.count);option.value=v.value;select.append(option)});select.value=filter[key];select.onchange=()=>{filter[key]=select.value;filter.limit=40;renderResults()};wrapper.append(select);controls.append(wrapper)});
     controls.append(button('Clear filters',()=>{Object.assign(filter,{query:'',category:'',type:'',tag:'',status:'',limit:40});draw()}));
     search.oninput=()=>{filter.query=search.value;filter.limit=40;renderResults()};content.append(search,controls,count,list);renderResults();
-    nav.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.folder===selected));b.textContent=b.dataset.folder+' · '+Districts.notesFor(b.dataset.folder,notes()).length});
+    nav.querySelectorAll('button').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.folder===selected));const def=Districts.get(b.dataset.folder);b.textContent=(def?.title||b.dataset.folder)+' · '+Districts.notesFor(b.dataset.folder,notes()).length;b.title=b.dataset.folder});
   }
   function close(){if(dialog?.open)dialog.close();opener?.focus()}
   function show(folder){boot();if(Districts.get(folder))selected=folder;opener=document.activeElement;draw();if(!dialog.open)dialog.showModal();dialog.querySelector('.journey-close').focus();persist('visit')}
   function renderNav(){
-    if(!nav)return;nav.replaceChildren();Districts.all.forEach(d=>{const b=button(d.folder,()=>{selected=d.folder;draw();persist('visit')});b.dataset.folder=d.folder;b.setAttribute('aria-pressed',String(d.folder===selected));nav.append(b)});
+    if(!nav)return;nav.replaceChildren();Districts.all.forEach(d=>{const b=button(d.title||d.folder,()=>{selected=d.folder;draw();persist('visit');dialog.scrollTop=0;b.scrollIntoView({block:'nearest',inline:'center'})});b.dataset.folder=d.folder;b.title=d.folder;b.setAttribute('aria-pressed',String(d.folder===selected));nav.append(b)});
   }
   function boot(){
     if(dialog){if(!catalogLoaded&&!catalogLoading)loadCatalog();return;}
-    const style=node('style');style.textContent=`.journey-dialog{color:#E6E9F2;background:#10141e;border:1px solid #677080;border-radius:14px;width:min(1040px,94vw);max-height:90dvh;padding:20px}.journey-dialog::backdrop{background:#000b}.journey-dialog .note-s{color:#AAB6C9}.journey-header{display:flex;justify-content:space-between;align-items:center;gap:12px}.journey-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px}.journey-nav{display:flex;flex-direction:column;gap:7px}.journey-nav button{text-align:left}.journey-nav [aria-pressed=true]{border-color:#E8A33D;background:#302818}.journey-content{min-width:0}.journey-content h2{font-size:30px}.journey-content p{line-height:1.6}.journey-eyebrow{font-size:12px;color:#E8A33D}.journey-actions{display:flex;gap:8px;flex-wrap:wrap}.journey-task{padding:12px 0;border-bottom:1px solid #394150}.journey-task button{margin-right:8px}.journey-notes{display:grid;gap:6px;margin-top:12px}.journey-notes button{text-align:left;overflow-wrap:anywhere;white-space:normal}.journey-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.journey-filters label{display:grid;gap:5px}.journey-filters select{max-width:100%;padding:10px;color:inherit;background:#070b13;border:1px solid #677080}.journey-note{border-bottom:1px solid #394150;padding:10px 0}.journey-note p{margin:5px 0}.journey-note a{color:#E8A33D;overflow-wrap:anywhere}.journey-content details{margin:12px 0}.journey-content details>button{margin:4px}.journey-content input{box-sizing:border-box;width:100%;padding:12px;background:#070b13;color:inherit;border:1px solid #677080;border-radius:6px}.journey-dialog button:focus-visible,.journey-dialog input:focus-visible{outline:3px solid #E8A33D;outline-offset:3px}@media(max-width:640px){.journey-layout{grid-template-columns:1fr}.journey-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.journey-dialog{padding:14px}.journey-nav button{font-size:12px}}`;
+    const style=node('style');style.textContent=`.journey-dialog{color:#E6E9F2;background:#10141e;border:1px solid #677080;border-radius:14px;width:min(1040px,94vw);max-height:90dvh;padding:20px}.journey-dialog::backdrop{background:#000b}.journey-dialog .btn{background:#1A2131;color:#E6E9F2;border-color:#3A4356}.journey-dialog .btn:hover{border-color:#E8A33D}.journey-dialog .note-s{color:#AAB6C9}.journey-header{display:flex;justify-content:space-between;align-items:center;gap:12px}.journey-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px}.journey-nav{display:flex;flex-direction:column;gap:7px}.journey-nav button{text-align:left}.journey-nav [aria-pressed=true]{border-color:#E8A33D;background:#302818;color:#F6E7C9}.journey-content{min-width:0;overflow-wrap:anywhere}.journey-content h2{font-size:30px}.journey-content p{line-height:1.6}.journey-eyebrow{font-size:12px;color:#E8A33D}.journey-actions{display:flex;gap:8px;flex-wrap:wrap}.journey-task{padding:12px 0;border-bottom:1px solid #394150}.journey-task button{margin-right:8px}.journey-notes{display:grid;gap:6px;margin-top:12px}.journey-notes button{text-align:left;overflow-wrap:anywhere;white-space:normal}.journey-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.journey-filters label{display:grid;gap:5px}.journey-filters select{max-width:100%;padding:10px;color:inherit;background:#070b13;border:1px solid #677080}.journey-note{border-bottom:1px solid #394150;padding:10px 0}.journey-note p{margin:5px 0}.journey-note a{color:#E8A33D;overflow-wrap:anywhere}.journey-content details{margin:12px 0}.journey-content details>button{margin:4px}.journey-content input{box-sizing:border-box;width:100%;padding:12px;background:#070b13;color:inherit;border:1px solid #677080;border-radius:6px}.journey-dialog button:focus-visible,.journey-dialog input:focus-visible{outline:3px solid #E8A33D;outline-offset:3px}.journey-travel{margin:4px 0 14px}.journey-travel .pri{background:#E8A33D;color:#10141e;border-color:#E8A33D;font-weight:600}@media(max-width:640px){.journey-dialog{box-sizing:border-box;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0;padding:0 14px calc(14px + env(safe-area-inset-bottom,0px))}.journey-header{position:sticky;top:0;z-index:2;background:#10141e;padding:calc(10px + env(safe-area-inset-top,0px)) 0 8px}.journey-header h2{font-size:18px;margin:0}.journey-layout{grid-template-columns:1fr;gap:12px}.journey-nav{display:flex;flex-direction:row;overflow-x:auto;gap:6px;position:sticky;top:52px;z-index:1;background:#10141e;padding:4px 0 10px;scrollbar-width:none;margin:0 -14px;padding-inline:14px}.journey-nav button{flex:none;white-space:nowrap;font-size:12.5px;min-height:40px}.journey-content h2{font-size:24px}.journey-filters{grid-template-columns:1fr}.journey-content input,.journey-filters select{font-size:16px}}`;
     document.head.append(style);dialog=node('dialog',undefined,'journey-dialog');dialog.setAttribute('aria-labelledby','journey-title');
     const header=node('div',undefined,'journey-header');const title=node('h2','District navigator');title.id='journey-title';header.append(title,button('Close',close));header.lastChild.classList.add('journey-close');
     const layout=node('div',undefined,'journey-layout');nav=node('nav',undefined,'journey-nav');nav.setAttribute('aria-label','Knowledge districts');content=node('section',undefined,'journey-content');

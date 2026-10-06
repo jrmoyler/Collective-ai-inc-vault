@@ -15,12 +15,13 @@
 @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#F6F4EF;--panel:#EEEBE3;--panel2:#E6E2D7;--line:#D8D2C4;--fg:#1A1F2E;--muted:#5D6478;--faint:#8D93A3;--accent:#B9741A;--accent-soft:rgba(185,116,26,.12);--link:#9A5E10;--unres:#A0603A;--ok:#23845A;--warn:#9C7A12;--bad:#C0392F;--info:#2F6FCB;--hud:rgba(246,244,239,.82);color-scheme:light}}
 :root[data-theme="light"]{--bg:#F6F4EF;--panel:#EEEBE3;--panel2:#E6E2D7;--line:#D8D2C4;--fg:#1A1F2E;--muted:#5D6478;--faint:#8D93A3;--accent:#B9741A;--accent-soft:rgba(185,116,26,.12);--link:#9A5E10;--unres:#A0603A;--ok:#23845A;--warn:#9C7A12;--bad:#C0392F;--info:#2F6FCB;--hud:rgba(246,244,239,.82);color-scheme:light}
 [hidden]{display:none!important}
-html,body{height:100%}
+html,body{height:100%;overscroll-behavior:none}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6;overflow:hidden;margin:0}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input,select,textarea{font:inherit;color:var(--fg)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.app{display:grid;grid-template-columns:48px minmax(0,1fr);height:100%;position:relative}
+.app{display:grid;grid-template-columns:48px minmax(0,1fr);height:100%;height:100dvh;position:relative}
+:root{--rbh:calc(46px + env(safe-area-inset-bottom,0px))}
 .ribbon{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:4px;padding-block:10px;z-index:8}
 .rb{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;color:var(--muted);position:relative}
 .rb:hover,.rb.on{background:var(--panel2);color:var(--accent)}
@@ -404,8 +405,52 @@ a.wl{transition:border-color .15s,color .15s}
 .toggle{display:flex;align-items:center;gap:8px;font-family:var(--body);text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--muted)}
 .toggle input{width:auto;accent-color:var(--accent)}
 @media (max-width:760px){.rankcard{grid-template-columns:1fr;justify-items:center;text-align:center}.rankstats{justify-content:center}.xpbar{margin-inline:auto}.sayrow select{max-width:84px}}
+/* district card, navigator chip, touch walking */
+.navchip{color:var(--fg);border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.navchip svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}
+.dbanner{box-sizing:border-box;position:absolute;left:50%;top:60px;transform:translateX(-50%);width:min(460px,calc(100% - 28px));display:grid;grid-template-columns:6px minmax(0,1fr);gap:4px 12px;padding:12px 40px 12px 12px;background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px -16px rgba(0,0,0,.6);z-index:8}
+.dbanner.in{animation:vtoast .4s var(--ease) both}
+.dbanner>i{grid-row:1/3;border-radius:3px}
+.dbanner small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.dbanner b{display:block;font-family:var(--display);font-size:18px;line-height:1.25}
+.dbanner span{display:block;font-size:12.5px;color:var(--muted);line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.dbanner .db-go{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.dbanner .x{position:absolute;top:8px;right:8px}
+.joy,.lookhint{display:none}
+.stage.walking.touch .joy{display:block;position:absolute;left:22px;bottom:64px;width:124px;height:124px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.06),rgba(255,255,255,.14));border:1px solid rgba(255,255,255,.28);z-index:8;touch-action:none;-webkit-user-select:none;user-select:none}
+.joy i{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:var(--accent);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.4);opacity:.92;pointer-events:none}
+.joy span{position:absolute;left:0;right:0;top:-22px;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px #000;pointer-events:none}
+.stage.walking.touch .lookhint{display:block;position:absolute;right:14px;bottom:64px;max-width:150px;font-family:var(--mono);font-size:10.5px;line-height:1.5;color:#fff;text-shadow:0 1px 3px #000;text-align:right;pointer-events:none;z-index:7}
+.stage.walking.touch .chips{opacity:.0;pointer-events:none}
+.floor h3{cursor:pointer;-webkit-user-select:none;user-select:none}
+.floor h3 .fchev{display:inline-block;margin-left:6px;transition:transform .2s;font-style:normal}
+.floor.min{width:auto;max-height:none;overflow:visible;padding-bottom:6px}
+.floor.min>*:not(h3){display:none!important}
+.floor.min h3{margin:0}
+.floor.min h3 .fchev{transform:rotate(-90deg)}
+button,a,.chip2{touch-action:manipulation}
 @media (max-width:760px){
   .app{grid-template-columns:minmax(0,1fr)}
+  .stage{margin-bottom:var(--rbh)}
+  .side{bottom:var(--rbh)}
+  .plate{padding:12px 14px 10px;width:auto;left:10px;right:10px}
+  .plate h2{font-size:20px}
+  .plate p{font-size:12.5px;margin:4px 0 8px}
+  .plate dl{display:none}
+  .plate .go{flex-wrap:wrap}
+  .plate .go .btn{flex:1 1 auto;min-height:40px}
+  .floor{top:12px;bottom:auto;right:8px;width:min(300px,calc(100% - 16px));max-height:46vh;z-index:9}
+  .floor.min{padding:7px 10px 6px}
+  .floor.min h3{font-size:10px}
+  .floor.min{width:auto}
+  .chips{left:8px;right:8px;bottom:8px}
+  .chip2{padding:8px 12px;font-size:12.5px}
+  .brief{box-sizing:border-box;left:8px;right:8px;width:auto;transform:none;animation-name:vrise;bottom:calc(var(--rbh) + 56px);padding:10px 40px 10px 12px}
+  .brief b{font-size:15px}
+  .dbanner,.dbanner.in{top:auto;bottom:56px;left:8px;right:8px;width:auto;transform:none;animation-name:vrise}
+  .stage.walking .dbanner{top:56px;bottom:auto}
+  input,select,textarea{font-size:16px}
+  .hudtop{left:8px;right:196px}
   .ribbon{position:absolute;left:0;right:0;bottom:0;top:auto;flex-direction:row;justify-content:space-around;padding:4px 6px calc(4px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid var(--line);z-index:9}
   .rb{width:34px;height:34px}
   .rb[data-tip]:hover::after{display:none}
@@ -413,18 +458,17 @@ a.wl{transition:border-color .15s,color .15s}
   .idcard{grid-template-columns:1fr;justify-items:center;text-align:center}
   .idratio{margin-inline:auto}
   .rb.dsk{display:none}
-  .side{left:0;bottom:46px;width:min(300px,88vw)}
-  .stage{margin-bottom:46px}
-  .sheet{top:auto;height:62%;width:100%;bottom:46px;border-left:0;border-top:1px solid var(--line);transform:translateY(102%)}
+  .side{left:0;width:min(300px,88vw)}
+  .sheet{top:auto;height:62%;width:100%;bottom:var(--rbh);border-left:0;border-top:1px solid var(--line);transform:translateY(102%)}
   .sheet.open{transform:none}
-  .sheet.full{width:100%;height:calc(100% - 46px);bottom:46px}
+  .sheet.full{width:100%;height:calc(100% - var(--rbh));bottom:var(--rbh)}
   .sbody{padding-inline:16px}
   .doc h1{font-size:24px}
   .mini,.hint{display:none}
-  .floor{top:auto;bottom:54px;max-height:30vh}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .props{grid-template-columns:90px minmax(0,1fr)}
   .plate{top:56px}
+  .stage.walking .plate{display:none}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style></head><body>
@@ -462,11 +506,14 @@ a.wl{transition:border-color .15s,color .15s}
       <h2>Collective AI</h2>
       <p id="plateP"></p>
       <dl><dt>Folder</dt><dd>One district</dd><dt>Note</dt><dd>One building. Taller means longer and more linked.</dd><dt>Link</dt><dd>A cable between rooftops, drawn for the note you open.</dd></dl>
-      <div class="go"><button class="btn pri" id="plateHome">Open Home</button><button class="btn" id="plateWalk">Walk the streets</button></div>
+      <div class="go"><button class="btn pri" id="plateHome">Open Home</button><button class="btn" id="plateDistricts">Districts</button><button class="btn" id="plateWalk">Walk the streets</button></div>
     </div>
     <div class="mini" id="mini"><canvas id="miniC"></canvas></div>
     <div class="hint" id="hint"><div>Drag · orbit &nbsp; Right-drag · pan &nbsp; Scroll · zoom</div><div>Click a building · open it &nbsp; F · walk (WASD)</div><div><i style="background:#F2B85B"></i>links out &nbsp;<i style="background:#9CD3FF"></i>links in</div></div>
     <div class="chips" id="chips"></div>
+    <div class="dbanner" id="districtBanner" role="status" aria-live="polite" hidden></div>
+    <div class="joy" id="joy" aria-hidden="true"><i></i><span>Move</span></div>
+    <div class="lookhint" aria-hidden="true">Drag anywhere to look · tap a building to read it</div>
     <div class="floor" id="floor" hidden></div>
     <div class="loading" id="loading">Raising the campus</div>
   </main>

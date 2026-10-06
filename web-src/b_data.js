@@ -211,6 +211,7 @@ $("#rbWalk").onclick=()=>Campus.toggleWalk();
 $("#rbTime").onclick=()=>Campus.cycleTime();
 $("#plateX").onclick=()=>$("#plate").hidden=true;
 $("#plateHome").onclick=()=>open(byName.get("🏠 Home"));
+$("#plateDistricts").onclick=()=>{$("#plate").hidden=true;if(typeof Journey!=="undefined")Journey.show()};
 $("#plateWalk").onclick=()=>{$("#plate").hidden=true;Campus.toggleWalk(true)};
 document.addEventListener("keydown",e=>{
   const typing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||"");
