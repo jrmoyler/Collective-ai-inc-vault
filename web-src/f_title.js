@@ -179,7 +179,8 @@ function makeCity(canvas,quality){
       m4.makeScale(road[k]?0:W[k],road[k]?0:h,road[k]?0:W[k]);m4.setPosition(X(i),0,X(j));mesh.setMatrixAt(k,m4);
       const warm=lit[k]>.86;const glow=e*(warm?.5+.5*Math.sin(time*1.1+lit[k]*40):0);col.setRGB(.11+glow*.3+lit[k]*.04,.13+glow*.18+lit[k]*.04,.22+lit[k]*.06);mesh.setColorAt(k,col)}
     mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true}
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(SPAN*4,SPAN*4),new THREE.MeshStandardMaterial({color:0x070a14,roughness:.85,metalness:.2}));ground.rotation.x=-Math.PI/2;ground.position.y=-.01;scene.add(ground);
+  // ground: a disc inside the sky dome that writes no depth, so it never clips the low dawn sun; fog carries it into the horizon
+  const ground=new THREE.Mesh(new THREE.CircleGeometry(580,72),new THREE.MeshStandardMaterial({color:0x070a14,roughness:.85,metalness:.2,depthWrite:false}));ground.rotation.x=-Math.PI/2;ground.position.y=-.01;ground.renderOrder=-1;scene.add(ground);
   const grid=new THREE.GridHelper(SPAN,G,0x1d2648,0x141a30);grid.material.transparent=true;grid.material.opacity=.45;scene.add(grid);
   // gold light lines down the avenues
   const lineM=new THREE.MeshBasicMaterial({color:0xe8a33d,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
@@ -196,6 +197,19 @@ function makeCity(canvas,quality){
   const shp=new Float32Array(SNT*3),shg=new THREE.BufferGeometry();shg.setAttribute("position",new THREE.BufferAttribute(shp,3));
   const sheadM=new THREE.PointsMaterial({map:glowTex([[0,"rgba(255,236,200,1)"],[.25,"rgba(255,200,120,.8)"],[1,"rgba(232,163,61,0)"]],64),color:0xffd08a,size:1.9,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
   const sheads=new THREE.Points(shg,sheadM);sheads.frustumCulled=false;scene.add(sheads);
+  // real Sentinels on the main avenue (skinned rig, speed-matched gait). The instanced walkers above are the fallback.
+  const FIG=[];
+  if(typeof SentinelMesh!=="undefined"&&SentinelMesh.create){
+    const forms=["agent","member","jr","devon","ahmad","kenza","agent","member","agent","member"],small=hi&&Math.min(innerWidth,innerHeight)>=700;
+    const n=small?10:6,Z0=SPAN*.4,ZL=SPAN*.36+30;
+    for(let k=0;k<n;k++){try{const m=SentinelMesh.create({id:"title:"+k,form:forms[k],level:[0,4,9,14,20,26][k%6],celebrateLevelUp:false});
+      const bb=new THREE.Box3().setFromObject(m.grp),hgt=bb.max.y-bb.min.y;if(hgt>0)m.grp.scale.setScalar(2.1/hgt);
+      const dir=k%3===1?-1:1;m.grp.rotation.y=dir>0?0:Math.PI;scene.add(m.grp);
+      FIG.push({m,dir,x:RX+(k%2?1.25:-1.25)+(seed(k,11)-.5)*.35,ph:(k+seed(k,13)*.6)/n*ZL,sp:1.2+seed(k,17)*.5,Z0,ZL})}catch(e){break}}
+    if(FIG.length){sbody.visible=false;sheads.visible=false}}
+  function walkFig(time,vis){for(const f of FIG){const g=f.m.grp;g.visible=vis>.01;if(!g.visible)continue;
+      const p=((f.ph+time*f.sp)%f.ZL+f.ZL)%f.ZL;g.position.set(f.x,0,f.dir>0?f.Z0-f.ZL+p:f.Z0-p);
+      try{SentinelMesh.pose(f.m,time,"walking",{speed:f.sp})}catch(e){}}}
   function walk(time,vis){for(let k=0;k<SNT;k++){const s=sent[k];let p=((s.ph+time*s.sp*1.4)%SPAN+SPAN)%SPAN-SPAN/2;const b=Math.abs(Math.sin(time*5.2+s.bob))*.08;
       const x=s.alongZ?s.lane+s.off:p,z=s.alongZ?p:s.lane+s.off;m4.makeScale(.42*vis,.78*vis,.42*vis);m4.setPosition(x,.78*vis+b,z);sbody.setMatrixAt(k,m4);
       shp[k*3]=x;shp[k*3+1]=(1.45+b)*vis;shp[k*3+2]=z}
@@ -224,14 +238,14 @@ function makeCity(canvas,quality){
   function shotSky(c,t){const u=clamp(t/CUT.x2,0,1),tilt=ease(clamp((t-.7)/4.2,0,1));
     c.position.set(lerp(-26,-14,u),lerp(5,16,u),SPAN*.78*wide-u*16);tgt.set(lerp(-14,0,tilt),lerp(170,10,tilt),lerp(-80,0,tilt));c.fov=lerp(52,46,u)}
   function shotStreet(c,t){const u=clamp((t-CUT.x1)/(9.3-CUT.x1),0,1),e=u*u*(3-2*u)*.35+u*.65;
-    const z=lerp(SPAN*.44,SPAN*.04,e);c.position.set(RX+Math.sin(u*2.2)*.5,lerp(2.3,6.5,e),z);tgt.set(RX+Math.sin(u*2.2+.5)*1.3,lerp(4.2,9,e),z-34);c.fov=lerp(60,50,u)}
+    const z=lerp(SPAN*.44,SPAN*.04,e);c.position.set(RX+Math.sin(u*2.2)*.5,lerp(2.6,6.2,e),z);tgt.set(RX+Math.sin(u*2.2+.5)*1.3,lerp(2.4,6.5,e),z-34);c.fov=lerp(56,48,u)}
   function shotDawn(c,t,orbit){const u=ease(clamp((t-CUT.x2)/6.6,0,1));const a=-1.02+u*.3+orbit;const d=SPAN*lerp(.86,.78,u)*wide;
     c.position.set(Math.sin(a)*d,SPAN*lerp(.2,.27,u),Math.cos(a)*d);tgt.set(0,lerp(9,14,u),0);c.fov=lerp(40,36,u)}
   const SHOTS=[{a:-1,b:CUT.x1+.7,f:shotSky},{a:CUT.x1,b:CUT.x2+.7,f:shotStreet},{a:CUT.x2,b:1e9,f:shotDawn}];
   function place(c,s,t,orbit){s.f(c,t,orbit);c.lookAt(tgt);c.updateProjectionMatrix()}
   // t: cutscene clock (s); time: wall clock for loops; orbit: radians added in the menu
   function render(t,time,orbit){size();
-    write(clamp((t-.2)/5.4,0,1.8),time);walk(time,clamp((t-2.5)/2,0,1));
+    write(clamp((t-.2)/5.4,0,1.8),time);const wv=clamp((t-2.5)/2,0,1);if(FIG.length)walkFig(time,wv);else walk(time,wv);
     const dawn=clamp((t-8.2)/5.5,0,1);skyU.dawn.value=dawn;
     skyU.zen.value.setRGB(lerp(.012,.10,dawn),lerp(.02,.13,dawn),lerp(.047,.26,dawn));skyU.hor.value.setRGB(lerp(.043,.46,dawn),lerp(.07,.27,dawn),lerp(.15,.2,dawn));
     starM.opacity=.9*(1-dawn*.9);nebM.opacity=.9*(1-dawn);
@@ -243,7 +257,7 @@ function makeCity(canvas,quality){
     if(live.length>1){const A=live[0],B=live[1];place(camA,A,t,orbit);place(camB,B,t,orbit);postU.f.value=(t-B.a)/(A.b-B.a);
       r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(rtB);r.render(scene,camB);r.setRenderTarget(null);r.render(post,ortho)}
     else{place(camA,live[0]||SHOTS[2],t,orbit);r.setRenderTarget(null);r.render(scene,camA)}}
-  function dispose(){scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}});
+  function dispose(){FIG.forEach(f=>{scene.remove(f.m.grp);try{SentinelMesh.dispose(f.m.grp)}catch(e){}});FIG.length=0;scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}});
     post.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});rtA.dispose();rtB.dispose();r.dispose();try{r.forceContextLoss()}catch(e){}}
   return{render,dispose};
 }
