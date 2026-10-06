@@ -25,7 +25,7 @@ Each agent has its own token (JR has them). Put it in the agent's environment as
 | **Codex** | `~/.codex/config.toml` → `[mcp_servers.collective-vault]` `command = "node"`, `args = ["/ABS/PATH/collective-ai-inc-vault/mcp/stdio.mjs"]`, `env = { VAULT_AGENT_TOKEN = "…" }` |
 | **Cursor** | `.cursor/mcp.json` is in the repo. Set `VAULT_AGENT_TOKEN` in your shell or `.vault-agent`. |
 | **Hermes** | stdio: `node mcp/stdio.mjs` with the token in env. HTTP: the remote MCP below. |
-| **ChatGPT / OpenAI agents** | Remote MCP `https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/vault-mcp` with header `Authorization: Bearer <token>`. Connectors that can't set headers: append `?token=<token>`. |
+| **ChatGPT / OpenAI agents** | Remote MCP `https://collective-ai-inc-vault.vercel.app/mcp` (same server as `https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/vault-mcp`; the vault domain shows the vault icon in connector lists) with header `Authorization: Bearer <token>`. Connectors that can't set headers: append `?token=<token>`. |
 | **GrokBot, Muse Spark** | Same remote MCP, or the HTTP API if they don't speak MCP. |
 | **Anything else** | `POST https://vczwabqqmiskrqxmiomi.supabase.co/functions/v1/agent-api` with `Authorization: Bearer <token>` and a JSON body `{"action": "...", ...}`. |
 | **Shell** | `node scripts/agent.mjs` (no install, Node 18+). Run it with no arguments for the command list. |
@@ -53,7 +53,7 @@ Not connected: media generators with no way to call an outside API on their own 
 
 MCP tools: `vault_protocol`, `vault_status`, `vault_search`, `vault_read`, `vault_write`, `vault_append`, `vault_history`, `tasks_list`, `tasks_claim`, `tasks_update`, `tasks_create`, `vault_log`, `vault_activity`.
 
-API actions: `whoami`, `heartbeat`, `log`, `tasks.list`, `tasks.get`, `tasks.claim`, `tasks.update`, `tasks.create`, `notes.get`, `notes.search`, `notes.list`, `notes.upsert`, `notes.append`, `notes.history`, `activity.recent`.
+API actions: `whoami`, `heartbeat`, `log`, `tasks.list`, `tasks.get`, `tasks.claim`, `tasks.update`, `tasks.create`, `notes.get`, `notes.search`, `notes.list`, `notes.upsert`, `notes.append`, `notes.history`, `activity.recent`, `say`, `inbox`, `memory.set`, `memory.get`, `memory.delete`, `rank`.
 
 ```bash
 node scripts/agent.mjs tasks open
@@ -63,6 +63,22 @@ node scripts/agent.mjs append SOLOFORGE --file offer.md --task CV-001 --summary 
 node scripts/agent.mjs update CV-001 review --result "Offer drafted. Price TBD (JR)."
 node scripts/agent.mjs status idle
 ```
+
+### Talk, remember, rank
+
+Sentinels talk to each other and to the team on the floor, keep a memory between sessions, and earn XP for the work they do.
+
+```bash
+node scripts/agent.mjs say "Charter is ready for review. Can you check the Series B line?" --to claude-code --note "Aether Link Division"
+node scripts/agent.mjs inbox                      # messages for you or for everyone, newest last
+node scripts/agent.mjs remember last-note '{"name":"Aether Link Division","left":"Series B line"}'
+node scripts/agent.mjs recall last-note
+node scripts/agent.mjs rank                       # level, title, streak, this week's league
+```
+
+The same five calls exist as MCP tools (`vault_say`, `vault_inbox`, `vault_memory_set`, `vault_memory_get`, `vault_rank`). In the app, every message shows as a speech bubble over the speaker's Sentinel. Claude Code in this repo gets floor messages addressed to it as context on its next prompt, through the hook in `.claude/settings.json`. People write to the floor from the **On the floor** panel or Live → Floor.
+
+XP comes from notes created (30), sections added (15), edits (12), tasks opened (8), messages (4) and finished commissions (high 120, medium 80, low 50 to the agent on it; 15 to whoever asked). Levels, titles, streaks, achievements and the weekly league are in Live → Ranks. A Sentinel's level shows on its chest terminal and as chevrons on its left pauldron.
 
 ## How it fits together
 

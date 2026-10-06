@@ -84,3 +84,179 @@ Rolling the frontend back leaves the original vault operational. New tables can 
 | Mobile | The existing city responsive shell is retained; gallery media queries are present. Mobile viewport and physical device checks remain open. |
 
 ![Actual preview in the WebGL-unavailable cloud browser](sentinel-reference-preview.jpg)
+
+## Finish pass · Oct 5, 2026
+
+The Sentinels move to the concept sheet's proportions, and the vault gets a finish layer. Functionality, element IDs, data flows, tables, RLS and the API are unchanged.
+
+![Reference gallery after the finish pass](sentinel-gallery-v2.jpg)
+
+![Two Claude Code Sentinels on the Divisions MOC rooftop at dusk](sentinel-campus-v2.jpg)
+
+### Sentinel geometry
+
+| Change | Detail |
+|---|---|
+| One blueprint | `Identity.blueprint(form)` holds every part: shape, size, position, rotation and material slot. The 3D mesh and the 2D account preview are both built from it, so the two views cannot drift apart. |
+| Proportions | 5.7 m figure, eight heads tall. V-shaped chest, narrow waist, tall tapered helmet, long tapered limbs. The previous figure was about five heads tall with a box torso. |
+| Plates | Chamfered unit cube and a tapered variant replace the plain box for parts thicker than 9 cm. Thin trims stay boxes to save vertices. |
+| Identification | Visor glass with three lit slits, lit chest trims, collar line, spine and limb strips. The chest terminal carries a frame, a four-bar mark, the symbol and the owner code. |
+| Ring | Flat compass ring: lit band, 36 ticks, four chevrons. It turns slowly and pulses. |
+| Forms | JR: four-step mantle, crest, gold outer thigh plates, teal tabard. Devon: shoulder rails with caps, bridge backpack, shin rails. Ahmad: square guards, chest ledger, plum coat, forearm guards, flat helmet cap. Kenza: collar fins, helmet fin, split waist panels on each leg. Member: chest rails, wrist accents. Agent: facade ribs, antenna. |
+| Owner band | On the right forearm of person-owned tool Sentinels, lit in the owner's color. |
+| Metals | A prefiltered dusk environment (PMREM) gives the armor reflections. Built once per renderer. Without WebGL or a renderer the materials fall back to lower metalness. |
+
+### Motion
+
+`SentinelMesh.pose(model, seconds, moving)` is shared by the campus and the gallery. Moving: leg stride, counter-swinging arms, step bob. At rest: breathing, an occasional visor scan, a glow pulse and ring rotation. Each Sentinel has its own phase, so a rooftop group does not move in step. Reduced-motion users get a still figure, as before.
+
+### Budget
+
+| Measure | Before | After |
+|---|---|---|
+| Draw objects per Sentinel | 9 | 10, JR 11 (test limit 12) |
+| Vertices per Sentinel | 1,410 to 1,626 | 6,988 to 7,816 |
+| 48 agent Sentinels | 67,680 vertices | 354,432 vertices |
+| Build time, 48 Sentinels (Node, no GPU) | not measured | 248 ms |
+
+The head, both arms and both legs are each one vertex-colored mesh. A small shader patch adds emission per vertex for the lit parts. Torso armor stays merged by palette color, so the existing test that finds the armor color on a material still applies.
+
+### Gallery (`/sentinels.html`)
+
+Roster cards with the blueprint previews, orbit by drag and wheel, turntable and walk-cycle toggles, native color pickers beside the hex fields, a reset button, a specs list, shadowed plinth, three-point light and ACES tone mapping. The SVG fallback for browsers without WebGL now reads vertex colors and lit parts. Mobile turns the roster into a scrolling strip.
+
+### Vault finish layer
+
+Visual properties only: glass HUD panels with blur, consistent radii and shadows, an active-view bar on the ribbon, animated tooltips, a live dot pulse, agent labels with a pointer toward their Sentinel, a scanning loader, a sign-in gate with a perspective grid and soft glow, toast and switcher entrance motion, tab hover states, tinted callouts, striped tables, a raised primary button and themed scrollbars. The rules sit in one block before the mobile media query, so mobile layout rules still win. `prefers-reduced-motion` now stops animations as well as transitions.
+
+The Live → Sentinel tab shows the preview in a card with the 60:30:10 bar. Each hex field has a native color picker beside it. The hex field is still the value that is saved, and its save path, validation and messages are unchanged.
+
+### Validation
+
+- `npm test`: 6 of 6 pass, unchanged.
+- `node --check` on every `web-src/*.js` file.
+- `python3 scripts/build_web.py` regenerates `web/index.html` and `web/sentinels.html`.
+- Headless Chromium with SwiftShader WebGL: the gallery for all seven builds, desktop and 390 px mobile. The full campus was run against a local stub of the Supabase client loaded with the 1,199 notes from `vault/`, six agents, two members and one person-owned session. Checked: the campus at dusk, Sentinels on a rooftop, the Sentinel tab, the Home note, the light theme, mobile and the sign-in gate. The stub stayed in a scratch folder and is not committed.
+- Still open: physical GPU and Galaxy A15 checks, and an end-to-end run against the production database.
+
+## Play layer · Oct 6, 2026
+
+Sentinels walk the streets, work in a way you can read from across the campus, talk to each other and to the team, remember between sessions, and rank up. The vault has a play layer: XP, levels, streaks, achievements, a weekly league, commission bounties and ceremonies. Every existing control, ID, data flow and policy stays as it was; the migration is additive.
+
+![A Sentinel on the street, seen from walk mode](sentinel-street-v3.jpg)
+
+![Two Claude Code Sentinels on the Divisions MOC roof, facing each other with the data beam between them](sentinel-huddle-v3.jpg)
+
+![Live → Ranks](sentinel-ranks-v3.jpg)
+
+### Sentinel craft
+
+| Change | Detail |
+|---|---|
+| Plates and seams | Abdominal seams, chest plate seams, lit rivets, terminal mount, belt pouches and buckle, collar light line, elbow and knee guards, forearm vents, finger seams, shin ribs. |
+| Cables | Two shoulder cables run from the pauldrons to the back bridge. |
+| Shade variance | Each plate gets its own shade between 0.86 and 1.08 of the palette color, so adjoining panels read as separate metal. |
+| Rim light | A fresnel edge in the accent color on every material. It rises when the Sentinel reviews or celebrates, drops when blocked. |
+| Rank marks | Level 1 to 5 add chevrons to the left pauldron. Level 10 adds a helmet crest. Level 20 adds twin aerials. The chest terminal shows `L<n>`. |
+| Budget | 9,800 to 10,500 vertices and 10 draw objects (JR 11) per Sentinel. Status props add a slate, three orbs or a beam only while needed and are disposed with the figure. |
+
+### Streets
+
+- `buildNav` lays a 3 m grid over the plan after each layout. Building footprints (plus 1.1 m) block cells. Each building gets a door: the nearest free cell in front of it, then any side.
+- `route` is A* on that grid, eight-connected without corner cutting, followed by a line-of-sight pull so the path hugs the street rather than the grid.
+- A Sentinel that changes note descends its current facade on a lift beam, walks the route to the new building's door at 14 m/s or faster for long trips (a trip never takes more than about 14 s), rides the lift up, then steps to its slot on the roof. Slots are spread around the roof center so a crowd does not overlap.
+- A Sentinel that appears after the first four seconds of a session arrives from the gate by the Home tower and walks in. Reduced motion places everything directly.
+- People's walkers still come from their own browsers and are placed as before.
+
+### Behavior
+
+`SentinelMesh.pose(model, seconds, status)` is shared by the campus and the gallery:
+
+| Status | What you see |
+|---|---|
+| walking | Stride, counter-swinging arms, step bob, head steady |
+| lifting | Arms out, head up, a lit beam the height of the facade |
+| working, in use | Both hands on a holographic slate at chest height, tapping |
+| writing | Slate held low on the left, right hand scribbling |
+| reading | Slate raised to the visor, head down, slow scan |
+| thinking | Hand to chin, head tilted, three orbs orbiting the helmet |
+| reviewing | Arms crossed, visor sweeping side to side, rim light up |
+| blocked | Arms down, head down, glow dim and flickering, ring faint |
+| idle, viewing | Breathing, occasional visor scan |
+
+Emotes ride on top for a few seconds: `celebrate` (arms up, jumps, glow high), `greet` (a wave), `nod`.
+
+Sentinels on the same roof turn to face the roof center. Every seven seconds two of them pair up: one greets, the other nods, and a data beam runs between their chest terminals for 2.6 s. Each Sentinel has its own motion phase, so a roof never moves in lockstep.
+
+### Talk and memory
+
+- `activity` rows of kind `say` carry a `target` (an agent id or a person's display name; null means the floor). The API gains `say`, `inbox`, `memory.set`, `memory.get`, `memory.delete` and `rank`; the MCP manifest gains the matching five tools; the CLI gains `say`, `inbox`, `remember`, `recall`, `forget`, `rank`.
+- `sentinel_memory` keeps small JSON values per agent and key, written only through agent-api. Team members can read them.
+- The Claude Code hook fetches the inbox on `SessionStart` and `UserPromptSubmit` and prints new messages, so they become context for the next turn. The high-water mark lives in `.vault-inbox` (gitignored).
+- In the app, a `say` shows as a speech bubble over the speaker's Sentinel for 8 s; the target nods. Other activity shows a short bubble too (“Raised …”, “Took CV-004”, “CV-002 is ready for review”). People type to the floor from the On the floor panel or Live → Floor.
+
+### XP and ranks
+
+- `agent_stats` is written only by triggers (`activity_award` on activity inserts, `tasks_award` on a task reaching done). Clients can read it; `award_xp` is revoked from `authenticated`.
+- XP per kind: created 30, added to 15, edited 12, opened 8, sent to review 20, claimed 5, assigned 5, say 4, read 2, unblocked 5, resumed 2. `finished` pays nothing itself; the task trigger pays the bounty (high 120, medium 80, low 50) to the agent on the task and 15 to whoever asked for it.
+- Level = floor(sqrt(xp / 60)). Titles: Initiate, Surveyor, Mason, Drafter, Builder, Architect, Keeper, Warden, Chancellor, Luminary, Sentinel Prime.
+- Streak = consecutive UTC days with any activity. Week XP resets on Monday. The migration backfills from existing activity and done tasks, oldest first.
+- Ten achievements are computed in the client from counters: First Stone, Ten Towers, Chronicler, Closer, Commissioner, Diplomat, Ensemble, Cartographer, Week Watch, Luminary.
+- Live → Ranks: your card with the leveled preview, XP bar, week XP, streak, best streak, notes touched, teammates; achievements; the week's league; all time; open commissions with bounties.
+- Ceremonies: a task reaching done fires a particle burst over its building, a `celebrate` emote on the agent's Sentinel, a bounty floater and a four-note chime. Your own level-up opens a card with your Sentinel at the new level. A once-a-day campus brief greets you with streak, week XP, the week's leader and open commission value. Floaters show `+N XP` over a Sentinel as its activity lands.
+- Sound is a small WebAudio synth: a tick on opening a note, a two-note chime for notes, a four-note rise for a finished task, a six-note rise for a level-up, two short blips for a message. It is on by default and switched off in Live → Sentinel; nothing plays before the first click.
+- The design avoids loss: a quiet day never costs XP, streaks reset but best streak stays, and no screen counts down or nags.
+
+### Gallery
+
+`/sentinels.html` adds a **Doing** selector for every status, a **Level** slider that shows the rank marks, and Celebrate and Greet buttons.
+
+### Validation
+
+- `npm test`: 7 of 7, including a new PGlite test of the play migration: backfill totals, streaks across days, peer tracking on `say`, bounty paid once through the task trigger, and `authenticated` blocked from writing `agent_stats`, `sentinel_memory` and calling `award_xp`.
+- `node --check` on every `web-src/*.js`, `scripts/agent.mjs` and `mcp/stdio.mjs`; `mcp/tools.json` parses.
+- `python3 scripts/build.py --strict`: 0 unresolved links. `web/` matches a fresh build.
+- Headless Chromium with SwiftShader: every pose and level in the gallery; the campus against the local stub with the 1,199 notes from `vault/`, five agents, two members, a person-owned session and stats rows. Checked: street walking from walk mode, a lift, a two-Sentinel huddle with the beam, bubbles, floaters, the done burst, Ranks, the level-up card, the brief, floor chat row, light theme and mobile.
+- On 2026-10-06, with owner approval, the play migration was applied to production (backfill: 7 actors ranked, GrokBot leading at 482 XP) and `agent-api` v2 and `vault-mcp` v2 deployed with JWT verification off, as before, since both authenticate with agent tokens. The deployed `vault-mcp` carried a stale `tools.json`; it now matches `mcp/tools.json` and lists 18 tools. An unauthenticated request and a bad token both return HTTP 401. The `drop trigger if exists` lines in the migration file were left out of the applied copy: the triggers did not exist yet, and the tool holds destructive statements for a confirmation.
+- Open: GPU and Galaxy A15 checks; a real two-agent conversation end to end.
+
+### Activation order
+
+1. Apply `supabase/migrations/20261006090000_sentinel_play.sql`. It backfills ranks from existing activity. Done 2026-10-06.
+2. Deploy `agent-api` (new actions) and `vault-mcp` (new tools, read from `tools.json`). Done 2026-10-06.
+3. Merge the frontend. The production app still runs the previous build until then; the new tables and actions are already live and harmless to it.
+
+## World pass · Oct 6, 2026
+
+Three parallel work streams, integrated and verified on one build. Nothing in the existing controls, data flows or policies changes.
+
+![Street level by day: glass curtain wall, pavers, cast shadows, the ZenFlow Warden ahead](world-guide-street.jpg)
+
+![Title screen main menu, every frame generated at runtime](title-menu.jpg)
+
+![Night overview with lit windows and bloom](world-night.jpg)
+
+### Title screen and opening cutscene (`web-src/f_title.js`)
+
+Pure code: a three.js city of 2,116 instanced towers rises in a radial wave under a dawn light with a drifting gold data lattice; the wordmark "COLLECTIVE AI" and "VAULT" reveal letter by letter with a light sweep, then the tagline, then the menu: Enter the Vault, Settings (sound, cutscene on or off, quality low or high, replay intro), Credits. A synthesized score (D minor pad, arpeggio, sub pulses) starts on the first gesture and ends with the menu. Skippable at any point. Seen-today players get a 1.5 s sting. Reduced motion skips straight to the menu. The hand-off to the app is a 900 ms shutter wipe; the renderer and audio are disposed afterward. `e_boot.js` awaits `Title.start()` before sign-in.
+
+### World (`web-src/c_campus.js`)
+
+- **Real clock.** Mode `auto` is the default. Latitude comes from a 52-entry time zone table (continent fallback, default 35°N); longitude from the UTC offset; the sun from the NOAA low-precision approximation (about 1° error; a comment says so). Sky gradient, sun colour, haze, fog, exposure, window light, star opacity, bloom weight and the UI theme blend continuously between night, dawn, day and dusk on sun elevation. Shadows follow the real sun and re-render only when it moves more than about 0.5°. Updates every minute and on focus. The time-of-day button cycles auto → dusk → night → day; the tooltip shows local time, zone and sun elevation.
+- **Atmosphere.** Sun disc with glow, horizon haze toward the sun, a moon opposite the sun with a faint face, 1,600 stars that fade in at night, aerial perspective from blended fog.
+- **Materials.** Six albedo tiles in `web/assets/`: facade glass, stone and gravel roof from Higgsfield (Recraft V4.1); asphalt, pavers and steel generated locally with ImageMagick after Higgsfield refused further generations on the daily limit. Facade variant per building from the existing hash, sampled triplanar-style; mortar and floor seams darken procedurally; roughness and metalness per variant. Windows are cut and lit only from dusk, so by day the facade texture shows. Ground samples asphalt on streets and pavers on district plots through a mask painted with the plan. Still one `InstancedMesh`.
+- **Bloom.** On quality high, widths over 760 px and no reduced motion, the three r128 example passes load lazily from cdnjs; any failure falls back to a plain render. Composer runs only when the blended bloom weight is above 0.03.
+
+### Guides (`web-src/c_npc.js`)
+
+One Warden per district, a member-form Sentinel in the district colour, placed on the nearest roomy free cell to the district centre (all eight neighbours free). It idles, turns to face you within 60 m and greets once per approach. Clicking it flies the camera to a spot facing it and opens a three-tab panel: **Ask** (local intent matching: what is this district, what's new, who is working here, open tasks, where is X, plus a scored search over names, tags and bodies; never guesses; four suggested chips), **Map** (blocks, the eight tallest notes, Walk me there), **Work** (open and claimed tasks with bounties, recent activity, a pointer to floor chat). `Live.snapshot()` is the only read the guides make from the live layer.
+
+### Branding
+
+`web/icon.svg` and PNG icons at 64, 192 and 512 px, `web/manifest.json`, head links and theme colour. Both MCP servers announce `title: Collective AI Vault`, the icon and the website in `serverInfo`. `https://collective-ai-inc-vault.vercel.app/mcp` and `/api` proxy to the edge functions, so connector lists show the vault's domain and icon rather than the database host's.
+
+### Validation
+
+- `node --check` on every module; `python3 scripts/build_web.py`; `npm test` 7/7; `build.py --strict` 0 unresolved.
+- Headless Chromium with SwiftShader on the integrated `web/index.html`: title cutscene, menu, settings, mobile 390 px; the campus after Enter at dawn, noon, dusk and night; street level by day and night; a Warden standing in its district; Ask with an answered question; Map; Work. Screenshots in `docs/title-*.jpg`, `docs/world-*.jpg`, `docs/guides-*.jpg`.
+- Open: GPU cost of bloom and the four extra texture samples on a laptop and on the Galaxy A15; the cdnjs example script URLs were served locally in the harness; only the UTC zone was exercised live; Space Grotesk was blocked in the harness so screenshots show the fallback face; the three fallback textures can be swapped for generated ones by replacing the files.

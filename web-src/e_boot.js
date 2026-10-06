@@ -7,9 +7,11 @@
     buildTree("");
     Campus.boot();updateCrumb();
     if(!Campus.ok()){open(byName.get("🏠 Home"));sheet.full=true;syncSheet()}
-    Live.syncMarkers();Live.pushAgents();Live.subscribe();Live.drawFloor();
+    Live.syncMarkers();Live.pushAgents();Live.subscribe();Live.drawFloor();setTimeout(Live.brief,2500);
     const want=decodeURIComponent(location.hash.slice(1));if(want&&byName.get(want))open(byName.get(want));
   }
+  // title screen and opening cutscene first; it resolves when the player chooses "Enter the Vault"
+  try{if(typeof Title!=="undefined")await Title.start()}catch(e){console.warn(e)}
   try{if(await Live.session()&&await Live.member()){await enter();return}}catch(e){console.warn(e)}
   $("#loading").textContent="Sign in";gate.hidden=false;setTimeout(()=>$("#gName").focus(),50);
   $("#gateForm").addEventListener("submit",async e=>{
