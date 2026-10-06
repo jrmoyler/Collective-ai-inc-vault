@@ -57,3 +57,20 @@ test('reduced motion holds a still pose, and an immediate rebuild at a higher le
  mesh.reducedMotion(null);mesh.dispose(m.grp);
  const x=mesh.create({id:'lvl',form:'agent',level:2}),y=mesh.create({id:'lvl',form:'agent',level:3});assert.equal(y.pendingEmote,null);mesh.dispose(x.grp);mesh.dispose(y.grp);
 });
+test('traveler cloaks clear the power core, bind the hem to the hips, and stay on the five-surface budget',()=>{
+ const widths=[];
+ for(const form of ['jr','devon','ahmad','kenza','member','agent']){
+  const bp=identity.blueprint(form,{level:12});
+  const cloth=bp.parts.filter(p=>p.k===5&&p.slot==='torso'&&p.z<0);
+  assert.ok(cloth.length>=5,form+' cloak is layered');
+  assert.ok(Math.min(...cloth.map(p=>p.y))<3.38,form+' hem binds to the hips');
+  assert.ok(cloth.every(p=>p.z+p.d/2<-0.6),form+' cloth stays behind the power core');
+  widths.push(Math.max(...cloth.map(p=>p.w)));
+  const m=mesh.create({id:'cloak-'+form,form,level:12});
+  assert.ok(mesh.stats(m).draws<=8,form);assert.equal(m.bones.length,15);
+  const body=m.surfaces.body.geometry.attributes.cloth;
+  assert.ok(body&&body.array.some(v=>v===1),'cloth is marked on the body surface');
+  mesh.dispose(m.grp);
+ }
+ assert.equal(new Set(widths).size,6);
+});
