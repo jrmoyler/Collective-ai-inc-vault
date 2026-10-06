@@ -238,10 +238,18 @@ Deno.serve(async (req) => {
         return json({ ok: true });
       }
       case "rank": {
-        const [{ data: mine }, { data: league }] = await Promise.all([
+        const [{ data: mine }, view] = await Promise.all([
           db.from("agent_stats").select("*").eq("actor", A).maybeSingle(),
           db.from("agent_league").select("actor,actor_kind,xp,week_xp,streak").order("week_xp", { ascending: false }).order("xp", { ascending: false }).limit(10),
         ]);
+        let league = view.data;
+        if (view.error) {
+          // agent_league comes with the 20261006120000 migration. Until it exists, apply the same week rule here.
+          const wk = weekStart();
+          const { data: all } = await db.from("agent_stats").select("actor,actor_kind,xp,week_xp,week_start,streak");
+          league = (all || []).map(({ week_start, ...r }: any) => ({ ...r, week_xp: week_start === wk ? r.week_xp : 0 }))
+            .sort((a: any, b: any) => b.week_xp - a.week_xp || b.xp - a.xp).slice(0, 10);
+        }
         const xp = mine?.xp || 0, level = Math.floor(Math.sqrt(xp / 60));
         const titles = ["Initiate", "Surveyor", "Mason", "Drafter", "Builder", "Architect", "Keeper", "Warden", "Chancellor", "Luminary", "Sentinel Prime"];
         return json({ ok: true, you: { actor: A, xp, level, title: titles[Math.min(level, 10)], next_level_at: 60 * (level + 1) ** 2, week_xp: mine && mine.week_start === weekStart() ? mine.week_xp : 0, streak: mine?.streak || 0, best_streak: mine?.best_streak || 0, notes_touched: Object.keys(mine?.touched || {}).length, peers: Object.keys(mine?.peers || {}), counters: mine?.counters || {} }, league: league || [] });
