@@ -197,6 +197,19 @@ function makeCity(canvas,quality){
   const shp=new Float32Array(SNT*3),shg=new THREE.BufferGeometry();shg.setAttribute("position",new THREE.BufferAttribute(shp,3));
   const sheadM=new THREE.PointsMaterial({map:glowTex([[0,"rgba(255,236,200,1)"],[.25,"rgba(255,200,120,.8)"],[1,"rgba(232,163,61,0)"]],64),color:0xffd08a,size:1.9,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
   const sheads=new THREE.Points(shg,sheadM);sheads.frustumCulled=false;scene.add(sheads);
+  const streetZ=t=>{const u=clamp((t-CUT.x1)/(9.3-CUT.x1),0,1);return lerp(SPAN*.44,SPAN*.04,u*u*(3-2*u)*.35+u*.65)};
+  // street lamps down the main avenue: warm pools on the ground and a glow at lamp height, all additive and unlit
+  const LAMP=hi?16:10,poolT=glowTex([[0,"rgba(255,196,120,.55)"],[.45,"rgba(232,163,61,.16)"],[1,"rgba(232,163,61,0)"]],128);
+  const poolM=new THREE.MeshBasicMaterial({map:poolT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
+  const poolG=new THREE.PlaneGeometry(7,7);poolG.rotateX(-Math.PI/2);const pools=new THREE.InstancedMesh(poolG,poolM,LAMP);pools.frustumCulled=false;
+  const lampP=new Float32Array(LAMP*3),lampG=new THREE.BufferGeometry();
+  for(let k=0;k<LAMP;k++){const z=SPAN*.42-k*(SPAN*.42+34)/(LAMP-1),x=RX+(k%2?2.7:-2.7);m4.makeTranslation(x-(k%2?1:-1)*1.2,.05,z);pools.setMatrixAt(k,m4);lampP[k*3]=x;lampP[k*3+1]=4.6;lampP[k*3+2]=z}
+  lampG.setAttribute("position",new THREE.BufferAttribute(lampP,3));scene.add(pools);
+  const lampM=new THREE.PointsMaterial({map:glowTex([[0,"rgba(255,240,215,1)"],[.3,"rgba(255,190,110,.5)"],[1,"rgba(232,163,61,0)"]],64),size:1.6,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
+  const lamps=new THREE.Points(lampG,lampM);lamps.frustumCulled=false;scene.add(lamps);
+  // shot 2 key and rim: a warm low light that rides ahead of the camera, and a cool light from down the avenue behind the walkers
+  const street=new THREE.PointLight(0xffb45a,0,15,2);scene.add(street);
+  const coolRim=new THREE.DirectionalLight(0x7fb2ff,0);scene.add(coolRim);scene.add(coolRim.target);
   // real Sentinels on the main avenue (skinned rig, speed-matched gait). The instanced walkers above are the fallback.
   const FIG=[];
   if(typeof SentinelMesh!=="undefined"&&SentinelMesh.create){
@@ -205,11 +218,14 @@ function makeCity(canvas,quality){
     for(let k=0;k<n;k++){try{const m=SentinelMesh.create({id:"title:"+k,form:forms[k],level:[0,4,9,14,20,26][k%6],celebrateLevelUp:false});
       const bb=new THREE.Box3().setFromObject(m.grp),hgt=bb.max.y-bb.min.y;if(hgt>0)m.grp.scale.setScalar(2.1/hgt);
       const dir=k%3===1?-1:1;m.grp.rotation.y=dir>0?0:Math.PI;scene.add(m.grp);
-      FIG.push({m,dir,x:RX+(k%2?1.25:-1.25)+(seed(k,11)-.5)*.35,ph:(k+seed(k,13)*.6)/n*ZL,sp:1.2+seed(k,17)*.5,Z0,ZL})}catch(e){break}}
+      // the first three are hero walkers, placed by the cutscene clock so they pass close to the lens near the end of the shot
+      const hero=k<3?[{d:11.5,x:-1.1,dir:1},{d:16,x:1.3,dir:-1},{d:23,x:-1.4,dir:1}][k]:null;if(hero){m.grp.rotation.y=hero.dir>0?0:Math.PI}
+      FIG.push({m,dir,hero,x:RX+(k%2?1.25:-1.25)+(seed(k,11)-.5)*.35,ph:(k+seed(k,13)*.6)/n*ZL,sp:1.2+seed(k,17)*.5,Z0,ZL})}catch(e){break}}
     if(FIG.length){sbody.visible=false;sheads.visible=false}}
-  function walkFig(time,vis){for(const f of FIG){const g=f.m.grp;g.visible=vis>.01;if(!g.visible)continue;
-      const p=((f.ph+time*f.sp)%f.ZL+f.ZL)%f.ZL;g.position.set(f.x,0,f.dir>0?f.Z0-f.ZL+p:f.Z0-p);
-      try{SentinelMesh.pose(f.m,time,"walking",{speed:f.sp})}catch(e){}}}
+  function walkFig(t,time,vis,boost){for(const f of FIG){const g=f.m.grp;g.visible=vis>.01&&!(f.hero&&t>CUT.x2+.8);if(!g.visible)continue;
+      if(f.hero)g.position.set(RX+f.hero.x,0,streetZ(8.2)-f.hero.d+(t-8.2)*f.sp*f.hero.dir);
+      else{const p=((f.ph+time*f.sp)%f.ZL+f.ZL)%f.ZL;g.position.set(f.x,0,f.dir>0?f.Z0-f.ZL+p:f.Z0-p)}
+      try{SentinelMesh.pose(f.m,time,"walking",{speed:f.sp});f.m.glow.value*=1+boost*.9;f.m.rimGain.value=Math.max(f.m.rimGain.value,.3+boost*.5)}catch(e){}}}
   function walk(time,vis){for(let k=0;k<SNT;k++){const s=sent[k];let p=((s.ph+time*s.sp*1.4)%SPAN+SPAN)%SPAN-SPAN/2;const b=Math.abs(Math.sin(time*5.2+s.bob))*.08;
       const x=s.alongZ?s.lane+s.off:p,z=s.alongZ?p:s.lane+s.off;m4.makeScale(.42*vis,.78*vis,.42*vis);m4.setPosition(x,.78*vis+b,z);sbody.setMatrixAt(k,m4);
       shp[k*3]=x;shp[k*3+1]=(1.45+b)*vis;shp[k*3+2]=z}
@@ -238,14 +254,16 @@ function makeCity(canvas,quality){
   function shotSky(c,t){const u=clamp(t/CUT.x2,0,1),tilt=ease(clamp((t-.7)/4.2,0,1));
     c.position.set(lerp(-26,-14,u),lerp(5,16,u),SPAN*.78*wide-u*16);tgt.set(lerp(-14,0,tilt),lerp(170,10,tilt),lerp(-80,0,tilt));c.fov=lerp(52,46,u)}
   function shotStreet(c,t){const u=clamp((t-CUT.x1)/(9.3-CUT.x1),0,1),e=u*u*(3-2*u)*.35+u*.65;
-    const z=lerp(SPAN*.44,SPAN*.04,e);c.position.set(RX+Math.sin(u*2.2)*.5,lerp(2.6,6.2,e),z);tgt.set(RX+Math.sin(u*2.2+.5)*1.3,lerp(2.4,6.5,e),z-34);c.fov=lerp(56,48,u)}
+    const z=streetZ(t);c.position.set(RX+Math.sin(u*2.2)*.5,lerp(2.5,4.3,e),z);tgt.set(RX+Math.sin(u*2.2+.5)*1.3,lerp(2.2,4.4,e),z-34);c.fov=lerp(56,48,u)}
   function shotDawn(c,t,orbit){const u=ease(clamp((t-CUT.x2)/6.6,0,1));const a=-1.02+u*.3+orbit;const d=SPAN*lerp(.86,.78,u)*wide;
     c.position.set(Math.sin(a)*d,SPAN*lerp(.2,.27,u),Math.cos(a)*d);tgt.set(0,lerp(9,14,u),0);c.fov=lerp(40,36,u)}
   const SHOTS=[{a:-1,b:CUT.x1+.7,f:shotSky},{a:CUT.x1,b:CUT.x2+.7,f:shotStreet},{a:CUT.x2,b:1e9,f:shotDawn}];
   function place(c,s,t,orbit){s.f(c,t,orbit);c.lookAt(tgt);c.updateProjectionMatrix()}
   // t: cutscene clock (s); time: wall clock for loops; orbit: radians added in the menu
   function render(t,time,orbit){size();
-    write(clamp((t-.2)/5.4,0,1.8),time);const wv=clamp((t-2.5)/2,0,1);if(FIG.length)walkFig(time,wv);else walk(time,wv);
+    write(clamp((t-.2)/5.4,0,1.8),time);const wv=clamp((t-2.5)/2,0,1),s2=clamp((t-CUT.x1+.5)/.6,0,1)*clamp((CUT.x2+1-t)/.6,0,1);if(FIG.length)walkFig(t,time,wv,s2);else walk(time,wv);
+    const cz=streetZ(t);street.position.set(RX,2.6,cz-12);street.intensity=s2*1.6;coolRim.position.set(RX,14,cz-90);coolRim.target.position.set(RX,0,cz);coolRim.intensity=s2*.9;
+    poolM.opacity=clamp((t-2)/2.5,0,1)*(1-clamp((t-9)/4,0,.7));lampM.opacity=poolM.opacity;
     const dawn=clamp((t-8.2)/5.5,0,1);skyU.dawn.value=dawn;
     skyU.zen.value.setRGB(lerp(.012,.10,dawn),lerp(.02,.13,dawn),lerp(.047,.26,dawn));skyU.hor.value.setRGB(lerp(.043,.46,dawn),lerp(.07,.27,dawn),lerp(.15,.2,dawn));
     starM.opacity=.9*(1-dawn*.9);nebM.opacity=.9*(1-dawn);
