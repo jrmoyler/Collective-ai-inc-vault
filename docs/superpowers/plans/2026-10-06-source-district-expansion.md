@@ -49,11 +49,11 @@
 - [x] Add importer-owned provenance tables, district registry, curated note membership and member-read RLS.
 - [x] Add derived catalog/coverage views and JWT endpoint; update progress validation to registry.
 - [x] Verify catalog permissions, actual source associations and existing progress preservation in tests.
-- [ ] Final production metadata seed and readback: migration and both functions deployed; initial nineteen-district registry verified. Final metadata seed blocked by Supabase connector Unauthorized.
+- [x] Final production seed applied after access restoration; nineteen districts, source associations and member isolation verified.
 
 ## Task 5 — Integration and publication
 
 - [x] Run full tests, build and rendered browser checks with current mirrored data.
 - [x] Review cross-component membership and content provenance; resolve important findings.
-- [ ] Publish changed blobs as a new commit on the existing PR branch and verify preview status.
+- [x] Publish changed blobs as a new commit on the existing PR branch and verify preview status.
 - [x] Report exact content/source/district totals and remaining evidence limits.

@@ -1,6 +1,6 @@
 # Nineteen-district source expansion
 
-This extends PR #4 on the existing branch. The vault has 1,405 notes, including 185 new notes, and 13,751 resolved internal links. There are no duplicate note names or unresolved links. Existing content and note identities are preserved; three historical product aliases are archived with canonical links.
+This extends PR #4 on the existing branch. The vault has 1,405 notes, including 185 new notes, and 13,752 resolved internal links. There are no duplicate note names or unresolved links. Existing content and note identities are preserved; three historical product aliases are archived with canonical links.
 
 ## Districts and content
 
@@ -20,12 +20,14 @@ Nineteen code-built landmarks use three merged materials and bounded geometry. G
 
 The provenance schema migration and JWT-protected district-catalog and district-progress functions were deployed. Nineteen registry entries were verified and all authored notes were saved through the versioned vault API with readback.
 
-The Supabase management connector subsequently returned Unauthorized. The final 425-document catalog seed, 364 note/source associations and updated thematic membership are prepared in supabase/source_catalog_seed.sql but are NOT yet applied to production. Reconnect Supabase, apply that transaction, run supabase/tests/district_catalog_verification.sql and inspect advisors before merging. Existing frontend definitions keep all nineteen districts available while metadata is pending.
+On October 6, 2026, Supabase access was restored and the final metadata seed was applied. Live readback confirms 19 districts, 1,405 notes, 425 source documents and 364 source-linked notes. Root index readback identified an older Git mirror; the full primary-source map was preserved, its founder/division summary corrected to current canon, and its reviewed body hash reconciled. The mirror now has 13,752 resolved links.
 
-The seed is idempotent and only associates source review with a matching note-body hash. Database tests validate row isolation and evidence ownership. Production verification after the final seed remains outstanding.
+Production rollback verification passed: member thematic progress, own-row isolation, metadata read-only permissions and anonymous catalog denial. No verification writes remain. The authentication/seed merge blocker is resolved.
+
+Security advisors retain three expected authenticated SECURITY DEFINER RPC warnings and the existing disabled leaked-password-protection warning. The RPCs intentionally enforce membership/ownership internally. See [RPC advisory](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable) and [password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection). GitHub Actions startup failure and unmeasured physical-device performance remain separate evidence limitations.
 
 ## Validation
 
-49 automated tests passed, followed by all 10 district tests passing with the added realtime-task regression; vault and web builds passed. Playwright rendered the real 1,405-note mirror on desktop (1440×900) and mobile (390×844, reduced motion), with nineteen landmarks and districts, all buildings, seven loaded audio assets and zero browser errors. Member sessions and backend transport were mocked: these checks do not establish production authentication or hardware frame rate. The final emergency-resolution adjustment was separately covered by passing tests after the rendered run. Screenshots and structured results are in district-expansion-evidence/.
+50 automated tests passed; vault and web builds passed. Playwright rendered the real 1,405-note mirror on desktop (1440×900) and mobile (390×844, reduced motion), with nineteen landmarks and districts, all buildings, seven loaded audio assets and zero browser errors. Member sessions and backend transport were mocked: these checks do not establish production authentication or hardware frame rate. The final emergency-resolution adjustment was separately covered by passing tests after the rendered run. Screenshots and structured results are in district-expansion-evidence/.
 
 PR review fixes also refresh open district task lists on realtime changes and align the package, lockfile and CI with Node 22 or newer.
