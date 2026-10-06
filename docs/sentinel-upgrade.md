@@ -217,10 +217,11 @@ Sentinels on the same roof turn to face the roof center. Every seven seconds two
 - `node --check` on every `web-src/*.js`, `scripts/agent.mjs` and `mcp/stdio.mjs`; `mcp/tools.json` parses.
 - `python3 scripts/build.py --strict`: 0 unresolved links. `web/` matches a fresh build.
 - Headless Chromium with SwiftShader: every pose and level in the gallery; the campus against the local stub with the 1,199 notes from `vault/`, five agents, two members, a person-owned session and stats rows. Checked: street walking from walk mode, a lift, a two-Sentinel huddle with the beam, bubbles, floaters, the done burst, Ranks, the level-up card, the brief, floor chat row, light theme and mobile.
-- Open: deploy `agent-api` and apply `20261006090000_sentinel_play.sql` to production (both are in this PR, neither is applied); GPU and Galaxy A15 checks; a real two-agent conversation end to end.
+- On 2026-10-06, with owner approval, the play migration was applied to production (backfill: 7 actors ranked, GrokBot leading at 482 XP) and `agent-api` v2 and `vault-mcp` v2 deployed with JWT verification off, as before, since both authenticate with agent tokens. The deployed `vault-mcp` carried a stale `tools.json`; it now matches `mcp/tools.json` and lists 18 tools. An unauthenticated request and a bad token both return HTTP 401. The `drop trigger if exists` lines in the migration file were left out of the applied copy: the triggers did not exist yet, and the tool holds destructive statements for a confirmation.
+- Open: GPU and Galaxy A15 checks; a real two-agent conversation end to end.
 
 ### Activation order
 
-1. Apply `supabase/migrations/20261006090000_sentinel_play.sql`. It backfills ranks from existing activity.
-2. Deploy `agent-api` (new actions) and `vault-mcp` (new tools, read from `tools.json`).
-3. Merge the frontend. Until step 1 runs, Ranks shows a notice and floor chat is disabled; everything else works as before.
+1. Apply `supabase/migrations/20261006090000_sentinel_play.sql`. It backfills ranks from existing activity. Done 2026-10-06.
+2. Deploy `agent-api` (new actions) and `vault-mcp` (new tools, read from `tools.json`). Done 2026-10-06.
+3. Merge the frontend. The production app still runs the previous build until then; the new tables and actions are already live and harmless to it.
