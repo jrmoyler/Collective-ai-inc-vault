@@ -4,7 +4,7 @@
 // Evidence: b_districts.js purpose/kit + current loaded notes; visual style reference:
 // docs/district-upgrade-evidence/desktop-world.jpg. No exact-image reconstruction claim.
 const DistrictAssets=(()=>{
-  const contract=Object.freeze({kind:'interpretive',reference:'docs/district-upgrade-evidence/desktop-world.jpg',authority:'AGENTS.md',maxDrawCalls:4,streetObstacles:0});
+  const contract=Object.freeze({kind:'interpretive',reference:'docs/district-upgrade-evidence/desktop-world.jpg',authority:'AGENTS.md',maxDrawCalls:3,streetObstacles:0});
   function recipe(theme){
     const parts=[];
     const add=(name,shape,size,p,material='metal',r=[0,0,0])=>parts.push({name,shape,size,p,material,r});
@@ -58,6 +58,65 @@ const DistrictAssets=(()=>{
         for(let i=0;i<3;i++){const a=i*Math.PI*2/3,x=Math.cos(a)*2.2,z=Math.sin(a)*2.2;cylinder('division-node-'+i,[.9,1.1,1.3],[x,1, z],'stone');ring('division-link-'+i,.83,1.72,'accent',[Math.PI/2,0,0],[x,1.72,z]);const b=(i+1)*Math.PI*2/3,xx=Math.cos(b)*2.2,zz=Math.sin(b)*2.2,len=Math.hypot(xx-x,zz-z);box('shared-engagement-'+i,[len,.12,.16],[(x+xx)/2,1.3,(z+zz)/2],'metal',[0,-Math.atan2(zz-z,xx-x),0])}cylinder('engagement-core',[.35,.45,2.2],[0,1.4,0],'accent');ring('mandate-crown',.58,2.5);break;
       default: return [];
     }
+    // The working exhibit sits inside a district-specific piece of architecture.
+    // These are navigable knowledge landmarks, not additional company facilities.
+    parts.forEach(p=>p.p[1]+=.48);
+    box('terrace-shadow-course',[9.2,.18,7.2],[0,.09,0],'metal');
+    box('terrace-stone-course',[9,.3,7],[0,.33,0],'stone');
+    for(let i=0;i<3;i++)box('arrival-stair-'+i,[3.6,.12, .35],[0,.06+i*.12,4.05-i*.35],'stone');
+    for(const x of [-4.25,4.25])box('recessed-edge-light-'+x,[.035,.035,6.4],[x,.497,0],'accent');
+    // Each setting has its own skyline. None places a collider in a street.
+    const portal=(name,x,z,h,w,angle=0)=>{
+      for(const side of [-1,1])box(name+'-jamb-'+side,[.17,h,.22],[x+Math.cos(angle)*side*w/2,.48+h/2,z-Math.sin(angle)*side*w/2],'stone',[0,angle,0]);
+      box(name+'-lintel',[w+.17,.19,.24],[x,.48+h,z],'metal',[0,angle,0]);
+      box(name+'-light',[w-.2,.035,.04],[x,.36+h,z+.13],'accent',[0,angle,0]);
+    };
+    const fins=(name,count,h,z,spread=7)=>{for(let i=0;i<count;i++){const x=-spread/2+i*spread/(count-1);box(name+'-'+i,[.14,h,.45],[x,.48+h/2,z],'stone');box(name+'-cap-'+i,[.17,.06,.49],[x,.51+h,z],'metal')}};
+    const arc=(name,r,y,start,end,count)=>{for(let i=0;i<count;i++){const a=start+(end-start)*i/(count-1),x=Math.cos(a)*r,z=Math.sin(a)*r;box(name+'-rib-'+i,[.13,y,.35],[x,.48+y/2,z],'stone',[0,-a,0]);box(name+'-crown-'+i,[.2,.045,.39],[x,.51+y,z],'accent',[0,-a,0])}};
+    switch(theme){
+      case 'navigation':
+        arc('atlas-colonnade',3.15,2.4,Math.PI,Math.PI*2,11);portal('atlas-entry',0,2.7,2.7,3.1);break;
+      case 'council':
+        arc('council-chamber',3.4,3.6,Math.PI*.95,Math.PI*2.05,13);box('council-entablature',[7.5,.24,.8],[0,4.18,-2.4],'stone');break;
+      case 'foundry':
+        for(const z of [-2.3,2.3])portal('compute-vault-'+z,0,z,5.2,7.2);for(const x of [-3.6,3.6])box('foundry-trunk-'+x,[.12,.18,4.6],[x,5.74,0],'accent');break;
+      case 'workshop':
+        portal('workshop-service-frame',0,-2.5,4.5,7.5);for(let i=0;i<5;i++)box('sawtooth-roof-'+i,[1.22,.12,2],[-2.7+i*1.35,5.1,-1.9],'metal',[0,0,.18]);break;
+      case 'commons':
+        for(const x of [-3.7,3.7]){box('commons-bench-'+x,[.65,.5,4],[x,.76,0],'stone');box('commons-back-'+x,[.12,.7,4],[x+(x<0?-.27:.27),1.12,0],'metal')}
+        portal('commons-pergola',0,-2.8,3.6,7.5);for(let i=0;i<9;i++)box('pergola-louver-'+i,[.25,.12,2],[-3.6+i*.9,4.2,-1.9],'metal');break;
+      case 'control':
+        fins('operations-screen-wall',9,3.8,-2.5);box('operations-brow',[7.8,.26,1.2],[0,4.42,-2.1],'metal');for(const x of [-3.8,3.8])box('operations-wing-'+x,[.2,2.1,2],[x,1.53,-1.2],'stone');break;
+      case 'chamber':
+        portal('treasury-outer-portal',0,-1.8,5.0,7.5);portal('treasury-inner-portal',0,-1.5,4.55,6.65);for(const x of [-3.7,3.7])box('treasury-buttress-'+x,[.5,2.7,3.5],[x,1.83,.2],'stone');break;
+      case 'atelier':
+        for(let i=0;i<4;i++)box('atelier-floating-roof-'+i,[1.55,.1,2.7],[-2.7+i*1.8,4.8+i*.12,-1.6],'stone',[0,0,.1]);for(const x of [-3.7,3.7])box('atelier-thin-support-'+x,[.12,4.6,.14],[x,2.78,-2.7],'metal');break;
+      case 'observatory':
+        arc('observatory-windbreak',3.3,1.65,Math.PI*.85,Math.PI*2.15,15);for(const x of [-3.4,3.4])box('instrument-bench-'+x,[.7,.55,2.4],[x,.76,.9],'stone');break;
+      case 'yard':
+        for(const x of [-3.7,3.7]){box('yard-service-rail-'+x,[.12,.15,6],[x,.58,0],'metal');for(let i=0;i<6;i++)box('yard-sleeper-'+x+'-'+i,[.55,.07,.2],[x,.49,-2.5+i],'stone')}
+        portal('delivery-yard-gate',0,-2.7,3.8,7.5);break;
+      case 'stacks':
+        portal('archive-portico-back',0,-2.7,4.7,7.6);portal('archive-portico-front',0,2.6,4.7,7.6);for(let i=0;i<7;i++)box('archive-roof-rib-'+i,[.18,.25,5.6],[-3.5+i*7/6,5.27,0],'stone');break;
+      case 'lab':
+        for(const x of [-3.5,3.5])portal('lab-calibration-frame-'+x,x,0,4.7,5.2,Math.PI/2);box('lab-overhead-sensor',[7.2,.2,.6],[0,5.24,-2.3],'metal');break;
+      case 'log':
+        arc('chronicle-radial-wall',3.4,2.1,Math.PI,Math.PI*2,13);for(let i=0;i<7;i++)box('chronicle-date-step-'+i,[.5,.12+i*.09,1],[-3+i, .54+i*.045,2.6],i===3?'accent':'stone');break;
+      case 'integrations':
+        for(const x of [-3.7,3.7]){portal('gateway-side-'+x,x,0,4.6,4.7,Math.PI/2);box('gateway-conduit-'+x,[.12,.1,4.8],[x,5.21,0],'accent')}
+        box('gateway-crosslink',[7.6,.25,.4],[0,5.25,-2.4],'metal');break;
+      case 'academy':
+        for(let i=0;i<3;i++)portal('academy-learning-arch-'+i,0,-2.8+i*.45,4.5-i*.17,7.6-i*.35);break;
+      case 'governance':
+        for(const x of [-3.6,3.6]){box('review-pier-'+x,[.6,4.8,.65],[x,2.88,-2.4],'stone');box('review-capital-'+x,[.95,.22,.95],[x,5.36,-2.4],'metal')}
+        box('review-pediment',[8,.35,1],[0,5.62,-2.4],'stone');break;
+      case 'delivery':
+        fins('delivery-loading-screen',7,2.2,-2.6);for(const x of [-3.9,3.9])box('delivery-bay-marker-'+x,[.15,3.4,.3],[x,2.18,2.4],'accent');break;
+      case 'infrastructure':
+        for(let i=0;i<3;i++)portal('utility-pipe-bridge-'+i,0,-2.5+i*.45,4.3+i*.12,7.8);for(const x of [-3.9,3.9])box('utility-service-bank-'+x,[.6,1.25,3.4],[x,1.105,.5],'stone');break;
+      case 'synergy':
+        for(let i=0;i<3;i++){const a=i*Math.PI*2/3,x=Math.cos(a)*3.2,z=Math.sin(a)*3.2;portal('synergy-participant-'+i,x,z,3.7,1.5,-a+Math.PI/2)}break;
+    }
     return parts;
   }
   function geometry(part){const s=part.size;switch(part.shape){case'box':return new THREE.BoxGeometry(...s);case'cylinder':return new THREE.CylinderGeometry(s[0],s[1],s[2],16);case'torus':return new THREE.TorusGeometry(s[0],s[1],6,32);default:throw new Error('Unsupported landmark part')}}
@@ -67,12 +126,21 @@ const DistrictAssets=(()=>{
     districts.forEach(d=>{
       const identity=typeof Districts!=='undefined'?Districts.get(d.top):null;if(!identity)return;
       const choices=buildings.filter(b=>b&&notes[b.id]&&(Districts.worldTop?Districts.worldTop(notes[b.id]):notes[b.id].top)===d.top).sort((a,b)=>{const ta=a.tiers.at(-1),tb=b.tiers.at(-1);return tb.w*tb.d-ta.w*ta.d});
-      const anchor=choices[0];if(!anchor)return;const roof=anchor.tiers.at(-1),scale=Math.min(roof.w/9,roof.d/8,1.65);
-      const sources=Districts.landmarks(d.top,notes).map(n=>n.name);
-      const record={folder:d.top,title:identity.title,theme:identity.theme,noteId:anchor.id,sourceNotes:sources,x:roof.x,y:roof.y1+.04,z:roof.z,scale,partCount:0};records.push(record);
-      recipe(identity.theme).forEach(part=>{
+      const anchor=choices[0];if(!anchor)return;const roof=anchor.tiers.at(-1);
+      // Derive the fit from transformed geometry, including rotated supports and torus tubes.
+      // A fixed nominal footprint silently clips the larger architectural settings.
+      const assembly=recipe(identity.theme).map(part=>{
         const raw=geometry(part),geo=raw.index?raw.toNonIndexed():raw;if(geo!==raw)raw.dispose();
-        const obj=new THREE.Object3D();obj.position.set(...part.p);obj.rotation.set(...part.r);obj.updateMatrix();geo.applyMatrix4(obj.matrix);geo.scale(scale,scale,scale);geo.translate(record.x,record.y,record.z);
+        const obj=new THREE.Object3D();obj.position.set(...part.p);obj.rotation.set(...part.r);obj.updateMatrix();geo.applyMatrix4(obj.matrix);geo.computeBoundingBox();return {part,geo};
+      });
+      if(!assembly.length)return;
+      const bounds=new THREE.Box3();assembly.forEach(p=>bounds.union(p.geo.boundingBox));
+      const width=2*Math.max(Math.abs(bounds.min.x),Math.abs(bounds.max.x)),depth=2*Math.max(Math.abs(bounds.min.z),Math.abs(bounds.max.z));
+      const scale=Math.min(roof.w/(width+.5),roof.d/(depth+.5),1.65);
+      const sources=Districts.landmarks(d.top,notes).map(n=>n.name);
+      const record={folder:d.top,title:identity.title,theme:identity.theme,noteId:anchor.id,sourceNotes:sources,x:roof.x,y:roof.y1+.04,z:roof.z,scale,height:bounds.max.y*scale,partCount:0};records.push(record);
+      assembly.forEach(({part,geo})=>{
+        geo.scale(scale,scale,scale);geo.translate(record.x,record.y,record.z);
         const color=new THREE.Color(part.material==='accent'?d.color:colors[part.material]).convertSRGBToLinear();
         if(!buckets.has(part.material))buckets.set(part.material,[]);buckets.get(part.material).push({geo,color,record,name:part.name});record.partCount++;
       });
@@ -92,3 +160,4 @@ const DistrictAssets=(()=>{
   function dispose(group){if(!group)return;group.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}});if(group.parent)group.parent.remove(group)}
   return Object.freeze({contract,recipe,build,hit,dispose});
 })();
+

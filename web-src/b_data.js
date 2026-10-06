@@ -158,7 +158,7 @@ function open(n,push=true){
   sheet.view="note";sheet.ntab="note";
   $("#back").disabled=$("#sBack").disabled=hpos<=0;$("#fwd").disabled=$("#sFwd").disabled=hpos>=hist.length-1;
   document.querySelectorAll(".file.on").forEach(f=>f.classList.remove("on"));
-  const fe=document.querySelector(`.file[data-id="${n.id}"]`);if(fe){fe.classList.add("on");let p=fe.parentElement;while(p&&p.id!=="tree"){if(p.classList.contains("fold"))p.classList.remove("closed");p=p.parentElement}fe.scrollIntoView({block:"nearest"})}
+  const fe=document.querySelector(`.file[data-id="${n.id}"]`);if(fe){fe.classList.add("on");let p=fe.parentElement;while(p&&p.id!=="tree"){if(p.classList.contains("fold"))p.classList.remove("closed");p=p.parentElement}const tree=$("#tree"),fr=fe.getBoundingClientRect(),tr=tree.getBoundingClientRect();if(fr.top<tr.top)tree.scrollTop+=fr.top-tr.top;else if(fr.bottom>tr.bottom)tree.scrollTop+=fr.bottom-tr.bottom}
   store.set("vault.last",n.name);
   Campus.focus(n);$("#plate").hidden=true;
   openSheet("note");updateCrumb();

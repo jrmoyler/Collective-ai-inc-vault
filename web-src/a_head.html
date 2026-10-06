@@ -30,7 +30,7 @@ input,select,textarea{font:inherit;color:var(--fg)}
 .rb[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:44px;top:50%;transform:translateY(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--fg);font-size:12px;padding:3px 8px;border-radius:6px;white-space:nowrap;z-index:30;pointer-events:none}
 /* explorer drawer */
 .side{position:absolute;left:48px;top:0;bottom:0;width:280px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:7;transform:translateX(-102%);transition:transform .22s ease}
-.side.open{transform:none}
+.side.open{transform:none;z-index:21}
 .vaulthead{padding:14px 14px 10px;border-bottom:1px solid var(--line)}
 .vaulthead h1{font-family:var(--display);font-size:15px;margin:0;letter-spacing:.01em;display:flex;align-items:center;gap:8px}
 .vaulthead h1 i{width:9px;height:9px;background:var(--accent);display:inline-block}
@@ -66,7 +66,7 @@ input,select,textarea{font:inherit;color:var(--fg)}
 .lbl.hov{background:#fff;color:#10131f}
 .hudtop{position:absolute;left:14px;top:12px;right:14px;display:flex;align-items:center;gap:6px;pointer-events:none}
 .hudtop>*{pointer-events:auto}
-.hudbtn{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;background:var(--hud);border:1px solid var(--line);color:var(--muted)}
+.hudbtn{flex:none;width:32px;height:32px;border-radius:7px;display:grid;place-items:center;background:var(--hud);border:1px solid var(--line);color:var(--muted)}
 .hudbtn:hover{color:var(--fg);border-color:var(--accent)}
 .hudbtn:disabled{opacity:.4;cursor:default}
 .hudbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -99,8 +99,9 @@ input,select,textarea{font:inherit;color:var(--fg)}
 .nogl b{display:block;color:var(--fg);font-family:var(--display);font-size:18px;margin-bottom:6px}
 .loading{position:absolute;inset:0;display:grid;place-items:center;background:#0b0f1d;color:#9aa3bd;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;z-index:3;transition:opacity .6s}
 /* sheet */
-.sheet{position:absolute;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:6;transform:translateX(102%);transition:transform .26s ease,width .22s ease;box-shadow:-18px 0 40px rgba(0,0,0,.28)}
-.sheet.open{transform:none}
+.sheet{position:absolute;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:20;transform:translateX(102%);transition:transform .26s ease,width .22s ease;box-shadow:-18px 0 40px rgba(0,0,0,.28)}
+.sheet:not(.open){visibility:hidden;pointer-events:none}
+.sheet.open{transform:none;visibility:visible;pointer-events:auto}
 .sheet.full{width:calc(100% - 48px)}
 .shead{display:flex;align-items:center;gap:4px;padding:8px 10px 8px 12px;border-bottom:1px solid var(--line);min-height:46px;box-sizing:border-box}
 .shead .crumb2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);font-size:11px;color:var(--faint);padding:0 6px}
@@ -391,7 +392,7 @@ a.wl{transition:border-color .15s,color .15s}
 .league tr.me td{background:var(--accent-soft)}
 .league i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:0}
 .league tr:first-child td:first-child{color:var(--accent);font-weight:700}
-.brief{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(520px,calc(100% - 32px));background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:14px;padding:12px 44px 12px 16px;z-index:45;display:grid;gap:2px;box-shadow:0 20px 50px -14px rgba(0,0,0,.6);animation:vtoast .4s var(--ease) both}
+.brief{position:fixed;left:50%;bottom:calc(66px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(520px,calc(100% - 32px));background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:14px;padding:12px 44px 12px 16px;z-index:45;display:grid;gap:2px;box-shadow:0 20px 50px -14px rgba(0,0,0,.6);animation:vtoast .4s var(--ease) both}
 .brief .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 .brief b{font-family:var(--display);font-size:16px}
 .brief span{font-size:12.5px;color:var(--muted)}
@@ -445,7 +446,7 @@ button,a,.chip2{touch-action:manipulation}
   .floor.min{width:auto}
   .chips{left:8px;right:8px;bottom:8px}
   .chip2{padding:8px 12px;font-size:12.5px}
-  .brief{box-sizing:border-box;left:8px;right:8px;width:auto;transform:none;animation-name:vrise;bottom:calc(var(--rbh) + 56px);padding:10px 40px 10px 12px}
+  .brief{box-sizing:border-box;left:8px;right:8px;width:auto;transform:none;animation-name:vrise;bottom:calc(var(--rbh) + 64px);padding:10px 40px 10px 12px}
   .brief b{font-size:15px}
   .dbanner,.dbanner.in{top:auto;bottom:56px;left:8px;right:8px;width:auto;transform:none;animation-name:vrise}
   .stage.walking .dbanner{top:56px;bottom:auto}
@@ -471,26 +472,53 @@ button,a,.chip2{touch-action:manipulation}
   .mini,.hint{display:none}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .props{grid-template-columns:90px minmax(0,1fr)}
-  .plate{top:auto;bottom:8px;left:8px;right:8px;width:auto;max-height:26vh;overflow:auto;padding:10px 36px 10px 12px}
+  .plate{top:auto;bottom:66px;left:8px;right:8px;width:auto;max-height:26vh;overflow:auto;padding:10px 36px 10px 12px}
   .plate h2{font-size:17px}
   .plate p{margin:2px 0 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .stage.walking .plate{display:none}
+  /* Reserve separate lanes for navigation, live floor and district actions. */
+  :root{--rbh:calc(54px + env(safe-area-inset-bottom,0px))}
+  .ribbon{box-sizing:border-box;min-height:var(--rbh);gap:0}
+  .rb{width:44px;height:44px;flex:1;max-width:52px;min-width:0}
+  .hudbtn{width:44px;height:44px}
+  .hudtop{top:max(6px,env(safe-area-inset-top,0px))}
+  .crumb{flex:1}
+  .chip2{min-height:44px;box-sizing:border-box}
+  .plate .x,.dbanner .x{width:40px;height:40px;top:0;right:0}
+  .floor,.floor.min{box-sizing:border-box;top:58px}
+  .floor h3{min-height:28px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .dbanner,.dbanner.in,.stage.walking .dbanner{top:108px;bottom:auto;max-height:calc(100% - 320px);overflow:auto;overscroll-behavior:contain}
+  .dbanner .btn{min-height:40px}
+  .stage:has(.floor:not(.min):not([hidden])) .dbanner{visibility:hidden;pointer-events:none}
+  .stage:has(.dbanner:not([hidden])) .plate{visibility:hidden;pointer-events:none}
+  .shead .ib{width:40px;height:44px}
+  .tree .file,.tree .fold>button{min-height:40px;box-sizing:border-box}
+  .sheet,.side{overscroll-behavior:contain}
+  body:has(.brief) .stage:not(.walking) .plate{visibility:hidden;pointer-events:none}
 }
+@media (max-width:760px) and (max-height:540px){
+  .plate{max-height:calc(100% - 130px)}
+  .dbanner,.dbanner.in,.stage.walking .dbanner{top:58px;right:8px;left:auto;width:min(320px,55%);max-height:calc(100% - 116px)}
+  .floor,.floor.min{left:8px;right:auto;max-width:38%;max-height:28%}
+  .stage.walking.touch .joy{width:96px;height:96px;left:16px;bottom:18px}
+  .stage.walking.touch .lookhint{display:none}
+}
+body:has(.sheet.open) .brief,body:has(#wd.on) .brief{visibility:hidden;pointer-events:none}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style></head><body>
 
 <div class="app" id="app">
   <nav class="ribbon" aria-label="Views">
-    <button class="rb" id="rbCampus" data-tip="Campus overview (R)"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 20V9l5-3v14M10 20V4l6 3v13M16 20v-8l3 1v7"/></svg></button>
-    <button class="rb" id="rbSwitch" data-tip="Find a note (Ctrl K)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
-    <button class="rb" id="rbTree" data-tip="Explorer"><svg viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
-    <button class="rb" id="rbHome" data-tip="Home note"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
-    <button class="rb dsk" id="rbToday" data-tip="Today's note"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></button>
-    <button class="rb dsk" id="rbRandom" data-tip="Random note"><svg viewBox="0 0 24 24"><path d="M4 7h3l10 10h3M4 17h3l3-3M14 10l3-3h3M18 4l2 3-2 3M18 14l2 3-2 3"/></svg></button>
-    <button class="rb" id="rbAgents" data-tip="Live: agents, tasks, desk"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V4M9 13h.01M15 13h.01M9 16h6"/></svg><i class="pip" id="agpip" hidden></i></button>
+    <button class="rb" id="rbCampus" data-tip="Campus overview (R)" aria-label="Campus overview (R)"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 20V9l5-3v14M10 20V4l6 3v13M16 20v-8l3 1v7"/></svg></button>
+    <button class="rb" id="rbSwitch" data-tip="Find a note (Ctrl K)" aria-label="Find a note (Ctrl K)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+    <button class="rb" id="rbTree" data-tip="Explorer" aria-label="Explorer"><svg viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+    <button class="rb" id="rbHome" data-tip="Home note" aria-label="Home note"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
+    <button class="rb dsk" id="rbToday" data-tip="Today's note" aria-label="Today's note"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></button>
+    <button class="rb dsk" id="rbRandom" data-tip="Random note" aria-label="Random note"><svg viewBox="0 0 24 24"><path d="M4 7h3l10 10h3M4 17h3l3-3M14 10l3-3h3M18 4l2 3-2 3M18 14l2 3-2 3"/></svg></button>
+    <button class="rb" id="rbAgents" data-tip="Live: agents, tasks, desk" aria-label="Live: agents, tasks, desk"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V4M9 13h.01M15 13h.01M9 16h6"/></svg><i class="pip" id="agpip" hidden></i></button>
     <div style="flex:1" class="dsk"></div>
-    <button class="rb" id="rbWalk" data-tip="Walk the streets (F)"><svg viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.8"/><path d="M9 21l2-6-2-3 2-5 3 2 3 1M11 15l4 2 1 4M10 8l-3 3"/></svg></button>
-    <button class="rb" id="rbTime" data-tip="Time of day"><svg viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button>
+    <button class="rb" id="rbWalk" data-tip="Walk the streets (F)" aria-label="Walk the streets (F)"><svg viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.8"/><path d="M9 21l2-6-2-3 2-5 3 2 3 1M11 15l4 2 1 4M10 8l-3 3"/></svg></button>
+    <button class="rb" id="rbTime" data-tip="Time of day" aria-label="Time of day"><svg viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button>
   </nav>
   <aside class="side" id="side" aria-label="File explorer">
     <div class="vaulthead"><h1><i></i>Collective AI</h1><small id="vstat"></small></div>
@@ -549,4 +577,5 @@ button,a,.chip2{touch-action:manipulation}
 <script src="vendor/supabase.js"></script>
 <script src="vendor/vault-libraries.js"></script>
 <script src="config.js"></script>
+
 

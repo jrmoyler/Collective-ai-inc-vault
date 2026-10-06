@@ -1,0 +1,10 @@
+{
+  "brand": "collective",
+  "target": "web",
+  "tier": "S",
+  "gesture": "explorable note city with district-specific rooftop architecture",
+  "signature": "live sentinels supported by authored roof surfaces, with three crown families and nineteen district settings",
+  "preserved": ["existing district palette", "six sentinel identities", "street grid", "source-note provenance", "live-data contracts"],
+  "audit": {"scanner_failures": 0, "scanner_warnings": 9},
+  "warning_disposition": "Existing branded type and district violet are intentional. Existing blur supports HUD layering. Uppercase labels identify navigation and telemetry. Gallery title gradient is retained from the existing reference surface; no new gradient text or decorative particles added."
+}
