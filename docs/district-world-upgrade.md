@@ -1,5 +1,8 @@
 # Knowledge city upgrade
 
+> [!note] Superseded
+> Oct 7, 2026: the city now has 19 knowledge districts (13 storage folders plus six source-curated districts, 12–17) over 1,405 notes. See `docs/source-district-expansion.md`. The thirteen-district and 1,220-note figures below describe this upgrade as it shipped and are kept as history.
+
 The city connects thirteen knowledge folders to actual notes and work. These are virtual knowledge districts, separate from the six physical Mega Campus districts. District display names are navigation labels, not new company divisions.
 
 | Surface | Change |

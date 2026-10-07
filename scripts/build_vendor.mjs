@@ -1,7 +1,8 @@
 import { build } from 'esbuild';
 import { mkdir, copyFile } from 'node:fs/promises';
 await mkdir('web/vendor', { recursive: true });
-await build({ entryPoints: ['scripts/vendor-entry.mjs'], outfile: 'web/vendor/vault-libraries.js', bundle: true, minify: true, format: 'iife', globalName: 'VaultLibraries', target: 'es2020', legalComments: 'linked' });
+// vault-libraries.js (Babylon Curve3 + animejs, ~102 KB) is gone: web-src/b_engine.js samples the same Catmull-Rom rail
+// natively and fades with the Web Animations API. tests/engine-kit.test.mjs still checks the rail against Babylon.
 await copyFile('node_modules/three/build/three.min.js', 'web/vendor/three-r128.min.js');
 
 await build({ entryPoints: ['scripts/supabase-entry.mjs'], outfile: 'web/vendor/supabase.js', bundle: true, minify: true, format: 'iife', globalName: 'supabase', target: 'es2020', legalComments: 'linked' });
@@ -15,4 +16,4 @@ await copyFile('node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin
 css+=`@font-face{font-family:'IBM Plex Sans';font-style:italic;font-weight:400;font-display:swap;src:url('fonts/ibm-plex-sans-latin-400-italic.woff2') format('woff2');}\n`;
 const {writeFile}=await import('node:fs/promises');await writeFile('web/vendor/fonts.css',css);
 for(const [pkg] of fonts)await copyFile(`node_modules/@fontsource/${pkg}/LICENSE`,`web/vendor/fonts/${pkg}-LICENSE.txt`);
-for(const [from,to] of [['three/LICENSE','three-LICENSE.txt'],['animejs/LICENSE.md','anime-LICENSE.txt'],['@babylonjs/core/license.md','babylon-LICENSE.txt'],['@supabase/supabase-js/LICENSE','supabase-LICENSE.txt']])await copyFile('node_modules/'+from,'web/vendor/'+to);
+for(const [from,to] of [['three/LICENSE','three-LICENSE.txt'],['@supabase/supabase-js/LICENSE','supabase-LICENSE.txt']])await copyFile('node_modules/'+from,'web/vendor/'+to);

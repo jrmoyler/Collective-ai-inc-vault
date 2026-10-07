@@ -50,3 +50,15 @@ test('architectural settings fit compact and narrow roofs after rotated parts ar
  }
  assets.dispose(group);
 });
+test('landmark metal and accent buckets reflect the shared env map when one is supplied, and fall back lighter without it',()=>{
+ const env=new THREE.Texture();const used=[];
+ c.SentinelMesh={environment:r=>r?env:null,useEnvironment:m=>{used.push(m);return m}};
+ const lit=assets.build(districts,buildings,notes,{fake:'renderer'});
+ const byKey=k=>lit.children.find(m=>m.name==='District landmark '+k);
+ assert.equal(byKey('metal').material.envMap,env);assert.equal(byKey('metal').material.envMapIntensity,.8);
+ assert.equal(byKey('accent').material.envMap,env);assert.equal(byKey('stone').material.envMap,null);
+ assert.equal(used.length,2,'both reflective buckets are registered for GPU-reset repointing');
+ const flat=assets.build(districts,buildings,notes);const metal=flat.children.find(m=>m.name==='District landmark metal').material;
+ assert.equal(metal.envMap,null);assert.ok(metal.metalness<=.3,'no env map: metalness drops so direct and hemisphere light still read');
+ delete c.SentinelMesh;assets.dispose(lit);assets.dispose(flat);
+});

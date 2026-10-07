@@ -2,6 +2,7 @@
 """Build step for the vault.
 
   scripts/build.py [--template PATH] [--out dist/index.html] [--json PATH] [--strict]
+                   [--canon-strict] [--no-index]
 
 1. Reads every vault/**/*.md.
 2. Regenerates vault/_index.json.
@@ -9,6 +10,10 @@
 4. If --template is given, writes the viewer HTML by replacing __NOTES__ with
    the notes JSON (same shape as notes_full.json: folder, name, fm, body).
 5. --json also writes that notes JSON to a file (useful for diffing).
+6. Prints the canon report from scripts/canon.py (H1, frontmatter, VectorShift spelling, banned
+   words, Civic Core veto, pending divisions, orphans, dead ends, archive records). It is
+   report-only by default; --canon-strict exits 1 on any canon error.
+7. --no-index checks without rewriting vault/_index.json (for agents and CI checks).
 """
 import argparse
 import json
@@ -17,6 +22,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import vaultlib as V  # noqa: E402
+import canon  # noqa: E402
 
 
 def main():
@@ -25,10 +31,13 @@ def main():
     ap.add_argument("--out", default=os.path.join(V.REPO, "dist", "index.html"))
     ap.add_argument("--json", help="also write notes JSON here")
     ap.add_argument("--strict", action="store_true", help="exit 1 on unresolved links")
+    ap.add_argument("--canon-strict", action="store_true", help="exit 1 on canon errors")
+    ap.add_argument("--no-index", action="store_true", help="do not rewrite vault/_index.json")
     a = ap.parse_args()
 
     notes = V.read_vault()
-    V.write_index(V.build_index(notes))
+    if not a.no_index:
+        V.write_index(V.build_index(notes))
     bad = V.unresolved_links(notes)
     links = sum(len(V.links_of(n["body"])) for n in notes)
     print(f"notes: {len(notes)}  links: {links}  unresolved: {len(bad)}")
@@ -51,7 +60,10 @@ def main():
         with open(a.out, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"wrote {a.out} ({len(html)//1024} KB)")
+    canon_errors = canon.report(canon.check(notes))
     if a.strict and bad:
+        sys.exit(1)
+    if a.canon_strict and canon_errors:
         sys.exit(1)
 
 

@@ -64,6 +64,7 @@ dd{margin:0;color:var(--fg)}
 .toggle input{width:auto;margin:0;accent-color:var(--gold)}
 .reset{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:border-color .2s,color .2s}
 .reset:hover{color:var(--fg);border-color:var(--gold)}
+.toggles .reset,.toggle,#reset{min-height:44px}
 small{color:var(--faint);display:block;margin-top:14px;font-size:12px;line-height:1.55}
 figure{margin:40px 0 0}
 figure img{width:100%;height:auto;display:block;border-radius:18px;border:1px solid var(--line)}
@@ -100,7 +101,7 @@ figcaption{font:400 12px var(--mono);color:var(--faint);margin-top:10px;letter-s
       <label>Doing<select id="pose"><option value="idle">Standing by</option><option value="viewing">Viewing</option><option value="walking">Walking the street</option><option value="working">Working</option><option value="in use">In use</option><option value="writing">Writing a note</option><option value="reading">Reading</option><option value="thinking">Thinking</option><option value="reviewing">Reviewing</option><option value="blocked">Blocked</option><option value="lifting">Riding the lift</option></select></label>
       <label id="speedRow">Ground speed <span id="speedOut" style="color:var(--fg)">3.4 m/s · walk</span><input id="speed" type="range" min="1" max="14" step=".2" value="3.4" style="accent-color:var(--gold);padding:0;border:0;background:none"></label>
       <h3>Emotes</h3>
-      <div class="toggles"><button class="reset" data-emote="greet" type="button">Greet</button><button class="reset" data-emote="nod" type="button">Nod</button><button class="reset" data-emote="celebrate" type="button">Celebrate</button><button class="reset" id="levelup" type="button">Level up</button></div>
+      <div class="toggles"><button class="reset" data-emote="greet" type="button">Greet</button><button class="reset" data-emote="nod" type="button">Nod</button><button class="reset" data-emote="celebrate" type="button">Celebrate</button><button class="reset" data-emote="talk" type="button">Talk</button><button class="reset" data-emote="alert" type="button">Alert</button><button class="reset" id="levelup" type="button">Level up</button></div>
       <h3>Motion</h3>
       <div class="toggles"><label class="toggle"><input id="rotate" type="checkbox"> Turntable</label><label class="toggle"><input id="look" type="checkbox"> Look at pointer</label><label class="toggle"><input id="slow" type="checkbox"> Slow motion</label><label class="toggle"><input id="still" type="checkbox"> Reduced motion</label></div>
       <button class="reset" id="reset" type="button">Reset colors</button>
@@ -165,7 +166,7 @@ const sec=()=>clock;
 $('#build').onchange=e=>{selected=e.target.value;colors=Identity.FORMS[selected==='owners'?'agent':selected].palette.slice();controls();draw()};
 $('#mode').onchange=e=>{mode=e.target.value;controls();draw()};
 $('#reset').onclick=()=>$('#build').onchange({target:$('#build')});$('#level').oninput=draw;
-$('#levelup').onclick=()=>{const l=$('#level');l.value=Math.min(25,+l.value+1);draw();models.forEach(m=>SentinelMesh.emote(m,'levelup',sec()))};
+$('#levelup').onclick=()=>{const l=$('#level');l.value=Math.min(25,+l.value+1);draw();models.forEach(m=>{SentinelMesh.emote(m,'levelup',sec());if(SentinelMesh.forge)SentinelMesh.forge(m,sec(),1)})};
 document.querySelectorAll('[data-emote]').forEach(b=>b.onclick=()=>models.forEach((m,i)=>SentinelMesh.emote(m,b.dataset.emote,sec()+i*.12)));
 const speedText=()=>{const v=+$('#speed').value;$('#speedOut').textContent=v.toFixed(1)+' m/s · '+(v<5?'walk':v<10?'jog':'run')};$('#speed').oninput=speedText;speedText();
 const syncPose=()=>{$('#speedRow').style.display=$('#pose').value==='walking'?'':'none'};$('#pose').onchange=syncPose;syncPose();

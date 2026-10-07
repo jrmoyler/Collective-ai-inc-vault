@@ -6,20 +6,38 @@
 // (portrait, typewriter, keyboard and touch choices). Answers come only from data already in the
 // page (NOTES, the layout, Live.snapshot()). No network, no model call.
 // Guides are not agents: they never go through Campus.setAgents and carry no presence row.
-// Portrait art: web/assets/guides/warden-<hex>.webp when present; otherwise the Warden is rendered
-// live into the portrait from the campus scene.
+// Portraits, in order: painted or generated art keyed by district slug (web/assets/guides/warden-<slug>.webp, listed in
+// manifest.json with the kit revision, archetype and symbol it was made from, so a stale or mismatched file is never
+// requested); a live render of the Warden's head from the campus scene, composited with a district backdrop, rim
+// light and archetype emblem; a procedurally painted bust when WebGL readback fails; the Identity SVG last.
+// scripts/render_warden_portraits.mjs regenerates the art and the manifest from the code-built kit.
+// Wardens patrol a few plaza cells near home, walk out to greet a viewer who enters their district, and lead the
+// viewer to a landmark on request (Campus.route). Reduced motion keeps them on their spot and flies the camera instead.
 // =====================================================================
 const Guides=(()=>{
-  const BOUNTY={high:120,medium:80,low:50},NEAR=60,TALK_R=28,LEAVE_R=110,WEEK=7*864e5;
-  const RM=matchMedia("(prefers-reduced-motion: reduce)");
+  const BOUNTY={high:120,medium:80,low:50},NEAR=60,TALK_R=28,LEAVE_R=110,WEEK=7*864e5,KIT_REV=2;
+  const RM=matchMedia("(prefers-reduced-motion: reduce)"),COARSE=matchMedia("(pointer:coarse)");
   let G=[],lastDist=null,curTop=null,booted=false,memo=new Map();
   const two=name=>{const w=String(name).replace(/[^A-Za-z ]/g," ").trim().split(/\s+/).filter(Boolean);return (w.length>=2?w[0][0]+w[1][0]:(w[0]||"GD").slice(0,2)).toUpperCase()};
   const wrap=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
   const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+  const slug=top=>String(top).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||"root";
   const district=top=>Campus.districts().find(d=>d.top===top)||null;
   const worldTop=n=>typeof Districts!=="undefined"?Districts.worldTop(n):n.top;
-  const notesIn=top=>NOTES.filter(n=>worldTop(n)===top);
-  const inDistrict=(top,name)=>{const n=name&&byName.get(name);return !!n&&worldTop(n)===top};
+  // District index: top -> notes and note name -> top. Districts.worldTop sorts candidate extensions per note, so it runs
+  // once per rebuild (new NOTES array, a length change, a new district list, or 20 s elapsed), not per Warden per refresh.
+  let IDX=null;
+  function index(force){
+    const now=Date.now(),dl=typeof Campus!=="undefined"&&Campus.districts?Campus.districts():null;
+    if(!force&&IDX&&IDX.src===NOTES&&IDX.len===NOTES.length&&IDX.dl===dl&&now-IDX.at<20e3)return IDX;
+    const by=new Map(),tops=new Map();
+    for(const n of NOTES){const t=worldTop(n);tops.set(n.name,t);let a=by.get(t);if(!a)by.set(t,a=[]);a.push(n)}
+    IDX={src:NOTES,len:NOTES.length,dl,at:now,by,tops};return IDX;
+  }
+  const EMPTY=Object.freeze([]);
+  const notesIn=top=>index().by.get(top)||EMPTY;
+  const inDistrict=(top,name)=>!!name&&index().tops.get(name)===top;
+  const startOfDay=()=>{const d=new Date();d.setHours(0,0,0,0);return d.getTime()};
   const clean=s=>String(s).replace(/\[\[([^\]|]+)(\|[^\]]+)?\]\]/g,"$1").replace(/[#>*|`_]/g," ").replace(/\s+/g," ").trim();
   const link=n=>`<a class="wl" data-n="${esc(n.name)}">${esc(n.name)}</a>`;
   const snap=()=>{try{return Live.snapshot()}catch(e){return {tasks:[],acts:[],agents:[],presence:[],stats:[]}}};
@@ -30,8 +48,20 @@ const Guides=(()=>{
   // ---- archetypes. Fixed per known folder so the silhouette (and any portrait art) stays stable; unknown districts cycle.
   const ARCH={keeper:{title:"Keeper",robe:3.0,hood:1,cape:1,staff:"lantern"},archivist:{title:"Archivist",robe:3.0,hood:2,stole:1,tome:1},herald:{title:"Herald",robe:1.75,mantle:1,cape:1,banner:1},vanguard:{title:"Vanguard",robe:1.75,mantle:1,halo:1,cape:1,staff:"blade"}};
   const ORDER=["keeper","archivist","herald","vanguard"];
-  const FIXED={"00 - MOCs":"keeper","01 - Divisions":"vanguard","02 - ZenFlow":"archivist","03 - Products":"herald","04 - People":"keeper","05 - Operations":"vanguard","06 - Finance":"archivist","07 - Brand":"herald","08 - Research":"archivist","09 - Projects":"vanguard","10 - Archive":"keeper","11 - Physical AI":"herald","Daily":"archivist","Root":"keeper"};
+  const FIXED={"00 - MOCs":"keeper","01 - Divisions":"vanguard","02 - ZenFlow":"archivist","03 - Products":"herald","04 - People":"keeper","05 - Operations":"vanguard","06 - Finance":"archivist","07 - Brand":"herald","08 - Research":"archivist","09 - Projects":"vanguard","10 - Archive":"keeper","11 - Physical AI":"herald","Daily":"archivist","Root":"keeper",
+    // Source-curated districts 12–17 are fixed too; Campus.districts() is sorted by note count, so an index fallback would flip their silhouettes when counts change.
+    "12 - Tools and Integrations":"herald","13 - Learning and Curriculum":"keeper","14 - Governance and Decisions":"vanguard","15 - Clients and Delivery":"herald","16 - Facilities and Infrastructure":"vanguard","17 - Synergy Nodes":"archivist"};
   const archOf=(top,i)=>FIXED[top]||ORDER[i%ORDER.length];
+  // Personality per archetype: typing cadence, blip pitch spread (the timbre lives in VaultAudio's warden.blip voices),
+  // opening line, the gesture used when presenting an answer, and which fact each one leads its barks with.
+  // Every line still fills in from loaded data only.
+  const VOICE={
+    keeper:{ms:32,jit:[.97,1.03],open:g=>`I keep ${g.name}.`,gest:"raise",order:["notes","tall","today","changed","open","here","type"]},
+    archivist:{ms:27,jit:[.94,1.08],open:g=>`I hold the record of ${g.name}.`,gest:"tome",order:["changed","today","type","notes","tall","open","here"]},
+    herald:{ms:24,jit:[.88,1.16],open:g=>`Word from ${g.name}.`,gest:"present",order:["today","here","changed","open","notes","tall","type"]},
+    vanguard:{ms:22,jit:[.95,1.02],open:g=>`I stand watch over ${g.name}.`,gest:"point",order:["open","here","today","tall","notes","changed","type"]}};
+  const voiceOf=g=>VOICE[g&&g.arch]||VOICE.keeper;
+  const gestOf=(g,gest)=>gest==="present"?voiceOf(g).gest:gest;
 
   // ---- shared kit: geometry built once, materials cached per district colour
   let KIT=null;const MATS=new Map();
@@ -136,126 +166,259 @@ const Guides=(()=>{
     }
     return fallback||{x:cx,z:cz};
   }
+  // Patrol posts: up to three roomy free cells 6–16 units from home, inside the district, spread around it.
+  function posts(d,hx,hz){
+    const {NAV}=Campus.world(),out=[];if(!NAV||!NAV.blocked||!NAV.n)return out;
+    const c=NAV.cell,n=NAV.n,bl=NAV.blocked,free=(x,z)=>x>=0&&z>=0&&x<n&&z<n&&!bl[z*n+x];
+    for(let k=0;k<6&&out.length<3;k++){
+      const a=k*2.094+(k>2?1.05:0),r=k>2?7:12,wx=hx+Math.cos(a)*r,wz=hz+Math.sin(a)*r;
+      if(!(wx>d.x+2&&wx<d.x+d.w-2&&wz>d.z+2&&wz<d.z+d.d-2))continue;
+      const x=Math.floor((wx-NAV.ox)/c),z=Math.floor((wz-NAV.oz)/c);let ok=true;
+      for(let dz=-1;dz<=1&&ok;dz++)for(let dx=-1;dx<=1;dx++)if(!free(x+dx,z+dz)){ok=false;break}
+      if(ok)out.push([NAV.ox+(x+.5)*c,NAV.oz+(z+.5)*c]);
+    }
+    return out;
+  }
   function place(){
     const scene=Campus.scene();
     G.forEach(g=>{undress(g);SentinelMesh.dispose(g.m.grp);scene.remove(g.m.grp)});G=[];
-    lastDist=Campus.districts();
+    lastDist=Campus.districts();index(true);
     lastDist.forEach((d,i)=>{
       const p=spot(d),m=SentinelMesh.create({id:"guide:"+d.top,form:"member",palette:["#0B1020",d.color,"#F4EFE6"],symbol:two(d.name),level:0});
       m.pos.set(p.x,.25,p.z);m.grp.position.copy(m.pos);m.grp.rotation.y=Math.atan2(d.x+d.w/2-p.x,d.z+d.d/2-p.z)+Math.PI;m.ring.scale.setScalar(2.2);
       scene.add(m.grp);
-      const g={top:d.top,name:d.name,color:d.color,x:p.x,z:p.z,m,near:false,home:m.grp.rotation.y,arch:archOf(d.top,i),
-        hy:0,hp:0,yawVel:0,gest:null,gt:0,speakUntil:0,bark:null,barkUntil:0,nextBark:0,barkI:0,stats:null,
+      const g={top:d.top,name:d.name,color:d.color,x:p.x,z:p.z,hx:p.x,hz:p.z,rect:{x:d.x,z:d.z,w:d.w,d:d.d},m,near:false,home:m.grp.rotation.y,arch:archOf(d.top,i),
+        hy:0,hp:0,yawVel:0,gest:null,gt:0,gdur:1.9,beat:-9,speakUntil:0,bark:null,barkUntil:0,nextBark:0,barkI:0,stats:null,
+        posts:posts(d,p.x,p.z),post:0,nextPatrol:8+(i%5)*3,path:null,leg:0,speed:0,onArrive:null,face:0,mode:"home",returnAt:0,inside:false,greetAt:-1e9,escort:null,poseT:-1,camT:0,
         lbl:{x:p.x,y:9.5,z:p.z,t:"",s:"",cls:"guide",prio:105,c:d.color},blb:{x:p.x,y:9.3,z:p.z,t:"",s:"",cls:"say",prio:120,c:d.color,guide:true}};
       dress(g);G.push(g);
     });
     refreshStats(true);
   }
+  // ---- movement along Campus.route. One leg at a time; the Warden turns toward travel and poses as walking.
+  const sync=g=>{g.m.pos.x=g.x;g.m.pos.z=g.z;g.m.grp.position.x=g.x;g.m.grp.position.z=g.z;g.lbl.x=g.blb.x=g.x;g.lbl.z=g.blb.z=g.z};
+  function walkTo(g,x,z,speed,mode,onArrive){
+    let p=null;try{p=typeof Campus.route==="function"?Campus.route(g.x,g.z,x,z):null}catch(e){p=null}
+    g.path=p&&p.length?p:[[x,z]];g.leg=0;g.speed=speed;g.mode=mode||"walk";g.onArrive=onArrive||null;
+  }
+  function stepWalk(g,dt){
+    if(!g.path)return false;
+    let st=g.speed*dt;
+    while(g.path&&st>0){
+      const tg=g.path[g.leg],dx=tg[0]-g.x,dz=tg[1]-g.z,d=Math.hypot(dx,dz);
+      if(d>.001)g.face=Math.atan2(dx,dz);
+      if(d<=st){g.x=tg[0];g.z=tg[1];st-=d;if(++g.leg>=g.path.length){g.path=null;const f=g.onArrive;g.onArrive=null;if(f)f(g)}}
+      else{g.x+=dx/d*st;g.z+=dz/d*st;st=0}
+    }
+    sync(g);return true;
+  }
+  function goHome(g,speed){if(Math.hypot(g.x-g.hx,g.z-g.hz)<.5){g.path=null;g.mode="home";return}walkTo(g,g.hx,g.hz,speed||2.6,"return",x=>{x.mode="home"})}
+  function snapHome(g){g.path=null;g.onArrive=null;g.escort=null;g.mode="home";g.x=g.hx;g.z=g.hz;sync(g)}
+  const insideRect=(g,x,z)=>!!g.rect&&x>g.rect.x&&x<g.rect.x+g.rect.w&&z>g.rect.z&&z<g.rect.z+g.rect.d;
 
   // ---- facts per district, refreshed every few seconds (never per frame)
   let statsAt=0;
+  const liveP=(p,t0)=>p.status!=="offline"&&t0-Date.parse(p.last_seen)<15*60e3;
+  // One pass over tasks and presence for all Wardens, then the per-district note scan from the index.
+  function districtStats(top,ns,S,t0,sod,Bld){
+    const types={};let changed=0,today=0,fresh=null,freshT=0,tall=null;
+    for(const n of ns){const t=n.fm&&n.fm.type||"untyped";types[t]=(types[t]||0)+1;
+      const u=n.updated_at?Date.parse(n.updated_at):0;if(u&&t0-u<WEEK)changed++;if(u>=sod){today++;if(u>freshT){freshT=u;fresh=n.name}}
+      const b=Bld&&Bld[n.id];if(b&&(!tall||b.h>tall.h))tall={name:n.name,h:b.h}}
+    const topType=Object.entries(types).sort((a,b)=>b[1]-a[1])[0];
+    let open=0,live=0;for(const t of S.tasks)if(inDistrict(top,t.note)){if(isOpen(t))open++;if(isLiveTask(t))live++}
+    const who=[];for(const p of S.presence)if(liveP(p,t0)&&inDistrict(top,p.note))who.push(agentName(p.agent));
+    return {notes:ns.length,blocks:new Set(ns.map(n=>(n.folder||"").split("/")[1]||"·")).size,changed,today,fresh,topType,tall,open,live,here:who.length,who};
+  }
   function refreshStats(force){
     const now=performance.now();if(!force&&now-statsAt<3000)return;statsAt=now;
-    const S=snap(),t0=Date.now();
+    const S=snap(),t0=Date.now(),sod=startOfDay(),Bld=Campus.buildings(),talkWord=COARSE.matches?"tap to talk":"click to talk";
     G.forEach(g=>{
-      const ns=notesIn(g.top),types={};let changed=0;ns.forEach(n=>{const t=n.fm.type||"untyped";types[t]=(types[t]||0)+1;if(n.updated_at&&t0-Date.parse(n.updated_at)<WEEK)changed++});
-      const topType=Object.entries(types).sort((a,b)=>b[1]-a[1])[0];
-      const Bld=Campus.buildings();let tall=null;ns.forEach(n=>{const b=Bld[n.id];if(b&&(!tall||b.h>tall.h))tall={name:n.name,h:b.h}});
-      const open=S.tasks.filter(t=>isOpen(t)&&inDistrict(g.top,t.note)).length,live=S.tasks.filter(t=>isLiveTask(t)&&inDistrict(g.top,t.note)).length;
-      const here=S.presence.filter(p=>p.status!=="offline"&&t0-Date.parse(p.last_seen)<15*60e3&&inDistrict(g.top,p.note)).length;
-      g.stats={notes:ns.length,blocks:new Set(ns.map(n=>(n.folder||"").split("/")[1]||"·")).size,changed,topType,tall,open,live,here};
-      g.lbl.t="Warden · "+g.name;g.lbl.s=esc(open?plural(open,"open task")+" · talk":(matchMedia("(pointer:coarse)").matches?"tap to talk":"click to talk"));
-      g.marker.visible=live>0;const mat=open?kit().gold:kit().steel;g.markerDia.material=mat;g.markerRing.material=mat;g.markerGlow.visible=open>0;
+      const s=g.stats=districtStats(g.top,notesIn(g.top),S,t0,sod,Bld),open=s.open;
+      g.lbl.t="Warden · "+g.name;g.lbl.s=esc(open?plural(open,"open task")+" · talk":talkWord);
+      g.marker.visible=s.live>0;const mat=open?kit().gold:kit().steel;g.markerDia.material=mat;g.markerRing.material=mat;g.markerGlow.visible=open>0;
     });
   }
-  // Barks: one short fact at a time, each computed from g.stats. Lines with no data are skipped.
-  function barkLine(g){
-    const s=g.stats;if(!s)return null;
-    const L=[`${plural(s.notes,"note")} stand in ${plural(s.blocks,"block")} here.`,
-      s.changed?`${plural(s.changed,"note")} changed here this week.`:"Nothing here changed this week.",
-      s.open?`${plural(s.open,"open task")} ${s.open===1?"points":"point"} here. Ask me.`:null,
-      s.here?`${plural(s.here,"agent")} working here now.`:null,
-      s.tall?`Tallest here: ${s.tall.name.slice(0,34)}.`:null,
-      s.topType?`Most notes here are type ${s.topType[0]}.`:null].filter(Boolean);
-    return L[(g.barkI++)%L.length];
+  // Barks: one short fact at a time, each computed from g.stats, in the order the archetype leads with. Lines with no data are skipped.
+  function barkLines(g){
+    const s=g.stats;if(!s)return [];
+    const who=s.who||[],F={
+      notes:`${plural(s.notes,"note")} stand in ${plural(s.blocks,"block")} here.`,
+      changed:s.changed?`${plural(s.changed,"note")} changed here this week.`:"Nothing here changed this week.",
+      today:s.today?`${plural(s.today,"note")} changed here today${s.fresh?`. Latest: ${s.fresh.slice(0,32)}`:""}.`:null,
+      open:s.open?`${plural(s.open,"open task")} ${s.open===1?"points":"point"} here. Ask me.`:null,
+      here:s.here?(who.length?`${who.slice(0,2).join(" and ")}${s.here>2?` and ${s.here-2} more`:""} ${s.here===1?"is":"are"} working here now.`:`${plural(s.here,"agent")} working here now.`):null,
+      tall:s.tall?`Tallest here: ${s.tall.name.slice(0,34)}.`:null,
+      type:s.topType?`Most notes here are type ${s.topType[0]}.`:null};
+    return voiceOf(g).order.map(k=>F[k]).filter(Boolean);
+  }
+  function barkLine(g){const L=barkLines(g);return L.length?L[(g.barkI++)%L.length]:null}
+  // Spoken when the viewer crosses into the district: the archetype's opening, then the freshest fact it has.
+  function gateLine(g){
+    const s=g.stats;if(!s)return voiceOf(g).open(g);
+    const fact=s.today?`${plural(s.today,"note")} changed here today.`:s.open?`${plural(s.open,"open task")} ${s.open===1?"waits":"wait"} here.`:s.here?`${plural(s.here,"agent")} ${s.here===1?"is":"are"} working here.`:`${plural(s.notes,"note")} stand here.`;
+    return `${voiceOf(g).open(g)} ${fact}`;
   }
 
   // ---- sound: soft UI tones, only when the vault sound setting is on
-  const Sfx=(()=>{let ctx=null,lastType=0;
-    const ac=()=>{if(!store.get("vault.sound",true))return null;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume()}catch(e){return null}return ctx};
-    const tone=(f,t0,len,type,gain)=>{const c=ac();if(!c)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+t0;o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.connect(g).connect(c.destination);o.start(t);o.stop(t+len+.05)};
+  // Routed through VaultAudio (b_audio.js): one AudioContext, the master limiter, the effects bus, mute and visibility suspend.
+  // Gains are scaled for the effects bus (master .65 x bus .5) so the tones keep their old loudness.
+  const Sfx=(()=>{
+    const A=()=>typeof VaultAudio!=="undefined"?VaultAudio:null;
+    const tone=(f,t0,len,type,gain)=>{const a=A();if(a)a.tone(f,len,type,gain*3,{delay:t0})};
     return {open:()=>{tone(523,0,.22,"sine",.045);tone(784,.08,.3,"sine",.035)},close:()=>{tone(784,0,.18,"sine",.03);tone(523,.07,.24,"sine",.025)},
       move:()=>tone(1180,0,.05,"triangle",.012),pick:()=>{tone(660,0,.12,"triangle",.03);tone(990,.05,.16,"sine",.025)},
-      type:()=>{const n=performance.now();if(n-lastType<55)return;lastType=n;tone(1500+Math.random()*200,0,.025,"square",.004)}};
+      // talk blips: one voice per Warden archetype, panned from where the Warden stands (VaultAudio throttles to 55 ms)
+      // pitch spread and a lift on questions differ per archetype: the keeper is level, the herald sings
+      type:q=>{const a=A(),g=D.g;if(!a)return;const j=voiceOf(g).jit;a.sfx("warden.blip",{voice:g&&g.arch,jitter:(j[0]+Math.random()*(j[1]-j[0]))*(q?1.12:1),volume:.8,position:g?[g.x,1.8,g.z]:null})}};
   })();
 
-  // ---- per frame: hover, head tracking, cape, gestures, marker, barks and the talk prompt. No allocation in here.
+  // ---- per frame: hover, walking, head tracking, cape, gestures, marker, barks and the talk prompt. No allocation in here.
+  // Render budget: a Warden asks for a frame only when it is in the view frustum and something on it moves. Talking runs at
+  // the display rate, a near or walking Warden at 30 fps (20 on touch devices), a visible idle one within 200 units at 12 fps
+  // on desktop; everything else holds its last pose and lets the campus sleep. Reduced motion never asks for ambient frames.
   const _v=new THREE.Vector3(),_h=new THREE.Vector3();
-  let promptG=null,proxT=0,camDist=0,tgtX=0,tgtZ=0,walking=false,frameT=0;
+  let FR=null,FM=null,FS=null;
+  function frustum(cam){
+    if(!THREE.Frustum||!cam.projectionMatrix)return false;
+    if(!FR){FR=new THREE.Frustum();FM=new THREE.Matrix4();FS=new THREE.Sphere(new THREE.Vector3(),7)}
+    FM.multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse);FR.setFromProjectionMatrix(FM);return true;
+  }
+  const inView=(g,on)=>{if(!on)return true;FS.center.set(g.x,4.5,g.z);return FR.intersectsSphere(FS)};
+  let promptG=null,proxT=0,camDist=0,tgtX=0,tgtZ=0,walking=false,frameT=0,labelsOn=new Set();
+  // Label candidates change membership at the proximity tick (8 Hz), not per frame; positions update in place.
+  function syncLabels(cp){
+    const L=Campus.labelCands;if(!L)return;
+    for(let i=L.length-1;i>=0;i--)if(L[i].cls==="guide"||L[i].guide)L.splice(i,1);
+    for(let i=0;i<G.length;i++){const g=G[i],dCam=Math.hypot(cp.x-g.x,cp.z-g.z),talking=D.open&&D.g===g;
+      if(dCam<280)L.push(g.lbl);if(frameT<g.barkUntil&&!talking&&dCam<520)L.push(g.blb)}
+  }
+  // The viewer crossed into a district and stayed a second (a camera flight passing over does not count): its Warden
+  // greets once per visit, at most every 90 s, and walks out a few steps.
+  function gateCheck(g,time,reduced){
+    const inside=insideRect(g,tgtX,tgtZ)&&(walking||camDist<170);
+    if(inside&&!g.inside){g.inT=time;g.visitGreeted=false}
+    if(inside&&!g.visitGreeted&&time-g.inT>1&&time-g.greetAt>90&&!(D.open&&D.g===g)){
+      g.greetAt=time;g.visitGreeted=true;const line=gateLine(g);g.blb.t=line;g.barkUntil=time+6;g.nextBark=time+18;announce(line+" "+(COARSE.matches?"Tap":"Press E near")+" the Warden to talk.");
+      // the greeting beat, as in the title cinematic: a ring in the district colour at the Warden's feet and its voice
+      if(typeof VFX!=="undefined"&&VFX.ready())VFX.ring(g.x,.3,g.z,g.color,4.5,{life:1.4});
+      if(typeof VaultAudio!=="undefined")try{VaultAudio.sfx("warden.blip",{voice:g.arch,position:[g.x,5,g.z],volume:.8})}catch(e){}
+      if(!reduced){SentinelMesh.emote(g.m,"greet",time);
+        const d=Math.hypot(tgtX-g.x,tgtZ-g.z);
+        if(!g.escort&&d>18&&d<120){const k=Math.min(1,(d-12)/d),k2=Math.min(k,40/d),x=g.x+(tgtX-g.x)*k2,z=g.z+(tgtZ-g.z)*k2;
+          if(insideRect(g,x,z)){walkTo(g,x,z,4.2,"greet",w=>{w.mode="away";w.returnAt=frameT+25})}}}
+    }
+    g.inside=inside;
+  }
   function frame(dt,time){
     if(Campus.districts()!==lastDist)place();
     if(!G.length)return false;
-    frameT=time;const reduced=RM.matches;
-    const cam=Campus.camera(),cp=cam.position;
-    proxT-=dt;if(proxT<=0){proxT=.12;const p=Campus.position();tgtX=p.x;tgtZ=p.z;walking=p.walking;camDist=Math.hypot(cp.x-tgtX,cp.z-tgtZ);refreshStats(false);updatePrompt()}
-    const L=Campus.labelCands;for(let i=L.length-1;i>=0;i--)if(L[i].cls==="guide"||L[i].guide)L.splice(i,1);
+    frameT=time;const reduced=RM.matches,touch=COARSE.matches;
+    const cam=Campus.camera(),cp=cam.position,fOn=frustum(cam);
+    let tick=false;
+    proxT-=dt;if(proxT<=0){proxT=.12;tick=true;const p=Campus.position();tgtX=p.x;tgtZ=p.z;walking=p.walking;camDist=Math.hypot(cp.x-tgtX,cp.z-tgtZ);refreshStats(false);updatePrompt()}
     let live=false;
     for(let i=0;i<G.length;i++){
       const g=G[i],m=g.m,dCam=Math.hypot(cp.x-g.x,cp.z-g.z),dT=Math.hypot(tgtX-g.x,tgtZ-g.z),near=Math.min(dCam,dT)<NEAR,talking=D.open&&D.g===g;
-      if(near&&!g.near){if(!reduced)SentinelMesh.emote(m,"greet",time);g.nextBark=time+1.2}
+      if(tick)gateCheck(g,time,reduced);
+      if(near&&!g.near){if(!reduced)SentinelMesh.emote(m,"greet",time);g.nextBark=Math.max(g.nextBark,time+1.2)}
       g.near=near;
-      if(dCam<280)L.push(g.lbl);
       if(near&&!talking&&time>g.nextBark&&(!promptG||promptG===g)){const b=barkLine(g);if(b){g.blb.t=b;g.barkUntil=time+5.2}g.nextBark=time+16}
-      if(time<g.barkUntil&&!talking&&dCam<520)L.push(g.blb);
-      if(dCam>=520){if(!talking)continue}
-      live=true;
-      // body: face the viewer while talking; otherwise the head leads and the body follows past 55 degrees
+      // behaviour: escort and greeting walks always advance; patrol only while someone can see it
+      if(!g.path&&!talking&&!g.escort){
+        if(g.mode==="away"&&(time>g.returnAt||dT>LEAVE_R))goHome(g);
+        else if(g.mode==="home"&&!reduced&&!near&&dCam<200&&g.posts.length&&time>g.nextPatrol){const pt=g.post<g.posts.length?g.posts[g.post]:[g.hx,g.hz];g.post=(g.post+1)%(g.posts.length+1);walkTo(g,pt[0],pt[1],2.2,"patrol",w=>{w.mode=w.post===0?"home":"post";w.nextPatrol=frameT+6+((w.m.phase*7)%6)})}
+        else if(g.mode==="post"&&time>g.nextPatrol){const pt=g.post<g.posts.length?g.posts[g.post]:[g.hx,g.hz];g.post=(g.post+1)%(g.posts.length+1);walkTo(g,pt[0],pt[1],2.2,"patrol",w=>{w.mode=w.post===0?"home":"post";w.nextPatrol=frameT+6+((w.m.phase*7)%6)})}
+      }
+      if((g.mode==="patrol"||g.mode==="post")&&(dCam>=260||reduced)&&!g.escort)snapHome(g);
+      if(talking&&g.path&&g.mode!=="escort"){g.path=null;g.onArrive=null;g.mode="away";g.returnAt=time+20}
+      const moving=!!g.path,seen=inView(g,fOn);
+      const hz=talking?60:g.escort?60:reduced?(near?10:0):moving||near?(touch?20:30):(dCam<200&&!touch?12:0);
+      if(g.escort&&time-g.escort.t0>60){const n=byName.get(g.escort.name);g.escort=null;goHome(g);if(n&&!D.open)open(n)}   // stuck or slow: hand over to the camera
+      if(g.escort){g.camT-=dt;if(g.camT<=0&&!walking){g.camT=.35;Campus.flyAt(g.x,g.z,0,34,.42)}}
+      if(moving&&(!seen||hz===0)){stepWalk(g,dt);continue}
+      if(!hz||(!seen&&!talking))continue;
+      if(g.poseT>=0&&time-g.poseT<1/hz-.002){if(moving)stepWalk(g,dt);continue}
+      const pdt=g.poseT<0?dt:Math.min(.1,time-g.poseT);g.poseT=time;
+      if(moving)stepWalk(g,dt);
+      if(!reduced||talking)live=true;
+      // body: face the viewer while talking, the road while walking; otherwise the head leads and the body follows past 55 degrees
       const toCam=Math.atan2(cp.x-g.x,cp.z-g.z),y0=m.grp.rotation.y;
       let rel=wrap(toCam-y0),want=y0;
-      if(talking)want=toCam;else if(near){if(Math.abs(rel)>.95)want=toCam-Math.sign(rel)*.55}else want=g.home;
-      const turn=wrap(want-y0)*(reduced?1:Math.min(1,dt*(talking?5:near?2.4:1.4)));
-      m.grp.rotation.y=y0+turn;g.yawVel+=((dt>0?turn/dt:0)-g.yawVel)*Math.min(1,dt*6);
+      if(talking)want=toCam;else if(g.path)want=g.face;else if(near){if(Math.abs(rel)>.95)want=toCam-Math.sign(rel)*.55}else if(g.mode==="home")want=g.home;
+      const turn=wrap(want-y0)*(reduced?1:Math.min(1,pdt*(talking?5:g.path?4:near?2.4:1.4)));
+      m.grp.rotation.y=y0+turn;g.yawVel+=((pdt>0?turn/pdt:0)-g.yawVel)*Math.min(1,pdt*6);
       rel=wrap(toCam-m.grp.rotation.y);
       const tilt=-Math.atan2(cp.y-(m.pos.y+5.3),Math.max(1,dCam));
-      const wantHy=near?clamp(rel,-1,1):0,wantHp=near?clamp(tilt,-.45,.35):0,kh=reduced?1:Math.min(1,dt*5);
+      const look=near&&!g.path,wantHy=look||talking?clamp(rel,-1,1):0,wantHp=look||talking?clamp(tilt,-.45,.35):0,kh=reduced?1:Math.min(1,pdt*5);
       g.hy+=(wantHy-g.hy)*kh;g.hp+=(wantHp-g.hp)*kh;
-      // pose: shared Sentinel idle, then hover, head and gesture overrides
+      // pose: shared Sentinel idle or walk, then hover, head and gesture overrides
       const t=reduced?0:time;
       m.pos.y=reduced?.25:.25+Math.sin(time*1.3+m.phase)*.07;
-      SentinelMesh.pose(m,t,"idle");
+      SentinelMesh.pose(m,t,g.path?"walking":"idle");
       const speaking=time<g.speakUntil;
       m.head.rotation.y=g.hy;m.head.rotation.x+=g.hp+(speaking&&!reduced?Math.sin(time*11)*.035:0);
+      // a short nod at each sentence end while the line types out
+      const be=time-g.beat;if(be<.4&&!reduced)m.head.rotation.x+=Math.sin(be/.4*Math.PI)*.12;
       if(ARCH[g.arch].staff)m.arms[1].rotation.z+=.08;
       if(g.gest&&!reduced){
-        const e=time-g.gt,dur=g.gest==="bow"?1.4:1.9;
+        const e=time-g.gt,dur=g.gest==="bow"?1.4:g.gdur;
         if(e>dur)g.gest=null;else{const k=Math.min(1,e/.25)*Math.min(1,(dur-e)/.3),A=m.arms;
           if(g.gest==="present"){A[0].rotation.x+=(-.95-A[0].rotation.x)*k;A[0].rotation.z+=(-.5-A[0].rotation.z)*k;A[1].rotation.x+=(-.95-A[1].rotation.x)*k;A[1].rotation.z+=(.5-A[1].rotation.z)*k}
           else if(g.gest==="point"){A[1].rotation.x+=(-1.5-A[1].rotation.x)*k;A[1].rotation.z+=(.12-A[1].rotation.z)*k;m.head.rotation.x-=.08*k}
+          else if(g.gest==="raise"){A[1].rotation.x+=(-1.15-A[1].rotation.x)*k;A[1].rotation.z+=(.3-A[1].rotation.z)*k;if(g.glow)g.glow.scale.setScalar(1.9+1.1*k)}
+          else if(g.gest==="tome"){A[0].rotation.x+=(-1.05-A[0].rotation.x)*k;A[0].rotation.z+=(-.25-A[0].rotation.z)*k;if(g.tome)g.tome.position.y=3.35+.9*k}
           else if(g.gest==="bow"){m.head.rotation.x+=.5*k;A[0].rotation.x+=(.18-A[0].rotation.x)*k;A[1].rotation.x+=(.18-A[1].rotation.x)*k}}}
+      else if(g.glow&&g.glow.scale.x!==1.9)g.glow.scale.setScalar(1.9);
       if(speaking&&!reduced){const p=.5+.5*Math.sin(time*7);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=1.1+.9*p}else g.trim.emissiveIntensity=1.1;
       // cloth and props
-      if(g.cape){const sw=reduced?0:Math.sin(time*1.1+m.phase)*.035,tr=clamp(Math.abs(g.yawVel)*.25,0,.5),side=clamp(-g.yawVel*.15,-.25,.25);
-        g.cape[0].rotation.x=.2+sw+tr;g.cape[1].rotation.x=.05+sw*1.4+tr*.5;g.cape[2].rotation.x=.04+sw*1.8;g.cape[0].rotation.z=side;g.cape[1].rotation.z=side*.6}
+      if(g.cape){const sw=reduced?0:Math.sin(time*1.1+m.phase)*.035,tr=clamp(Math.abs(g.yawVel)*.25,0,.5),side=clamp(-g.yawVel*.15,-.25,.25),run=g.path?.18:0;
+        g.cape[0].rotation.x=.2+sw+tr+run;g.cape[1].rotation.x=.05+sw*1.4+tr*.5+run*.6;g.cape[2].rotation.x=.04+sw*1.8+run*.3;g.cape[0].rotation.z=side;g.cape[1].rotation.z=side*.6}
       if(!reduced){
         if(g.spin){g.spin.rotation.y=time*1.6;g.glow.material.opacity=.6+.2*Math.sin(time*3+m.phase)}
-        if(g.flag)g.flag.rotation.z=Math.sin(time*1.7+m.phase)*.06;
+        if(g.flag)g.flag.rotation.z=Math.sin(time*1.7+m.phase)*(g.path?.14:.06);
         if(g.halo)g.halo.rotation.z=time*.4;
-        if(g.tome){g.tome.position.y=3.35+Math.sin(time*1.6)*.1;g.tome.rotation.y=Math.sin(time*.7)*.3;for(let j=0;j<g.motes.length;j++){const a=time*(1.4+j*.35)+j*2.1;g.motes[j].position.set(Math.cos(a)*.42,.3+Math.sin(a*1.5)*.1,Math.sin(a)*.42)}}
+        if(g.tome){if(g.gest!=="tome")g.tome.position.y=3.35+Math.sin(time*1.6)*.1;g.tome.rotation.y=Math.sin(time*.7)*.3;for(let j=0;j<g.motes.length;j++){const a=time*(1.4+j*.35)+j*2.1;g.motes[j].position.set(Math.cos(a)*.42,.3+Math.sin(a*1.5)*.1,Math.sin(a)*.42)}}
         if(g.marker.visible){g.markerDia.rotation.y=time*1.8;g.marker.position.y=8.05+Math.sin(time*2.2)*.16;g.markerRing.scale.setScalar(1+.08*Math.sin(time*3))}
       }
     }
+    if(tick)syncLabels(cp);
     if(D.open)portraitFrame(time);
     return live||D.open;
   }
 
   // ---- talk prompt: nearest Warden in range shows "E Talk"; a button, so touch can tap it
   let P=null;
+  // The conversation ends once the viewer and the camera are both more than LEAVE_R from the Warden.
+  const leaving=(g,tx,tz,cx,cz)=>Math.min(Math.hypot(tx-g.x,tz-g.z),Math.hypot(cx-g.x,cz-g.z))>LEAVE_R;
   function updatePrompt(){
     let best=null,bd=1e9;
-    if(!D.open)for(let i=0;i<G.length;i++){const g=G[i],cp=Campus.camera().position,d=walking?Math.hypot(cp.x-g.x,cp.z-g.z):Math.hypot(tgtX-g.x,tgtZ-g.z);if(d<TALK_R&&(walking||camDist<95)&&d<bd){bd=d;best=g}}
-    if(best!==promptG){promptG=best;if(P){if(best){P.querySelector(".gp-n").textContent=best.name;P.style.setProperty("--c",best.color);P.hidden=false;requestAnimationFrame(()=>P.classList.add("on"))}else{P.classList.remove("on");P.hidden=true}}}
-    if(D.open&&D.g){const g=D.g,d=Math.min(Math.hypot(tgtX-g.x,tgtZ-g.z),Math.hypot(Campus.camera().position.x-g.x,Campus.camera().position.z-g.z));if(d>LEAVE_R)close(false)}
+    if(!D.open)for(let i=0;i<G.length;i++){const g=G[i],cp=Campus.camera().position,d=walking?Math.hypot(cp.x-g.x,cp.z-g.z):Math.hypot(tgtX-g.x,tgtZ-g.z);if(d<TALK_R&&(walking||camDist<95)&&d<bd&&!g.escort){bd=d;best=g}}
+    if(best!==promptG){promptG=best;if(P){if(best){P.querySelector(".gp-n").textContent=best.name;P.setAttribute("aria-label","Talk to the Warden of "+best.name);P.style.setProperty("--c",best.color);P.hidden=false;requestAnimationFrame(()=>P.classList.add("on"))}else{P.classList.remove("on");P.hidden=true}}}
+    // armed once the viewer has been within reach since opening, so a talk started from afar survives the camera flight in
+    if(D.open&&D.g){const cp=Campus.camera().position;if(!leaving(D.g,tgtX,tgtZ,cp.x,cp.z))D.armed=true;else if(D.armed)close(false)}
   }
+  // Escort: the Warden walks ahead to a landmark's door; the camera follows unless the viewer is walking.
+  // Reduced motion, or no route: fly straight to the note instead.
+  function escort(g,n){
+    const b=Campus.buildings()[n.id],door=b&&(b.door||{x:b.tiers&&b.tiers[0].x,z:b.tiers&&b.tiers[0].z});
+    if(RM.matches||!door||!Number.isFinite(door.x)||typeof Campus.route!=="function"){open(n);return false}
+    G.forEach(o=>{if(o.escort&&o!==g){o.escort=null;goHome(o)}});
+    g.escort={name:n.name,t0:frameT};g.camT=0;g.barkUntil=0;
+    walkTo(g,door.x,door.z,9,"escort",w=>{const e=w.escort;w.escort=null;w.mode="away";w.returnAt=frameT+14;w.gest="point";w.gt=frameT;w.gdur=1.9;
+      // arrival framing: the camera settles low on the door and facade, the door gets a light column and a chime
+      if(!walking)Campus.flyAt(door.x,door.z,1.5,28,.3);
+      if(typeof VFX!=="undefined"&&VFX.ready())VFX.ring(door.x,.3,door.z,g.color,3.2,{column:9,life:1.6});
+      if(typeof VaultAudio!=="undefined")try{VaultAudio.sfx("ui.open",{position:[door.x,2,door.z],volume:.7})}catch(err){}
+      w.blb.t="Here: "+n.name.slice(0,40)+".";w.barkUntil=frameT+5;w.nextBark=frameT+16;announce("Arrived at "+n.name+".");
+      setTimeout(()=>{if(e&&!D.open)open(n)},RM.matches?0:900)});
+    announce(`The Warden of ${g.name} is leading you to ${n.name}. Press Escape to stop.`);
+    return true;
+  }
+  function cancelEscort(){let any=false;G.forEach(g=>{if(g.escort){g.escort=null;goHome(g);any=true}});return any}
+  // Screen reader channel for things said outside the dialogue (gate greetings, escort updates).
+  let SRN=null;
+  function announce(text){if(typeof document==="undefined"||!document.body)return;if(!SRN){SRN=document.createElement("div");SRN.id="wdNear";SRN.setAttribute("role","status");SRN.setAttribute("aria-live","polite");SRN.style.cssText="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap";document.body.appendChild(SRN)}SRN.textContent=text}
 
   // ---- dialogue panel
   const D={open:false,g:null,top:null,sel:0,full:"",n:0,timer:0,typing:false,prev:null,asked:new Set(),extra:"",onDone:null};
@@ -266,6 +429,7 @@ const Guides=(()=>{
     {id:"who",t:"Who is working here?"},
     {id:"tasks",t:"What needs doing?"},
     {id:"land",t:"Show me the landmarks."},
+    {id:"links",t:"Which links are missing?"},
     {id:"ask",t:"Ask about something else…"},
     {id:"ledger",t:"Open the full ledger (Ask, Map, Work)."},
     {id:"bye",t:"Farewell."}];
@@ -286,6 +450,10 @@ const Guides=(()=>{
 #wd .wd-plate span{font-family:var(--mono);font-size:10.5px;color:var(--wmut);letter-spacing:.04em}
 #wd .wd-x{position:absolute;right:12px;top:10px;font-family:var(--mono);font-size:10.5px;color:var(--wmut);border:1px solid var(--wline);border-radius:6px;padding:2px 7px;background:transparent}
 #wd .wd-x:hover{color:var(--wfg);border-color:var(--c)}
+#wd .wd-x:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+@media (pointer:coarse){#wd .wd-ch button kbd{display:none}#wd .wd-x{min-width:44px;min-height:44px;right:6px;top:4px;font-size:0}#wd .wd-x::before{content:"✕";font-size:16px;color:var(--wfg)}}
+#wd .wd-lead{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px}#wd .wd-lead .btn{min-height:40px}
+#wd .wd-por canvas{image-rendering:auto}
 #wd .wd-main{min-width:0;display:flex;flex-direction:column}
 #wd .wd-text{font-size:16px;line-height:1.5;min-height:3em;margin:6px 34px 6px 0;color:var(--wfg);cursor:pointer}
 #wd .wd-text .cur{display:inline-block;width:.5em;height:1em;vertical-align:-2px;margin-left:2px;background:var(--c);animation:wdBlink .9s steps(2) infinite}
@@ -299,7 +467,7 @@ const Guides=(()=>{
 #wd .wd-extra .bl:hover{border-color:var(--c)}
 #wd .wd-extra .bl small{color:var(--wmut)}
 #wd .wd-extra table{font-size:12.5px}
-#wd .wd-ch{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin:4px 0 0;padding:0;list-style:none}
+#wd .wd-ch{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px 10px;margin:4px 0 0;padding:0;list-style:none}
 #wd .wd-ch button{width:100%;min-height:36px;display:flex;align-items:center;gap:10px;text-align:left;padding:6px 10px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--wfg);font-size:13.5px;transition:background .15s,border-color .15s,transform .15s}
 #wd .wd-ch button kbd{flex:none;width:20px;height:20px;display:grid;place-items:center;border-radius:5px;font-family:var(--mono);font-size:10.5px;color:var(--wmut);border:1px solid var(--wline)}
 #wd .wd-ch button.sel,#wd .wd-ch button:hover{background:color-mix(in srgb,var(--c) 14%,transparent);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
@@ -312,7 +480,7 @@ const Guides=(()=>{
 #wd form input{flex:1;min-width:0;background:rgba(255,255,255,.04);border:1px solid var(--wline);border-radius:9px;color:var(--wfg);padding:8px 11px;font:inherit;font-size:14px}
 #wd form input:focus{outline:none;border-color:var(--c)}
 #wd .wd-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-family:var(--mono);font-size:10.5px;color:var(--wmut);letter-spacing:.03em}
-#wd .wd-foot kbd{font-family:inherit;color:var(--wfg);border:1px solid var(--wline);border-radius:4px;padding:0 4px;margin-right:3px}
+#wd .wd-foot kbd{font-family:inherit;font-size:inherit;color:var(--wfg);background:rgba(255,255,255,.06);box-shadow:none;border:1px solid var(--wline);border-radius:4px;padding:0 4px;margin-right:3px}
 #wd .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 #gPrompt{--c:#E8A33D;position:fixed;left:50%;bottom:calc(130px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);z-index:29;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;background:rgba(9,12,22,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb,var(--c) 60%,transparent);color:#EEF0F6;font-family:var(--display);font-size:13.5px;opacity:0;transition:opacity .2s,transform .25s;box-shadow:0 10px 28px -10px var(--c)}
 #gPrompt.on{opacity:1;transform:translate(-50%,0)}
@@ -335,8 +503,27 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
  #wd .wd-text{font-size:14.5px;margin:4px 0 6px}
  #wd .wd-ch{grid-template-columns:1fr 1fr;gap:4px}#wd .wd-ch button{min-height:44px;font-size:12.5px;padding:5px 7px;gap:7px}
  #wd .wd-foot{display:none}#wd .wd-extra{max-height:22vh}
+ #wd .wd-main{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+ /* phones: the portrait tucks beside the first line, so answers and replies use the full card width */
+ #wd .wd-card{grid-template-columns:1fr}
+ #wd .wd-por{position:absolute;left:12px;top:20px;width:52px;height:52px;z-index:1}
+ #wd .wd-text{margin:6px 44px 6px 62px;min-height:52px}
+ /* replies become one swipeable row of 44px chips instead of a tall grid */
+ #wd .wd-ch{display:flex;overflow-x:auto;gap:6px;padding:2px 2px 6px;scroll-snap-type:x proximity;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 88%,transparent)}
+ #wd .wd-ch::-webkit-scrollbar{display:none}
+ #wd .wd-ch li{flex:none;scroll-snap-align:start}
+ #wd .wd-ch button{width:auto;white-space:nowrap;border-color:var(--wline);padding:5px 12px}
+ #wd .wd-ch button.sel::after{display:none}
+ #wd .wd-extra .bl,#wd .wd-lead .btn{min-height:44px}
+}
+@media (max-width:360px){#wd .wd-card{grid-template-columns:1fr}#wd .wd-por{display:none}#wd .wd-ch button kbd{display:none}}
+@media (max-height:520px) and (orientation:landscape){
+ #wd{bottom:calc(4px + env(safe-area-inset-bottom,0px));width:min(880px,calc(100% - 24px))}
+ #wd .wd-card{max-height:86vh;grid-template-columns:72px 1fr;padding:12px 12px 8px}#wd .wd-por{width:72px;height:72px}
+ #wd .wd-ch{grid-template-columns:repeat(3,1fr)}#wd .wd-extra{max-height:30vh}#wd .wd-text{min-height:0}
 }
 @media (prefers-reduced-motion:reduce){#wd,#gPrompt{transition:none}#wd .wd-text .cur{animation:none}}
+@media (forced-colors:active){#wd .wd-card,#gPrompt{border:2px solid CanvasText}#wd .wd-ch button.sel{outline:2px solid Highlight}}
 `;document.head.appendChild(s);
   }
   function ui(){
@@ -344,52 +531,64 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
     W=document.createElement("section");W.id="wd";W.hidden=true;W.setAttribute("role","dialog");W.setAttribute("aria-modal","false");W.setAttribute("aria-labelledby","wdName");W.setAttribute("aria-describedby","wdLive");
     W.innerHTML=`<div class="wd-card"><div class="wd-por" aria-hidden="true"><canvas width="176" height="176"></canvas><img alt="" decoding="async"><span class="wd-arch"></span></div>
 <div class="wd-main"><div class="wd-text" id="wdText" aria-hidden="true"><span class="t"></span><span class="cur"></span></div><div class="sr" id="wdLive" aria-live="polite" aria-atomic="true"></div>
-<div class="wd-extra"></div><form id="wdAsk" hidden><input maxlength="200" placeholder="Ask the Warden…" autocomplete="off" aria-label="Question for the Warden"><button class="btn pri" type="submit">Ask</button></form>
+<div class="wd-extra" role="region" aria-label="Details"></div><form id="wdAsk" hidden><input maxlength="200" placeholder="Ask the Warden…" autocomplete="off" aria-label="Question for the Warden"><button class="btn pri" type="submit">Ask</button></form>
 <ol class="wd-ch" role="group" aria-label="Replies"></ol>
-<div class="wd-foot"><span><kbd>↑</kbd><kbd>↓</kbd>choose</span><span><kbd>1</kbd>–<kbd>8</kbd>pick</span><span><kbd>Enter</kbd>select</span><span><kbd>Space</kbd>skip</span><span><kbd>Esc</kbd>leave</span></div></div>
-<div class="wd-plate"><b id="wdName"></b><span class="wd-dist"></span></div><button class="wd-x" type="button" aria-label="Leave the conversation">Esc</button></div>`;
+<div class="wd-foot"><span><kbd>↑</kbd><kbd>↓</kbd>choose</span><span><kbd>1</kbd>–<kbd>9</kbd>pick</span><span><kbd>Enter</kbd>select</span><span><kbd>Space</kbd>skip</span><span><kbd>Esc</kbd>leave</span></div></div>
+<div class="wd-plate"><b id="wdName"></b><span class="wd-dist"></span></div><button class="wd-x" type="button" aria-label="Leave the conversation" aria-keyshortcuts="Escape">Esc</button></div>`;
     document.body.appendChild(W);
     W.querySelector(".wd-x").onclick=()=>close(true);
     W.querySelector(".wd-text").onclick=()=>skip();
     W.querySelector("#wdAsk").onsubmit=e=>{e.preventDefault();const i=W.querySelector("#wdAsk input"),q=i.value.trim();if(!q)return;Sfx.pick();const r=reply(D.top,q);memo.set(D.top,{q,a:answerHTML(r)});say(r.text,r.html,r.gest);i.value="";W.querySelector("#wdAsk").hidden=true;focusSel()};
     W.querySelector(".wd-ch").addEventListener("click",e=>{const b=e.target.closest("button[data-i]");if(b)choose(+b.dataset.i)});
-    W.querySelector(".wd-extra").addEventListener("click",e=>{const b=e.target.closest("[data-n]");if(b){const n=byName.get(b.dataset.n);if(n){close(false);open(n)}return}if(e.target.closest("#wdWalk")){const d=district(D.top);if(d){Campus.flyAt(d.x+d.w/2,d.z+d.d/2,0,Math.max(d.w,d.d)*1.05+70,.72);close(false)}}});
-    P=document.createElement("button");P.id="gPrompt";P.type="button";P.hidden=true;P.innerHTML=`<kbd>E</kbd><span>Talk to the Warden of <b class="gp-n"></b></span><small>Warden</small>`;
+    W.querySelector(".wd-extra").addEventListener("click",e=>{const ld=e.target.closest("[data-lead]");if(ld){const n=byName.get(ld.dataset.lead),g=D.g;if(n&&g){close(false);escort(g,n)}return}
+      const b=e.target.closest("[data-n]");if(b){const n=byName.get(b.dataset.n);if(n){close(false);open(n)}return}if(e.target.closest("#wdWalk")){const d=district(D.top);if(d){Campus.flyAt(d.x+d.w/2,d.z+d.d/2,0,Math.max(d.w,d.d)*1.05+70,.72);close(false)}}});
+    P=document.createElement("button");P.id="gPrompt";P.type="button";P.hidden=true;P.setAttribute("aria-keyshortcuts","E");P.innerHTML=`<kbd>E</kbd><span>Talk to the Warden of <b class="gp-n"></b></span><small>Warden</small>`;
     P.onclick=()=>{if(promptG)talk(promptG.top)};document.body.appendChild(P);
     window.addEventListener("keydown",onKey,true);
     return W;
   }
   function drawChoices(){
     const ol=W.querySelector(".wd-ch");
-    ol.innerHTML=CHOICES.map((c,i)=>`<li><button type="button" data-i="${i}" class="${i===D.sel?"sel":""}${D.asked.has(c.id)?" asked":""}"><kbd>${i+1}</kbd><span>${esc(c.t)}</span></button></li>`).join("");
+    ol.innerHTML=CHOICES.map((c,i)=>`<li><button type="button" data-i="${i}" aria-keyshortcuts="${i+1}" class="${i===D.sel?"sel":""}${D.asked.has(c.id)?" asked":""}"><kbd aria-hidden="true">${i+1}</kbd><span>${esc(c.t)}</span>${D.asked.has(c.id)?'<span class="sr"> (asked)</span>':""}</button></li>`).join("");
   }
   function setSel(i,focus=true){
     const bs=W.querySelectorAll(".wd-ch button");if(!bs.length)return;i=(i+bs.length)%bs.length;
     if(i!==D.sel)Sfx.move();D.sel=i;bs.forEach((b,k)=>b.classList.toggle("sel",k===i));if(focus)bs[i].focus({preventScroll:true});
+    if(innerWidth<=760&&bs[i].scrollIntoView)try{bs[i].scrollIntoView({block:"nearest",inline:"nearest"})}catch(e){}   // keep the picked chip visible in the phone reply row
   }
   const focusSel=()=>{const b=W&&W.querySelectorAll(".wd-ch button")[D.sel];if(b)b.focus({preventScroll:true})};
-  // typewriter. The visible text is aria-hidden; the full line goes to the polite live region at once.
+  // typewriter. The visible text is aria-hidden; the full line (plus a count of listed items) goes to the polite live region at once.
+  // The gesture lasts as long as the line types, and the head dips at each sentence end, so body and words stay in step.
   function say(text,html,gest){
-    const g=D.g;clearInterval(D.timer);D.full=text;D.n=0;D.extra=html||"";
+    const g=D.g,V=voiceOf(g);clearInterval(D.timer);D.full=text;D.n=0;D.extra=html||"";
     const t=W.querySelector(".wd-text .t"),box=W.querySelector(".wd-text"),ex=W.querySelector(".wd-extra");
-    ex.innerHTML="";W.querySelector("#wdLive").textContent=text;
-    if(g&&gest&&!RM.matches){if(gest==="greet"||gest==="nod")SentinelMesh.emote(g.m,gest,frameT);else{g.gest=gest;g.gt=frameT}}
+    const items=(D.extra.match(/class="bl"/g)||[]).length;
+    ex.innerHTML="";W.querySelector("#wdLive").textContent=text+(items?` ${plural(items,"item")} listed below.`:"");
+    const typeMs=RM.matches?0:Math.ceil(text.length/2)*V.ms;
+    if(g&&gest&&!RM.matches){const gs=gestOf(g,gest);if(gs==="greet"||gs==="nod")SentinelMesh.emote(g.m,gs,frameT);else{g.gest=gs;g.gt=frameT;g.gdur=clamp(typeMs/1000+.7,1.4,5.5)}}
     const done=()=>{clearInterval(D.timer);D.typing=false;t.textContent=D.full;box.classList.add("done");W.classList.remove("typing");ex.innerHTML=D.extra;if(g)g.speakUntil=0};
     if(RM.matches){done();return}
     D.typing=true;box.classList.remove("done");W.classList.add("typing");t.textContent="";if(g)g.speakUntil=1e9;
-    D.timer=setInterval(()=>{D.n+=2;t.textContent=D.full.slice(0,D.n);if(D.full[D.n-1]&&D.full[D.n-1]!==" ")Sfx.type();if(D.n>=D.full.length)done()},28);
+    const q=/\?\s*$/.test(text);
+    D.timer=setInterval(()=>{const a=D.n;D.n+=2;t.textContent=D.full.slice(0,D.n);const seg=D.full.slice(a,D.n);
+      if(D.full[D.n-1]&&D.full[D.n-1]!==" ")Sfx.type(q&&D.n>=D.full.length-6);
+      if(g&&/[.?!]/.test(seg))g.beat=frameT;
+      if(D.n>=D.full.length)done()},V.ms);
     D.finish=done;
   }
   function skip(){if(D.typing&&D.finish)D.finish()}
   function greeting(g){
-    const s=g.stats||{notes:notesIn(g.top).length,blocks:0,open:0};
-    return `I keep ${g.name}. ${plural(s.notes,"note")} ${s.notes===1?"stands":"stand"} here in ${plural(s.blocks,"block")}. ${s.open?`${plural(s.open,"open task")} ${s.open===1?"points":"point"} at this district.`:"No open task points at this district."} What do you need?`;
+    const s=g.stats||{notes:notesIn(g.top).length,blocks:0,open:0,today:0,here:0,who:[]};
+    const today=s.today?` ${plural(s.today,"note")} changed today.`:"";
+    const who=s.here&&s.who&&s.who.length?` ${s.who.slice(0,2).join(" and ")}${s.here>2?` and ${s.here-2} more`:""} ${s.here===1?"is":"are"} here now.`:"";
+    return `${voiceOf(g).open(g)} ${plural(s.notes,"note")} ${s.notes===1?"stands":"stand"} here in ${plural(s.blocks,"block")}.${today}${who} ${s.open?`${plural(s.open,"open task")} ${s.open===1?"points":"point"} at this district.`:"No open task points at this district."} What do you need?`;
   }
   function talk(top,fly=true){
     const g=G.find(x=>x.top===top),d=district(top);if(!g||!d)return false;
-    ui();refreshStats(true);
-    const wasOpen=D.open;D.open=true;D.g=g;D.top=top;curTop=top;D.sel=0;D.asked=new Set();
+    ui();refreshStats(true);cancelEscort();
+    const wasOpen=D.open;D.open=true;D.g=g;D.top=top;curTop=top;D.sel=0;D.asked=new Set();D.armed=false;
     if(!wasOpen){D.prev=document.activeElement}
+    if(g.path){g.path=null;g.onArrive=null;g.mode="away";g.returnAt=frameT+20}
     W.style.setProperty("--c",g.color);W.querySelector("#wdName").textContent="Warden of "+g.name;
     W.querySelector(".wd-dist").textContent=`${ARCH[g.arch].title} · ${g.top} · ${plural(g.stats.notes,"note")}`;
     W.querySelector(".wd-arch").textContent=ARCH[g.arch].title;W.querySelector("#wdAsk").hidden=true;
@@ -418,11 +617,29 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
     if(c.id==="ledger"){close(false);sheet.view="guide";sheet.gtab=sheet.gtab||"ask";openSheet("guide");return}
     if(c.id==="ask"){const f=W.querySelector("#wdAsk");f.hidden=false;const inp=f.querySelector("input");inp.focus();return}
     D.asked.add(c.id);drawChoices();
-    const r=c.id==="about"?overviewR(top,d):c.id==="new"?whatsNewR(top):c.id==="who"?whoHereR(top):c.id==="tasks"?openTasksR(top):landmarksR(top,d);
+    const r=answerFor(c.id,top,d);
     say(r.text,r.html,r.gest);focusSel();
+  }
+  const answerFor=(id,top,d)=>id==="about"?overviewR(top,d):id==="new"?whatsNewR(top):id==="who"?whoHereR(top):id==="tasks"?openTasksR(top):id==="links"?linksR(top):landmarksR(top,d);
+  // Keys while the dialogue is open, as a pure decision so it can be tested: 1–9 pick, arrows move (columns on wide
+  // screens), Home/End jump, Space/Enter select or skip the typewriter.
+  function keyAction(k,st){
+    const n=CHOICES.length,cols=st.wide?3:1;
+    if(k===" "||k==="Enter")return st.typing?{act:"skip"}:{act:"choose",i:st.sel};
+    // a number while the line types finishes it and takes that reply at once
+    if(/^[1-9]$/.test(k)&&+k<=n)return {act:"choose",i:+k-1,skip:!!st.typing};
+    if(st.typing&&k!=="ArrowUp"&&k!=="ArrowDown")return null;
+    if(k==="ArrowDown"||k==="s"||k==="S")return {act:"move",i:st.sel+1};
+    if(k==="ArrowUp"||k==="w"||k==="W")return {act:"move",i:st.sel-1};
+    if(k==="ArrowRight"&&st.wide)return {act:"move",i:st.sel+cols};
+    if(k==="ArrowLeft"&&st.wide)return {act:"move",i:st.sel-cols};
+    if(k==="Home")return {act:"move",i:0};
+    if(k==="End")return {act:"move",i:n-1};
+    return null;
   }
   function onKey(e){
     if(!D.open){
+      if(e.key==="Escape"&&G.some(g=>g.escort)&&!/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||"")){e.preventDefault();e.stopPropagation();cancelEscort();announce("Stopped. The Warden is walking back.");return}
       if(!promptG||e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
       if(/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||""))return;
       if(e.key==="e"||e.key==="E"){e.preventDefault();e.stopPropagation();talk(promptG.top)}
@@ -436,25 +653,102 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
     const k=e.key;
     if(k==="Tab")return;
     e.stopPropagation();
-    if(k===" "||k==="Enter"){e.preventDefault();if(D.typing){skip();return}if(e.target.closest&&e.target.closest(".wd-extra [data-n],#wdWalk")){e.target.click();return}const fb=e.target.closest&&e.target.closest(".wd-ch button[data-i]");choose(fb?+fb.dataset.i:D.sel);return}
-    if(D.typing&&k!=="ArrowUp"&&k!=="ArrowDown")return;
-    if(k==="ArrowDown"||k==="s"||k==="S"){e.preventDefault();setSel(D.sel+1)}
-    else if(k==="ArrowUp"||k==="w"||k==="W"){e.preventDefault();setSel(D.sel-1)}
-    else if(k==="ArrowRight"&&innerWidth>760){e.preventDefault();setSel(D.sel+4)}
-    else if(k==="ArrowLeft"&&innerWidth>760){e.preventDefault();setSel(D.sel-4)}
-    else if(/^[1-8]$/.test(k)){e.preventDefault();choose(+k-1)}
+    if((k===" "||k==="Enter")&&!D.typing){const ex=e.target.closest&&e.target.closest(".wd-extra [data-n],.wd-extra [data-lead],#wdWalk");if(ex){e.preventDefault();e.target.click();return}
+      const fb=e.target.closest&&e.target.closest(".wd-ch button[data-i]");if(fb){e.preventDefault();choose(+fb.dataset.i);return}}
+    const a=keyAction(k,{sel:D.sel,typing:D.typing,wide:innerWidth>760});if(!a)return;
+    e.preventDefault();
+    if(a.act==="skip")skip();else if(a.act==="choose"){if(a.skip)skip();choose(a.i)}else setSel(a.i);
   }
 
-  // ---- portrait. Painted art from web/assets/guides when it exists; otherwise a live render of the Warden's head from the campus scene.
-  const PS=176;let PCAM=null,pctx=null,pLast=-1,pStatic=false;
-  const artFail=new Set();
-  function portraitSetup(g){
-    const img=W.querySelector(".wd-por img"),cv=W.querySelector(".wd-por canvas"),file="assets/guides/warden-"+g.color.replace("#","").toLowerCase()+".webp";
-    img.classList.remove("ok");img.onload=null;img.onerror=null;pStatic=false;pLast=-1;
-    if(!artFail.has(file)){img.onload=()=>{if(D.g===g){img.classList.add("ok");pStatic=true}};img.onerror=()=>{artFail.add(file)};img.src=file}else img.removeAttribute("src");
-    cv.style.display="";
-    if(!pctx)try{pctx=cv.getContext("2d")}catch(e){pctx=null}
-    if(pctx){pctx.fillStyle="#05070F";pctx.fillRect(0,0,PS,PS)}
+  // ---- portrait. The chain, in order: art listed in assets/guides/manifest.json for this district's slug (only when the
+  // manifest's kit revision, archetype, symbol and colour still match, so no stale or missing file is ever requested);
+  // a live render of the Warden's head from the campus scene with a composited backdrop; a procedurally painted bust
+  // when WebGL readback fails; the Identity SVG when there is no 2D canvas at all.
+  const PS=176;let PCAM=null;
+  const PT={g:null,img:null,cv:null,por:null,ctx:null,stage:"none",last:-1};
+  const ART={state:"idle",map:new Map()};
+  function setArt(j){ART.map.clear();if(j&&j.kit===KIT_REV&&Array.isArray(j.portraits))j.portraits.forEach(p=>{if(p&&p.slug)ART.map.set(p.slug,p)});ART.state="ready";return ART.map.size}
+  function loadArt(){
+    if(ART.state!=="idle")return;ART.state="loading";
+    if(typeof fetch!=="function"){ART.state="ready";return}
+    fetch("assets/guides/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(setArt,()=>{}).catch(()=>{}).then(()=>{ART.state="ready"});
+  }
+  function artFor(g){
+    const e=ART.map.get(slug(g.top));
+    return e&&e.arch===g.arch&&e.symbol===two(g.name)&&String(e.color||"").toLowerCase()===String(g.color).toLowerCase()?"assets/guides/"+(e.file||"warden-"+slug(g.top)+".webp"):null;
+  }
+  // colour helpers for the 2D portrait work
+  const rgb=hex=>{const h=String(hex).replace("#","");const v=parseInt(h.length===3?h.replace(/./g,c=>c+c):h,16)||0;return [v>>16&255,v>>8&255,v&255]};
+  const rgba=(hex,a)=>{const c=rgb(hex);return `rgba(${c[0]},${c[1]},${c[2]},${a})`};
+  const mixc=(a,b,t)=>{const x=rgb(a),y=rgb(b);return `rgb(${x.map((v,i)=>Math.round(v+(y[i]-v)*t)).join(",")})`};
+  const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+  // Archetype emblems, drawn as vector strokes: keeper lantern, archivist open book, herald banner, vanguard blade.
+  function emblem(ctx,arch,x,y,s,col){
+    ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.lineWidth=.14;ctx.strokeStyle=col;ctx.fillStyle=rgba(col,.22);ctx.lineJoin="round";ctx.beginPath();
+    if(arch==="keeper"){ctx.moveTo(0,-1);ctx.lineTo(0,-.7);ctx.moveTo(-.45,-.55);ctx.lineTo(.45,-.55);ctx.lineTo(.35,.55);ctx.lineTo(-.35,.55);ctx.closePath();ctx.moveTo(-.45,.7);ctx.lineTo(.45,.7)}
+    else if(arch==="archivist"){ctx.moveTo(0,-.5);ctx.quadraticCurveTo(-.5,-.75,-1,-.5);ctx.lineTo(-1,.6);ctx.quadraticCurveTo(-.5,.35,0,.6);ctx.quadraticCurveTo(.5,.35,1,.6);ctx.lineTo(1,-.5);ctx.quadraticCurveTo(.5,-.75,0,-.5);ctx.lineTo(0,.6)}
+    else if(arch==="herald"){ctx.moveTo(-.55,-1);ctx.lineTo(-.55,1);ctx.moveTo(-.55,-.9);ctx.lineTo(.75,-.9);ctx.lineTo(.75,.35);ctx.lineTo(.1,.05);ctx.lineTo(-.55,.35)}
+    else{ctx.moveTo(0,-1);ctx.lineTo(.22,.35);ctx.lineTo(0,.5);ctx.lineTo(-.22,.35);ctx.closePath();ctx.moveTo(-.55,.42);ctx.lineTo(.55,.42);ctx.moveTo(0,.5);ctx.lineTo(0,1)}
+    ctx.fill();ctx.stroke();ctx.restore();
+  }
+  // Frame treatment over any portrait: district wash, rim light from the right, vignette, emblem and the Warden's symbol.
+  function overlay(g,ctx,size){
+    const c=g.color;ctx.save();
+    let gr=ctx.createLinearGradient(0,size*.45,0,size);gr.addColorStop(0,rgba(c,0));gr.addColorStop(1,rgba(c,.26));ctx.fillStyle=gr;ctx.fillRect(0,0,size,size);
+    ctx.globalCompositeOperation="lighter";gr=ctx.createLinearGradient(size,0,size*.62,0);gr.addColorStop(0,rgba(c,.28));gr.addColorStop(1,rgba(c,0));ctx.fillStyle=gr;ctx.fillRect(size*.62,0,size*.38,size);
+    ctx.globalCompositeOperation="source-over";gr=ctx.createRadialGradient(size/2,size*.42,size*.28,size/2,size*.5,size*.75);gr.addColorStop(0,"rgba(5,7,15,0)");gr.addColorStop(1,"rgba(5,7,15,.72)");ctx.fillStyle=gr;ctx.fillRect(0,0,size,size);
+    emblem(ctx,g.arch,size*.86,size*.84,size*.075,c);
+    ctx.font=`600 ${Math.round(size*.075)}px monospace`;ctx.textAlign="right";ctx.textBaseline="top";ctx.fillStyle=rgba(c,.9);ctx.fillText(two(g.name),size*.94,size*.05);
+    ctx.restore();
+  }
+  // Procedural bust: district skyline backdrop, robe and shoulders, the archetype's headpiece, a lit visor and chest plate.
+  function paint(g,ctx,size,time){
+    const c=g.color,a=g.arch,s=size,h=hash(g.top),speaking=time<g.speakUntil;
+    let gr=ctx.createRadialGradient(s/2,s*.3,s*.05,s/2,s*.45,s*.8);gr.addColorStop(0,mixc(c,"#0B1020",.55));gr.addColorStop(1,"#05070F");ctx.fillStyle=gr;ctx.fillRect(0,0,s,s);
+    ctx.fillStyle=rgba(c,.13);for(let i=0;i<9;i++){const w=s*(.07+((h>>(i*3))&3)*.02),x=(i/9)*s+((h>>i)&7)*.6,ht=s*(.18+((h>>(i*2+1))&7)*.045);ctx.fillRect(x,s*.62-ht,w,ht+s)}
+    const cloth=mixc("#0B1020",c,.14),lining=mixc("#0B1020",c,.3),cx=s/2;
+    // shoulders and robe
+    ctx.fillStyle=cloth;ctx.beginPath();ctx.moveTo(s*.08,s);ctx.quadraticCurveTo(s*.12,s*.66,cx-s*.2,s*.62);ctx.lineTo(cx+s*.2,s*.62);ctx.quadraticCurveTo(s*.88,s*.66,s*.92,s);ctx.closePath();ctx.fill();
+    if(a==="herald"||a==="vanguard"){ctx.fillStyle=lining;ctx.beginPath();ctx.ellipse(cx,s*.68,s*.34,s*.09,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=c;ctx.lineWidth=s*.012;ctx.beginPath();ctx.ellipse(cx,s*.7,s*.33,s*.085,0,0,Math.PI);ctx.stroke()}
+    if(a==="archivist"){ctx.fillStyle=c;for(const sd of [-1,1])ctx.fillRect(cx+sd*s*.1-s*.018,s*.66,s*.036,s*.34)}
+    // halo behind the head
+    if(a==="vanguard"){ctx.strokeStyle=c;ctx.lineWidth=s*.016;ctx.beginPath();ctx.arc(cx,s*.36,s*.2,0,Math.PI*2);ctx.stroke();ctx.lineWidth=s*.007;ctx.beginPath();ctx.arc(cx,s*.36,s*.145,0,Math.PI*2);ctx.stroke()}
+    // head
+    ctx.fillStyle="#1A2030";ctx.beginPath();ctx.ellipse(cx,s*.42,s*.12,s*.15,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#0B1020";ctx.fillRect(cx-s*.03,s*.54,s*.06,s*.08);
+    // hood or peaked hood
+    if(a==="keeper"||a==="archivist"){ctx.fillStyle=cloth;ctx.beginPath();ctx.moveTo(cx-s*.2,s*.62);ctx.quadraticCurveTo(cx-s*.22,s*.22,cx,a==="archivist"?s*.1:s*.2);ctx.quadraticCurveTo(cx+s*.22,s*.22,cx+s*.2,s*.62);ctx.lineTo(cx+s*.13,s*.6);ctx.quadraticCurveTo(cx+s*.14,s*.3,cx,s*.27);ctx.quadraticCurveTo(cx-s*.14,s*.3,cx-s*.13,s*.6);ctx.closePath();ctx.fill();
+      ctx.strokeStyle=c;ctx.lineWidth=s*.008;ctx.beginPath();ctx.moveTo(cx-s*.13,s*.6);ctx.quadraticCurveTo(cx-s*.14,s*.3,cx,s*.27);ctx.quadraticCurveTo(cx+s*.14,s*.3,cx+s*.13,s*.6);ctx.stroke()}
+    // visor
+    const glow=speaking?.75+.25*Math.sin(time*9):.85;ctx.shadowColor=c;ctx.shadowBlur=s*.05;ctx.fillStyle=rgba(c,glow);ctx.beginPath();ctx.ellipse(cx,s*.41,s*.075,s*.02,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    // chest plate and clasps
+    ctx.fillStyle="#2A2F3D";for(const sd of [-1,1]){ctx.beginPath();ctx.moveTo(cx+sd*s*.15,s*.72);ctx.lineTo(cx+sd*s*.17,s*.75);ctx.lineTo(cx+sd*s*.15,s*.78);ctx.lineTo(cx+sd*s*.13,s*.75);ctx.closePath();ctx.fill()}
+    ctx.font=`700 ${Math.round(s*.07)}px monospace`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillStyle=rgba("#F4EFE6",.85);ctx.fillText(two(g.name),cx,s*.83);
+    overlay(g,ctx,s);
+  }
+  function svgFallback(g){
+    const por=PT.por;if(!por)return;if(PT.cv&&PT.cv.style)PT.cv.style.display="none";
+    const svg=typeof Identity!=="undefined"?Identity.preview({form:"member",palette:["#0B1020",g.color,"#F4EFE6"]}):"";
+    if(svg&&por.insertAdjacentHTML&&!(por.querySelector&&por.querySelector("svg")))por.insertAdjacentHTML("afterbegin",svg);
+  }
+  function portraitSetup(g,el){
+    el=el||{img:W.querySelector(".wd-por img"),cv:W.querySelector(".wd-por canvas"),por:W.querySelector(".wd-por")};
+    PT.g=g;PT.img=el.img;PT.cv=el.cv;PT.por=el.por;PT.last=-1;
+    const old=PT.por&&PT.por.querySelector&&PT.por.querySelector("svg");if(old&&old.remove)old.remove();
+    try{PT.ctx=PT.cv&&PT.cv.getContext?PT.cv.getContext("2d"):null}catch(e){PT.ctx=null}
+    if(PT.cv&&PT.cv.style)PT.cv.style.display="";
+    const img=PT.img,file=artFor(g);
+    if(img){img.classList.remove("ok");img.onload=null;img.onerror=null}
+    PT.stage=file?"art":PT.ctx?"live":"svg";
+    if(file&&img){
+      img.onload=()=>{if(PT.g===g&&PT.stage==="art")img.classList.add("ok")};
+      // a listed file that fails once is dropped from the manifest map for the session and the chain moves on
+      img.onerror=()=>{ART.map.delete(slug(g.top));if(PT.g!==g)return;img.classList.remove("ok");if(img.removeAttribute)img.removeAttribute("src");PT.stage=PT.ctx?"live":"svg";PT.last=-1;if(PT.stage==="svg")svgFallback(g)};
+      img.src=file;
+    }else if(img&&img.removeAttribute)img.removeAttribute("src");
+    if(PT.ctx){try{paint(g,PT.ctx,PS,frameT)}catch(e){}}   // instant bust; the live render replaces it on the next frame
+    else svgFallback(g);
+    return PT.stage;
   }
   // Render the Warden's head and shoulders from the campus scene into a 2D context. Buffers are cached per size.
   const PB=new Map();
@@ -471,19 +765,23 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
     ctx.putImageData(b.img,0,0);
   }
   function portraitFrame(time){
-    const g=D.g;if(!g||pStatic||!pctx)return;
+    const g=PT.g;if(!g||!PT.ctx||(PT.stage!=="live"&&PT.stage!=="paint"))return;
     const speaking=time<g.speakUntil,rate=RM.matches?1e9:speaking?1/12:1/5;
-    if(pLast>=0&&time-pLast<rate)return;pLast=time;
-    try{renderHead(g,pctx,PS,5.4)}
-    catch(e){pStatic=true;const svg=typeof Identity!=="undefined"?Identity.preview({form:"member",palette:["#0B1020",g.color,"#F4EFE6"]}):"";const por=W.querySelector(".wd-por");por.querySelector("canvas").style.display="none";if(svg&&!por.querySelector("svg"))por.insertAdjacentHTML("afterbegin",svg)}
+    if(PT.last>=0&&time-PT.last<rate)return;PT.last=time;
+    if(PT.stage==="paint"){try{paint(g,PT.ctx,PS,time)}catch(e){PT.stage="svg";svgFallback(g)}return}
+    try{renderHead(g,PT.ctx,PS,5.4);overlay(g,PT.ctx,PS)}
+    catch(e){PT.stage="paint";try{paint(g,PT.ctx,PS,time)}catch(e2){PT.stage="svg";svgFallback(g)}}
   }
-  // Stand-in art: a still of the code-built Warden at a given size, as a data URL. Used to produce web/assets/guides/warden-<hex>.webp
-  // until painted portraits replace those files.
+  // A finished portrait of the code-built Warden at a given size, as a data URL: the live render with the frame
+  // treatment, or the painted bust without WebGL. scripts/render_warden_portraits.mjs writes these to
+  // web/assets/guides/warden-<slug>.webp with a manifest entry per district.
   function still(top,size=384,type="image/webp"){
-    const g=G.find(x=>x.top===top);if(!g)return null;const c=document.createElement("canvas");c.width=c.height=size;
-    const y=g.hy;g.hy=0;try{renderHead(g,c.getContext("2d"),size,5.6)}finally{g.hy=y}
+    const g=G.find(x=>x.top===top);if(!g)return null;const c=document.createElement("canvas");c.width=c.height=size;const ctx=c.getContext("2d");
+    const y=g.hy,sp=g.speakUntil;g.hy=0;g.speakUntil=0;
+    try{renderHead(g,ctx,size,5.6);overlay(g,ctx,size)}catch(e){paint(g,ctx,size,0)}finally{g.hy=y;g.speakUntil=sp}
     return c.toDataURL(type,.86);
   }
+  const portraitEntry=g=>({slug:slug(g.top),top:g.top,file:"warden-"+slug(g.top)+".webp",arch:g.arch,symbol:two(g.name),color:g.color});
   function picker(rc){
     if(!G.length)return false;
     const hits=rc.intersectObjects(G.map(g=>g.m.grp),true);if(!hits.length)return false;
@@ -496,7 +794,8 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
   function ledger(top){if(top)curTop=top;sheet.view="guide";sheet.gtab=sheet.gtab||"ask";openSheet("guide");return true}
   function boot(){
     if(booted||!Campus.ok())return;booted=true;
-    ui();place();Campus.onFrame(frame);Campus.addPicker(picker);
+    ui();loadArt();place();Campus.onFrame(frame);Campus.addPicker(picker);
+    if(Campus.addShadowCaster)Campus.addShadowCaster(()=>G.filter(g=>g.m&&g.m.grp.visible).map(g=>[g.x,g.m.pos.y||0,g.z,2.6])); // world hook: contact shadows under Wardens
   }
 
   // ---- answers. Every answer is computed from loaded data; nothing is guessed. Each returns {text, html, gest}.
@@ -506,18 +805,25 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
     const ns=notesIn(top),mocs=ns.filter(n=>n.fm.type==="moc"),types={};ns.forEach(n=>{const t=n.fm.type||"untyped";types[t]=(types[t]||0)+1});
     const rows=Object.entries(types).sort((a,b)=>b[1]-a[1]);
     const blocks=new Set(ns.map(n=>(n.folder||"").split("/")[1]||"·"));
-    const text=`${plural(ns.length,"note")} in ${plural(blocks.size,"block")}.${rows.length?` Most are type ${rows[0][0]} (${rows[0][1]}).`:""} ${mocs.length?`${plural(mocs.length,"map")} of content ${mocs.length===1?"lives":"live"} here.`:"No map of content lives here."}`;
+    const meta=typeof Districts!=="undefined"&&Districts.get?Districts.get(top):null,purpose=meta&&meta.purpose?String(meta.purpose).trim():"";
+    const text=`${purpose?purpose+(/[.!?]$/.test(purpose)?" ":". "):""}${plural(ns.length,"note")} in ${plural(blocks.size,"block")}.${rows.length?` Most are type ${rows[0][0]} (${rows[0][1]}).`:""} ${mocs.length?`${plural(mocs.length,"map")} of content ${mocs.length===1?"lives":"live"} here.`:"No map of content lives here."}`;
     const html=`<div class="wd-types">${rows.slice(0,8).map(([t,c])=>`<span>${esc(t)}<b>${c}</b></span>`).join("")}</div>${mocs.length?`<p>Maps of content: ${mocs.map(link).join(", ")}.</p>`:""}`;
     return {text,html,gest:"present"};
   }
   function whatsNewR(top){
     const now=Date.now(),ns=notesIn(top).filter(n=>n.updated_at&&now-Date.parse(n.updated_at)<WEEK).sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
     if(!ns.length)return {text:"Nothing in this district changed in the last 7 days.",html:"",gest:"nod"};
-    return {text:`${plural(ns.length,"note")} changed in the last 7 days. Newest first.`,html:ns.slice(0,8).map(n=>noteBtn(n,`${esc(ago(n.updated_at))}${n.updated_by?" · "+esc(n.updated_by):""}`)).join(""),gest:"present"};
+    const sod=startOfDay(),today=ns.filter(n=>Date.parse(n.updated_at)>=sod).length;
+    return {text:`${today?`${plural(today,"note")} changed today, `:"Nothing changed today. "}${plural(ns.length,"note")} in the last 7 days. Newest first.`,html:ns.slice(0,8).map(n=>noteBtn(n,`${esc(ago(n.updated_at))}${n.updated_by?" · "+esc(n.updated_by):""}`)).join(""),gest:"present"};
   }
   function whoHereR(top){
     const S=snap(),live=S.presence.filter(p=>p.status!=="offline"&&Date.now()-Date.parse(p.last_seen)<15*60e3&&inDistrict(top,p.note));
-    if(!live.length)return {text:"No agent is standing in this district right now.",html:"",gest:"nod"};
+    if(!live.length){
+      // nobody present: point at the last recorded activity here instead, if the snapshot has any
+      const last=(S.acts||[]).filter(a=>inDistrict(top,a.note)).sort((a,b)=>Date.parse(b.ts)-Date.parse(a.ts))[0];
+      return last?{text:`No agent is standing in this district right now. Last activity: ${agentName(last.actor)}, ${ago(last.ts)}.`,html:`<button class="bl" type="button" data-n="${esc(last.note)}"><b>${esc(agentName(last.actor))} · ${esc(last.kind||"activity")}</b><small>${esc(last.note)}${last.text?" · "+esc(String(last.text).slice(0,90)):""}</small></button>`,gest:"nod"}
+        :{text:"No agent is standing in this district right now.",html:"",gest:"nod"};
+    }
     return {text:`${plural(live.length,"agent")} ${live.length===1?"is":"are"} working here now.`,html:live.map(p=>`<button class="bl" type="button" data-n="${esc(p.note)}"><b>${esc(agentName(p.agent))} · ${esc(p.status)}</b><small>${esc(p.note)}${p.task?" · "+esc(p.task):""}${p.detail?" · "+esc(p.detail):""}</small></button>`).join(""),gest:"present"};
   }
   function openTasksR(top){
@@ -529,7 +835,7 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
   function nextWorkR(top){
     const tasks=snap().tasks.filter(t=>isOpen(t)&&inDistrict(top,t.note)).sort((a,b)=>(BOUNTY[b.priority]||80)-(BOUNTY[a.priority]||80)||String(a.id).localeCompare(String(b.id)));
     if(!tasks.length)return {text:"No unclaimed task is open here. Review recent changes or ask another district's Warden.",html:chips(),gest:"nod"};
-    const t=tasks[0];return {text:`Start with ${t.title||t.id}. It is ${t.priority||"medium"} priority. Read its linked note before claiming it in the task board.`,html:noteBtn({name:t.note},`${esc(t.id)} · ${esc(t.status)} · +${BOUNTY[t.priority]||80} XP on completion`),gest:"point"};
+    const t=tasks[0];return {text:`Start with ${t.title||t.id}. ${t.priority?`It is ${t.priority} priority.`:"Its priority is not set."} Read its linked note before claiming it in the task board.`,html:noteBtn({name:t.note},`${esc(t.id)} · ${esc(t.status)} · +${BOUNTY[t.priority]||80} XP on completion`),gest:"point"};
   }
   function toolsR(top){
     const ns=notesIn(top).filter(n=>/mcp|connector|integration|tool registry|agent api|onboarding/i.test(n.name)).slice(0,6);
@@ -539,7 +845,23 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
     const Bld=Campus.buildings(),tall=notesIn(top).filter(n=>Bld[n.id]).map(n=>({n,h:Bld[n.id].h,deg:n.out.size+n.back.size})).sort((a,b)=>b.h-a.h||b.deg-a.deg).slice(0,6);
     if(!tall.length)return {text:"No buildings are placed in this district yet.",html:"",gest:"nod"};
     const t=tall[0];
-    return {text:`The tallest here is ${t.n.name}, ${Math.round(t.h)} m with ${plural(t.deg,"link")}.`,html:tall.map(x=>noteBtn(x.n,`${Math.round(x.h)} m · ${plural(x.deg,"link")}${x.n.fm.type?" · "+esc(x.n.fm.type):""}`)).join("")+`<button class="btn pri" id="wdWalk" type="button">Walk me to the district centre</button>`,gest:"point"};
+    const lead=RM.matches?"Take me to":"Lead me to";
+    return {text:`The tallest here is ${t.n.name}, ${Math.round(t.h)} m with ${plural(t.deg,"link")}.`,html:tall.map(x=>noteBtn(x.n,`${Math.round(x.h)} m · ${plural(x.deg,"link")}${x.n.fm.type?" · "+esc(x.n.fm.type):""}`)).join("")+`<div class="wd-lead"><button class="btn pri" type="button" data-lead="${esc(t.n.name)}">${lead} ${esc(t.n.name.slice(0,36))}</button><button class="btn" id="wdWalk" type="button">Centre the district</button></div>`,gest:"point"};
+  }
+  // Link suggestions: notes here whose text names another note here without a [[link]] to it. Pure text match on
+  // loaded bodies; names shorter than 6 characters are skipped so common words do not match.
+  function linksR(top){
+    const ns=notesIn(top);if(!ns.length)return {text:"No notes stand here yet.",html:"",gest:"nod"};
+    const deg=n=>(n.out?n.out.size:0)+(n.back?n.back.size:0);
+    const cands=ns.filter(n=>n.name.length>=6&&/[a-z]/i.test(n.name)).sort((a,b)=>deg(b)-deg(a)).slice(0,80).map(n=>({n,k:n.name.toLowerCase()}));
+    const hits=[];
+    for(const a of ns.slice(0,400)){const body=String(a.body||"").toLowerCase();if(!body)continue;
+      for(const c of cands){if(c.n===a||(a.out&&a.out.has(c.n.id)))continue;const i=body.indexOf(c.k);if(i<0)continue;
+        const pre=body[i-1],post=body[i+c.k.length];if((pre&&/[a-z0-9]/.test(pre))||(post&&/[a-z0-9]/.test(post)))continue;
+        hits.push({a,b:c.n});if(hits.length>=6)break}
+      if(hits.length>=6)break}
+    if(!hits.length)return {text:"Every note here that names a neighbour already links to it.",html:"",gest:"nod"};
+    return {text:`${plural(hits.length,"note")} here ${hits.length===1?"names":"name"} a neighbour without linking it. A [[link]] puts the connection on the map.`,html:hits.map(h=>noteBtn(h.a,`names ${esc(h.b.name)} · no link yet`)).join(""),gest:"present"};
   }
   function best(top,q){
     const ql=q.toLowerCase().trim(),terms=ql.split(/[^a-z0-9]+/).filter(t=>t.length>2);
@@ -619,10 +941,16 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
     const w=root.querySelector("#gWalk");if(w)w.onclick=()=>{const d=district(curTop);if(d)Campus.flyAt(d.x+d.w/2,d.z+d.d/2,0,Math.max(d.w,d.d)*1.05+70,.72)};
     const fl=root.querySelector("#gFloor");if(fl)fl.onclick=e=>{e.preventDefault();sheet.atab="floor";openSheet("agents")};
     root.querySelectorAll(".bl[data-n]").forEach(b=>b.onclick=()=>{const n=byName.get(b.dataset.n);if(n)open(n)});
+    root.querySelectorAll("[data-lead]").forEach(b=>b.onclick=()=>{const g=G.find(x=>x.top===curTop),n=byName.get(b.dataset.lead);if(g&&n){if(typeof closeSheet==="function")try{closeSheet()}catch(e){}escort(g,n)}});
   }
   const list=()=>G.map(g=>({top:g.top,name:g.name,color:g.color,x:g.x,z:g.z,arch:g.arch,open:g.stats?g.stats.open:0}));
   const current=()=>district(curTop);
-  return {boot,render,bind,answer,reply,list,openFor,talk,close,ledger,current,CHIPS,isTalking:()=>D.open,still};
+  // Portrait list for the generator script: one entry per Warden, written next to the files as manifest.json.
+  const portraits=()=>({kit:KIT_REV,portraits:G.map(portraitEntry)});
+  const _test={index,notesIn,inDistrict,barkLines,gateLine,greeting,VOICE,gestOf,overviewR,whatsNewR,whoHereR,openTasksR,nextWorkR,linksR,landmarksR,keyAction,leaving,slug,artFor,setArt,portraitSetup,portraitFrame,paint,PT,CHOICES,LEAVE_R,districtStats,walkTo,stepWalk,_G:()=>G,_setG:a=>{G=a}};
+  // Dress any Sentinel as a district's Warden (the title cinematic's greeting): the same kit, archetype and opening line.
+  function costume(m,top,color,name){const g={m,top,name,color,arch:archOf(top,0)};dress(g);return {arch:g.arch,line:voiceOf(g).open(g),undress:()=>undress(g)}}
+  return {boot,render,bind,answer,reply,list,openFor,talk,close,ledger,current,CHIPS,isTalking:()=>D.open,still,portraits,costume,escort:(top,name)=>{const g=G.find(x=>x.top===top),n=byName.get(name);return !!(g&&n)&&escort(g,n)},reindex:()=>{index(true)},_test};
 })();
 (function(){const t=setInterval(()=>{if(typeof Campus!=="undefined"&&Campus.ok()){clearInterval(t);Guides.boot()}},300)})();
 

@@ -37,10 +37,11 @@ const Live=(()=>{
   async function loadAll(){
     const rows=[];
     for(let from=0;;from+=1000){
-      const {data,error}=await sb.from("notes").select("name,folder,fm,body,version,updated_at,updated_by").order("name").range(from,from+999);
-      if(error)throw error;rows.push(...data);if(data.length<1000)break;
+      // UI hook: the first page also asks for the exact row count so the loading screen can show pages out of the total
+      const {data,error,count}=await sb.from("notes").select("name,folder,fm,body,version,updated_at,updated_by",from===0?{count:"exact"}:undefined).order("name").range(from,from+999);
+      if(error)throw error;rows.push(...data);if(window.HUD)HUD.progress({loaded:rows.length,total:count,page:from/1000+1});if(data.length<1000)break;
     }
-    BASE=rows;
+    BASE=rows;if(window.HUD)HUD.stage("live","Opening the live floor");
     const [a,p,t,ac]=await Promise.all([sb.from("agents").select("id,name,kind,color,active"),sb.from("presence").select("*"),sb.from("tasks").select("*"),sb.from("activity").select("*").order("ts",{ascending:false}).limit(60)]);
     (a.data||[]).forEach(x=>agents.set(x.id,x));(p.data||[]).forEach(x=>pres.set(x.agent,x));tasks=t.data||[];acts=ac.data||[];
     const st=await sb.from('agent_stats').select('*');playReady=!st.error;stats=new Map((st.data||[]).map(r=>[r.actor,weekly(r)]));pushLevels();
@@ -61,12 +62,14 @@ const Live=(()=>{
       .on("postgres_changes",{event:"*",schema:"public",table:"member_positions"},async e=>{const r=e.eventType==='DELETE'?e.old:e.new,key=r.user_id+':'+r.session_id;if(e.eventType==='DELETE')positions.delete(key);else positions.set(key,r);if(!members.has(r.user_id)){const [m,p]=await Promise.all([sb.from('team_members').select('user_id,display_name'),sb.from('avatar_profiles').select('*')]);(m.data||[]).forEach(x=>members.set(x.user_id,x));(p.data||[]).forEach(x=>profiles.set(x.user_id,x))}syncPeople();pushAgents();drawFloor()})
       .subscribe(async st=>{connected=st==="SUBSCRIBED";if(connected){stopPolling();await trackSelf()}else if(/ERROR|TIMED_OUT|CLOSED/.test(st))startPolling();drawFloor()});
     setTimeout(()=>{if(!connected)startPolling()},9000);
-    setInterval(()=>{syncPeople();pushAgents();drawFloor()},10000);
-    setInterval(()=>{if(connected)trackSelf()},1000);
+    // UX hook: background tabs skip the refresh and the position heartbeat (trackSelf also dedupes and caps at one write per 10 s)
+    setInterval(()=>{if(document.hidden)return;syncPeople();pushAgents();drawFloor()},10000);
+    setInterval(()=>{if(connected&&!document.hidden)trackSelf()},1000);
+    document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(pollT)poll();syncPeople();pushAgents();drawFloor()}});
   }
   // Fallback for networks that block websockets: the same view, refreshed every 8 seconds.
   let pollT=0;
-  function startPolling(){if(pollT)return;pollT=setInterval(poll,8000);poll();drawFloor()}
+  function startPolling(){if(pollT)return;pollT=setInterval(()=>{if(!document.hidden)poll()},8000);poll();drawFloor()} // world hook: a hidden tab skips the poll; the visibility handler catches up
   function stopPolling(){if(pollT){clearInterval(pollT);pollT=0}}
   async function poll(){
     try{
@@ -118,19 +121,26 @@ const Live=(()=>{
   const refresh=()=>{if(sheet.open&&sheet.view==="agents")renderSheet()};
 
   // ---- play layer: XP, levels, messages, celebrations, sound
-  const Sound={on:()=>store.get("vault.sound",true),set:v=>{store.set("vault.sound",!!v);if(typeof VaultAudio!=="undefined")VaultAudio.setEnabled(v)},tick:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.play('ui')},chime:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('write')},done:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('complete')},levelup:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('level')},say:()=>{if(typeof VaultAudio!=="undefined")VaultAudio.workEvent('say')}};
+  // Work sounds are spatial: the acting Sentinel's world position pans and attenuates them, and a note write is pitched by its district.
+  const VA=()=>typeof VaultAudio!=="undefined"?VaultAudio:null;
+  const Sound={on:()=>store.get("vault.sound",true),set:v=>{store.set("vault.sound",!!v);if(VA())VA().setEnabled(v)},tick:()=>{if(VA())VA().sfx('ui.open')},
+    at:ids=>{for(const id of ids||[]){const p=Campus.agentPos&&Campus.agentPos(id);if(p)return p}return null},
+    top:name=>{const n=name&&byName.get(name);return n&&typeof Districts!=="undefined"?Districts.worldTop(n):""},
+    chime:(ids,note)=>{if(VA())VA().workEvent('write',Sound.at(ids),Sound.top(note))},done:(ids,note)=>{if(VA())VA().workEvent('complete',Sound.at(ids),Sound.top(note))},levelup:()=>{if(VA())VA().workEvent('level')},say:ids=>{if(VA())VA().workEvent('say',Sound.at(ids))}};
   function pushLevels(){const m=new Map();stats.forEach((r,k)=>m.set(k,Identity.level(r.xp)));if(Campus.setLevels)Campus.setLevels(m)}
   // every Sentinel id that stands for an actor: the autonomous agent, a person's walkers, and their owned tool sessions
   const sentinelIds=actor=>{const ids=[];if(agents.has(actor))ids.push(actor);members.forEach((mm,uid)=>{if(mm.display_name===actor)people.forEach(p=>{if(p.userId===uid)ids.push('member:'+uid+':'+p.session)})});sessions.forEach((p,key)=>{if(p.agent===actor&&isLive(p))ids.push('session:'+key)});return ids};
   function onActivity(a){
     if(!a||a.actor==="repo-sync")return;const ids=sentinelIds(a.actor),fresh=Date.now()-Date.parse(a.ts)<20000;
-    if(a.kind==="say"){ids.forEach(id=>Campus.say(id,a.text));if(a.target&&me&&a.target===me.name&&fresh)toast(`${agentName(a.actor)} says: ${a.text}`);if(fresh)Sound.say();if(a.target)sentinelIds(a.target).forEach(id=>Campus.emote(id,'nod'));return}
-    const xp=XP[a.kind]||0;if(xp&&fresh){ids.forEach(id=>Campus.floater(id,`+${xp} XP`));if(a.kind==="created"||a.kind==="added to"||a.kind==="edited")Sound.chime()}
-    if(ids.length&&fresh){const short=a.kind==="created"?`Raised “${a.note}”`:a.kind==="added to"?`Extended “${a.note}”`:a.kind==="claimed"?`Took ${a.task}`:a.kind==="finished"?`Finished ${a.task}`:a.kind==="sent to review"?`${a.task} is ready for review`:a.kind==="blocked"?`Blocked on ${a.task}`:null;if(short)ids.forEach(id=>Campus.say(id,short,5))}
+    if(a.kind==="say"){ids.forEach(id=>Campus.say(id,a.text));if(a.target&&me&&a.target===me.name&&fresh)toast(`${agentName(a.actor)} says: ${a.text}`);if(fresh)Sound.say(ids);if(a.target){const to=sentinelIds(a.target);/* directed say: speaker and listener face each other and a beam joins them (b_sentinel.js) */if(!(fresh&&typeof SentinelCrowd!=="undefined"&&SentinelCrowd.converse(ids,to)))to.forEach(id=>Campus.emote(id,'nod'))}return}
+    const xp=XP[a.kind]||0;if(xp&&fresh){ids.forEach(id=>Campus.floater(id,`+${xp} XP`));if(a.kind==="created"||a.kind==="added to"||a.kind==="edited")Sound.chime(ids,a.note)}
+    // VFX hook: a fresh write shows on its building (ring, light column, facade scanline) in the writer's color
+    if(fresh&&a.note&&(a.kind==="created"||a.kind==="added to"||a.kind==="edited")&&Campus.ink)Campus.ink(a.note,agents.get(a.actor)?.color);
+    if(ids.length&&fresh){const short=a.kind==="created"?`Raised “${a.note}”`:a.kind==="added to"?`Extended “${a.note}”`:a.kind==="claimed"?`Took ${a.task}`:a.kind==="finished"?`Finished ${a.task}`:a.kind==="sent to review"?`${a.task} is ready for review`:a.kind==="blocked"?`Blocked on ${a.task}`:null;if(short)ids.forEach(id=>Campus.say(id,short,5));/* sentinel reacts to its own blocker (b_sentinel.js) */if(a.kind==="blocked")ids.forEach(id=>Campus.emote(id,'alert'))}
   }
   function onDone(t){
     const bounty=BOUNTY[t.priority]||80;if(t.note)Campus.celebrate(t.note,agents.get(t.agent)?.color);sentinelIds(t.agent).forEach(id=>{Campus.emote(id,'celebrate');Campus.floater(id,`+${bounty} XP`)});
-    Sound.done();toast(`${agentName(t.agent||'')} finished ${t.id} · +${bounty} XP`);
+    Sound.done(sentinelIds(t.agent),t.note);toast(`${agentName(t.agent||'')} finished ${t.id} · +${bounty} XP`);
   }
   function onStats(r,prev){
     pushLevels();if(sheet.open&&sheet.view==="agents"&&(sheet.atab==="ranks"||sheet.atab==="floor"))renderSheet();
@@ -276,7 +286,7 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
     return `${coreAssignments()}<h2>Your Vault Sentinel</h2><div class="idcard"><div id="identityPreview">${Identity.preview(p)}</div><div><h3>${esc(Identity.FORMS[p.form].name)}</h3><p>${esc(p.ownerName)} · <code>${p.ownerBadge}</code></p><div class="idratio" id="identityRatio">${p.palette.map(c=>`<i style="background:${c}"></i>`).join('')}</div><p class="note-s">60% body · 30% armor · 10% insignia and owner band.</p></div></div>
     <div class="frm">${['Body · 60%','Armor · 30%','Accent · 10%'].map((label,i)=>`<label>${label}<span class="idhex"><input type="color" data-picker="${i}" value="${p.palette[i].toLowerCase()}" aria-label="${label} color picker"><input data-palette="${i}" value="${p.palette[i]}" maxlength="7" pattern="#[0-9A-Fa-f]{6}" aria-label="${label} hex code"></span></label>`).join('')}<button class="btn pri" id="identitySave" ${identityReady?'':'disabled'}>Save colors</button><p class="note-s">${identityReady?'Colors are saved to your account and visible to the team.':'Account colors need the Sentinel database migration. The existing vault remains available.'}</p>
     <label>Tool you are using<select id="identityTool"><option value="">None</option>${[...agents.values()].filter(a=>a.active!==false&&a.id!=='repo-sync').map(a=>`<option value="${esc(a.id)}" ${store.get('vault.tool.'+me.id,'')===a.id?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label><p class="note-s">Shows a separate tool Sentinel at your selected note with your owner band. Autonomous agents keep their own identity.</p>
-    <label class="toggle"><input type="checkbox" id="identitySound" ${Sound.on()?"checked":""}> Campus sounds: soft chimes for notes, tasks and messages</label></div>`;
+    <label class="toggle"><input type="checkbox" id="identitySound" ${Sound.on()?"checked":""}> Campus sounds: soft chimes for notes, tasks and messages</label>${VA()?VA().mixerHTML():""}</div>`;
   }
   function bind(root){
     root.querySelectorAll('[data-core]').forEach(select=>select.onchange=async()=>{if(!select.value)return;select.disabled=true;const {error}=await sb.rpc('assign_core_sentinel',{target:select.value,core_form:select.dataset.core});select.disabled=false;if(error){toast('Could not assign build: '+error.message);return}const {data}=await sb.from('avatar_profiles').select('*');if(data)profiles=new Map(data.map(p=>[p.user_id,p]));pushAgents();refresh();toast('Personal build assigned')});
@@ -285,7 +295,7 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
     const save=root.querySelector('#identitySave');if(save)save.onclick=async()=>{const values=colors.map(x=>x.value);if(!values.every(x=>Identity.HEX.test(x))){toast('Use three hex codes such as #D4A843');return}save.disabled=true;let result;if(profiles.has(me.id))result=await sb.from('avatar_profiles').update({palette:values}).eq('user_id',me.id);else result=await sb.from('avatar_profiles').insert({user_id:me.id,palette:values});save.disabled=false;if(result.error){toast('Could not save colors: '+result.error.message);return}profiles.set(me.id,{...ownIdentity(me.id),user_id:me.id,palette:values});pushAgents();toast('Sentinel colors saved')};
     const tool=root.querySelector('#identityTool');if(tool)tool.onchange=()=>{store.set('vault.tool.'+me.id,tool.value);if(connected)trackSelf()};
     const sft=root.querySelector('#sayFormTab');if(sft)sft.onsubmit=async e=>{e.preventDefault();const i=sft.querySelector('input');await sayFloor(i.value,sft.querySelector('select').value);i.value=''};
-    const snd=root.querySelector('#identitySound');if(snd)snd.onchange=()=>{Sound.set(snd.checked);if(snd.checked)Sound.chime()};
+    const snd=root.querySelector('#identitySound');if(snd)snd.onchange=()=>{Sound.set(snd.checked);if(snd.checked)Sound.chime()};if(VA())VA().bindMixer(root);
 
     const nt=root.querySelector("#ntGo");if(nt)nt.onclick=async()=>{
       const title=root.querySelector("#ntTitle").value.trim();if(!title){toast("Give the task a title");return}

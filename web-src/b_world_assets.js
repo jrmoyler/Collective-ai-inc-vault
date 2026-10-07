@@ -119,10 +119,51 @@ const DistrictAssets=(()=>{
     }
     return parts;
   }
+  // Landmark motion: one shared time uniform drives every moving part on the GPU. Each vertex carries
+  // aMot=(kind,amplitude,speed,phase) and its pivot, so motion adds no draw calls and no per-building loop.
+  // Kinds: 1 Y swing, 2 Z spin, 3 Y spin, 4 accent blink, 5 Z swing, 6 X slide. Swings stay inside the roof footprint.
+  // Pivots are in recipe space before the exhibit lift (+.48), matching the authored part positions.
+  const MOTION=Object.freeze({
+    navigation:[[/^(map-node|source-spoke)-/,3,0,.12,[0,0,0]]],
+    foundry:[[/^routing-signal-/,4,0,1.3,null],[/^bus-bridge$/,4,0,.35,null]],
+    workshop:[[/^(tool-carriage|tool-spindle)$/,6,1.5,.45,null]],
+    control:[[/^dispatch-screen-/,4,0,.22,null]],
+    chamber:[[/^(audit-wheel|lock-spoke-\d+|ledger-seal)$/,2,0,.32,[0,2.2,0]]],
+    observatory:[[/^(telescope-yoke|telescope-barrel|objective-lens|focus-collar)/,1,.55,.16,[0,0,0]]],
+    yard:[[/^(crane-boom|counterweight|hoist-cable|delivery-hook)$/,1,.34,.2,[-2.5,0,0]]],
+    lab:[[/^(robot-upright|shoulder-joint|robot-forearm|wrist-joint|test-gripper)/,1,.5,.3,[0,0,0]]],
+    log:[[/^clock-hand$/,2,0,-.05,[0,3.45,0]],[/^minute-hand$/,2,0,-.6,[0,3.45,0]]],
+    integrations:[[/^(connection-port|gateway-contact)-/,4,0,.9,null]],
+    governance:[[/^(balanced-crossbar|review-suspension|review-pan|decision-record)/,5,.07,.35,[0,4.15,0]]],
+    infrastructure:[[/^facility-status-/,4,0,.5,null]],
+    synergy:[[/^engagement-core$/,4,0,.25,null],[/^division-link-/,4,0,.4,null]]
+  });
+  const U={uLmTime:{value:0},uLmMotion:{value:1}};
+  const phaseOf=name=>{let h=2166136261;for(let i=0;i<name.length;i++)h=Math.imul(h^name.charCodeAt(i),16777619);return ((h>>>0)%6283)/1000};
+  function motion(theme,name){
+    const row=(MOTION[theme]||[]).find(([re])=>re.test(name));if(!row)return null;
+    const [,kind,amp,speed,pivot]=row;
+    return {kind,amp,speed,phase:kind===4?phaseOf(name):0,pivot:pivot?[pivot[0],pivot[1]+.48,pivot[2]]:[0,0,0]};
+  }
+  const MOTION_VERT='attribute vec4 aMot;attribute vec3 aPiv;uniform float uLmTime;uniform float uLmMotion;varying float vLmBlink;\n'+
+    'mat3 lmRot(vec4 m){float k=m.x,a=0.0;if((k>0.5&&k<1.5)||(k>4.5&&k<5.5))a=m.y*sin(uLmTime*m.z+m.w);else if(k>1.5&&k<3.5)a=uLmTime*m.z+m.w;a*=uLmMotion;float c=cos(a),s=sin(a);'+
+    'if((k>1.5&&k<2.5)||(k>4.5&&k<5.5))return mat3(c,s,0.0,-s,c,0.0,0.0,0.0,1.0);if((k>0.5&&k<1.5)||(k>2.5&&k<3.5))return mat3(c,0.0,-s,0.0,1.0,0.0,s,0.0,c);return mat3(1.0);}\n';
+  function patchMotion(sh,accent){
+    sh.uniforms.uLmTime=U.uLmTime;sh.uniforms.uLmMotion=U.uLmMotion;
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\n'+MOTION_VERT)
+      .replace('#include <beginnormal_vertex>','#include <beginnormal_vertex>\nmat3 lmR=lmRot(aMot);objectNormal=lmR*objectNormal;')
+      .replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed=lmR*(transformed-aPiv)+aPiv;if(aMot.x>5.5)transformed.x+=aMot.y*sin(uLmTime*aMot.z+aMot.w)*uLmMotion;\nvLmBlink=(aMot.x>3.5&&aMot.x<4.5)?mix(1.0,0.3+0.7*smoothstep(0.35,0.5,abs(fract(uLmTime*aMot.z+aMot.w)-0.5)*2.0),uLmMotion):1.0;');
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying float vLmBlink;');
+    if(accent)sh.fragmentShader=sh.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n#ifdef USE_COLOR\ntotalEmissiveRadiance *= vColor;\n#endif\ntotalEmissiveRadiance *= vLmBlink;');
+  }
+  // Called from the render loop only when a frame is already being drawn; reduced motion holds every part at rest.
+  function tick(t,reduced){U.uLmTime.value=t%3600;U.uLmMotion.value=reduced?0:1}
   function geometry(part){const s=part.size;switch(part.shape){case'box':return new THREE.BoxGeometry(...s);case'cylinder':return new THREE.CylinderGeometry(s[0],s[1],s[2],16);case'torus':return new THREE.TorusGeometry(s[0],s[1],6,32);default:throw new Error('Unsupported landmark part')}}
-  function build(districts,buildings,notes){
+  function build(districts,buildings,notes,renderer){
+    // Metal and accent parts reflect the Sentinels' prefiltered env map; without one they fall back to a lighter, less metallic finish.
+    const env=renderer&&typeof SentinelMesh!=='undefined'&&SentinelMesh.environment?(()=>{try{return SentinelMesh.environment(renderer)}catch(e){return null}})():null;
     const group=new THREE.Group();group.name='Knowledge district landmarks';const buckets=new Map(),records=[];
-    const colors={stone:'#8D867A',metal:'#303B4B'};
+    const colors={stone:'#8D867A',metal:env?'#303B4B':'#4A5568'};
     districts.forEach(d=>{
       const identity=typeof Districts!=='undefined'?Districts.get(d.top):null;if(!identity)return;
       const choices=buildings.filter(b=>b&&notes[b.id]&&(Districts.worldTop?Districts.worldTop(notes[b.id]):notes[b.id].top)===d.top).sort((a,b)=>{const ta=a.tiers.at(-1),tb=b.tiers.at(-1);return tb.w*tb.d-ta.w*ta.d});
@@ -142,15 +183,18 @@ const DistrictAssets=(()=>{
       assembly.forEach(({part,geo})=>{
         geo.scale(scale,scale,scale);geo.translate(record.x,record.y,record.z);
         const color=new THREE.Color(part.material==='accent'?d.color:colors[part.material]).convertSRGBToLinear();
-        if(!buckets.has(part.material))buckets.set(part.material,[]);buckets.get(part.material).push({geo,color,record,name:part.name});record.partCount++;
+        const mo=motion(identity.theme,part.name);if(mo){mo.pivot=[mo.pivot[0]*scale+record.x,mo.pivot[1]*scale+record.y,mo.pivot[2]*scale+record.z];if(mo.kind===6)mo.amp*=scale;record.moving=(record.moving||0)+1}
+        if(!buckets.has(part.material))buckets.set(part.material,[]);buckets.get(part.material).push({geo,color,record,name:part.name,mo});record.partCount++;
       });
     });
     buckets.forEach((parts,key)=>{
-      const size=parts.reduce((n,p)=>n+p.geo.attributes.position.count,0),pos=new Float32Array(size*3),norm=new Float32Array(size*3),col=new Float32Array(size*3),ranges=[];let offset=0;
-      parts.forEach(p=>{const a=p.geo.attributes.position,n=p.geo.attributes.normal;pos.set(a.array,offset*3);norm.set(n.array,offset*3);for(let i=offset;i<offset+a.count;i++)col.set([p.color.r,p.color.g,p.color.b],i*3);ranges.push({first:offset/3,last:(offset+a.count)/3,record:p.record,part:p.name});offset+=a.count;p.geo.dispose()});
-      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(norm,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeBoundingSphere();
-      const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:key==='stone'?.82:.4,metalness:key==='stone'?.08:.65});
-      if(key==='accent'){m.emissive.set('#ffffff');m.emissiveIntensity=.32;m.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n#ifdef USE_COLOR\ntotalEmissiveRadiance *= vColor;\n#endif')}}
+      const size=parts.reduce((n,p)=>n+p.geo.attributes.position.count,0),pos=new Float32Array(size*3),norm=new Float32Array(size*3),col=new Float32Array(size*3),mot=new Float32Array(size*4),piv=new Float32Array(size*3),ranges=[];let offset=0;
+      parts.forEach(p=>{const a=p.geo.attributes.position,n=p.geo.attributes.normal;pos.set(a.array,offset*3);norm.set(n.array,offset*3);for(let i=offset;i<offset+a.count;i++){col.set([p.color.r,p.color.g,p.color.b],i*3);if(p.mo){mot.set([p.mo.kind,p.mo.amp,p.mo.speed,p.mo.phase],i*4);piv.set(p.mo.pivot,i*3)}}ranges.push({first:offset/3,last:(offset+a.count)/3,record:p.record,part:p.name,moving:!!p.mo});offset+=a.count;p.geo.dispose()});
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(norm,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('aMot',new THREE.BufferAttribute(mot,4));g.setAttribute('aPiv',new THREE.BufferAttribute(piv,3));g.computeBoundingSphere();
+      const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:key==='stone'?.82:.4,metalness:key==='stone'?.08:env?.65:.3});
+      if(env&&key!=='stone'){m.envMap=env;m.envMapIntensity=.8;if(SentinelMesh.useEnvironment)SentinelMesh.useEnvironment(m)}
+      if(key==='accent'){m.emissive.set('#ffffff');m.emissiveIntensity=.32}
+      m.onBeforeCompile=sh=>patchMotion(sh,key==='accent');
       const mesh=new THREE.Mesh(g,m);mesh.name='District landmark '+key;mesh.userData.landmarkRanges=ranges;mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);
     });
     group.userData.records=records;
@@ -158,6 +202,6 @@ const DistrictAssets=(()=>{
   }
   function hit(intersection){if(!intersection)return null;return intersection.object.userData.landmarkRanges?.find(r=>intersection.faceIndex>=r.first&&intersection.faceIndex<r.last)?.record||null}
   function dispose(group){if(!group)return;group.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}});if(group.parent)group.parent.remove(group)}
-  return Object.freeze({contract,recipe,build,hit,dispose});
+  return Object.freeze({contract,recipe,build,hit,dispose,tick,motion,patchMotion,uniforms:U});
 })();
 

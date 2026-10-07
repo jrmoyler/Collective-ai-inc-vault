@@ -35,6 +35,9 @@ Software WebGL and emulated phone dimensions are not physical Galaxy A15 perform
 
 The desktop compositor resets renderer counters for its final pass, so the sampled render-call field in browser evidence is not a total scene draw budget.
 
+> [!note] Superseded
+> Oct 7, 2026: the campus renderer now runs with `info.autoReset` off and clears the counters once per rendered frame, so `renderer.info.render.calls` is the frame total across shadow, scene, bloom and grade passes. `Campus.perf()` reports calls, triangles, CPU frame time (average and p95), memory counts, the adaptive scale and the world-pass layer counts.
+
 ## Render evidence
 
 ![Full city in daylight](pr6-refinement-evidence/desktop-world.jpg)
