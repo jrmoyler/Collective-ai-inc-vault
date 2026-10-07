@@ -78,7 +78,7 @@ Rolling the frontend back leaves the original vault operational. New tables can 
 | Palette | Midnight background and named body/armor/accent hex codes match the reference direction. Member armor edits update the geometry preview. |
 | Silhouette | JR has the stepped mantle, Devon twin rails, Ahmad square ledger and Kenza split panels. Geometry tests assert all six meshes differ. |
 | Shared-tool ownership | The deployed reference shows separate teal/crimson wrist bands on the same Claude chassis. Live-layer tests keep two account-owned sessions separate from autonomous Claude. |
-| Detail | The illustrated concept has bevels, joints and material weathering beyond the runtime mesh. This is an explicit visual limitation, not a claim of exact concept fidelity. |
+| Detail | The illustrated concept has bevels, joints and material weathering beyond the runtime mesh. This is an explicit visual limitation, not a claim of exact concept fidelity. Oct 7, 2026: recessed panel lines, chamfer-edge wear and grime now come from the surface shader in code, with no new assets; sculpted concept bevels are still not modeled. |
 | Controls and copy | Build selection, three labeled hex inputs, 60:30:10 swatches and explanatory text are native controls. No unexpected labels were added during browser verification. |
 | Rendering | The cloud browser lacks WebGL. The reference gallery fallback was fixed and verified. GPU city rendering remains an open check. |
 | Mobile | The existing city responsive shell is retained; gallery media queries are present. Mobile viewport and physical device checks remain open. |

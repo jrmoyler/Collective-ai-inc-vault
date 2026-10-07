@@ -5,7 +5,8 @@
 // Shots crossfade through render targets; letterbox, grain, light leaks, slates and the WebAudio score are code too.
 // Title.start() -> Promise that resolves once the player chooses "Enter the Vault". The overlay then dissolves over the live app.
 const Title=(()=>{
-const VERSION="v3.0",TAG="Architecting a Humane Future";
+// Version comes from package.json, injected by scripts/build_web.py as VAULT_BUILD (UI pass).
+const VERSION=typeof VAULT_BUILD!=="undefined"&&VAULT_BUILD.version?"v"+VAULT_BUILD.version:"dev",TAG="Architecting a Humane Future";
 const K={seen:"vault.title.seen",sound:"vault.sound",cut:"vault.title.cutscene",q:"vault.quality"};
 const S=(typeof store!=="undefined")?store:{get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const today=()=>new Date().toISOString().slice(0,10);
@@ -85,6 +86,7 @@ const CSS=`
 #title .seg{display:flex;border:1px solid rgba(138,147,173,.3);border-radius:999px;overflow:hidden;flex:none}
 #title .seg button{font-family:var(--mono,monospace);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;color:#8A93AD}
 #title .seg button.on{background:var(--gold);color:#1a1204}
+@media (pointer:coarse){#title .seg button{min-height:44px;min-width:44px;padding:6px 10px}#title .skip,#title .tsnd{min-height:44px;min-width:44px}}
 #title .panel .act{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
 #title .panel .act button{font-size:13px;padding:7px 14px;border:1px solid rgba(138,147,173,.3);border-radius:8px;color:#C9CFDF}
 #title .panel .act button:hover{border-color:var(--gold);color:#fff}
@@ -102,7 +104,7 @@ const Score=(()=>{let ctx=null,master=null,nodes=[],timer=0;
   const on=()=>S.get(K.sound,true)!==false;
   function start(off){off=clamp(+off||0,0,14);if(ctx||!on())return;try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
     if(ctx.state==="suspended")ctx.resume();
-    const now=ctx.currentTime,t=now-off;master=ctx.createGain();master.gain.setValueAtTime(0,now);master.gain.linearRampToValueAtTime(.55,now+(off?1.2:2.5));
+    const now=ctx.currentTime,t=now-off;master=ctx.createGain();master.gain.setValueAtTime(0,now);master.gain.linearRampToValueAtTime(.55*(typeof VaultAudio!=="undefined"?VaultAudio.level("music"):1)/* music slider */,now+(off?1.2:2.5));
     const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.setValueAtTime(420+1480*clamp(off/9,0,1),now);lp.frequency.linearRampToValueAtTime(1900,Math.max(now+.01,t+9));lp.Q.value=.6;
     const dl=ctx.createDelay(1);dl.delayTime.value=.37;const fb=ctx.createGain();fb.gain.value=.34;const wet=ctx.createGain();wet.gain.value=.32;
     lp.connect(master);lp.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(master);master.connect(ctx.destination);
@@ -143,6 +145,8 @@ function makeCity(canvas,quality){
   const hi=quality==="high";
   let r;try{r=new THREE.WebGLRenderer({canvas,antialias:hi,alpha:false,powerPreference:"high-performance"})}catch(e){return null}
   r.setPixelRatio(Math.min(window.devicePixelRatio||1,hi?2:1));r.setClearColor(0x05070e,1);
+  // GPU reset (b_vfx.js guard): skip frames while the context is gone and show the dusk backdrop; three restores the rest
+  let ctxLost=false,ctxDone=false;const unguard=typeof VFX!=="undefined"?VFX.guardContext(canvas,{onLost:()=>{if(ctxDone)return;ctxLost=true;canvas.style.background="radial-gradient(ellipse at 50% 70%,#2a2030,#05070e 70%)"},onRestored:()=>{ctxLost=false;canvas.style.background=""}}):()=>{};
   const scene=new THREE.Scene();const FOG_N=new THREE.Color(0x05070e);scene.fog=new THREE.FogExp2(0x05070e,.016);
   const camA=new THREE.PerspectiveCamera(50,1,.1,1200),camB=new THREE.PerspectiveCamera(50,1,.1,1200);
   const G=hi?46:30,CELL=4.2,N=G*G,SPAN=G*CELL;const X=i=>(i-G/2+.5)*CELL;
@@ -280,7 +284,7 @@ function makeCity(canvas,quality){
   const SHOTS=[{a:-1,b:CUT.x1+.7,f:shotSky},{a:CUT.x1,b:CUT.x2+.7,f:shotStreet},{a:CUT.x2,b:1e9,f:shotDawn}];
   function place(c,s,t,orbit){s.f(c,t,orbit);c.lookAt(tgt);c.updateProjectionMatrix()}
   // t: cutscene clock (s); time: wall clock for loops; orbit: radians added in the menu
-  function render(t,time,orbit){size();
+  function render(t,time,orbit){if(ctxLost)return;size();
     write(clamp((t-.2)/5.4,0,1.8),time);const wv=clamp((t-2.5)/2,0,1),s2=clamp((t-CUT.x1+.5)/.6,0,1)*clamp((CUT.x2+1-t)/.6,0,1);if(FIG.length)walkFig(t,time,wv,s2);else walk(time,wv);
     const cz=streetZ(t);street.position.set(RX,2.6,cz-12);street.intensity=s2*1.6;coolRim.position.set(RX,14,cz-90);coolRim.target.position.set(RX,0,cz);coolRim.intensity=s2*.9;
     poolM.opacity=clamp((t-2)/2.5,0,1)*(1-clamp((t-9)/4,0,.7));lampM.opacity=poolM.opacity;
@@ -295,7 +299,7 @@ function makeCity(canvas,quality){
     if(live.length>1){const A=live[0],B=live[1];place(camA,A,t,orbit);place(camB,B,t,orbit);postU.f.value=(t-B.a)/(A.b-B.a);
       r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(rtB);r.render(scene,camB);r.setRenderTarget(null);r.render(post,ortho)}
     else{place(camA,live[0]||SHOTS[2],t,orbit);if(hi){postU.f.value=0;r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(null);r.render(post,ortho)}else{r.setRenderTarget(null);r.render(scene,camA)}}}
-  function dispose(){FIG.forEach(f=>{scene.remove(f.m.grp);try{SentinelMesh.dispose(f.m.grp)}catch(e){}});FIG.length=0;scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}});
+  function dispose(){ctxDone=true;unguard();FIG.forEach(f=>{scene.remove(f.m.grp);try{SentinelMesh.dispose(f.m.grp)}catch(e){}});FIG.length=0;scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}});
     post.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});rtA.dispose();rtB.dispose();r.dispose();try{r.forceContextLoss()}catch(e){}}
   return{render,dispose};
 }
@@ -304,7 +308,9 @@ function start(){
   return new Promise(resolve=>{
     if(document.getElementById("title")){resolve();return}
     const style=document.createElement("style");style.id="titleCss";style.textContent=CSS;document.head.appendChild(style);
-    const root=document.createElement("div");root.id="title";root.setAttribute("role","dialog");root.setAttribute("aria-label","Collective AI Vault title screen");
+    const root=document.createElement("div");root.id="title";root.setAttribute("role","dialog");root.setAttribute("aria-label","Collective AI Vault title screen");root.setAttribute("aria-modal","true");
+    // UX: the app behind the title is inert (no stray Tab stops, no screen-reader leakage) until the overlay resolves
+    const app=document.getElementById("app");const appInert=on=>{if(!app)return;try{app.inert=on}catch(e){}if(on)app.setAttribute("aria-hidden","true");else app.removeAttribute("aria-hidden")};appInert(true);
     const letters=s=>[...s].map(c=>`<span class="${c===" "?"sp":""}">${c===" "?"":c}</span>`).join("");
     root.innerHTML=`<canvas id="titleGl" aria-hidden="true"></canvas><div class="tleak" id="tLeak"></div><div class="tv"></div><div class="tgrain" id="tGrain"></div><div class="tbars"></div>
 <div class="layer"><div class="slate" id="tSlate">Collective AI Inc · 2026<i></i></div></div>
@@ -314,17 +320,19 @@ function start(){
 <div class="panel" id="tSettings" role="dialog" aria-label="Settings"><div class="k">Settings</div><h2>Vault</h2>
 <div class="row"><div>Sound<small>Score and campus chimes</small></div><div class="seg" data-k="sound"><button data-v="true">On</button><button data-v="false">Off</button></div></div>
 <div class="row"><div>Opening cutscene<small>Plays once a day. Off shows a short sting.</small></div><div class="seg" data-k="cut"><button data-v="true">On</button><button data-v="false">Off</button></div></div>
-<div class="row"><div>Quality<small>Low halves the pixel count and the skyline.</small></div><div class="seg" data-k="q"><button data-v="low">Low</button><button data-v="high">High</button></div></div>
+<div class="row"><div>Quality<small id="tQWhy">Auto reads this device. Low halves the pixel count and the skyline.</small></div><div class="seg" data-k="q"><button data-v="auto">Auto</button><button data-v="low">Low</button><button data-v="high">High</button></div></div>
 <div class="act"><button data-act="replay">Replay intro</button><button data-act="close">Done</button></div></div>
 <div class="panel" id="tCredits" role="dialog" aria-label="Credits"><div class="k">Credits</div><h2>Collective AI Vault</h2>
 <p>Collective AI Inc</p><p>JR Moyler (Hataalii), Co-Founder and CEO</p><p class="dim">Built with three.js. The skyline, the sentinels, the dawn, the score and every frame of this opening are generated in code at runtime; the original Foley and ambience are generated as PCM audio in code.</p>
 <div class="act"><button data-act="close">Done</button></div></div>
 <button class="tsnd" id="tSnd" type="button">Tap for sound</button>
-<button class="skip" id="tSkip" type="button">Skip</button>
+<button class="skip" id="tSkip" type="button" aria-label="Skip intro">Skip</button>
 <div class="foot"><div><b>Collective AI</b> · Vault · ${VERSION}</div><div class="hintk"><kbd>↑↓</kbd>move <kbd>Enter</kbd>select <kbd>Esc</kbd>back</div></div>`;
     document.body.appendChild(root);
     const $t=s=>root.querySelector(s);
     const canvas=$t("#titleGl"),cap=$t("#tCap"),snd=$t("#tSnd"),leak=$t("#tLeak"),menu=$t("#tMenu"),mbtns=[...menu.querySelectorAll("button")];
+    // UX: first run picks Low or High from the device (g_ux.js) before the first renderer exists
+    if(typeof UX!=="undefined")try{UX.ensureQuality()}catch(e){}
     const quality=S.get(K.q,"high");
     const noMotion=reduced();
     // grain: one 128 px noise tile, stepped across the frame (CSS stops it under reduced motion)
@@ -379,9 +387,9 @@ function start(){
     // panels
     function openPanel(id){panel=id;$t("#tSettings").classList.toggle("on",id==="tSettings");$t("#tCredits").classList.toggle("on",id==="tCredits");if(id==="tSettings")paintSettings();Score.tick(520,.07,.03);const f=$t("#"+id+" .act button:last-child");if(f)f.focus({preventScroll:true})}
     function closePanel(){panel=null;$t("#tSettings").classList.remove("on");$t("#tCredits").classList.remove("on");mbtns[sel].focus({preventScroll:true})}
-    function paintSettings(){const v={sound:String(soundOn()),cut:String(S.get(K.cut,true)!==false),q:S.get(K.q,"high")};root.querySelectorAll("#tSettings .seg").forEach(seg=>{const k=seg.dataset.k;seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.v===v[k]))})}
+    function paintSettings(){const v={sound:String(soundOn()),cut:String(S.get(K.cut,true)!==false),q:S.get("vault.quality.auto",false)?"auto":S.get(K.q,"high")};const why=$t("#tQWhy");if(why)why.textContent=v.q==="auto"&&typeof UX!=="undefined"?"Auto chose "+UX.qualityLabel().replace(/^Auto · /,"")+". Low halves the pixel count and the skyline.":"Auto reads this device. Low halves the pixel count and the skyline.";root.querySelectorAll("#tSettings .seg").forEach(seg=>{const k=seg.dataset.k;seg.querySelectorAll("button").forEach(b=>{b.classList.toggle("on",b.dataset.v===v[k]);b.setAttribute("aria-pressed",String(b.dataset.v===v[k]))})})}
     $t("#tSettings").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const seg=b.closest(".seg");
-      if(seg){const k=seg.dataset.k;const v=b.dataset.v;if(k==="sound"){S.set(K.sound,v==="true");if(v==="false")Score.stop();else if(gestured)Score.start(0);if(typeof VaultAudio!=="undefined")VaultAudio.setEnabled(v==="true")}else if(k==="cut")S.set(K.cut,v==="true");else S.set(K.q,v);paintSettings();Score.tick(760,.06,.03);return}
+      if(seg){const k=seg.dataset.k;const v=b.dataset.v;if(k==="sound"){S.set(K.sound,v==="true");if(v==="false")Score.stop();else if(gestured)Score.start(0);if(typeof VaultAudio!=="undefined")VaultAudio.setEnabled(v==="true")}else if(k==="cut")S.set(K.cut,v==="true");else if(typeof UX!=="undefined")UX.setQuality(v,true);else if(v!=="auto")S.set(K.q,v);paintSettings();Score.tick(760,.06,.03);return}
       if(b.dataset.act==="replay"){replay();return}if(b.dataset.act==="close")closePanel()});
     $t("#tCredits").addEventListener("click",e=>{const b=e.target.closest("button[data-act=close]");if(b)closePanel()});
     function replay(){closePanel();root.classList.remove("menu");inMenu=false;S.set(K.seen,"");timers.forEach(clearTimeout);timers=[];
@@ -390,13 +398,16 @@ function start(){
     function enter(){if(done)return;done=true;Score.tick(880,.25,.06);Score.duck(.8);if(typeof VaultAudio!=="undefined"){VaultAudio.play("complete",{volume:.38,bus:"work"});VaultAudio.ambient(true)}
       root.classList.add("out");cancelAnimationFrame(raf);timers.forEach(clearTimeout);
       const ms=noMotion?10:920;
-      setTimeout(()=>{if(city)city.dispose();Score.stop();root.remove();style.remove();window.removeEventListener("keydown",key);window.removeEventListener("resize",still);resolve()},ms)}
+      setTimeout(()=>{if(city)city.dispose();Score.stop();root.remove();style.remove();appInert(false);window.removeEventListener("keydown",key);window.removeEventListener("resize",still);resolve()},ms)}
     menu.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;act(b.dataset.act)});
     menu.addEventListener("pointermove",e=>{const b=e.target.closest("button");if(b)setSel(mbtns.indexOf(b))});
     function act(a){if(a==="enter")enter();else if(a==="settings")openPanel("tSettings");else if(a==="credits")openPanel("tCredits")}
     function key(e){if(done)return;gesture();
       if(!inMenu){if(e.key!=="Tab")e.preventDefault();skip();return}
-      if(panel){if(e.key==="Escape"){e.preventDefault();closePanel()}return}
+      if(panel){if(e.key==="Escape"){e.preventDefault();closePanel()}
+        // keep Tab inside the open panel
+        else if(e.key==="Tab"){const f=[...$t("#"+panel).querySelectorAll("button")];const i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}else if(i<0){e.preventDefault();f[0].focus()}}
+        return}
       if(e.key==="ArrowDown"||e.key==="ArrowUp"||e.key==="w"||e.key==="s"){e.preventDefault();setSel(sel+(e.key==="ArrowDown"||e.key==="s"?1:-1));Score.tick(620,.05,.02);mbtns[sel].focus({preventScroll:true})}
       else if(e.key==="Enter"||e.key===" "){if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#tMenu"))return;e.preventDefault();act(mbtns[sel].dataset.act)}}
     window.addEventListener("keydown",key);

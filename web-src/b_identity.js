@@ -81,7 +81,8 @@ const Identity=(()=>{
     for(const s of S)for(let i=0;i<3;i++)T('box',.18,.04,.1,s*.33*b,3.33-.11*i,.27,1);     // belt pouches, stepped
     T('bevel',.3,.22,.1,0,3.3,.3,1);T('box',.1,.1,.03,0,3.3,.36,2);                      // belt buckle with lit core
     T('box',.42*b,.025,.03,0,4.9,.26,2);                                                 // collar light line
-    for(let i=0;i<Math.min(5,lvl);i++)T('box',.16,.022,.04,-.74*b,4.98-.065*i,.26,2,-.28);  // rank chevrons, left pauldron
+    // Rank chevrons on both pauldrons. They sit proud of the plate front (z .3) so they read; they used to sit inside it.
+    for(let i=0;i<Math.min(5,lvl);i++)for(const s of S)T('box',.21,.034,.05,s*.74*b,4.99-.07*i,.335,2,-s*.28);
     if(lvl>=10)H('bevel',.05,.3,.46,0,1.02,-.06,1);                                        // level 10: helmet crest
     if(lvl>=20)for(const s of S)T('bevel',.05,.5,.05,s*.56*b,5.3,-.1,2);                   // level 20: twin aerials
     // ---- fidelity pass: face, plating, hinge caps and back hardware. 'cap' is a short cylinder on the x axis.

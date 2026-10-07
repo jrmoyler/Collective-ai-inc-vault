@@ -119,7 +119,7 @@ function renderSheet(){
   if(sheet.view==="agents"){sb.innerHTML=`<div class="pane">${Live.render(sheet.atab)}</div>`;Live.bind(sb);return}
   if(sheet.view==="guide"){sb.innerHTML=`<div class="pane">${typeof Guides!=="undefined"?Guides.render(sheet.gtab||"ask"):""}</div>`;if(typeof Guides!=="undefined")Guides.bind(sb);sb.scrollTop=0;return}
   const n=cur;if(!n){sb.innerHTML="";return}
-  if(sheet.ntab==="note"){sb.innerHTML=`<article class="doc" id="doc">${n.body.trim()==="{{HOME}}"?home():props(n)+md(n.body,n)}</article>`}
+  if(sheet.ntab==="note"){sb.innerHTML=`<article class="doc" id="doc">${n.body.trim()==="{{HOME}}"?home():props(n)+md(n.body,n)}</article>`;/* reader hook: d_reader.js */if(typeof Reader!=="undefined")try{Reader.enhance(sb,n)}catch(err){console.warn("reader",err)}}
   else if(sheet.ntab==="links"){
     const back=[...n.back].map(i=>NOTES[i]),out=[...n.out].map(i=>NOTES[i]);
     const unl=NOTES.filter(x=>x!==n&&!n.back.has(x.id)&&n.name.length>4&&x.body.includes(n.name)&&!x.body.includes("[["+n.name)).slice(0,6);
@@ -145,7 +145,7 @@ function syncSheet(){
   Campus.shift(sheet.open&&!sheet.full?s:null);Campus.pause(sheet.open&&sheet.full&&innerWidth>760);
 }
 function openSheet(view){if(view)sheet.view=view;sheet.open=true;renderSheet();syncSheet()}
-function closeSheet(){sheet.open=false;sheet.full=false;syncSheet()}
+function closeSheet(){/* audio hook */if(sheet.open&&typeof VaultAudio!=="undefined")VaultAudio.sfx("ui.close");sheet.open=false;sheet.full=false;syncSheet()}
 $("#sClose").onclick=closeSheet;
 $("#sFull").onclick=()=>{sheet.full=!sheet.full;syncSheet()};
 $("#stabs").addEventListener("click",e=>{const b=e.target.closest("button[data-st]");if(!b)return;if(sheet.view==="note")sheet.ntab=b.dataset.st;else if(sheet.view==="guide")sheet.gtab=b.dataset.st;else sheet.atab=b.dataset.st;renderSheet()});
@@ -178,7 +178,7 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("click",e=>{const b=e.target.closest(".cp");if(!b)return;const code=b.parentElement.querySelector("code");const done=()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1400)};if(navigator.clipboard)navigator.clipboard.writeText(code.textContent).then(done,()=>{const r=document.createRange();r.selectNodeContents(code);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent="Selected"});});
 document.addEventListener("change",e=>{if(e.target.matches("input[data-k]")){checks[e.target.dataset.k]=e.target.checked;store.set("vault.checks",checks);const li=e.target.closest("li.task");if(li)li.classList.toggle("done",e.target.checked);toast(e.target.checked?"Marked done":"Reopened")}});
-function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
+function toast(m){/* UI hook: stacked toasts from b_hud.js */if(window.HUD&&window.HUD.toast)return window.HUD.toast(m);const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
 
 // ---------- quick switcher
 let swSel=0,swRes=[];

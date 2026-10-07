@@ -1,0 +1,160 @@
+{
+ "kit": 2,
+ "portraits": [
+  {
+   "slug": "11-physical-ai",
+   "top": "11 - Physical AI",
+   "file": "warden-11-physical-ai.webp",
+   "arch": "herald",
+   "symbol": "PA",
+   "color": "#22D3EE"
+  },
+  {
+   "slug": "03-products",
+   "top": "03 - Products",
+   "file": "warden-03-products.webp",
+   "arch": "herald",
+   "symbol": "PR",
+   "color": "#14B8A6"
+  },
+  {
+   "slug": "09-projects",
+   "top": "09 - Projects",
+   "file": "warden-09-projects.webp",
+   "arch": "vanguard",
+   "symbol": "PR",
+   "color": "#FB923C"
+  },
+  {
+   "slug": "02-zenflow",
+   "top": "02 - ZenFlow",
+   "file": "warden-02-zenflow.webp",
+   "arch": "archivist",
+   "symbol": "ZE",
+   "color": "#3B82F6"
+  },
+  {
+   "slug": "12-tools-and-integrations",
+   "top": "12 - Tools and Integrations",
+   "file": "warden-12-tools-and-integrations.webp",
+   "arch": "herald",
+   "symbol": "TA",
+   "color": "#A3E635"
+  },
+  {
+   "slug": "16-facilities-and-infrastructure",
+   "top": "16 - Facilities and Infrastructure",
+   "file": "warden-16-facilities-and-infrastructure.webp",
+   "arch": "vanguard",
+   "symbol": "FA",
+   "color": "#22D3EE"
+  },
+  {
+   "slug": "17-synergy-nodes",
+   "top": "17 - Synergy Nodes",
+   "file": "warden-17-synergy-nodes.webp",
+   "arch": "archivist",
+   "symbol": "SN",
+   "color": "#3B82F6"
+  },
+  {
+   "slug": "13-learning-and-curriculum",
+   "top": "13 - Learning and Curriculum",
+   "file": "warden-13-learning-and-curriculum.webp",
+   "arch": "keeper",
+   "symbol": "LA",
+   "color": "#14B8A6"
+  },
+  {
+   "slug": "05-operations",
+   "top": "05 - Operations",
+   "file": "warden-05-operations.webp",
+   "arch": "vanguard",
+   "symbol": "OP",
+   "color": "#A3E635"
+  },
+  {
+   "slug": "14-governance-and-decisions",
+   "top": "14 - Governance and Decisions",
+   "file": "warden-14-governance-and-decisions.webp",
+   "arch": "vanguard",
+   "symbol": "GA",
+   "color": "#C9A84C"
+  },
+  {
+   "slug": "01-divisions",
+   "top": "01 - Divisions",
+   "file": "warden-01-divisions.webp",
+   "arch": "vanguard",
+   "symbol": "DI",
+   "color": "#7C3AED"
+  },
+  {
+   "slug": "04-people",
+   "top": "04 - People",
+   "file": "warden-04-people.webp",
+   "arch": "keeper",
+   "symbol": "PE",
+   "color": "#F43F5E"
+  },
+  {
+   "slug": "15-clients-and-delivery",
+   "top": "15 - Clients and Delivery",
+   "file": "warden-15-clients-and-delivery.webp",
+   "arch": "herald",
+   "symbol": "CA",
+   "color": "#FB923C"
+  },
+  {
+   "slug": "00-mocs",
+   "top": "00 - MOCs",
+   "file": "warden-00-mocs.webp",
+   "arch": "keeper",
+   "symbol": "MO",
+   "color": "#E8A33D"
+  },
+  {
+   "slug": "07-brand",
+   "top": "07 - Brand",
+   "file": "warden-07-brand.webp",
+   "arch": "herald",
+   "symbol": "BR",
+   "color": "#FF85C2"
+  },
+  {
+   "slug": "10-archive",
+   "top": "10 - Archive",
+   "file": "warden-10-archive.webp",
+   "arch": "keeper",
+   "symbol": "AR",
+   "color": "#6B7280"
+  },
+  {
+   "slug": "06-finance",
+   "top": "06 - Finance",
+   "file": "warden-06-finance.webp",
+   "arch": "archivist",
+   "symbol": "FI",
+   "color": "#C9A84C"
+  },
+  {
+   "slug": "08-research",
+   "top": "08 - Research",
+   "file": "warden-08-research.webp",
+   "arch": "archivist",
+   "symbol": "RE",
+   "color": "#5B9BF0"
+  },
+  {
+   "slug": "daily",
+   "top": "Daily",
+   "file": "warden-daily.webp",
+   "arch": "archivist",
+   "symbol": "DA",
+   "color": "#E6E9F2"
+  }
+ ],
+ "size": 384,
+ "generated": "2026-10-07",
+ "by": "scripts/render_warden_portraits.mjs"
+}

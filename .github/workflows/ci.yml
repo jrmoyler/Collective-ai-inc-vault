@@ -6,20 +6,47 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
+        with: { node-version: 22, cache: npm }
       - run: pip install pyyaml
       - run: npm ci
       - name: Install browser for interaction and HUD regression tests
         run: npx playwright install --with-deps chromium
-      - name: Sentinel identity and mesh regression tests
+      - name: Unit, shader-source, voice and asset regression tests
         run: npm test
       - name: Links resolve
         run: python3 scripts/build.py --strict
+      - name: Vendor bundles match the lockfile
+        run: node scripts/build_vendor.mjs && git diff --exit-code web/vendor && test -z "$(git status --porcelain web/vendor)"
       - name: Web build is current
         run: python3 scripts/build_web.py && git diff --exit-code web/index.html web/sentinels.html
       - name: Scripts parse
-        run: node --check scripts/agent.mjs && node --check mcp/stdio.mjs && for f in web-src/*.js; do node --check "$f"; done
-
+        run: node --check scripts/agent.mjs && node --check mcp/stdio.mjs && node --check web/sw.js && for f in web-src/*.js; do node --check "$f"; done
+  browser:
+    # Full-city WebGL run (desktop and phone viewports): console errors, district travel, walk, night, mobile HUD.
+    runs-on: ubuntu-latest
+    needs: check
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: pip install pyyaml
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Browser smoke
+        timeout-minutes: 15
+        env:
+          VAULT_QA_OUT: ${{ runner.temp }}/vault-browser-qa
+        run: npm run test:browser
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-smoke
+          path: ${{ runner.temp }}/vault-browser-qa
+          if-no-files-found: warn
+          retention-days: 14

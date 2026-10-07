@@ -64,6 +64,7 @@ dd{margin:0;color:var(--fg)}
 .toggle input{width:auto;margin:0;accent-color:var(--gold)}
 .reset{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:border-color .2s,color .2s}
 .reset:hover{color:var(--fg);border-color:var(--gold)}
+.toggles .reset,.toggle,#reset{min-height:44px}
 small{color:var(--faint);display:block;margin-top:14px;font-size:12px;line-height:1.55}
 figure{margin:40px 0 0}
 figure img{width:100%;height:auto;display:block;border-radius:18px;border:1px solid var(--line)}
@@ -100,7 +101,7 @@ figcaption{font:400 12px var(--mono);color:var(--faint);margin-top:10px;letter-s
       <label>Doing<select id="pose"><option value="idle">Standing by</option><option value="viewing">Viewing</option><option value="walking">Walking the street</option><option value="working">Working</option><option value="in use">In use</option><option value="writing">Writing a note</option><option value="reading">Reading</option><option value="thinking">Thinking</option><option value="reviewing">Reviewing</option><option value="blocked">Blocked</option><option value="lifting">Riding the lift</option></select></label>
       <label id="speedRow">Ground speed <span id="speedOut" style="color:var(--fg)">3.4 m/s · walk</span><input id="speed" type="range" min="1" max="14" step=".2" value="3.4" style="accent-color:var(--gold);padding:0;border:0;background:none"></label>
       <h3>Emotes</h3>
-      <div class="toggles"><button class="reset" data-emote="greet" type="button">Greet</button><button class="reset" data-emote="nod" type="button">Nod</button><button class="reset" data-emote="celebrate" type="button">Celebrate</button><button class="reset" id="levelup" type="button">Level up</button></div>
+      <div class="toggles"><button class="reset" data-emote="greet" type="button">Greet</button><button class="reset" data-emote="nod" type="button">Nod</button><button class="reset" data-emote="celebrate" type="button">Celebrate</button><button class="reset" data-emote="talk" type="button">Talk</button><button class="reset" data-emote="alert" type="button">Alert</button><button class="reset" id="levelup" type="button">Level up</button></div>
       <h3>Motion</h3>
       <div class="toggles"><label class="toggle"><input id="rotate" type="checkbox"> Turntable</label><label class="toggle"><input id="look" type="checkbox"> Look at pointer</label><label class="toggle"><input id="slow" type="checkbox"> Slow motion</label><label class="toggle"><input id="still" type="checkbox"> Reduced motion</label></div>
       <button class="reset" id="reset" type="button">Reset colors</button>
@@ -194,7 +195,8 @@ const Identity=(()=>{
     for(const s of S)for(let i=0;i<3;i++)T('box',.18,.04,.1,s*.33*b,3.33-.11*i,.27,1);     // belt pouches, stepped
     T('bevel',.3,.22,.1,0,3.3,.3,1);T('box',.1,.1,.03,0,3.3,.36,2);                      // belt buckle with lit core
     T('box',.42*b,.025,.03,0,4.9,.26,2);                                                 // collar light line
-    for(let i=0;i<Math.min(5,lvl);i++)T('box',.16,.022,.04,-.74*b,4.98-.065*i,.26,2,-.28);  // rank chevrons, left pauldron
+    // Rank chevrons on both pauldrons. They sit proud of the plate front (z .3) so they read; they used to sit inside it.
+    for(let i=0;i<Math.min(5,lvl);i++)for(const s of S)T('box',.21,.034,.05,s*.74*b,4.99-.07*i,.335,2,-s*.28);
     if(lvl>=10)H('bevel',.05,.3,.46,0,1.02,-.06,1);                                        // level 10: helmet crest
     if(lvl>=20)for(const s of S)T('bevel',.05,.5,.05,s*.56*b,5.3,-.1,2);                   // level 20: twin aerials
     // ---- fidelity pass: face, plating, hinge caps and back hardware. 'cap' is a short cylinder on the x axis.
@@ -286,9 +288,12 @@ const Identity=(()=>{
 // Props for a status (hologram slate, thought orbs, lift beam, data link) are added on demand and disposed with the figure.
 // Surface detail: tileable textures in assets/sentinels/ are sampled triplanar in bind-pose space, so the merged meshes need
 // no UVs. Until they load, or where they cannot load (tests, file errors), the code-only shading is used unchanged.
+// Panel lines, edge wear (chamfer faces carry a 'wear' attribute) and grime are procedural in the shader.
+// In the city, SentinelCrowd (end of file) sets each figure's LOD: pose rate 1, 1/2, 1/4, 1/8 by distance, no pose out
+// of view, calm figures at most 30 Hz; from LOD 2 the chest terminal, aura and status props are hidden, from LOD 3 the visor.
 const SentinelMesh=(()=>{
 const lin=h=>new THREE.Color(h).convertSRGBToLinear();
-const G={};let ENV=null;
+const G={};let ENV=null,ENV_RT=null;const ENV_USERS=new Set(); // materials holding ENV, so a context restore can repoint them even outside the main scene
 const hash=s=>{let h=2166136261;for(const c of String(s)){h=Math.imul(h^c.charCodeAt(0),16777619)}return (h>>>0)/4294967296};
 const now=()=>typeof performance!=='undefined'&&performance.now?performance.now():Date.now();
 // ---- reduced motion: follows the OS setting unless the page forces a value
@@ -353,33 +358,49 @@ function environment(renderer){
     g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));s.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
     const soft=(w,h,x,y,z,col)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));m.position.set(x,y,z);m.lookAt(0,0,0);s.add(m)};
     soft(6,3,5,6,6,new THREE.Color(2.4,2.3,2.1));soft(3,8,-7,2,-3,new THREE.Color(.6,.8,1.3));soft(10,.6,0,-1,8,new THREE.Color(1.2,1,.8));
-    ENV=pm.fromScene(s,.04).texture;pm.dispose();s.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});
+    ENV_RT=pm.fromScene(s,.04);ENV=ENV_RT.texture;pm.dispose();s.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});
   }catch(e){ENV=null}
   return ENV;
 }
+// After a WebGL context restore the prefiltered render target is empty: rebuild it and repoint every metal at the new one.
+function refreshEnvironment(renderer,scene){
+  const old=ENV,oldRT=ENV_RT;ENV=null;ENV_RT=null;const next=environment(renderer);
+  const repoint=m=>{if(m&&m.envMap===old){m.envMap=next;m.needsUpdate=true}};
+  if(old){ENV_USERS.forEach(repoint);if(scene)scene.traverse(o=>{if(o.material)[].concat(o.material).forEach(repoint)})}
+  // release the whole PMREM target (framebuffer and depth), not only its texture
+  if(oldRT&&oldRT!==ENV_RT)try{oldRT.dispose()}catch(e){}else if(old&&old!==next)try{old.dispose()}catch(e){}
+  return next;
+}
+// Register a material that holds the env map; it leaves the set when disposed.
+function useEnvironment(m){if(!m||!ENV||m.envMap!==ENV||ENV_USERS.has(m))return m;ENV_USERS.add(m);m.addEventListener('dispose',function drop(){ENV_USERS.delete(m);m.removeEventListener('dispose',drop)});return m}
 
 // ---- materials. One program per surface kind, shared by every Sentinel; uniforms are per figure.
 // Common pieces: bind-pose position and normal for triplanar detail and the visor scan; a fresnel rim weighted toward
 // top edges; status-driven glow.
-const V_HEAD='attribute float glow;\nattribute float cloth;\nuniform float uTime;\nuniform float uSway;\nvarying float vGlow;\nvarying float vCloth;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
-const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vLocal=position;vLocalN=normal;\n\tfloat hem=(1.0-smoothstep(2.55,4.35,position.y))*cloth;\n\ttransformed.x+=sin(uTime*1.7+position.x*1.8)*0.11*hem*uSway;\n\ttransformed.z+=sin(uTime*1.15+position.y)*0.045*hem*uSway;';
+const V_HEAD='attribute float glow;\nattribute float cloth;\nattribute float wear;\nuniform float uTime;\nuniform float uSway;\nvarying float vGlow;\nvarying float vCloth;\nvarying float vWear;\nvarying vec3 vLocal;\nvarying vec3 vLocalN;\n';
+const V_BODY='#include <begin_vertex>\n\tvGlow=glow;vCloth=cloth;vWear=wear;vLocal=position;vLocalN=normal;\n\tfloat hem=(1.0-smoothstep(2.55,4.35,position.y))*cloth;\n\ttransformed.x+=sin(uTime*1.7+position.x*1.8)*0.11*hem*uSway;\n\ttransformed.z+=sin(uTime*1.15+position.y)*0.045*hem*uSway;';
 const F_HEAD=`uniform vec3 uRim;uniform float uRimGain;uniform float glowGain;uniform float uTime;uniform float uScan;uniform float uCircuit;
-uniform sampler2D tDetail;uniform sampler2D tCircuit;uniform sampler2D tIri;uniform float uTexOn;uniform float uIriOn;
-varying float vGlow;varying float vCloth;varying vec3 vLocal;varying vec3 vLocalN;
+uniform sampler2D tDetail;uniform sampler2D tCircuit;uniform sampler2D tIri;uniform float uTexOn;uniform float uIriOn;uniform float uForge;uniform float uForgeY;
+varying float vGlow;varying float vCloth;varying float vWear;varying vec3 vLocal;varying vec3 vLocalN;
 float triplanar(sampler2D t,vec3 p,vec3 n,float s){vec3 w=pow(abs(n),vec3(4.0));w/=max(dot(w,vec3(1.0)),1e-4);
   return texture2D(t,p.zy*s).g*w.x+texture2D(t,p.xz*s).g*w.y+texture2D(t,p.xy*s).g*w.z;}
+// Value noise in bind-pose space, for edge wear and grime. Eight hashes per octave, no texture.
+float sHash(vec3 p){p=fract(p*0.3183099+0.1);p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float sNoise(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(sHash(i),sHash(i+vec3(1,0,0)),f.x),mix(sHash(i+vec3(0,1,0)),sHash(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(sHash(i+vec3(0,0,1)),sHash(i+vec3(1,0,1)),f.x),mix(sHash(i+vec3(0,1,1)),sHash(i+vec3(1,1,1)),f.x),f.y),f.z);}
 `;
 const RIM=`{vec3 vd=normalize(vViewPosition);float fr=pow(1.0-max(dot(normal,vd),0.0),3.0);
   totalEmissiveRadiance+=uRim*fr*uRimGain*(0.55+0.45*clamp(normal.y*0.5+0.5,0.0,1.0));}`;
 // kind: body | armor | joint | trim | visor
 function surface(kind,U,opts){
-  const m=new THREE.MeshStandardMaterial({vertexColors:true,skinning:true,...opts});
+  const m=new THREE.MeshStandardMaterial({vertexColors:true,skinning:true,...opts});useEnvironment(m);
   // r128 standard materials already enable derivatives; expose an extension request
   // for versions that read material.extensions without assuming it exists.
   m.extensions={...(m.extensions||{}),derivatives:true};
   const detail=kind==='armor'?TEX.plating:kind==='trim'||kind==='visor'?null:TEX.carbon,scale=kind==='armor'?1.4:2.2,amt=kind==='armor'?.35:kind==='joint'?.25:.22;
   m.onBeforeCompile=s=>{
-    Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uSway:U.sway,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn});
+    Object.assign(s.uniforms,{uRim:U.rimColor,uRimGain:U.rim,glowGain:U.glow,uTime:U.time,uSway:U.sway,uScan:U.scan,uCircuit:U.circuit,tDetail:detail||TEX.carbon,tCircuit:TEX.circuit,tIri:TEX.iri,uTexOn:detail?TEX.on:{value:0},uIriOn:TEX.iriOn,uForge:U.forge,uForgeY:U.forgeY});
     s.vertexShader=V_HEAD+s.vertexShader.replace('#include <begin_vertex>',V_BODY);
     let f=s.fragmentShader;
     f=f.replace('#include <color_fragment>',`#include <color_fragment>
@@ -390,20 +411,34 @@ function surface(kind,U,opts){
 \tvec3 seamD=abs(fract(seamP-0.5)-0.5);vec3 seams=vec3(1.0)-smoothstep(vec3(0.015),vec3(0.015)+seamW,seamD);
 \tvec3 faceW=abs(normalize(vLocalN));float machining=dot(seams,vec3(1.0)-faceW)*${kind==='armor'?'0.03':'0.012'}*(1.0-vCloth);
 \tdiffuseColor.rgb*=1.0-machining*0.22;
-\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*(0.9+0.14*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);`);
-    f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=mix(clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn,0.04,1.0),0.94,vCloth);');
+\tdiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*(0.9+0.14*abs(sin(vLocal.x*46.0)*sin(vLocal.y*46.0))),vCloth);
+\t// Concept-sheet weathering, code only: recessed panel lines across large plates, bare metal on chamfered edges
+\t// where the noise says the plate has been knocked, and grime settling toward the lower part of each limb.
+\tfloat sWear=0.0,sGrime=0.0;
+\t${kind==='trim'||kind==='visor'?'':`{vec3 pp=vLocal*vec3(2.6,3.1,2.6);vec3 pw=fwidth(pp)+vec3(0.002);vec3 pd=abs(fract(pp-0.5)-0.5);
+\t vec3 pl=vec3(1.0)-smoothstep(vec3(0.022),vec3(0.022)+pw*1.5,pd);float panel=dot(pl,vec3(1.0)-faceW)*(1.0-vCloth);
+\t float nz=sNoise(vLocal*7.5)*0.65+sNoise(vLocal*21.0)*0.35;
+\t sWear=vWear*smoothstep(${kind==='armor'?'0.42,0.7':'0.55,0.8'},nz)*(1.0-vCloth);
+\t sGrime=(1.0-smoothstep(0.0,0.55,fract(vLocal.y*0.62)))*smoothstep(0.35,0.75,sNoise(vLocal*3.1+7.0))*(1.0-vCloth);
+\t diffuseColor.rgb*=1.0-panel*${kind==='armor'?'0.42':'0.2'}-sGrime*0.16;
+\t diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*1.4+vec3(0.045),sWear*${kind==='armor'?'0.6':'0.35'});}`}`);
+    f=f.replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n\troughnessFactor=mix(clamp(roughnessFactor+(0.55-sDetail)*0.45*uTexOn-sWear*0.22+sGrime*0.18,0.04,1.0),0.94,vCloth);');
     let em=RIM;
     if(kind==='trim')em+='\n\ttotalEmissiveRadiance+=vColor*vGlow*glowGain;';
     if(kind==='armor')em+=`\n\tif(uCircuit>0.0&&uTexOn>0.5){float c=triplanar(tCircuit,vLocal,vLocalN,0.7);float flow=0.35+0.65*pow(0.5+0.5*sin(vLocal.y*3.0-uTime*2.2),3.0);totalEmissiveRadiance+=uRim*c*uCircuit*flow*glowGain;}`;
     if(kind==='visor')em+=`
 \t{vec3 vd=normalize(vViewPosition);float fr=pow(1.0-max(dot(normal,vd),0.0),1.6);float h=fract(fr*1.25+uTime*0.035+vLocal.y*0.55);
-\t vec3 film=uIriOn>0.5?texture2D(tIri,vec2(h,0.5)).rgb:0.5+0.5*cos(6.2832*(vec3(0.0,0.33,0.67)+h));
+\t vec3 film=0.5+0.5*cos(6.2832*(vec3(0.0,0.33,0.67)+h));
+\t if(uIriOn>0.5)film=mix(film,texture2D(tIri,vec2(h,0.5)).rgb,0.3);
 \t totalEmissiveRadiance+=film*(0.06+0.55*fr);
 \t float band=exp(-pow((vLocal.y-uScan)*16.0,2.0));
 \t totalEmissiveRadiance+=uRim*(0.22+band*0.7)*glowGain;}`;
+    // Forge sweep: on a level-up or identity rebuild a lit band climbs from the boots to the crest, leaving a short afterglow.
+    em+=`\n\tif(uForge>0.001){float fb=exp(-pow((vLocal.y-uForgeY)*2.4,2.0));float after=step(vLocal.y,uForgeY)*(1.0-smoothstep(0.0,1.8,uForgeY-vLocal.y));
+\t totalEmissiveRadiance+=uRim*uForge*(fb*2.4+after*0.35+vWear*fb*1.5);}`;
     f=f.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n\t'+em);
     s.fragmentShader=F_HEAD+f};
-  m.customProgramCacheKey=()=>'sentinel-painted-v5-'+kind;return m;
+  m.customProgramCacheKey=()=>'sentinel-painted-v6-'+kind;return m;
 }
 
 // ---- skeleton. Rigid skinning: each plate follows one bone, so armor never smears.
@@ -430,14 +465,14 @@ function put(t,geo,q,origin,col,glow,shade,bone){
   const P=geo.attributes.position,N=geo.attributes.normal,E=geo.attributes.edge;
   for(let i=0;i<P.count;i++){const ly=P.getY(i),k=shade*(E.getX(i)?1.13:1)*(glow?1:.9+.2*(ly+.5));
     _v.fromBufferAttribute(P,i).applyMatrix4(_m);t.pos.push(_v.x,_v.y,_v.z);const worldY=_v.y;_v.fromBufferAttribute(N,i).applyMatrix3(_n).normalize();t.nrm.push(_v.x,_v.y,_v.z);
-    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.cloth.push(q.k===5?1:0);// Blend the cape over the waist instead of breaking it into independently rotating slabs.
+    t.col.push(col.r*k,col.g*k,col.b*k);t.glow.push(glow);t.cloth.push(q.k===5?1:0);t.wear.push(E.getX(i));// Blend the cape over the waist instead of breaking it into independently rotating slabs.
     // Helmet fabric and the front tabard retain their rigid attachment.
     if(q.k===5&&q.slot==='torso'&&q.z<0){const u=Math.max(0,Math.min(1,(worldY-3.05)/1.3)),w=u*u*(3-2*u);t.bone.push(HIPS,SPINE,0,0);t.weight.push(1-w,w,0,0)}
     else{t.bone.push(bone,0,0,0);t.weight.push(1,0,0,0)}}
 }
 function geometryOf(t){const g=new THREE.BufferGeometry(),w=new Float32Array(t.weight);
   g.setAttribute('position',new THREE.Float32BufferAttribute(t.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(t.nrm,3));g.setAttribute('color',new THREE.Float32BufferAttribute(t.col,3));
-  g.setAttribute('glow',new THREE.Float32BufferAttribute(t.glow,1));g.setAttribute('cloth',new THREE.Float32BufferAttribute(t.cloth,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(t.bone,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(w,4));
+  g.setAttribute('glow',new THREE.Float32BufferAttribute(t.glow,1));g.setAttribute('cloth',new THREE.Float32BufferAttribute(t.cloth,1));g.setAttribute('wear',new THREE.Float32BufferAttribute(t.wear,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(t.bone,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(w,4));
   g.computeBoundingSphere();g.boundingSphere.radius+=2.5;return g}
 function terminal(a,f,pal){
   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=180;const ctx=canvas.getContext('2d');
@@ -456,12 +491,12 @@ function makeSentinel(a){
   const g=shared(),f=Identity.form(a.form||'agent'),pal=Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],f),level=a.level|0;
   const owner=a.ownerColor&&Identity.HEX.test(a.ownerColor)?a.ownerColor:null,bp=Identity.blueprint(f,{owner:!!owner,level}),tone=Identity.tones(pal,owner).map(lin);
   const tier=bp.tier|0,grp=new THREE.Group(),white=new THREE.Color(1,1,1),seed=hash(a.id||f),buf={},rest=restOf(bp);
-  const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},sway:{value:.28},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0}};
+  const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},sway:{value:.28},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0},forge:{value:0},forgeY:{value:-1}};
   // Each plate gets its own shade (0.86 to 1.08) so neighboring panels read as separate pieces of metal.
   bp.parts.forEach((q,i)=>{
     const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
     const shade=lit?1:.86+.22*hash(seed+i),col=kind==='armor'?white:tone[q.k],origin=bp.pivots[q.slot]||[0,0,0];
-    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],bone:[],weight:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
+    if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],wear:[],bone:[],weight:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
   });
   // bones in bind pose (no rotation), positioned relative to their parent
   const bones=BONES.map(name=>{const b=new THREE.Bone();b.name=name;return b});
@@ -481,7 +516,7 @@ function makeSentinel(a){
   const key=a.id||f,prev=SEEN.get(key),stamp=now();let pendingEmote=null;
   if(prev&&level>prev.level&&stamp-prev.at>5000&&a.celebrateLevelUp!==false)pendingEmote='levelup';
   SEEN.set(key,{level,at:prev&&prev.level===level?prev.at:stamp});
-  const anim={t:-1,S:new Float32Array(NCH),V:new Float32Array(NCH),T:new Float32Array(NCH),P:new Float32Array(NCH),walkW:0,gait:0,speed:0,px:0,pz:0,lookY:0,lookP:0,lookW:0,glow:1,rim:.3,slate:0,orbs:0,flash:0,jump:0};
+  const anim={t:-1,S:new Float32Array(NCH),V:new Float32Array(NCH),T:new Float32Array(NCH),P:new Float32Array(NCH),walkW:0,gait:0,speed:0,px:0,pz:0,lookY:0,lookP:0,lookW:0,glow:1,rim:.3,slate:0,orbs:0,spark:0,flash:0,jump:0,forgeT:-1,forgeAmp:0};
   const head=bones[HEAD],arms=[bones[AL],bones[AR]],legs=[bones[LL],bones[LR]];
   return {grp,ring,aura,legs,arms,head,bones,skeleton,surfaces,plate,glow:U.glow,rimGain:U.rim,uniforms:U,accent:surfaces.trim?surfaces.trim.material:null,tone,tier,level,rest,anim,
     props:{},status:'idle',emote:null,emoteT:0,pendingEmote,lookAt:null,walkSpeed:null,phase:(parseInt(Identity.badge(a.id||f),36)%628)/100,
@@ -494,12 +529,20 @@ function prop(m,name){
   else if(name==='orbs'){o=new THREE.Group();for(let i=0;i<3;i++){const s=new THREE.Mesh(g.orb,new THREE.MeshBasicMaterial({color:c,fog:false,transparent:true}));s.scale.setScalar(.7+i*.25);o.add(s)}(m.bones?m.bones[HEAD]:m.grp).add(o);m.props[name]=o;return o}
   else if(name==='beam'){o=new THREE.Mesh(g.beam,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false,fog:false}))}
   else if(name==='link'){o=new THREE.Mesh(g.link,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false,fog:false}))}
+  // Tool tip on the right hand: a flickering work light while working, a steady scribing light while writing.
+  else if(name==='spark'){o=new THREE.Mesh(g.orb,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));
+    const core=new THREE.Mesh(g.orb,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.9,depthWrite:false,fog:false}));core.scale.setScalar(.42);o.add(core);
+    o.position.set(0,-.3,.15);(m.bones?m.bones[HR]:m.grp).add(o);m.props[name]=o;return o}
+  // Conversation beam to a partner: a pulsing line with a packet that travels along it. Laid out by the crowd director.
+  else if(name==='talk'){o=new THREE.Group();const line=new THREE.Mesh(g.link,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.4,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false,fog:false}));
+    const pkt=new THREE.Mesh(g.orb,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));pkt.scale.setScalar(2.4);o.add(line,pkt);o.visible=false}
   else o=new THREE.Group();
   m.props[name]=o;m.grp.add(o);return o;
 }
 const BUSY={working:1,writing:1,reading:1,thinking:1,reviewing:1,'in use':1};
 const STATUSES=['idle','viewing','walking','working','in use','writing','reading','thinking','reviewing','blocked','lifting'];
-const EMOTES={celebrate:3,greet:1.8,nod:1.3,levelup:3.8};
+const EMOTES={celebrate:3,greet:1.8,nod:1.3,levelup:3.8,talk:2.6,alert:1.4};
+const nh=x=>{const s=Math.sin(x*127.1+311.7)*43758.5453;return s-Math.floor(s)};   // numeric hash, no allocation
 
 // ---- animation math. Everything below runs per frame and allocates nothing.
 const clamp=(x,a,b)=>x<a?a:x>b?b:x,sm=x=>{x=clamp(x,0,1);return x*x*(3-2*x)},ease=x=>{x=clamp(x,0,1);return x<.5?2*x*x:1-(-2*x+2)*(-2*x+2)/2};
@@ -579,6 +622,19 @@ function emoteLayer(m,P,name,e,w){
     for(const [l,k] of [[LL,SL],[LR,SR]]){mixTo(P,l*3,-.6*crouch-.45*spread,w);mixTo(P,k*3,1.2*crouch+.8*spread,w)}
     mixTo(P,SPINE*3,.3*crouch-.12*fist,w);mixTo(P,HEAD*3,.3*crouch-.25*fist-.15*spread,w);
     glow=e<.35?1.4*e/.35:1.4*(1-sm((e-2.6)/1.2));a.flash=Math.max(a.flash,e<1.6?1:1-sm((e-1.6)/1.6));
+  }else if(name==='talk'){
+    // speaking to a partner: forearms come up and beat with the phrase, the free hand opens, the head bobs on stresses
+    const on=sm(e/.25)*(1-sm((e-2.15)/.45)),k=w*on,b1=Math.sin(e*7.5),b2=Math.sin(e*5.3+1.2);
+    mixTo(P,AR*3,-.55-.16*b1,k);mixTo(P,AR*3+1,-.3,k);mixTo(P,AR*3+2,.12,k);mixTo(P,FR*3,-1.25-.22*Math.max(0,b1),k);mixTo(P,HR*3+2,.28*b2,k);
+    mixTo(P,AL*3,-.32-.1*b2,k*.8);mixTo(P,AL*3+1,.22,k*.8);mixTo(P,FL*3,-.95-.14*Math.max(0,b2),k*.8);
+    P[HEAD*3]+=.06*Math.sin(e*6.1)*k;P[SPINE*3+1]+=.07*Math.sin(e*1.9)*k;glow=.14*on;
+  }else if(name==='alert'){
+    // startled by a blocker: head snaps up, guard comes up, knees give, then it settles
+    const snap=e<.12?back(e/.12):1-sm((e-.85)/.55),k=w*snap;
+    mixTo(P,HEAD*3,-.28,k);P[SPINE*3]-=.08*k;
+    mixTo(P,AL*3,-.55,k*.75);mixTo(P,FL*3,-1.35,k*.75);mixTo(P,AR*3,-.55,k*.75);mixTo(P,FR*3,-1.35,k*.75);
+    for(const [l,s] of [[LL,SL],[LR,SR]]){P[l*3]-=.16*k;P[s*3]+=.32*k}
+    glow=(e<.5?.7:.7*(1-sm((e-.5)/.6)))*snap;
   }
   a.jump=jump;return glow*w;
 }
@@ -591,6 +647,12 @@ function pose(m,t,status,opt){
   opt=opt||NOOPT;status=typeof status==='boolean'?(status?'walking':m.status||'idle'):(status||m.status||'idle');
   const a=m.anim;if(!a)return;const red=reducedNow(),ph=m.phase,T=a.T,S=a.S,V=a.V,P=a.P;
   if(!Number.isFinite(t))return;
+  // Crowd LOD (set by crowd.begin in the city; absent in the gallery): out-of-view and distant figures pose at a
+  // staggered fraction of the frame rate, calm ones at most 30 times a second. Lifts always pose so the beam tracks.
+  const L=m.lod;
+  if(L){note(m,L,status);
+    if(a.t>=0&&status!=='lifting'&&t>=a.t&&(!L.due||(!m.emote&&status!=='walking'&&t-a.t<CALM))){CS.skipped++;m.status=status;return}
+    CS.posed++}
   let dt=t-a.t;const first=a.t<0||dt<0||dt>1;if(first)dt=1/60;a.t=t;
   if(m.pendingEmote){if(!red)emote(m,m.pendingEmote,t);m.pendingEmote=null}
   const moving=status==='walking';
@@ -611,8 +673,18 @@ function pose(m,t,status,opt){
       P[HX]+=.05*ws;P[HIPS*3+2]+=.035*ws;P[SPINE*3+2]-=.03*ws;
       P[SL*3]+=.14*wl;P[LL*3]-=.05*wl;P[SR*3]+=.14*wr;P[LR*3]-=.05*wr}
     switch(status){
-      case 'idle':case 'viewing':P[HEAD*3+1]+=Math.sin(t*.42+ph)*.42*Math.max(0,Math.sin(t*.13+ph*3));P[HEAD*3]+=Math.sin(t*.31+ph*2)*.04;break;
-      case 'working':case 'in use':{const tap=Math.sin(t*9+ph);P[FL*3]+=tap*.07;P[FR*3]-=tap*.07;P[HL*3]+=Math.max(0,tap)*.12;P[HR*3]+=Math.max(0,-tap)*.12;P[HEAD*3+1]+=Math.sin(t*1.3+ph)*.08;break}
+      case 'idle':case 'viewing':{P[HEAD*3+1]+=Math.sin(t*.42+ph)*.42*Math.max(0,Math.sin(t*.13+ph*3));P[HEAD*3]+=Math.sin(t*.31+ph*2)*.04;
+        // a quick glance to one side every few seconds, and now and then a check of the left wrist display
+        const gc=t*.093+ph*.37,gi=Math.floor(gc),gf=gc-gi;
+        if(gf<.16){const env=Math.sin(Math.PI*gf/.16),dir=nh(gi+ph)>.5?1:-1,k=sm(env*1.7);P[HEAD*3+1]+=dir*.55*k;P[SPINE*3+1]+=dir*.07*k;P[HEAD*3]-=.05*k}
+        else if(gf>.5&&gf<.64&&nh(gi*3.1+ph)>.55){const env=sm(Math.sin(Math.PI*(gf-.5)/.14)*1.6);P[AL*3]-=.75*env;P[AL*3+1]+=.45*env;P[FL*3]-=1.25*env;P[HL*3+2]+=.35*env;P[HEAD*3]+=.32*env;P[HEAD*3+1]-=.22*env}
+        // secondary motion: forearms trail the breathing and weight shift
+        P[FL*3]+=.035*Math.sin(t*1.6+ph-.7);P[FR*3]+=.035*Math.sin(t*1.6+ph-.9);break}
+      case 'working':case 'in use':{const tap=Math.sin(t*9+ph);P[FL*3]+=tap*.07;P[FR*3]-=tap*.07;P[HL*3]+=Math.max(0,tap)*.12;P[HR*3]+=Math.max(0,-tap)*.12;P[HEAD*3+1]+=Math.sin(t*1.3+ph)*.08;
+        // tool gesture: every few seconds the right hand reaches out of the typing pose and drags across the slate
+        const wc=t/5.2+ph*.21,wf=wc-Math.floor(wc);
+        if(wf<.24){const e=wf/.24,env=Math.sin(Math.PI*e);P[AR*3]-=.32*env;P[AR*3+1]-=.85*(e-.5)*env;P[FR*3]+=.35*env;P[HR*3+2]+=.3*env;P[HEAD*3+1]-=.3*(e-.5)*env;P[SPINE*3+1]-=.05*env}
+        break}
       case 'writing':{const w=Math.sin(t*11+ph);P[FR*3]+=w*.05;P[AR*3+2]+=Math.sin(t*7+ph)*.04;P[HR*3+2]+=Math.sin(t*13+ph)*.12;P[HEAD*3+1]+=Math.sin(t*.8+ph)*.05;break}
       case 'reading':{const turn=Math.pow(Math.max(0,Math.sin(t*.8+ph)),12);P[AR*3+1]-=.35*turn;P[FR*3+2]+=.25*turn;P[HEAD*3+1]+=Math.sin(t*.9+ph)*.12;break}
       case 'thinking':P[HEAD*3+1]+=Math.sin(t*.6+ph)*.25;P[HR*3+2]+=Math.sin(t*1.7+ph)*.06;break;
@@ -650,13 +722,21 @@ function pose(m,t,status,opt){
   U.scan.value=red?5.3:5.3+.2*Math.sin(t*(status==='reading'?2.4:1.1)+ph);
   if(m.accent&&m.accent.emissive)m.accent.emissiveIntensity=0;
   // props, faded in and out
-  const wantSlate=!!SLATE[status],wantOrbs=status==='thinking',pk=first||red?1:rate(dt,8);
-  a.slate+=((wantSlate?1:0)-a.slate)*pk;a.orbs+=((wantOrbs?1:0)-a.orbs)*pk;
+  // forge sweep after a level-up or identity rebuild: a lit band climbs the figure over 1.8 s
+  let fg=0,fy=-1;if(a.forgeT>=0){const e=(t-a.forgeT)/1.8;if(e>1||!Number.isFinite(e)){a.forgeT=-1}else if(e>=0&&!red){fy=-.4+6.9*ease(e);fg=a.forgeAmp*(1-sm((e-.72)/.28))}}
+  U.forge.value=fg;U.forgeY.value=fy;
+  // distant figures (crowd LOD 2+) drop their status props; the lift beam and talk beam stay
+  const far=!!(L&&L.lvl>=2);
+  const wantSlate=!!SLATE[status]&&!far,wantOrbs=status==='thinking'&&!far,wantSpark=!far&&(status==='working'||status==='in use'||status==='writing'),pk=first||red?1:rate(dt,8);
+  a.slate+=((wantSlate?1:0)-a.slate)*pk;a.orbs+=((wantOrbs?1:0)-a.orbs)*pk;a.spark+=((wantSpark?1:0)-a.spark)*pk;
   if(a.slate>.01||wantSlate){const s=prop(m,'slate'),c=SLATE[status];if(c){s.position.set(c[0],c[1],c[2]);s.rotation.set(c[3],c[4],c[5]);s.userData.k=c[6]}
-    s.scale.setScalar((s.userData.k||1)*(.6+.4*a.slate));s.material.opacity=(.26+(red?0:.08*Math.sin(t*4+ph)))*a.slate;s.children[0].material.opacity=.9*a.slate;s.visible=a.slate>.01}
+    s.scale.setScalar((s.userData.k||1)*(.6+.4*a.slate));s.material.opacity=(.26+(red?0:.08*Math.sin(t*4+ph)+(status==='writing'?.1*Math.max(0,Math.sin(t*11+ph)):0)))*a.slate;s.children[0].material.opacity=.9*a.slate;s.visible=a.slate>.01}
   else if(m.props.slate)m.props.slate.visible=false;
   if(a.orbs>.01){const o=prop(m,'orbs');o.visible=true;for(let i=0;i<3;i++){const s=o.children[i],ang=(red?0:t)*(1.2+i*.3)+i*2.1+ph;s.position.set(Math.cos(ang)*.55,1.12+Math.sin(ang*1.7)*.14+i*.12,Math.sin(ang)*.55);s.material.opacity=a.orbs}}
   else if(m.props.orbs)m.props.orbs.visible=false;
+  if(a.spark>.01){const s=prop(m,'spark'),wr=status==='writing',fl=red?.85:wr?.78+.22*Math.sin(t*11+ph):.4+.6*nh(Math.floor(t*24)+ph);
+    s.visible=true;s.material.opacity=a.spark*fl;s.children[0].material.opacity=a.spark*(.6+.4*fl);s.scale.setScalar((wr?1.25:1.7)*(.75+.25*fl))}
+  else if(m.props.spark)m.props.spark.visible=false;
   if(status==='lifting'){const b=prop(m,'beam');b.visible=true;b.scale.set(1.6,opt.beam||1,1.6);b.position.y=(opt.beam||1)/2-m.grp.position.y+(opt.beamBase||0);b.material.opacity=red?.22:.18+.12*Math.sin(t*9)}
   else if(m.props.beam)m.props.beam.visible=false;
   if(m.props.link)m.props.link.visible=false;
@@ -664,16 +744,142 @@ function pose(m,t,status,opt){
   // ring and aura: the aura shows from tier 2 and flares during a level-up
   m.ring.rotation.y=red?0:t*.3;m.ring.material.opacity=(status==='blocked'?.3:.5)+(red?0:.18*Math.sin(t*2+ph))+.3*a.flash;
   const auraBase=m.tier>=4?.2:m.tier>=3?.15:m.tier>=2?.1:0;a.flash=Math.max(0,a.flash-dt*.8);
-  m.aura.visible=auraBase>0||a.flash>.01;m.aura.material.opacity=auraBase*(red?1:.8+.2*Math.sin(t*1.3+ph))+.35*a.flash;m.aura.scale.set(1+.15*a.flash,1+(red?0:.06*Math.sin(t*1.7+ph))+.8*a.flash,1+.15*a.flash);
+  m.aura.visible=(auraBase>0&&!far)||a.flash>.01;m.aura.material.opacity=auraBase*(red?1:.8+.2*Math.sin(t*1.3+ph))+.35*a.flash;m.aura.scale.set(1+.15*a.flash,1+(red?0:.06*Math.sin(t*1.7+ph))+.8*a.flash,1+.15*a.flash);
   m.status=status;
 }
 function emote(m,name,t){m.emote=name;m.emoteT=t;if(m.anim&&name==='levelup')m.anim.flash=Math.max(m.anim.flash,.01)}
+// Forge sweep: amp 1 for a level or tier change, about .5 for a palette or badge change.
+function forge(m,t,amp){if(!m||!m.anim||!Number.isFinite(t))return;m.anim.forgeT=t;m.anim.forgeAmp=amp==null?1:amp;m.anim.flash=Math.max(m.anim.flash,.8*m.anim.forgeAmp)}
+// Identity rebuild (level-up, palette edit): the new figure takes over the old one's pose, springs, gait phase, look,
+// emote, LOD and conversations, then plays the forge sweep. Without this the rebuilt figure snapped to its rest pose.
+const CARRY=['t','walkW','gait','speed','px','pz','lookY','lookP','lookW','glow','rim','slate','orbs','spark','flash','jump'];
+function carry(prev,next,t){
+  if(!prev||!next||!prev.anim||!next.anim||prev===next)return next;
+  const A=prev.anim,N=next.anim;N.S.set(A.S);N.V.set(A.V);N.T.set(A.T);N.P.set(A.P);for(const k of CARRY)N[k]=A[k];
+  next.status=prev.status;next.face=prev.face;next.lookAt=prev.lookAt;
+  if(!next.pendingEmote&&prev.emote){next.emote=prev.emote;next.emoteT=prev.emoteT}
+  if(prev.lod){next.lod=Object.assign({},prev.lod,{lvl:-1})}
+  if(prev.crowd)next.crowd=prev.crowd;
+  next.grp.position.copy(prev.grp.position);next.grp.rotation.copy(prev.grp.rotation);
+  for(let i=0;i<NB&&i<prev.bones.length;i++)next.bones[i].rotation.copy(prev.bones[i].rotation);next.bones[HIPS].position.copy(prev.bones[HIPS].position);
+  for(const k of TALKS){if(k.a===prev)k.a=next;if(k.b===prev)k.b=next}
+  const up=(next.level|0)>(prev.level|0)||(next.tier|0)>(prev.tier|0);
+  forge(next,Number.isFinite(t)?t:(A.t>=0?A.t:0),up?1:.5);
+  return next;
+}
+
+// ---- crowd director for the city: distance LOD and frustum skipping, frame budget, street spacing and door queues,
+// directed conversations, and spatial footsteps and lift hum. All state is reused; nothing here allocates per frame
+// except the per-call closures the city loop already makes.
+const CALM=1/30;
+const CS={frame:0,t:0,AG:null,posed:0,skipped:0,culled:0,moving:false,idle:false,idleHz:30,lastIdle:-1,walkers:[],lifters:[],ground:[],doors:new Map(),stepAt:-1,humAt:-1,names:null,namesAt:-1};
+const TALKS=[];
+const _fr=new THREE.Frustum(),_pm=new THREE.Matrix4(),_sph=new THREE.Sphere(new THREE.Vector3(),8),_cam=new THREE.Vector3(),_ta=new THREE.Vector3(),_tb=new THREE.Vector3(),_up=new THREE.Vector3(0,1,0),_ear=[0,0,0];
+const LOD_RATE=[1,2,4,8];
+function detail(m,lvl){if(m.plate)m.plate.visible=lvl<2;if(m.surfaces&&m.surfaces.visor)m.surfaces.visor.visible=lvl<3}
+// Called from pose: records what this figure needs from the frame loop.
+function note(m,L,status){
+  const motion=status==='walking'||status==='lifting'||!!m.emote||(m.anim&&m.anim.forgeT>=0);
+  if(L.view){if(motion&&L.lvl<3)CS.moving=true;else if(L.lvl<2||motion)CS.idle=true;
+    if(status==='walking'&&CS.walkers.length<64)CS.walkers.push(m);else if(status==='lifting'&&CS.lifters.length<16)CS.lifters.push(m)}
+}
+function begin(AG,camera,t,opt){
+  opt=opt||NOOPT;CS.frame++;CS.t=t;CS.AG=AG;CS.posed=CS.skipped=CS.culled=0;CS.moving=CS.idle=false;CS.walkers.length=0;CS.lifters.length=0;
+  CS.idleHz=opt.hi?30:20;
+  const q=opt.hi?1:.72,d0=140*q,d1=220*q,d2=480*q;let fr=false;
+  if(camera&&camera.projectionMatrix&&camera.matrixWorldInverse){_pm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);_fr.setFromProjectionMatrix(_pm);_cam.copy(camera.position);fr=true}
+  if(!AG)return;
+  AG.forEach((m,id)=>{
+    if(!m||!m.grp||!m.grp.visible||!m.anim)return;
+    const L=m.lod||(m.lod={lvl:-1,due:true,view:true,dist:0,seed:Math.floor(hash(id)*8),foot:0,stepAt:-1});
+    const p=m.grp.position,d=fr?Math.hypot(p.x-_cam.x,p.y-_cam.y,p.z-_cam.z):0,lvl=d<d0?0:d<d1?1:d<d2?2:3;
+    let view=true;if(fr&&m.phaseName!=='lift'&&m.phaseName!=='descend'){_sph.center.set(p.x,p.y+3,p.z);view=_fr.intersectsSphere(_sph)}
+    if(lvl!==L.lvl)detail(m,lvl);L.lvl=lvl;L.dist=d;L.view=view;
+    L.due=view&&(CS.frame+L.seed)%LOD_RATE[lvl]===0;if(!view)CS.culled++;
+  });
+}
+// Street spacing: a lane per figure (by id hash) to the right of its heading, fading out at the door; pairwise
+// separation between nearby walkers; door queue slots along the facade for figures that ride the same lift.
+function spacing(AG,dt){
+  const G=CS.ground;G.length=0;CS.doors.clear();
+  AG.forEach(m=>{if(m&&m.grp&&m.grp.visible){const ph=m.phaseName;if((ph==='street'&&m.path)||(ph==='lift'&&m.lift)||(ph==='descend'&&m.lift)||(ph==='roof'&&m.roof))G.push(m)}});
+  for(const m of G){const o=m.crowd||(m.crowd={x:0,z:0,tx:0,tz:0,lane:(hash((m.info&&m.info.id)||m.phase)-.5)*2});o.tx=o.tz=0;const ph=m.phaseName;
+    if(ph==='street'){let fade=1;if(m.path&&m.path.length&&m.leg>=m.path.length-1){const e=m.path[m.path.length-1];fade=clamp(Math.hypot(e[0]-m.pos.x,e[1]-m.pos.z)/8,0,1)}
+      const yaw=m.grp.rotation.y;o.tx+=Math.cos(yaw)*o.lane*1.15*fade;o.tz-=Math.sin(yaw)*o.lane*1.15*fade}
+    else if((ph==='lift'||ph==='descend')&&m.lift){const key=Math.round(m.lift.x)*100003+Math.round(m.lift.z),k=CS.doors.get(key)||0;CS.doors.set(key,k+1);
+      if(k>0){const h=ph==='lift'&&m.home&&Number.isFinite(m.home.cx)?m.home:null;let ox=0,oz=1;
+        if(h){ox=m.lift.x-h.cx;oz=m.lift.z-h.cz;const n=Math.hypot(ox,oz)||1;ox/=n;oz/=n}
+        const side=(k%2?1:-1)*Math.ceil(k/2)*2.1;o.tx+=-oz*side+ox*.9;o.tz+=ox*side+oz*.9}}}
+  for(let i=0;i<G.length;i++){const A=G[i];if(A.phaseName!=='street')continue;
+    for(let j=i+1;j<G.length;j++){const Bm=G[j];if(Bm.phaseName!=='street')continue;
+      const dx=(A.pos.x+A.crowd.x)-(Bm.pos.x+Bm.crowd.x),dz=(A.pos.z+A.crowd.z)-(Bm.pos.z+Bm.crowd.z),d=Math.hypot(dx,dz);
+      if(d<3){const f=(3-d)/3*4,nx=d>1e-3?dx/d:1,nz=d>1e-3?dz/d:0;A.crowd.tx+=nx*f;A.crowd.tz+=nz*f;Bm.crowd.tx-=nx*f;Bm.crowd.tz-=nz*f}}}
+  const k=rate(Math.max(0,dt||0),3.5);
+  for(const m of G){const o=m.crowd;o.x+=(clamp(o.tx,-3,3)-o.x)*k;o.z+=(clamp(o.tz,-3,3)-o.z)*k;
+    // the city resets grp.position from m.pos every frame in these phases, so the offset never accumulates
+    if(Math.abs(o.x)+Math.abs(o.z)>1e-4){m.grp.position.x+=o.x;m.grp.position.z+=o.z}}
+}
+// Directed messages: speaker and listener face each other, a beam joins their chests and a packet runs along it.
+function converse(fromIds,toIds,opt){
+  const AG=CS.AG;if(!AG)return false;const pick=ids=>{for(const id of [].concat(ids||[])){const m=AG.get(id);if(m&&m.grp&&m.grp.visible&&m.anim)return m}return null};
+  const a=pick(fromIds),b=pick(toIds);if(!a||!b||a===b)return false;
+  for(let i=TALKS.length-1;i>=0;i--){const k=TALKS[i];if((k.a===a&&k.b===b)||(k.a===b&&k.b===a))endTalk(i)}
+  while(TALKS.length>=4)endTalk(0);
+  const t=CS.t,ttl=opt&&opt.ttl>0?opt.ttl:6;TALKS.push({a,b,t0:t,until:t+ttl,va:new THREE.Vector3(),vb:new THREE.Vector3()});
+  if(!reducedNow()){emote(a,'talk',t);emote(b,'nod',t+.7)}
+  return true;
+}
+function endTalk(i){const k=TALKS[i];if(!k)return;if(k.a.props&&k.a.props.talk)k.a.props.talk.visible=false;if(k.a.lookAt===k.va)k.a.lookAt=null;if(k.b.lookAt===k.vb)k.b.lookAt=null;TALKS.splice(i,1)}
+function talks(t){
+  const red=reducedNow();
+  for(let i=TALKS.length-1;i>=0;i--){const k=TALKS[i],A=k.a,Bm=k.b;
+    if(t>k.until||!A.grp.parent||!Bm.grp.parent||!A.grp.visible||!Bm.grp.visible){endTalk(i);continue}
+    k.va.copy(Bm.grp.position);k.va.y+=5.2;k.vb.copy(A.grp.position);k.vb.y+=5.2;A.lookAt=k.va;Bm.lookAt=k.vb;
+    const g=prop(A,'talk'),line=g.children[0],pkt=g.children[1];
+    _ta.set(0,4.4,0);_tb.copy(Bm.grp.position).sub(A.grp.position);_tb.y+=4.4;_tb.applyAxisAngle(_up,-A.grp.rotation.y);
+    const d=_ta.distanceTo(_tb);if(d<1e-3){g.visible=false;continue}
+    g.visible=true;g.position.copy(_ta);_tb.sub(_ta).multiplyScalar(1/d);g.quaternion.setFromUnitVectors(_up,_tb);
+    const life=clamp((t-k.t0)/.35,0,1)*clamp((k.until-t)/.6,0,1);
+    line.position.set(0,d/2,0);line.scale.set(1.5,d,1.5);line.material.opacity=(red?.4:.22+.2*Math.abs(Math.sin(t*5)))*life;
+    pkt.visible=!red;if(!red){const f=((t-k.t0)*.9)%1;pkt.position.set(0,d*f,0);pkt.material.opacity=.95*life*Math.sin(Math.PI*f)}}
+}
+// Spatial steps for the three nearest walkers in view, and a lift hum for the nearest rider. Rate limited per figure
+// and across the crowd. Uses the SFX names when the audio module has them, plain positioned tones otherwise.
+function sounds(t){
+  const VA=typeof VaultAudio!=='undefined'?VaultAudio:null;if(!VA||!VA.tone)return;
+  if(t-CS.namesAt>2||!CS.names){CS.namesAt=t;try{CS.names=VA.names?VA.names():[]}catch(e){CS.names=[]}}
+  const W=CS.walkers;
+  for(let n=0;n<3&&W.length;n++){let bi=-1,bd=1e9;for(let i=0;i<W.length;i++){const L=W[i].lod;if(L&&L.dist<bd){bd=L.dist;bi=i}}
+    const m=W[bi];W[bi]=W[W.length-1];W.length--;if(bd>140)break;
+    const L=m.lod,foot=Math.floor((m.anim.gait+m.phase)/Math.PI);if(foot===L.foot)continue;L.foot=foot;
+    if((t-L.stepAt<.2&&t>=L.stepAt)||(t-CS.stepAt<.06&&t>=CS.stepAt))continue;L.stepAt=t;CS.stepAt=t;
+    _ear[0]=m.grp.position.x;_ear[1]=m.grp.position.y;_ear[2]=m.grp.position.z;const v=clamp(1-bd/140,.25,1),h=nh(m.phase*7+foot%4);
+    try{if(CS.names.includes('sentinel.step'))VA.sfx('sentinel.step',{position:_ear,volume:v});
+      else{VA.tone(58+22*h,.1,'sine',.075*v,{position:_ear});VA.tone(150+60*h,.04,'triangle',.022*v,{position:_ear,delay:.006})}}catch(e){}}
+  if(CS.lifters.length&&(t-CS.humAt>.8||t<CS.humAt)){let m=null,bd=180;for(const x of CS.lifters){const L=x.lod;if(L&&L.dist<bd){bd=L.dist;m=x}}
+    if(m){CS.humAt=t;_ear[0]=m.grp.position.x;_ear[1]=m.grp.position.y+2;_ear[2]=m.grp.position.z;const v=clamp(1-bd/180,.3,1),up=m.lift&&m.lift.h>0?clamp(m.pos.y/m.lift.h,0,1):.5;
+      try{if(CS.names.includes('sentinel.hum'))VA.sfx('sentinel.hum',{position:_ear,volume:v});
+        else{VA.tone(72+36*up,.95,'triangle',.018*v,{position:_ear});VA.tone(144+72*up,.95,'sine',.012*v,{position:_ear})}}catch(e){}}}
+}
+// End of the city's agent step. Returns whether the sentinels need this frame drawn: always while something moves in
+// view, otherwise at most idleHz while calm figures are close enough to see breathing.
+function end(AG,t,dt){
+  if(AG){spacing(AG,dt);talks(t)}
+  sounds(t);
+  if(CS.moving||TALKS.length)return true;
+  if(CS.idle&&(CS.lastIdle<0||t-CS.lastIdle>=1/CS.idleHz-1e-4||t<CS.lastIdle)){CS.lastIdle=t;return true}
+  return false;
+}
+const crowd={begin,end,converse,talks:()=>TALKS.length,
+  stats:()=>({frame:CS.frame,posed:CS.posed,skipped:CS.skipped,culled:CS.culled,moving:CS.moving,idle:CS.idle,talks:TALKS.length})};
 function dispose(grp){const g=shared();grp.traverse(o=>{if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose()}if(o.geometry&&!g.set.has(o.geometry))o.geometry.dispose();if(o.skeleton&&o.skeleton.boneTexture){o.skeleton.boneTexture.dispose();o.skeleton.boneTexture=null}})}
 // Cost of one figure: draw calls (visible meshes), vertices, materials and bones.
 function stats(m){let draws=0,verts=0,mats=0;m.grp.traverse(o=>{if(o.isMesh){mats++;let visible=true;for(let p=o;p;p=p.parent)if(!p.visible){visible=false;break}if(visible){draws++;verts+=o.geometry.attributes.position.count}}});return {draws,verts,materials:mats,bones:m.bones?m.bones.length:0}}
 function textures(base){if(base&&TEX.state==='idle')TEX.base=base;return {state:TEX.state,base:TEX.base}}
-return {create:makeSentinel,dispose,pose,emote,prop,environment,BUSY,STATUSES,EMOTES,stats,textures,reducedMotion,tier:l=>Identity.tier(l)};
+return {create:makeSentinel,dispose,pose,emote,prop,environment,refreshEnvironment,useEnvironment,envUsers:()=>ENV_USERS.size,BUSY,STATUSES,EMOTES,stats,textures,reducedMotion,tier:l=>Identity.tier(l),carry,forge,crowd};
 })();
+// The city loop reaches the crowd director through this name (c_campus.js stepAgents, d_live.js directed say).
+const SentinelCrowd=SentinelMesh.crowd;
 
 
 </script>
@@ -730,7 +936,7 @@ const sec=()=>clock;
 $('#build').onchange=e=>{selected=e.target.value;colors=Identity.FORMS[selected==='owners'?'agent':selected].palette.slice();controls();draw()};
 $('#mode').onchange=e=>{mode=e.target.value;controls();draw()};
 $('#reset').onclick=()=>$('#build').onchange({target:$('#build')});$('#level').oninput=draw;
-$('#levelup').onclick=()=>{const l=$('#level');l.value=Math.min(25,+l.value+1);draw();models.forEach(m=>SentinelMesh.emote(m,'levelup',sec()))};
+$('#levelup').onclick=()=>{const l=$('#level');l.value=Math.min(25,+l.value+1);draw();models.forEach(m=>{SentinelMesh.emote(m,'levelup',sec());if(SentinelMesh.forge)SentinelMesh.forge(m,sec(),1)})};
 document.querySelectorAll('[data-emote]').forEach(b=>b.onclick=()=>models.forEach((m,i)=>SentinelMesh.emote(m,b.dataset.emote,sec()+i*.12)));
 const speedText=()=>{const v=+$('#speed').value;$('#speedOut').textContent=v.toFixed(1)+' m/s · '+(v<5?'walk':v<10?'jog':'run')};$('#speed').oninput=speedText;speedText();
 const syncPose=()=>{$('#speedRow').style.display=$('#pose').value==='walking'?'':'none'};$('#pose').onchange=syncPose;syncPose();

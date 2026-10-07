@@ -6,5 +6,18 @@
   "signature": "live sentinels supported by authored roof surfaces, with three crown families and nineteen district settings",
   "preserved": ["existing district palette", "six sentinel identities", "street grid", "source-note provenance", "live-data contracts"],
   "audit": {"scanner_failures": 0, "scanner_warnings": 9},
-  "warning_disposition": "Existing branded type and district violet are intentional. Existing blur supports HUD layering. Uppercase labels identify navigation and telemetry. Gallery title gradient is retained from the existing reference surface; no new gradient text or decorative particles added."
+  "warning_disposition": "Existing branded type and district violet are intentional. Existing blur supports HUD layering. Uppercase labels identify navigation and telemetry. Gallery title gradient is retained from the existing reference surface; no new gradient text or decorative particles added.",
+  "passes": [
+    {
+      "id": "aaa-swarm",
+      "date": "2026-10-07",
+      "tier": "S",
+      "gesture": "a campus that reacts to the work: write sweeps on changed buildings, district entry moments, facades that read note state, Wardens that walk and lead",
+      "signature": "the write sweep: a scanline in the agent's colour climbs the facade of the changed note, with a roof flash, ground ring and light column",
+      "preserved": ["existing district palette", "six sentinel identities", "street grid", "note footprints", "interaction targets", "source-note provenance", "live-data contracts", "XP rules", "district canon"],
+      "audit": {"scanner_failures": null, "scanner_warnings": null, "scanner": "not run in this pass", "tests": "183/183", "browser_smoke": "passed, 0 errors, 0 warnings, production CSP served", "review_findings": 12, "review_findings_fixed": 12},
+      "warning_disposition": "Particles added in this pass are pooled and carry data (write pulses, bursts, trails) or weather; no free-floating decoration. Light-theme text tokens were darkened to pass WCAG AA; accent fills keep the brand amber.",
+      "report": "docs/aaa-swarm.md"
+    }
+  ]
 }
