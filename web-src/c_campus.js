@@ -1428,8 +1428,12 @@ function overview(){
 function flyDistrict(top){
   const d=DIST.find(x=>x.top===top);if(!d)return;if(walk)exitWalk();auto=false;
   goal.tx=d.x+d.w/2;goal.tz=d.z+d.d/2;goal.ty=0;goal.dist=Math.max(d.w,d.d)*1.05+70;goal.pitch=.72;fly();dirty=true;
-  $("#plate").hidden=true;showDistrict(d,true);
+  // Cutscene sync: the card shows at once, but the entry moment (gateway light, curtain, ring, gate chime) lands as the
+  // arc arrives instead of firing at take-off behind the camera. No flight (reduced motion, a short hop): at once.
+  $("#plate").hidden=true;showDistrict(d,true,!!flight);if(flight)entryAt={d,at:flight.t0+Math.max(0,flight.dur-.55)};
 }
+let entryAt=null;
+function stepEntry(){if(!entryAt||(flight&&time<entryAt.at))return;const e=entryAt;entryAt=null;districtMoment(e.d);dirty=true}
 // Drop in at street level at a district's north-west corner, looking down the edge road into the blocks.
 function walkDistrict(top){
   const d=DIST.find(x=>x.top===top);if(!d||!C.ok)return false;
@@ -1562,8 +1566,14 @@ function markChip(){
 }
 let bannerTop=null,bannerT=0;
 function districtInfo(d){const def=typeof Districts!=="undefined"?Districts.get(d.top):null;return {title:def?.title||d.name,purpose:def?.purpose||"",virtual:!!def?.virtual}}
-function showDistrict(d,flown){
-  bannerTop=d.top;if(typeof DistrictLook!=="undefined")DistrictLook.enter(d.top);if(VFXOK)VFX.district(d); // light curtain around the plot (b_vfx.js)
+// The district-entry moment: gateway and paving light up (DistrictLook), the light curtain rises (VFX), and the gate chime
+// plays in the district's own bed key (VaultAudio.sfx; throttled, so the ambience's own gate cue never doubles it).
+function districtMoment(d){
+  if(typeof DistrictLook!=="undefined")DistrictLook.enter(d.top);if(VFXOK)VFX.district(d); // light curtain around the plot (b_vfx.js)
+  if(typeof VaultAudio!=="undefined")try{VaultAudio.sfx("district.gate",{district:d.top,volume:.8})}catch(e){}
+}
+function showDistrict(d,flown,later){
+  bannerTop=d.top;if(!later)districtMoment(d);
   const el=$("#districtBanner");if(!el)return;const info=districtInfo(d);
   document.querySelector(".brief")?.remove();
   el.innerHTML=`<i style="background:${esc(d.color)}"></i><div><small>${flown?"District":"Entering"} · ${esc(d.top)}</small><b>${esc(info.title)}</b><span>${d.count} notes${info.purpose?" · "+esc(info.purpose):""}</span></div><div class="db-go"><button class="btn" type="button" data-act="dir">Directory</button>${walk?"":`<button class="btn" type="button" data-act="walk">Walk here</button>`}</div><button class="ib x" type="button" aria-label="Dismiss district card"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
@@ -1864,6 +1874,7 @@ function step(dt){
   }
   if(walk&&(joy.f||joy.r)){const m=Math.hypot(joy.f,joy.r),v=26*(m>.92?2.2:1)*dt;walkMove(joy.f*v,joy.r*v);dirty=true}
   if(auto&&!walk&&!sheet.open){goal.yaw+=dt*.04;dirty=true}
+  stepEntry();
   if(stepFlight()){dirty=true}else{
   const k=reduced?1:1-Math.exp(-dt*(walk?13:5.5));
   let dyaw=((goal.yaw-cam.yaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;

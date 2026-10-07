@@ -300,6 +300,9 @@ const Guides=(()=>{
     if(inside&&!g.inside){g.inT=time;g.visitGreeted=false}
     if(inside&&!g.visitGreeted&&time-g.inT>1&&time-g.greetAt>90&&!(D.open&&D.g===g)){
       g.greetAt=time;g.visitGreeted=true;const line=gateLine(g);g.blb.t=line;g.barkUntil=time+6;g.nextBark=time+18;announce(line+" "+(COARSE.matches?"Tap":"Press E near")+" the Warden to talk.");
+      // the greeting beat, as in the title cinematic: a ring in the district colour at the Warden's feet and its voice
+      if(typeof VFX!=="undefined"&&VFX.ready())VFX.ring(g.x,.3,g.z,g.color,4.5,{life:1.4});
+      if(typeof VaultAudio!=="undefined")try{VaultAudio.sfx("warden.blip",{voice:g.arch,position:[g.x,5,g.z],volume:.8})}catch(e){}
       if(!reduced){SentinelMesh.emote(g.m,"greet",time);
         const d=Math.hypot(tgtX-g.x,tgtZ-g.z);
         if(!g.escort&&d>18&&d<120){const k=Math.min(1,(d-12)/d),k2=Math.min(k,40/d),x=g.x+(tgtX-g.x)*k2,z=g.z+(tgtZ-g.z)*k2;
@@ -403,6 +406,10 @@ const Guides=(()=>{
     G.forEach(o=>{if(o.escort&&o!==g){o.escort=null;goHome(o)}});
     g.escort={name:n.name,t0:frameT};g.camT=0;g.barkUntil=0;
     walkTo(g,door.x,door.z,9,"escort",w=>{const e=w.escort;w.escort=null;w.mode="away";w.returnAt=frameT+14;w.gest="point";w.gt=frameT;w.gdur=1.9;
+      // arrival framing: the camera settles low on the door and facade, the door gets a light column and a chime
+      if(!walking)Campus.flyAt(door.x,door.z,1.5,28,.3);
+      if(typeof VFX!=="undefined"&&VFX.ready())VFX.ring(door.x,.3,door.z,g.color,3.2,{column:9,life:1.6});
+      if(typeof VaultAudio!=="undefined")try{VaultAudio.sfx("ui.open",{position:[door.x,2,door.z],volume:.7})}catch(err){}
       w.blb.t="Here: "+n.name.slice(0,40)+".";w.barkUntil=frameT+5;w.nextBark=frameT+16;announce("Arrived at "+n.name+".");
       setTimeout(()=>{if(e&&!D.open)open(n)},RM.matches?0:900)});
     announce(`The Warden of ${g.name} is leading you to ${n.name}. Press Escape to stop.`);
@@ -941,7 +948,9 @@ body:has(.sheet.open) #gPrompt,body:has(.side.open) #gPrompt{visibility:hidden;p
   // Portrait list for the generator script: one entry per Warden, written next to the files as manifest.json.
   const portraits=()=>({kit:KIT_REV,portraits:G.map(portraitEntry)});
   const _test={index,notesIn,inDistrict,barkLines,gateLine,greeting,VOICE,gestOf,overviewR,whatsNewR,whoHereR,openTasksR,nextWorkR,linksR,landmarksR,keyAction,leaving,slug,artFor,setArt,portraitSetup,portraitFrame,paint,PT,CHOICES,LEAVE_R,districtStats,walkTo,stepWalk,_G:()=>G,_setG:a=>{G=a}};
-  return {boot,render,bind,answer,reply,list,openFor,talk,close,ledger,current,CHIPS,isTalking:()=>D.open,still,portraits,escort:(top,name)=>{const g=G.find(x=>x.top===top),n=byName.get(name);return !!(g&&n)&&escort(g,n)},reindex:()=>{index(true)},_test};
+  // Dress any Sentinel as a district's Warden (the title cinematic's greeting): the same kit, archetype and opening line.
+  function costume(m,top,color,name){const g={m,top,name,color,arch:archOf(top,0)};dress(g);return {arch:g.arch,line:voiceOf(g).open(g),undress:()=>undress(g)}}
+  return {boot,render,bind,answer,reply,list,openFor,talk,close,ledger,current,CHIPS,isTalking:()=>D.open,still,portraits,costume,escort:(top,name)=>{const g=G.find(x=>x.top===top),n=byName.get(name);return !!(g&&n)&&escort(g,n)},reindex:()=>{index(true)},_test};
 })();
 (function(){const t=setInterval(()=>{if(typeof Campus!=="undefined"&&Campus.ok()){clearInterval(t);Guides.boot()}},300)})();
 

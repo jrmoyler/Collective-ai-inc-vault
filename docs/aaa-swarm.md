@@ -76,6 +76,84 @@ All shots are headless Chromium with SwiftShader and the mirrored notes. Clock v
 ![Mobile world](aaa-swarm-evidence/smoke-mobile-world.jpg)
 ![Mobile walk](aaa-swarm-evidence/smoke-mobile-walk.jpg)
 
+## Cutscenes
+
+The swarm changed the campus but not the films that introduce it. This pass reworks every cutscene so each one shows the new work, and keeps their contracts: Skip, the reduced-motion still, autoplay-safe sound, mobile framing, the CSP and the title and menu markup.
+
+### Title cinematic
+
+`web-src/f_title.js` is still its own render (it plays before sign-in, before the city exists), but it no longer copies anything. Every district, building, weather and effect detail in it comes from the shared modules, and the state those modules keep is handed back before the city boots.
+
+| Shared module | What the title takes from it |
+|---|---|
+| `VFX` (b_vfx.js) | Today's weather (`weatherFor`), rain streaks, motes and fireflies (`atmosphere`), the write sweep (`INK_GLSL`, `ink`), the light curtain (`district`), rings and light columns, the lift spark trail (`trail`, `arrive`), the conversation beam (`linkMaterial`), the per-time colour grade (`grade`) and the context-loss guard. `dispose()` and `setWeather(null)` on exit. |
+| `DistrictLook` (b_districts.js) | The court paving (`paintCourt`, hex pattern for the lab), the entry inlay and ring (`patchGround`), the gateway crest, banners, name plates and activity beacon (`build`, `enter`). New `reset()` drops the title's layout and cached materials, which hold the title's lamp uniform. |
+| `DistrictAssets` (b_world_assets.js) | The Physical systems lab landmark with its moving robot arm. Built without an env map, so the city's prefiltered env map is never made on the title's renderer. |
+| `Facades` (b_buildings.js) | Doors, awnings, blade signs, balconies, a link mast, a frayed stub and scaffolding, laid out from `Facades.signal()` on six court notes (one edited 20 minutes ago, one with an unresolved link). `setDoor` lights the door for the open note. |
+| `SentinelMesh`, `Guides` (c_npc.js) | Walkers, two talkers, a lift rider, and the lab's Warden, dressed by the new `Guides.costume()` with the same kit, archetype (herald) and opening line it uses in the city. |
+| `VaultAudio.sfx` (b_audio.js) | Every beat is cut to an existing cue. The score stays the title's own synth and now pulses on every cut. |
+
+Shot list. Eight shots, 2.8 s apart, each crossfading 0.6 s into the next; times are seconds from the start of the cold open.
+
+| # | Shot | On screen | What it shows | Beat (time) and sound |
+|---|---|---|---|---|
+| 1 | sky | 0.0–3.4 | Night sky, the Milky Way, the moon in today's real phase (the campus formula), stars, then a tilt down to the city rising. On a dry day a passing shower crosses this shot and the next; on a wet day the day's own weather plays. | Slate 0.6. Score pad enters. |
+| 2 | shore | 2.8–6.2 | Low over the water along the quay. The quay lamps light one by one beside the lens and run away along the shore; the lighthouse beam sweeps and flares when it faces the lens; the water mirrors the moon, the lighthouse, each lit lamp and the skyline glow. Far-shore hills and two lit towns. | Light leak and `transition` 2.65. One pentatonic tick per lamp, 3.25 to 5.33. |
+| 3 | gate | 5.6–9.0 | From the forecourt to the lab's gateway: crest, name plates, banners, beacon, and the landmark's robot arm behind it. The gateway lights, a ring sweeps the paving and the light curtain rises. | `district.gate` 6.3, in the lab's bed key. |
+| 4 | facades | 8.4–11.8 | A dolly through the court past the dressed note buildings, window glow on, scaffolding on the one edited this hour. A door lights for the open note. | `ui.open` 9.9. |
+| 5 | sentinels | 11.2–14.6 | The push down the main avenue: walkers passing the lens, two Sentinels talking with a beam between them, one riding a lift up a facade with a spark trail, then landing with a ring. | `sentinel.lift` 11.9, `sentinel.land` 13.4. |
+| 6 | write | 14.0–17.4 | A crane up a tower that rides with a live write: ring and light column at the base, the scanline up the facade, the roof flash. | `note.write` 14.8. |
+| 7 | warden | 16.8–20.2 | The lab's Warden under its gateway turns to the lens and greets; the caption is its own opening line, "Word from Physical AI." | Greeting 17.4; six `warden.blip` in the herald voice from 17.7. |
+| 8 | dawn | 19.6– | Pull back over the skyline at dawn: the sun over open sea (the far shore opens toward the sunrise), glitter on the water, lamps going out one by one from 21.8. Wordmark letters 20.2, sweep 22.0, VAULT 22.9, rule 23.3, tagline 24.2; menu 26.2, then the slow menu orbit. | Light leak 19.45. Arpeggio opens an octave; bass pulse under the gold sweep. |
+
+The other paths are unchanged in contract:
+
+| Path | When | What plays |
+|---|---|---|
+| Full | First visit of the day with the setting on | The eight shots above, 26.2 s to the menu. |
+| Sting | Seen today, or Settings › Opening cutscene off | The wordmark over the finished dawn shot in 1.5 s. |
+| Still | `prefers-reduced-motion` | One dawn frame, redrawn only on resize; menu at once. The lighthouse and the data motes hold still. |
+| Skip | Skip button, any key, any tap | The menu at once. Captions and beats are never replayed on skip, so no burst of sound. |
+
+Phone notes: every material compiles before the first frame (`renderer.compile`), so no shot hitches when its district first comes into view; the render path allocates nothing per frame; the phone MID tier renders at 1.5x pixel ratio and takes the MID weather budget, Low gets no weather points. Portrait screens keep the 16:9 horizontal field of view (capped at 78 degrees); wide shots pull back and the gate and Warden close-ups keep their distance.
+
+### In-world moments
+
+| Moment | Change |
+|---|---|
+| District entry after a flight (chips, navigator, Journey "Fly to district") | The card shows at once, but the gateway light, entry ring and light curtain now land as the camera arc arrives instead of at take-off behind the camera, with `district.gate` cut to the same frame (`districtMoment` in c_campus.js). Walking in still fires it at once. |
+| Warden greeting at the district entrance | A ring in the district colour at the Warden's feet and a `warden.blip` in its archetype voice, positioned at the Warden. |
+| Warden escort arrival | The camera settles low on the door and facade (`Campus.flyAt`), the door gets a light column, and `ui.open` plays at the door. |
+
+Tests: `tests/cutscene.test.mjs` (12) covers the shot order and spacing, crossfade weights, beats inside their shots, every sound beat naming a real `VaultAudio` cue, the full, sting and still timelines, caption voice and width, the plan for reduced motion and repeat visits, Skip never replaying beats, the score's cut pulses with no negative WebAudio times at any join point, the shared-module wiring and hand-back, `DistrictLook.reset`, the in-world sync, and a real-browser pass through every shot on a 390x844 phone, Skip to the menu and the reduced-motion still.
+
+After this pass: `npm test` 195 of 195 (35 files); `python3 scripts/build.py --strict` passed (1,405 notes, 0 unresolved, same 179 informational canon findings); `node tests/browser-smoke.mjs` passed on desktop and phone with 0 console errors and 0 warnings, which also proves the city boots cleanly after the title hands its shared state back.
+
+### Cutscene evidence
+
+Headless Chromium with SwiftShader, the built page with the production headers, `Title.debug()` holding the clock at each beat. Real renders, not generated art.
+
+![Sky: moon in today's phase, Milky Way, passing shower](aaa-swarm-evidence/cutscene-desktop-1-sky.jpg)
+![Shore: quay lamps, lighthouse beam, reflections](aaa-swarm-evidence/cutscene-desktop-2-shore.jpg)
+![Gate: the lab gateway lights, curtain rising, robot arm behind](aaa-swarm-evidence/cutscene-desktop-3-gate.jpg)
+![Facades: doors, awnings, signs, balconies, scaffolding](aaa-swarm-evidence/cutscene-desktop-4-facades.jpg)
+![Sentinels on the avenue, a lift ride with its trail](aaa-swarm-evidence/cutscene-desktop-5-sentinels.jpg)
+![Write: the sweep climbing a tower](aaa-swarm-evidence/cutscene-desktop-6-write.jpg)
+![Warden greeting under the gateway](aaa-swarm-evidence/cutscene-desktop-7-warden.jpg)
+![Dawn and the wordmark](aaa-swarm-evidence/cutscene-desktop-8-dawn.jpg)
+![Phone 390x844: shore](aaa-swarm-evidence/cutscene-mobile-2-shore.jpg)
+![Phone 390x844: Warden](aaa-swarm-evidence/cutscene-mobile-7-warden.jpg)
+![Phone 320x568: gate](aaa-swarm-evidence/cutscene-small-3-gate.jpg)
+![Phone 390x844, reduced motion: the still and the menu](aaa-swarm-evidence/cutscene-mobile-still.jpg)
+
+Cutscene limits:
+
+- The in-world moments are covered by source tests, not by renders.
+- SwiftShader runs the title at 0.3 to 4 frames a second, so frame rate on phones is not measured here; the frame budget is reasoned, not profiled.
+- The light curtain is the campus's own effect at full strength; seen from the forecourt it washes the gate shot cyan for about two seconds.
+- The write sweep is the campus's own subtle scanline; on a tall tower it reads as a light band, not a flare.
+- On a dry day the passing shower is staged for the film; the city itself shows only the day's real weather.
+
 ## Limits
 
 - No physical device was tested. Nothing here was measured on a Galaxy A15 or any phone; tier thresholds, LOD distances, Warden frame rates and instance budgets are estimates. All rendering evidence comes from SwiftShader, which is far slower than real GPUs and can freeze mid-transition.

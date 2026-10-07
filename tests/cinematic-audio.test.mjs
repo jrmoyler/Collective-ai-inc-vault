@@ -125,11 +125,11 @@ test('offline audition WAVs are valid, bounded, loop cleanly and sit in the audi
 });
 test('joining the title score late never schedules negative WebAudio times',()=>{
   const title=fs.readFileSync(path.join(root,'web-src/f_title.js'),'utf8');
-  const section=title.slice(title.indexOf('const Score='),title.indexOf('// ---- the picture:'));
+  const section=title.slice(title.indexOf('// ---- shot list.'),title.indexOf('// ---- the picture:')); // the score reads its cut times from the shot list
   const scheduled=[];
   const param=()=>({value:0,setValueAtTime(v,t){assert.ok(t>=0,'set '+t);scheduled.push(t)},linearRampToValueAtTime(v,t){assert.ok(t>=0,'ramp '+t);scheduled.push(t)},exponentialRampToValueAtTime(v,t){assert.ok(t>=0,'exp '+t);scheduled.push(t)},cancelScheduledValues(){}});
   const node=()=>({connect(){return this},gain:param(),frequency:param(),detune:param(),Q:param(),delayTime:param(),start(t){assert.ok(t>=0,'start '+t)},stop(t){if(t!==undefined)assert.ok(t>=0,'stop '+t)}});
   class AC{constructor(){this.currentTime=0;this.state='running';this.destination=node()}createGain(){return node()}createBiquadFilter(){return node()}createDelay(){return node()}createOscillator(){return node()}close(){}}
-  const context={window:{AudioContext:AC},S:{get:()=>true},K:{sound:'vault.sound'},CUT:{x1:4,x2:8.6},clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),setTimeout:()=>0,clearTimeout(){}};
+  const context={window:{AudioContext:AC},S:{get:()=>true},K:{sound:'vault.sound'},clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),setTimeout:()=>0,clearTimeout(){}};
   vm.createContext(context);vm.runInContext(section+'\nScore.start(8);',context);assert.ok(scheduled.length>30);
 });

@@ -794,5 +794,13 @@ const DistrictLook=(()=>{
     return group;
   }
   const stats=()=>({districts:DIST.length,active:active>=0?DIST[active]?.top:null,on,draws:built?5:0,open:Object.fromEntries(OPEN),recent:Object.fromEntries(RECENT)});
-  return Object.freeze({LOOKS,lookOf,bind,at,paintCourt,tree,lampFinish,bench,patchGround,patchGate,tagGates,enter,near,tick,tasks,write,activity,build,stats,uniforms:U});
+  // Hand everything back: the title cinematic builds one district with its own renderer and lamp uniform before the city
+  // boots, and the cached materials hold that uniform, so the city must start from fresh materials and an empty layout.
+  function reset(){
+    if(built)Object.values(built).forEach(m=>{if(m&&m.geometry)m.geometry.dispose()});built=null;
+    Object.keys(MAT).forEach(k=>{try{MAT[k].dispose()}catch(e){}delete MAT[k]});if(atlas){atlas.dispose();atlas=null;atlasKey=''}
+    DIST=[];INDEX=new Map();NAME_TOP=new Map();OPEN=new Map();RECENT=new Map();HEAT=new Map();lastTasks=[];active=-1;on=0;lastSeen=-1e9;
+    U.uDistActive.value=-1;U.uDistOn.value=0;U.uDistT0.value=-100;U.uLamp={value:0};
+  }
+  return Object.freeze({LOOKS,lookOf,bind,at,paintCourt,tree,lampFinish,bench,patchGround,patchGate,tagGates,enter,near,tick,tasks,write,activity,build,reset,stats,uniforms:U});
 })();

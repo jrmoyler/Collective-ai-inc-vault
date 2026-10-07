@@ -37,5 +37,6 @@ Constraints added or changed by this pass:
 - Copy states only what the data holds. A missing value says "not set", never a default dressed as a fact.
 - Theme swaps change colours in one frame; no transition may show text and fill from different themes.
 - On screens 760 px wide or less, HUD panels fold in street-level close-ups so in-world titles stay readable.
+- Cutscenes film the shared modules (VFX, DistrictLook, DistrictAssets, Facades, the Warden kit) rather than copies, cut every beat to an existing `VaultAudio.sfx` cue, and hand shared state back before the city boots. Shot list: docs/aaa-swarm.md, Cutscenes.
 
 Signature for this pass: the write sweep. A scanline in the agent's colour climbs the facade of the note that changed, the roof flashes, and a ring and light column rise from the street.
