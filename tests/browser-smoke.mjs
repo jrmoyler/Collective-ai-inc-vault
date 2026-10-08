@@ -46,6 +46,13 @@ for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],
  const overlaps=await page.evaluate(()=>{const sel=['#floor','#uxCoach','#plate','.mini','#hint','#chips','#crumb','#uxGo'];const r=sel.map(q=>{const e=document.querySelector(q);if(!e)return null;const cs=getComputedStyle(e),b=e.getBoundingClientRect();return cs.display==='none'||cs.visibility==='hidden'||+cs.opacity===0||!b.width?null:[q,b]}).filter(Boolean);const o=[];for(let i=0;i<r.length;i++)for(let j=i+1;j<r.length;j++){const a=r[i][1],b=r[j][1];if(a.left<b.right-1&&b.left<a.right-1&&a.top<b.bottom-1&&b.top<a.bottom-1)o.push(r[i][0]+' x '+r[j][0])}return o});
  // Frame a deterministic evidence camera; software WebGL timing is not a fly-animation benchmark.
  if(name==='desktop'){await page.evaluate(()=>{const p=Campus.debug().landmarks.find(x=>x.folder==='17 - Synergy Nodes');if(p)Campus.flyAt(p.x,p.z,p.y+(p.height||0)*.45,36,.65)});await page.evaluate(()=>{const d=Campus.debug();Object.assign(d.cam,d.goal);Campus.pause(false)});await page.waitForTimeout(1000);await page.screenshot({path:new URL(name+'-landmark.png',out).pathname});}
+ // Reference-quality evidence: a deterministic street-height view, rather than
+ // only a distant overview that hides facade, paving and planting regressions.
+ if(name==='desktop'){
+  await page.evaluate(()=>{Campus.walkDistrict('01 - Divisions');Campus.debug().setClock(15);Campus.skipIntro()});
+  await page.waitForTimeout(1200);await page.screenshot({path:new URL(name+'-street.png',out).pathname});
+  await page.evaluate(()=>Campus.toggleWalk());
+ }
  // Phones: the floor starts folded, a thematic district can be flown to, walked and moved through with the touch stick.
  let touch=null;
  if(name==='mobile'){

@@ -50,7 +50,7 @@ let districtAssets=null;
 // state uploads, the busy set cached by setAgents, the pending aState range, and the walker's nearest door.
 const FACADES=typeof Facades!=="undefined";
 let facade=null,FSIG=[],bRange=[],busyIds=new Set(),stRange=null,doorNear=-1,lastDoorScan=0,taskOf=new Map();
-let decor=null,roofProps=null,roofAnim=[],drones=null,motes=null,lampHalo=null,water=null,lastAmb=0;
+let landscape=null,decor=null,roofProps=null,roofAnim=[],drones=null,motes=null,lampHalo=null,water=null,lastAmb=0;
 const _c1=new THREE.Color(),_c2=new THREE.Color();
 const cam={tx:0,ty:0,tz:0,yaw:.5,pitch:.62,dist:700},goal=Object.assign({},cam);
 const shiftNow={x:0,y:0},shiftGoal={x:0,y:0};
@@ -66,7 +66,7 @@ const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 const MODES={
   dusk:{top:"#0f1733",mid:"#3a4577",bot:"#8a6a86",haze:"#c98a6e",sun:"#ff9a4d",sunI:3.6,dir:[.74,.3,.46],hSky:"#6f7fba",hGnd:"#3a2d3c",hI:.95,fog:"#6c5b7c",fogD:.00062,exp:1.1,win:1.5,ui:"dark",stars:.25,bloom:.55,cloud:.62,csh:.12},
   night:{top:"#03050d",mid:"#0b1230",bot:"#1b2650",haze:"#243052",sun:"#8fa8ff",sunI:.35,dir:[.5,.36,.5],hSky:"#283252",hGnd:"#0a0c16",hI:.7,fog:"#0a1024",fogD:.00105,exp:1.2,win:2.1,ui:"dark",stars:1,bloom:1,cloud:.4,csh:0},
-  day:{top:"#6ea4d6",mid:"#d7e7f4",bot:"#f6efe2",haze:"#f4e6cf",sun:"#fff6d8",sunI:1.8,dir:[.38,.78,.36],hSky:"#e7f1fb",hGnd:"#7ea15c",hI:.65,fog:"#e7f0e4",fogD:.00018,exp:.92,win:.34,ui:"light",stars:0,bloom:.28,cloud:.28,csh:.16},
+  day:{top:"#638aab",mid:"#b8cfcf",bot:"#dce0ce",haze:"#e4dfc5",sun:"#fff0d5",sunI:1.8,dir:[.58,.63,.36],hSky:"#c0d6e0",hGnd:"#536a43",hI:.5,fog:"#c7d4c5",fogD:.00018,exp:.68,win:.34,ui:"light",stars:0,bloom:.12,cloud:.34,csh:.22},
   dawn:{top:"#2a3a6e",mid:"#7a86b4",bot:"#e2a98c",haze:"#f0b08a",sun:"#ffc08a",sunI:2.6,dir:[.74,.3,.46],hSky:"#8c9ccc",hGnd:"#4a3d3c",hI:.9,fog:"#9a8a98",fogD:.0007,exp:1.05,win:1.0,ui:"dark",stars:.1,bloom:.4,cloud:.58,csh:.15}
 };
 const MODE_ORDER=["auto","dawn","day","dusk","night"];
@@ -254,10 +254,20 @@ function groundMaterial(tex){
   lawn*=mix(0.86,1.1,vn(wp*0.06+3.1))*(1.0+0.035*step(0.5,fract(wp.x*0.11+vn(wp*0.01)*0.6)));
   float trail=1.0-smoothstep(0.0,0.03,abs(vn(wp*0.012+7.3)-0.5));
   lawn=mix(lawn,plan*vec3(1.12,0.98,0.82)*0.92,trail*0.5);
-  vec3 court=plan*vec3(1.06,1.0,0.9);
+  // Meter-scale staggered limestone courses. The albedo tile and joints remain
+  // visible at walking height instead of collapsing to the flat plan colour.
+  vec2 stoneUV=wp/vec2(2.4,1.25);
+  stoneUV.x+=mod(floor(stoneUV.y),2.0)*0.5;
+  vec2 stoneF=fract(stoneUV),stoneId=floor(stoneUV);
+  float joint=min(min(stoneF.x,1.0-stoneF.x)*2.4,min(stoneF.y,1.0-stoneF.y)*1.25);
+  float mortar=1.0-smoothstep(0.025,0.065,joint);
+  float stoneTone=0.9+0.16*h21(stoneId);
+  float mineral=mix(0.92,1.08,clamp(dot(pav,vec3(0.333))*3.0,0.0,1.0));
+  vec3 court=plan*vec3(1.06,1.0,0.9)*stoneTone*mineral;
+  court*=mix(1.0,0.58,mortar);
   diffuseColor.rgb=mix(lawn,court,m)*drift*mix(0.78,1.0,ao)*cloudSh(wp);
   // after dark the plazas read slightly damp: lower roughness catches the lamp pools and window glow
-  roughnessFactor=mix(0.92,0.78,m)-uNight*0.22*m;
+  roughnessFactor=mix(0.92,mix(0.78,0.96,mortar),m)-uNight*0.22*m;
 ${VFXOK?VFX.GROUND_GLSL:""}
 }`).replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
 { vec3 lm=texture2D(t_light,vec2(vGPos.x/uSide+0.5,0.5-vGPos.z/uSide)).rgb;totalEmissiveRadiance+=lm*lm*uLamp*1.3;
@@ -605,7 +615,7 @@ function pushSky(dir,sunUp,moonI){
   bloomNow=CUR.bloom;
   worldColors();SH.uOcc.value=occupancy();if(stars)skyRotate();
   // shadows re-render only when the light moves more than about half a degree
-  if(shadowDir.dot(dir)<0.99996){shadowDir.copy(dir);sun.position.copy(dir).multiplyScalar(1100);renderer.shadowMap.needsUpdate=true}
+  if(shadowDir.dot(dir)<0.99996){shadowDir.copy(dir);sun.position.copy(dir).multiplyScalar(1100).add(sun.target.position);renderer.shadowMap.needsUpdate=true}
   if(document.documentElement.dataset.theme!==CUR.ui){const de=document.documentElement;de.classList.add("theme-swap");de.dataset.theme=CUR.ui;store.set("vault.theme",CUR.ui);requestAnimationFrame(()=>requestAnimationFrame(()=>de.classList.remove("theme-swap")))} // review fix: no dark-on-dark flash on .btn
   if(window.HUD)HUD.phase(mode==="auto"?LIGHT.elev:mode,CUR.ui); // UI hook: golden/dusk/night HUD tint (b_hud.js); only touches the DOM when the phase changes
   dirty=true;
@@ -676,8 +686,24 @@ function tipTime(){
   b.setAttribute("data-tip",`Time of day: ${mode}${mode==="auto"?" · "+clock:""}`);
 }
 function skyTick(){if(C.ok&&mode==="auto"&&!document.hidden)applyMode("auto")}
-function fitShadow(){
-  const S=GSIDE*.62;const c=sun.shadow.camera;c.left=-S;c.right=S;c.top=S;c.bottom=-S;c.near=20;c.far=2600;c.updateProjectionMatrix();renderer.shadowMap.needsUpdate=true;
+// Concentrate the existing shadow map around the visitor at street level. A city-wide
+// map spreads each texel over whole doorways; this keeps foliage and feet grounded.
+// Snapped 24-unit cells avoid re-rendering the static map for every camera motion.
+const shadowFocus={x:NaN,z:NaN,span:0};
+function fitShadow(force=true){
+  if(!sun||!renderer)return;
+  const local=walk||cam.dist<260;
+  const S=local?(walk?144:320):GSIDE*.62;
+  const x=local?Math.round(cam.tx/24)*24:0,z=local?Math.round(cam.tz/24)*24:0;
+  if(!force&&shadowFocus.x===x&&shadowFocus.z===z&&shadowFocus.span===S)return;
+  shadowFocus.x=x;shadowFocus.z=z;shadowFocus.span=S;
+  const c=sun.shadow.camera;c.left=-S;c.right=S;c.top=S;c.bottom=-S;c.near=20;c.far=2600;c.updateProjectionMatrix();
+  sun.target.position.set(x,0,z);sun.target.updateMatrixWorld();
+  // Preserve the active sky's direction when the map follows the camera.
+  if(shadowDir.lengthSq()>0)sun.position.copy(shadowDir).multiplyScalar(1100).add(sun.target.position);
+  sun.shadow.bias=local?-.00012:-.00045;
+  sun.shadow.normalBias=local?.24:.9;
+  renderer.shadowMap.needsUpdate=true;
 }
 
 // ---------- post: multisampled scene, bloom for windows and lamps, then one grade pass (light shafts, split tone, grain, sRGB)
@@ -692,7 +718,7 @@ function loadPost(){
   next(0);
 }
 const GradeShader={
-  uniforms:{tDiffuse:{value:null},uSun:{value:new THREE.Vector2(.5,.5)},uShaft:{value:0},uSunCol:{value:new THREE.Color(1,.8,.6)},uTime:{value:0},uRes:{value:new THREE.Vector2(1,1)},uGrain:{value:.018}},
+  uniforms:{tDiffuse:{value:null},uSun:{value:new THREE.Vector2(.5,.5)},uShaft:{value:0},uSunCol:{value:new THREE.Color(1,.8,.6)},uTime:{value:0},uRes:{value:new THREE.Vector2(1,1)},uGrain:{value:.004}},
   vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
   fragmentShader:`uniform sampler2D tDiffuse;uniform vec2 uSun;uniform float uShaft;uniform vec3 uSunCol;uniform float uTime;uniform vec2 uRes;uniform float uGrain;varying vec2 vUv;
 float hh(vec2 p){p=fract(p*vec2(443.897,441.423));p+=dot(p,p.yx+19.19);return fract((p.x+p.y)*p.x);}
@@ -707,10 +733,10 @@ void main(){
   }
   // grade in linear light: a touch more colour, cool shadows, warm highlights
   float lum=dot(c,vec3(0.2126,0.7152,0.0722));
-  c=max(mix(vec3(lum),c,1.07),0.0);
-  c*=mix(vec3(0.93,0.98,1.07),vec3(1.05,1.0,0.92),smoothstep(0.04,0.55,lum));
+  c=max(mix(vec3(lum),c,1.025),0.0);
+  c*=mix(vec3(0.96,0.99,1.025),vec3(1.025,1.0,0.96),smoothstep(0.04,0.55,lum));
   c=clamp(toSRGB(c),0.0,1.0);
-  c=mix(c,c*c*(3.0-2.0*c),0.14);
+  c=mix(c,c*c*(3.0-2.0*c),0.08);
   c+=(hh(vUv*uRes+fract(uTime*7.31)*91.0)-0.5)*uGrain;
   gl_FragColor=vec4(c,1.0);
 }`};
@@ -838,6 +864,7 @@ function instMesh(geo,mat,list,shadow){const m=new THREE.InstancedMesh(geo,mat,M
   m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.castShadow=!!shadow;m.receiveShadow=true;m.frustumCulled=false;return m}
 function disposeGroup(gp){if(!gp)return;gp.traverse(o=>{if(o.geometry)o.geometry.dispose()});scene.remove(gp)}
 function buildDecor(){
+  if(landscape){VaultLandscape.dispose(landscape);landscape=null}
   disposeGroup(decor);disposeGroup(roofProps);decor=new THREE.Group();roofProps=new THREE.Group();scene.add(decor,roofProps);
   const M=decorMaterials(),R=(s)=>hash01(s);
   // street lamps: on the kerb just outside each district plot, every 20 units, switching on one by one at dusk
@@ -862,11 +889,26 @@ function buildDecor(){
     per.forEach(([x0,z0,x1,z1],e)=>{const L=Math.hypot(x1-x0,z1-z0),n=Math.floor(L/9);for(let i=1;i<n;i++){const t=(i+(R(d.top+"t"+e+i)-.5)*.4)/n,x=x0+(x1-x0)*t,z=z0+(z1-z0)*t;if(okCell(x,z,1))trees.push({x,z,k:R(d.top+"s"+e+i)})}})});
   const qt=GSIDE/2-8.5;[[-qt,-qt,qt,-qt],[qt,-qt,qt,qt],[qt,qt,-qt,qt],[-qt,qt,-qt,-qt]].forEach(([x0,z0,x1,z1],e)=>{const n=Math.floor(GSIDE/11);for(let i=1;i<n;i++){const t=i/n,x=x0+(x1-x0)*t,z=z0+(z1-z0)*t;if(okCell(x,z,1))trees.push({x,z,k:R("qt"+e+i)})}});
   for(let i=0;i<9000&&trees.length<cap;i++){const d=DIST[i%DIST.length],x=d.x+4+R("x"+i)*(d.w-8),z=d.z+4+R("z"+i)*(d.d-8);if(okCell(x,z,2))trees.push({x,z,k:R("k"+i)})}
+  // Reserve two fifths of the shared tree budget for clustered outer groves.
+  // Existing city anchors are sampled across all districts rather than truncating
+  // the final districts. Keep the waterfront promenade and cardinal walks clear.
+  const groveBudget=Math.floor(cap*.4),cityBudget=cap-groveBudget;
+  if(trees.length>cityBudget){const city=trees.slice();trees.length=0;for(let i=0;i<cityBudget;i++)trees.push(city[Math.floor(i*city.length/cityBudget)])}
+  const grove=[],groveCells=new Set(),centres=[],edge=GSIDE/2-19;
+  const green=(x,z)=>(Math.abs(x)>WORLD.W/2+8||Math.abs(z)>WORLD.H/2+8)&&Math.abs(x)<edge&&Math.abs(z)<edge&&Math.abs(x)>5&&Math.abs(z)>5;
+  for(let i=0;i<1600&&centres.length<70;i++){const x=(R('grove-centre-x'+i)*2-1)*edge,z=(R('grove-centre-z'+i)*2-1)*edge;if(green(x,z))centres.push({x,z})}
+  for(let i=0;i<groveBudget*45&&grove.length<groveBudget&&centres.length;i++){
+    const c=centres[i%centres.length],a=R('grove-angle'+i)*Math.PI*2,r=Math.sqrt(R('grove-radius'+i))*(12+R('grove-spread'+i%centres.length)*15),x=c.x+Math.cos(a)*r,z=c.z+Math.sin(a)*r;
+    if(!green(x,z))continue;const key=Math.floor(x/4)+','+Math.floor(z/4);if(groveCells.has(key))continue;groveCells.add(key);grove.push({x,z,k:R('grove-species'+i),greenbelt:true});
+  }
+  // Interleave to share the bounded understory allocation with interior gardens.
+  const city=trees.splice(0);for(let i=0;i<Math.max(city.length,grove.length);i++){if(city[i])trees.push(city[i]);if(grove[i])trees.push(grove[i])}
   const trunkG=new THREE.CylinderGeometry(.16,.24,1,5);trunkG.translate(0,.5,0);
   const canG=new THREE.IcosahedronGeometry(1,1);canG.translate(0,1,0);
   const tc=new THREE.Color();
-  decor.add(instMesh(trunkG,M.trunk,trees.map(t=>({x:t.x,z:t.z,sy:1.6+t.k*1.4})),false));
-  decor.add(instMesh(canG,M.canopy,trees.map(t=>{const s=1.45+t.k*1.45,lk=typeof DistrictLook!=="undefined"?DistrictLook.tree(t.x,t.z,t.k):null;/* tree species per district */if(lk)return{x:t.x,y:1.35+t.k*1.15,z:t.z,ry:t.k*6,sx:s*lk.sx,sy:s*(1.12+t.k*.3)*lk.sy,sz:s*(.95+t.k*.18)*lk.sx,c:tc.setHSL(lk.h,lk.s,lk.l).clone()};return{x:t.x,y:1.35+t.k*1.15,z:t.z,ry:t.k*6,sx:s,sy:s*(1.12+t.k*.3),sz:s*(.95+t.k*.18),c:tc.setHSL(.28+t.k*.07,.5+t.k*.16,.42+t.k*.12).clone()}}),HI));
+  trunkG.dispose();
+  landscape=VaultLandscape.build({THREE,trees,districts:DIST,buildings:B,side:GSIDE,world:WORLD,treeStyle:typeof DistrictLook!=="undefined"?DistrictLook.tree:null,high:HI,reducedMotion:reduced||!HI});
+  decor.add(landscape);
   // planters: low stone boxes with a shrub, at plot corners
   // Furniture remains outside building pads and uses three draw calls for the entire city.
   const seats=[],rails=[],wayfinding=[];
@@ -878,7 +920,7 @@ function buildDecor(){
     }
     // Paired gate blades face each district entrance; colors match the explorer legend.
     const x=d.x+d.w*.5,z=d.z-2.5;
-    [-1,1].forEach(side=>{wayfinding.push({x:x+side*2.1,y:2.6,z,sx:.22,sy:5.2,sz:.6,c:color,top:d.top});rails.push({x:x+side*2.1,y:2.6,z:z+.36,sx:.5,sy:5.6,sz:.22})});
+    [-1,1].forEach(side=>{wayfinding.push({x:x+side*2.1,y:1.25,z,sx:.48,sy:2.4,sz:.18,c:color,top:d.top});rails.push({x:x+side*2.1,y:1.25,z:z+.15,sx:.64,sy:2.55,sz:.2})});
   });
   const furnitureG=new THREE.BoxGeometry(1,1,1);
   decor.add(instMesh(furnitureG,M.planter,seats,false));
@@ -1854,6 +1896,11 @@ window.addEventListener("blur",()=>keys.clear());
 
 // ---------- frame
 function applyCamera(){
+  // Wider street-level framing and a closer near plane let the visitor approach
+  // doors and garden details without clipping; the overview keeps its original lens.
+  const fov=walk?58:48,near=walk?.35:2;
+  if(camera.fov!==fov||camera.near!==near){camera.fov=fov;camera.near=near;camera.updateProjectionMatrix()}
+  fitShadow(false);
   const cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch),sy=Math.sin(cam.yaw),cy=Math.cos(cam.yaw),dx=sy*cp,dy=sp,dz=cy*cp;
   if(walk){camera.position.set(cam.tx,cam.ty,cam.tz);camera.lookAt(cam.tx-dx,cam.ty-dy,cam.tz-dz)}
   else{const want=eyeClear(dx,dy,dz,cam.dist);eyeDist=eyeDist<0||want<eyeDist?want:eyeDist+(want-eyeDist)*.18;const d=Math.min(cam.dist,eyeDist);
@@ -1929,6 +1976,7 @@ function frame(t){
   dirty=false;lastAmb=time;
   if(AMB||MID||introRun)SH.uTime.value=time;
   applyCamera();
+  VaultLandscape.update(landscape,time);
   skyMesh.position.copy(camera.position);if(stars)stars.position.copy(camera.position);
   if(AMB)stepDrones();
   if(motes&&(AMB||MID))motes.material.uniforms.uCenter.value.set(cam.tx,0,cam.tz);
@@ -1995,7 +2043,7 @@ function init(){
     scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x000000,.0008);
     camera=new THREE.PerspectiveCamera(48,1,2,5000);rc=new THREE.Raycaster();
     hemi=new THREE.HemisphereLight(0xffffff,0x222222,.6);scene.add(hemi);
-    sun=new THREE.DirectionalLight(0xffffff,2);sun.castShadow=true;sun.shadow.mapSize.set(HI?4096:2048,HI?4096:2048);sun.shadow.bias=-.0015;sun.shadow.normalBias=2.4;scene.add(sun,sun.target);
+    sun=new THREE.DirectionalLight(0xffffff,2);sun.castShadow=true;sun.shadow.mapSize.set(HI?4096:2048,HI?4096:2048);sun.shadow.bias=-.00045;sun.shadow.normalBias=.9;scene.add(sun,sun.target);
     skyMat=skyMaterial();skyMesh=new THREE.Mesh(new THREE.SphereGeometry(2400,32,16),skyMat);skyMesh.renderOrder=-10;skyMesh.frustumCulled=false;scene.add(skyMesh);
     bridgeGroup=new THREE.Group();scene.add(bridgeGroup);markerGroup=new THREE.Group();scene.add(markerGroup);agentGroup=new THREE.Group();scene.add(agentGroup);
     ringMesh=new THREE.Mesh(new THREE.RingGeometry(.94,1,64),new THREE.MeshBasicMaterial({color:lin("#F2B85B"),transparent:true,opacity:.85,side:THREE.DoubleSide,fog:false}));ringMesh.rotation.x=-Math.PI/2;ringMesh.visible=false;scene.add(ringMesh);
@@ -2014,8 +2062,18 @@ function init(){
     // the real sun moves: once a minute, and again when the tab comes back
     skyTimer=setInterval(skyTick,60000);document.addEventListener("visibilitychange",skyTick);window.addEventListener("focus",skyTick);
     loadPost();
-    // opening shot: high above the plan, then a slow drift
-    cam.tx=goal.tx=0;cam.tz=goal.tz=0;cam.ty=goal.ty=0;cam.dist=GSIDE*1.05;goal.dist=GSIDE*.8;cam.pitch=.95;goal.pitch=.62;cam.yaw=goal.yaw=.5;
+    // Arrive along a district avenue at neighbourhood scale. The full city remains
+    // one Campus/overview action away; the first frame should show doors and gardens.
+    const arrival=DIST.find(d=>/ZenFlow/i.test(d.name)&&d.count>0)||DIST.find(d=>d.count>0)||DIST[0];
+    if(arrival){
+      cam.tx=goal.tx=arrival.x+Math.min(arrival.w*.6,65);
+      cam.tz=goal.tz=arrival.z-3.5;cam.ty=goal.ty=5;
+      cam.dist=reduced?95:125;goal.dist=95;
+      cam.pitch=reduced?.22:.28;goal.pitch=.22;cam.yaw=goal.yaw=-Math.PI/2;
+      auto=false;
+    }else{
+      cam.tx=goal.tx=0;cam.tz=goal.tz=0;cam.ty=goal.ty=0;cam.dist=goal.dist=GSIDE*.8;cam.pitch=goal.pitch=.62;cam.yaw=goal.yaw=.5;
+    }
     C.ok=true;
     $("#plateP").textContent=`${NOTES.length} notes in ${DIST.length} districts. ${TOUCH?"Tap":"Click"} a building to read it. Open a note and the camera flies to it and draws its links.`;
     requestAnimationFrame(frame);

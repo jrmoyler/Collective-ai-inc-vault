@@ -131,6 +131,57 @@ const Facades=(()=>{
       }
     }
   }
+  // Street-level tectonics: stone reveals and cornices give the skyline real depth.
+  // All parts stay within the existing facade pad. The doorway remains unobstructed.
+  function architecture(out,b,s,detail=false){
+    const t=b.tiers[0],f=faceOf(t,b.door),stone=s.archived?'#69675e':'#b0ab97';
+    const trim=mixHex('#687474',b.color||'#D4A843',.14);
+    if(!detail){
+      // Full-width entablature with two recessed jambs reads from the street and aerial view.
+      const span=2*f.half,center=-f.along*(Math.abs(f.nx)>0?-f.nx:f.nz);
+      part(out,f,center,Math.min(t.y1-.18,3.5),.14,span,.24,.28,stone,0,'cornice',b.id);
+      for(const side of [-1,1])part(out,f,center+side*(f.half-.18),Math.min(t.y1,3.5)/2,.12,.26,Math.min(t.y1,3.5),.24,stone,0,'pier',b.id);
+      return;
+    }
+    for(let k=0;k<b.tiers.length;k++){
+      const q=b.tiers[k],height=q.y1-q.y0;
+      if(height<2||q.w<1||q.d<1)continue;
+      const ff=faceOf(q,{x:q.x+f.nx*100,z:q.z+f.nz*100});
+      // Deep overhangs articulate setbacks without touching road cells.
+      part(out,ff,0,q.y1-.12,.1,ff.half*2+.2,.2,.35,trim,0,'cornice',b.id);
+      const n=b.style===3?4:b.style===4?3:2;
+      for(let i=0;i<n;i++){
+        const lx=(i/(n-1)-.5)*(ff.half*2-.55);
+        part(out,ff,lx,q.y0+height*.55,.1,b.style===3?.23:.1,height*.72,.18,b.style===3?stone:trim,0,'mullion',b.id);
+      }
+      if(b.style===1||b.style===2){
+        for(let j=1;j<=2;j++)part(out,ff,0,q.y0+height*j/3,.2,ff.half*2,.1,.42,trim,0,'sunshade',b.id);
+      }
+    }
+    // Warm wall sconces, sheltered below the canopy; no extra point lights.
+    if(!s.archived)for(const side of [-1,1]){
+      part(out,f,side*.92,2,.2,.16,.38,.16,'#4b5350',0,'sconce',b.id);
+      part(out,f,side*.92,2,.3,.1,.23,.05,'#f6d4a0',.55,'sconce-glass',b.id);
+    }
+  }
+  // Occupied setback terraces: contained planting and timber seats, deterministically varied.
+  // Use lower flat setback surfaces only; never float furniture on a pitched roof.
+  function terraces(out,b,s){
+    if(s.archived||b.tiers.length<2)return;
+    for(let k=0;k<b.tiers.length-1;k++){
+      const t=b.tiers[k],upper=b.tiers[k+1],gap=t.z+t.d/2-(upper.z+upper.d/2);
+      if(gap<1.25||t.w<4)continue;
+      const z=t.z+t.d/2-.55,y=t.y1,w=Math.min(2.1,t.w*.3),x=t.x-t.w*.25;
+      const add=(xx,yy,zz,sx,sy,sz,col,kind)=>out.push({x:xx,y:yy,z:zz,sx,sy,sz,rx:0,ry:0,col,glow:0,kind,id:b.id});
+      add(x,y+.2,z,w,.4,.72,'#8c8877','planter');
+      add(x,y+.42,z,w-.14,.06,.58,'#493f2e','soil');
+      // Staggered low planting catches light instead of a single flat green slab.
+      for(let j=0;j<3;j++)add(x+(j-1)*w*.27,y+.55+h01(b.id+':plant:'+j)*.14,z,.4,.25,.46,j===1?'#81946a':'#506b50','plant');
+      add(t.x+t.w*.23,y+.4,z,Math.min(1.6,t.w*.28),.14,.55,'#998365','seat');
+      for(const side of [-1,1])add(t.x+t.w*.23+side*.45,y+.18,z,.1,.36,.4,'#4d5958','seat-leg');
+      break;
+    }
+  }
   function roofStubs(out,b,s,surf){
     const t=b.tiers[b.tiers.length-1],y=(x,z)=>surf?surf(x,z):t.y1;
     if(s.orphan){const x=t.x+t.w*.3,z=t.z-t.d*.3,y0=y(x,z);
@@ -171,6 +222,9 @@ const Facades=(()=>{
     take(it=>{const before=out.length;const di=doorway(out,it.b,it.s);if(out.length>cap)out.length=before;else if(di>=0)doors.set(it.b.id,di)});
     take(it=>{const before=out.length;roofStubs(out,it.b,it.s,it.surf);if(out.length>cap)out.length=before});
     take(it=>{const before=out.length;storefront(out,it.b,it.s);if(out.length>cap)out.length=before});
+    take(it=>{const before=out.length;architecture(out,it.b,it.s);if(out.length>cap)out.length=before});
+    take(it=>{const before=out.length;architecture(out,it.b,it.s,true);if(out.length>cap)out.length=before});
+    take(it=>{const before=out.length;terraces(out,it.b,it.s);if(out.length>cap)out.length=before});
     take(it=>{const before=out.length;balconies(out,it.b,it.s);if(out.length>cap)out.length=before});
     return {parts:out,doors,scaffolds:sc};
   }
@@ -194,24 +248,27 @@ const Facades=(()=>{
     MAT=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.72,metalness:.18});
     MAT.onBeforeCompile=sh=>{
       sh.uniforms.uLamp=SH&&SH.uLamp?SH.uLamp:{value:0};
-      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float aGlow;varying float vGlow;')
-        .replace('#include <begin_vertex>','#include <begin_vertex>\nvGlow=aGlow;');
-      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uLamp;varying float vGlow;')
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float aGlow;attribute float aFinish;varying float vGlow;varying float vFinish;')
+        .replace('#include <begin_vertex>','#include <begin_vertex>\nvGlow=aGlow;vFinish=aFinish;');
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uLamp;varying float vGlow;varying float vFinish;')
+        .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=vFinish;')
+        .replace('#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\nmetalnessFactor=vFinish<0.5?0.48:0.06;')
         .replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=diffuseColor.rgb*vGlow*(0.22+uLamp*1.9);');
     };
     return MAT;
   }
   function build(items,opt={}){
     const L=layout(items,opt),n=Math.max(1,L.parts.length);
-    const geo=new THREE.BoxGeometry(1,1,1),glow=new Float32Array(n);
+    const geo=new THREE.BoxGeometry(1,1,1),glow=new Float32Array(n),finish=new Float32Array(n);
     const mesh=new THREE.InstancedMesh(geo,opt.material||material(opt.SH),n);mesh.count=L.parts.length;
     const o=new THREE.Object3D(),c=new THREE.Color(),cache=new Map();
     o.rotation.order='YXZ';
     L.parts.forEach((p,i)=>{
       o.position.set(p.x,p.y,p.z);o.rotation.set(p.rx||0,p.ry||0,0);o.scale.set(p.sx,p.sy,p.sz);o.updateMatrix();mesh.setMatrixAt(i,o.matrix);
-      if(!cache.has(p.col))cache.set(p.col,new THREE.Color(p.col).convertSRGBToLinear());mesh.setColorAt(i,cache.get(p.col));glow[i]=p.glow||0;
+      if(!cache.has(p.col))cache.set(p.col,new THREE.Color(p.col).convertSRGBToLinear());mesh.setColorAt(i,cache.get(p.col));glow[i]=p.glow||0;finish[i]=['rail','mullion','sunshade','sconce','seat-leg','scaffold'].includes(p.kind)?.38:['door','sconce-glass'].includes(p.kind)?.25:.86;
     });
     if(!L.parts.length){mesh.setColorAt(0,c.set(0xffffff))}
+    geo.setAttribute('aFinish',new THREE.InstancedBufferAttribute(finish,1));
     geo.setAttribute('aGlow',new THREE.InstancedBufferAttribute(glow,1));
     mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
     mesh.castShadow=!!opt.shadow;mesh.receiveShadow=true;mesh.frustumCulled=false;mesh.name='facade-dressing';

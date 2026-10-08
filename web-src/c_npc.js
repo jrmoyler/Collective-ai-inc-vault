@@ -15,7 +15,7 @@
 // viewer to a landmark on request (Campus.route). Reduced motion keeps them on their spot and flies the camera instead.
 // =====================================================================
 const Guides=(()=>{
-  const BOUNTY={high:120,medium:80,low:50},NEAR=60,TALK_R=28,LEAVE_R=110,WEEK=7*864e5,KIT_REV=2;
+  const BOUNTY={high:120,medium:80,low:50},NEAR=60,TALK_R=28,LEAVE_R=110,WEEK=7*864e5,KIT_REV=3;
   const RM=matchMedia("(prefers-reduced-motion: reduce)"),COARSE=matchMedia("(pointer:coarse)");
   let G=[],lastDist=null,curTop=null,booted=false,memo=new Map();
   const two=name=>{const w=String(name).replace(/[^A-Za-z ]/g," ").trim().split(/\s+/).filter(Boolean);return (w.length>=2?w[0][0]+w[1][0]:(w[0]||"GD").slice(0,2)).toUpperCase()};
@@ -69,7 +69,8 @@ const Guides=(()=>{
     if(KIT)return KIT;
     const top=g=>{g.translate(0,-.5,0);return g};
     KIT={
-      robe:top(new THREE.CylinderGeometry(.62,1,1,20,1,true)),
+      // Vertical pleats broaden toward the hem; the cross section reads as cloth at walking distance.
+      robe:(()=>{const g=top(new THREE.CylinderGeometry(.62,1,1,48,8,true)),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),v=-p.getY(i),a=Math.atan2(z,x),fold=1+Math.cos(a*12)*(.015+.045*v);p.setXYZ(i,x*fold,p.getY(i)+Math.sin(a*6)*.024*v*v,z*fold)}g.computeVertexNormals();return g})(),
       hem:top(new THREE.CylinderGeometry(1,1,1,20,1,true)),
       mantle:top(new THREE.CylinderGeometry(.56,.94,1,20,1,true)),
       // Tailored cloth with scalloped shoulders and a folded cross section, built once.
@@ -88,6 +89,9 @@ const Guides=(()=>{
       mote:new THREE.OctahedronGeometry(.06,0),
       marker:new THREE.OctahedronGeometry(.3,0),
       markerRing:new THREE.TorusGeometry(.5,.025,6,40),
+      fabric:(()=>{const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d");x.fillStyle="#929292";x.fillRect(0,0,64,64);for(let i=0;i<64;i+=2){x.fillStyle=i%4?"#858585":"#ababab";x.fillRect(i,0,1,64);x.fillStyle="#777777";x.fillRect(0,i,64,1)}const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(5,8);return t})(),
+      leather:new THREE.MeshStandardMaterial({color:0x37281e,roughness:.88,metalness:0}),
+      brass:new THREE.MeshStandardMaterial({color:0xb99a59,roughness:.43,metalness:.72}),
       metal:new THREE.MeshStandardMaterial({color:new THREE.Color(0x2a2f3d).convertSRGBToLinear(),roughness:.35,metalness:.85}),
       paper:new THREE.MeshStandardMaterial({color:new THREE.Color(0xF1EADB).convertSRGBToLinear(),roughness:.9,metalness:0,emissive:0x4a4436,emissiveIntensity:.25}),
       gold:new THREE.MeshBasicMaterial({color:0xF5C04A,fog:false}),
@@ -102,8 +106,8 @@ const Guides=(()=>{
     if(MATS.has(hex))return MATS.get(hex);
     const lin=h=>new THREE.Color(h).convertSRGBToLinear(),c=lin(hex),dark=lin("#0B1020").lerp(c,.09);
     const m={
-      cloth:new THREE.MeshStandardMaterial({color:dark,roughness:.86,metalness:.05,side:THREE.DoubleSide}),
-      lining:new THREE.MeshStandardMaterial({color:lin("#0B1020").lerp(c,.22),roughness:.7,metalness:.1,side:THREE.DoubleSide}),
+      cloth:new THREE.MeshStandardMaterial({color:dark,roughness:.96,metalness:0,bumpMap:kit().fabric,bumpScale:.035,side:THREE.DoubleSide}),
+      lining:new THREE.MeshStandardMaterial({color:lin("#22232a").lerp(c,.4),roughness:.92,metalness:0,bumpMap:kit().fabric,bumpScale:.025,side:THREE.DoubleSide}),
       trim:new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:1.1,roughness:.4,metalness:.3}),
       glow:new THREE.SpriteMaterial({map:kit().glowTex,color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.75,fog:false})
     };
@@ -111,9 +115,44 @@ const Guides=(()=>{
   }
   const mesh=(geo,mat,x,y,z,sx,sy,sz)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x||0,y||0,z||0);if(sx!=null)o.scale.set(sx,sy,sz);o.castShadow=true;return o};
 
+  // Bake static tailoring by archetype/material. Shared buffers keep close-up detail bounded
+  // to three extra draws per guide; no per-frame allocations or unique textures.
+  const TAILOR=new Map();
+  function tailoring(arch){
+    if(TAILOR.has(arch))return TAILOR.get(arch);
+    const K=kit(),buckets={leather:[],brass:[],lining:[]};
+    const add=(mat,geo,x,y,z,sx,sy,sz,rz=0)=>{const o=mesh(geo,K.metal,x,y,z,sx,sy,sz);o.rotation.z=rz;o.updateMatrix();const b=geo.clone().applyMatrix4(o.matrix);buckets[mat].push(b)};
+    // Belt, crossed harness, satchel, flap and stitched edging follow the body.
+    add("leather",K.hem,0,3.52,0,.67,.23,.61);
+    add("leather",K.strip,-.1,4.1,.47,.16,1.52,.075,-.38);
+    add("leather",K.strip,-.67,3.04,.28,.5,.62,.29);
+    add("leather",K.strip,-.67,3.32,.31,.54,.16,.34);
+    add("brass",K.strip,0,3.39,.625,.26,.24,.035);
+    add("leather",K.strip,0,3.39,.648,.16,.14,.02);
+    add("brass",K.strip,-.67,3.11,.467,.08,.18,.025);
+    for(const side of [-1,1]){
+      // Sculpted layered shoulder guards and cloth seam strips.
+      add("lining",K.hood,side*.6,4.91,-.025,.77,.6,.92);
+      add("brass",K.strip,side*.53,4.68,.47,.05,.31,.032,side*.2);
+      add("lining",K.strip,side*.36,4.1,.44,.17,1.02,.04,side*.07);
+      for(let i=0;i<4;i++)add("brass",K.gem,side*.38,4.5-i*.18,.48,.09,.09,.065);
+    }
+    if(arch==="archivist")for(let i=0;i<3;i++)add("leather",K.strip,.61+i*.095,3.05,.35,.06,.46,.06);
+    if(arch==="vanguard")for(const side of [-1,1])add("brass",K.hood,side*.71,4.94,0,.92,.55,1.05);
+    const out={};
+    for(const [key,parts] of Object.entries(buckets)){
+      const ps=[],ns=[],uv=[];
+      for(const indexed of parts){const geo=indexed.index?indexed.toNonIndexed():indexed;ps.push(...geo.attributes.position.array);ns.push(...geo.attributes.normal.array);uv.push(...geo.attributes.uv.array);if(geo!==indexed)geo.dispose();indexed.dispose()}
+      const geo=new THREE.BufferGeometry();geo.setAttribute("position",new THREE.Float32BufferAttribute(ps,3));geo.setAttribute("normal",new THREE.Float32BufferAttribute(ns,3));geo.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2));geo.computeBoundingSphere();out[key]=geo;K.geos.add(geo);
+    }
+    TAILOR.set(arch,out);return out;
+  }
+
   // Dress a Sentinel as a Warden. Everything hangs off two roots (kit on the body, cap on the head) so it can be detached before disposal.
   function dress(g){
     const K=kit(),M=mats(g.color),A=ARCH[g.arch],m=g.m,root=new THREE.Group(),cap=new THREE.Group();
+    const tailored=tailoring(g.arch);
+    root.add(mesh(tailored.leather,K.leather),mesh(tailored.brass,K.brass),mesh(tailored.lining,M.lining));
     // robe from the waist, with a lit hem
     const long=A.robe>2.5,rx=long?1:.86,rz=long?.86:.78;
     root.add(mesh(K.robe,M.cloth,0,3.45,0,rx,A.robe,rz));
@@ -443,7 +482,7 @@ const Guides=(()=>{
 #wd .wd-por{position:relative;width:128px;height:128px;border-radius:14px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,color-mix(in srgb,var(--c) 30%,#0B1020),#05070F);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 55%,transparent),0 10px 30px -10px var(--c)}
 #wd .wd-por canvas,#wd .wd-por img,#wd .wd-por svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 #wd .wd-por img{opacity:0;transition:opacity .3s}#wd .wd-por img.ok{opacity:1}
-#wd .wd-por::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),linear-gradient(180deg,transparent 55%,rgba(5,7,15,.65));pointer-events:none}
+#wd .wd-por::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 65%,rgba(5,7,15,.7));pointer-events:none}
 #wd .wd-arch{position:absolute;left:8px;bottom:7px;z-index:1;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
 #wd .wd-plate{position:absolute;left:162px;top:-15px;display:flex;align-items:baseline;gap:10px;padding:5px 14px 6px;border-radius:9px;background:linear-gradient(180deg,#151C33,#0C1122);border:1px solid color-mix(in srgb,var(--c) 70%,transparent);box-shadow:0 8px 20px -8px var(--c)}
 #wd .wd-plate b{font-family:var(--display);font-size:15px;letter-spacing:.01em}

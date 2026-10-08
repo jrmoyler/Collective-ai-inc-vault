@@ -1,5 +1,5 @@
 {
- "kit": 2,
+ "kit": 3,
  "portraits": [
   {
    "slug": "11-physical-ai",
@@ -155,6 +155,6 @@
   }
  ],
  "size": 384,
- "generated": "2026-10-07",
+ "generated": "2026-10-08",
  "by": "scripts/render_warden_portraits.mjs"
 }

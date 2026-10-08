@@ -25,7 +25,7 @@ const Identity=(()=>{
     T('bevel',.74*b,.42,.5,0,3.05,0,0);T('bevel',.8*b,.14,.56,0,3.3,0,1);T('taper',.6*b,.44,.42,0,3.52,0,0);
     for(const y of [3.42,3.53,3.64])T('box',.4*b,.05,.04,0,y,.2,1);
     // chest: a V-shaped core with a front armor plate, terminal backing, collar and back spine
-    T('taper',1.14*b,1,.62,0,4.2,0,0);T('taper',.98*b,.78,.12,0,4.28,.3,1);T('box',.5,.38,.03,0,4.3,.36,4);
+    T('shell',1.14*b,1,.68,0,4.2,0,0);T('taper',.98*b,.78,.12,0,4.28,.3,1);T('box',.5,.38,.03,0,4.3,.36,4);
     T('bevel',.66*b,.16,.52,0,4.76,0,1);T('box',.5*b,.03,.03,0,4.62,.37,2);
     T('bevel',.6*b,.74,.22,0,4.24,-.38,0);T('box',.05,.56,.03,0,4.24,-.5,2);
     for(const s of S){
@@ -43,7 +43,7 @@ const Identity=(()=>{
     if(f==='devon'){T('bevel',1.5*b,.2,.22,0,4.98,-.42,0);T('box',1.1*b,.04,.03,0,4.98,-.54,2)}
     if(f==='ahmad'){T('box',.62*b,.07,.04,0,4.02,.37,2);T('box',.62*b,.07,.04,0,3.93,.37,2);T('taper',.82*b,.85,.06,0,2.92,-.36,1,Math.PI,.18)}
     // head: neck, skull, crown, cheek guards, chin, visor glass with three lit slits
-    H('box',.22,.26,.24,0,.06,0,4);H('taper',.44,.62,.5,0,.5,0,0);H('bevel',.47,.14,.53,0,.82,-.01,1);
+    H('box',.22,.26,.24,0,.06,0,4);H('shell',.44,.62,.5,0,.5,0,0);H('bevel',.47,.14,.53,0,.82,-.01,1);
     for(const s of S)H('bevel',.07,.46,.44,s*.235,.48,0,1);
     H('bevel',.34,.12,.1,0,.2,.2,1);H('box',.3,.4,.04,0,.52,.24,6);for(const x of [-.09,0,.09])H('box',.035,.32,.02,x,.53,.265,2);
     if(f==='jr')H('bevel',.06,.22,.4,0,.98,0,1);
@@ -54,17 +54,17 @@ const Identity=(()=>{
     // arms and legs, mirrored
     for(const s of S){
       const A=add('arm'+side(s)),L=add('leg'+side(s));
-      A('bevel',.3,.3,.3,s*.04,0,0,4);A('taper',.23,.7,.25,s*.08,-.42,0,0);A('bevel',.07,.5,.22,s*.22,-.4,0,1);
-      A('bevel',.2,.16,.22,s*.08,-.84,0,4);A('taper',.27,.7,.29,s*.08,-1.22,.02,1);A('box',.03,.48,.02,s*.08,-1.2,.18,2);
+      A('bevel',.3,.3,.3,s*.04,0,0,4);A('shell',.25,.7,.27,s*.08,-.42,0,0);A('bevel',.07,.5,.22,s*.22,-.4,0,1);
+      A('bevel',.2,.16,.22,s*.08,-.84,0,4);A('shell',.29,.7,.31,s*.08,-1.22,.02,1);A('box',.03,.48,.02,s*.08,-1.2,.18,2);
       A('bevel',.18,.24,.2,s*.08,-1.7,.02,4);A('box',.15,.13,.07,s*.08,-1.87,.07,4);
       A('bevel',.12,.2,.26,s*.2,-.84,0,1);A('box',.2,.025,.03,s*.08,-1.05,.17,4);A('box',.2,.025,.03,s*.08,-1.4,.17,4);
       for(let i=0;i<3;i++)A('box',.03,.1,.02,s*.08+(i-1)*.045,-1.95,.11,4);A('box',.16,.03,.03,s*.08,-1.82,.11,2);
       if(opt.owner&&s>0)A('bevel',.33,.13,.35,s*.08,-.98,.02,3);
       if(f==='member')A('box',.31,.05,.33,s*.08,-1.53,.02,2);
       if(f==='ahmad')A('bevel',.08,.5,.3,s*.25,-1.2,0,1);
-      L('bevel',.27,.27,.29,0,-.02,0,4);L('taper',.33,1.1,.37,0,-.6,0,0);L('taper',.27,.72,.08,0,-.55,.2,1);
+      L('bevel',.27,.27,.29,0,-.02,0,4);L('shell',.35,1.1,.39,0,-.6,0,0);L('taper',.27,.72,.08,0,-.55,.2,1);
       L('bevel',.25,.24,.3,0,-1.24,.03,4);L('bevel',.22,.22,.1,0,-1.22,.19,1);
-      L('taper',.31,1.12,.35,0,-1.9,0,0);L('taper',.23,.84,.08,0,-1.86,.18,1);L('box',.03,.56,.02,0,-1.86,.225,2);
+      L('shell',.33,1.12,.37,0,-1.9,0,0);L('taper',.23,.84,.08,0,-1.86,.18,1);L('box',.03,.56,.02,0,-1.86,.225,2);
       L('bevel',.28,.2,.14,0,-1.23,.2,1);L('box',.2,.03,.02,0,-1.18,.28,2);L('box',.24,.025,.03,0,-.3,.21,4);L('box',.24,.025,.03,0,-.85,.21,4);
       L('box',.03,.5,.02,s*.11,-1.9,.18,4);L('box',.22,.025,.03,0,-2.25,.19,4);
       L('bevel',.2,.18,.22,0,-2.56,0,4);L('bevel',.31,.3,.56,0,-2.8,.08,1);L('box',.27,.12,.16,0,-2.89,.38,4);
@@ -106,17 +106,40 @@ const Identity=(()=>{
       L('bevel',.24,.38,.06,s*.05,-.12,.22,1,0,-.12);                                      // tasset
       L('cap',.05,.2,.2,s*.14,-1.24,0,4);L('box',.012,.06,.06,s*.168,-1.24,0,2);           // knee hinge, lit pin
       L('bevel',.24,.6,.1,0,-1.75,-.2,1);L('bevel',.16,.14,.12,0,-2.86,-.22,1)}            // calf plate, heel spur
+    // Expedition equipment gives every role a readable profile from behind and in motion.
+    // All hardware is baked into the existing five skinned surfaces.
+    if(f==='jr'){
+      T('bevel',.19,1.35,.12,-.55,3.93,-.57,1,0,-.16);
+      T('bevel',.38,.13,.24,-.55,4.63,-.46,1);
+      T('box',.035,.94,.025,-.55,3.98,-.65,2,0,-.16);
+    }else if(f==='devon'){
+      T('bevel',.38,.7,.32,-.59,3.73,-.44,0);
+      for(let i=0;i<3;i++)T('cap',.12,.16,.16,-.82,3.5+i*.22,-.44,1);
+      add('armR')('bevel',.36,.38,.1,.08,-1.23,.23,0);
+      add('armR')('box',.22,.2,.025,.08,-1.23,.3,2);
+    }else if(f==='ahmad'){
+      T('bevel',.44,.65,.17,.55,3.09,-.03,1,-.12);
+      T('box',.29,.03,.025,.55,3.16,.065,2,-.12);
+      T('bevel',.17,.1,.2,.55,3.47,0,4);
+    }else if(f==='kenza'){
+      T('bevel',.08,1.25,.09,.57,4.77,-.4,1,0,-.1);
+      T('cap',.16,.26,.26,.57,5.4,-.46,1);
+      T('box',.04,.13,.13,.66,5.4,-.46,2);
+    }else{
+      T('bevel',.23,.43,.18,-.47,3.34,-.03,0);
+      T('box',.17,.035,.025,-.47,3.43,.075,1);
+    }
     // Traveler cloak. k=5 is cloth on the body mesh, so it costs no extra draw call.
     // Upper panels sit on the spine (y>=3.38). The hem sits on the hips (y<3.38) so a bow does not drive cloth through the thighs.
     // The power core backs up to about z=-0.64; every cloth face stays behind z=-0.70.
     const cloak={jr:1.08,devon:.96,ahmad:1.02,kenza:.74,member:.68,agent:.86}[f];
     const cw=.98*b*cloak;
     T('bevel',cw*1.08,.24,.2,0,4.78,-.82,5,0,.18);
-    T('taper',cw*.9,.78,.1,0,4.22,-.88,5,0,.05);
-    T('taper',cw*1.02,1.35,.09,0,3.05,-.9,5,0,.03);
-    T('taper',cw*.7,1.1,.06,0,3.18,-.78,5,0,.02);
-    T('taper',cw*.48,.95,.07,-cw*.34,3.02,-.8,5,.16,.06);
-    T('taper',cw*.48,.95,.07,cw*.34,3.02,-.8,5,-.16,.06);
+    T('mantle',cw*.9,.78,.1,0,4.22,-.88,5,0,.05);
+    T('mantle',cw*1.02,1.35,.09,0,3.05,-.9,5,0,.03);
+    T('mantle',cw*.7,1.1,.06,0,3.18,-.78,5,0,.02);
+    T('mantle',cw*.48,.95,.07,-cw*.34,3.02,-.8,5,.16,.06);
+    T('mantle',cw*.48,.95,.07,cw*.34,3.02,-.8,5,-.16,.06);
     if(f==='jr'||f==='devon'||f==='ahmad')T('bevel',cw*.62,.14,.12,0,4.62,-.74,1);
     if(f==='kenza'||f==='member'||f==='agent')H('bevel',.48*cloak,.16,.34,0,.9,-.28,5,0,-.22);
     // ---- cosmetic tier from level: more lit trim per tier; the mesh adds the aura ring from tier 2.
@@ -133,14 +156,15 @@ const Identity=(()=>{
   const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
   const hex=c=>'#'+c.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('').toUpperCase();
   const mix=(a,b,t)=>{const x=rgb(a),y=rgb(b);return hex(x.map((v,i)=>v+(y[i]-v)*t))};
-  function tones(pal,owner){return [pal[0],pal[1],pal[2],owner&&HEX.test(owner)?owner.toUpperCase():pal[2],mix(pal[0],'#000000',.45),mix(pal[2],pal[0],.4),mix(pal[0],'#000000',.7)]}
+  function tones(pal,owner){return [pal[0],pal[1],pal[2],owner&&HEX.test(owner)?owner.toUpperCase():pal[2],mix(pal[0],'#000000',.45),mix(pal[0],pal[1],.16),mix(pal[0],'#000000',.7)]}
 
   // ---- 2D preview: an orthographic front projection of the blueprint, shaded per material.
   let uid=0;
   function preview(p){const lvl=p&&p.level|0;p=profile(p);const pal=p.palette,f=p.form,bp=blueprint(f,{level:lvl}),tone=tones(pal),id='sp'+(++uid);
     const X=u=>70+u*31.6,Y=v=>202-v*31.6;
     const shapes=bp.parts.map(q=>{const pv=bp.pivots[q.slot]||[0,0,0],cx=pv[0]+q.x,cy=pv[1]+q.y,hw=q.w/2,hh=q.h/2,bw=q.shape==='taper'?hw*.72:hw;
-      const pts=[[-hw,hh],[hw,hh],[bw,-hh],[-bw,-hh]].map(([x,y])=>[x*Math.cos(q.rz)-y*Math.sin(q.rz),x*Math.sin(q.rz)+y*Math.cos(q.rz)]);
+      const outline=q.shape==='shell'?[[-hw*.8,hh],[hw*.8,hh],[hw,hh*.62],[hw*.86,-hh*.74],[hw*.7,-hh],[-hw*.7,-hh],[-hw*.86,-hh*.74],[-hw,hh*.62]]:q.shape==='mantle'?[[-hw*.7,hh],[hw*.7,hh],[hw,-hh],[-hw,-hh]]:[[-hw,hh],[hw,hh],[bw,-hh],[-bw,-hh]];
+      const pts=outline.map(([x,y])=>[x*Math.cos(q.rz)-y*Math.sin(q.rz),x*Math.sin(q.rz)+y*Math.cos(q.rz)]);
       return {z:pv[2]+q.z+q.d/2,k:q.k,pts:pts.map(([x,y])=>X(cx+x).toFixed(1)+','+Y(cy+y).toFixed(1)).join(' ')}}).sort((a,b)=>a.z-b.z);
     const grad=(k,c)=>`<linearGradient id="${id}g${k}" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="${mix(c,'#FFFFFF',k===1?.28:.12)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${mix(c,'#000000',.45)}"/></linearGradient>`;
     const fill=k=>k===2||k===3?pal[2]:`url(#${id}g${k})`;

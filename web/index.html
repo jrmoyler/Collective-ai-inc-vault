@@ -543,6 +543,15 @@ kbd{font-family:var(--mono);font-size:10.5px;line-height:1.3;display:inline-grid
 .idhex{display:grid;grid-template-columns:40px minmax(0,1fr);gap:8px}
 .frm .idhex input[type=color]{padding:3px;height:36px;cursor:pointer}
 .frm .idhex input[type=text],.frm .idhex input:not([type]){font-family:var(--mono);letter-spacing:.04em}
+/* Field instruments: restrained metal edges leave the inhabited world visible. */
+.hudbtn,.crumb,.mini,.hint{box-shadow:0 6px 18px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.06)}
+.mini{border-radius:12px;overflow:hidden;border-color:color-mix(in srgb,var(--accent) 36%,var(--line));box-shadow:0 8px 26px rgba(0,0,0,.24),0 0 0 3px color-mix(in srgb,var(--panel) 65%,transparent)}
+.plate{border-radius:3px 12px 12px 3px;box-shadow:0 14px 38px rgba(0,0,0,.24)}
+.plate h2{letter-spacing:-.035em;line-height:1.18}
+.lbl:not(.dl):not(.sel):not(.hov):not(.xp){box-shadow:0 3px 12px rgba(0,0,0,.24)}
+.chip2{transition:background var(--dur-2),border-color var(--dur-2),color var(--dur-2)}
+.chip2.on{background:var(--panel);box-shadow:inset 0 -2px var(--accent)}
+@media (pointer:coarse){.hudtop .hudbtn{min-width:40px;min-height:40px}.plate .x{width:36px;height:36px}.plate h2{padding-right:20px}}
 /* guides */
 .lbl.guide{background:linear-gradient(180deg,var(--panel2),var(--panel));color:var(--fg);border:1px solid var(--c);border-left-width:3px;border-radius:8px;padding:5px 9px;font-weight:600;box-shadow:0 0 0 1px rgba(0,0,0,.35),0 8px 24px -8px var(--c)}
 .lbl.guide small{color:var(--muted)}
@@ -790,7 +799,7 @@ body:has(.sheet.open) .brief,body:has(#wd.on) .brief{visibility:hidden;pointer-e
 
 
 <script>
-const VAULT_BUILD=Object.freeze({version:"2.0.0",hash:"aee3342677ea"});
+const VAULT_BUILD=Object.freeze({version:"2.0.0",hash:"3244b80dc284"});
 // Notes load from Supabase after sign-in (see e_boot.js) and stay live through Realtime.
 let BASE = [];
 const FOLDER_COLORS = {"00 - MOCs":"#E8A33D","01 - Divisions":"#7C3AED","02 - ZenFlow":"#3B82F6","03 - Products":"#14B8A6","04 - People":"#F43F5E","05 - Operations":"#A3E635","06 - Finance":"#C9A84C","07 - Brand":"#FF85C2","08 - Research":"#5B9BF0","09 - Projects":"#FB923C","10 - Archive":"#6B7280","11 - Physical AI":"#22D3EE","Daily":"#E6E9F2","Root":"#E8A33D"};
@@ -2416,7 +2425,7 @@ const Identity=(()=>{
     T('bevel',.74*b,.42,.5,0,3.05,0,0);T('bevel',.8*b,.14,.56,0,3.3,0,1);T('taper',.6*b,.44,.42,0,3.52,0,0);
     for(const y of [3.42,3.53,3.64])T('box',.4*b,.05,.04,0,y,.2,1);
     // chest: a V-shaped core with a front armor plate, terminal backing, collar and back spine
-    T('taper',1.14*b,1,.62,0,4.2,0,0);T('taper',.98*b,.78,.12,0,4.28,.3,1);T('box',.5,.38,.03,0,4.3,.36,4);
+    T('shell',1.14*b,1,.68,0,4.2,0,0);T('taper',.98*b,.78,.12,0,4.28,.3,1);T('box',.5,.38,.03,0,4.3,.36,4);
     T('bevel',.66*b,.16,.52,0,4.76,0,1);T('box',.5*b,.03,.03,0,4.62,.37,2);
     T('bevel',.6*b,.74,.22,0,4.24,-.38,0);T('box',.05,.56,.03,0,4.24,-.5,2);
     for(const s of S){
@@ -2434,7 +2443,7 @@ const Identity=(()=>{
     if(f==='devon'){T('bevel',1.5*b,.2,.22,0,4.98,-.42,0);T('box',1.1*b,.04,.03,0,4.98,-.54,2)}
     if(f==='ahmad'){T('box',.62*b,.07,.04,0,4.02,.37,2);T('box',.62*b,.07,.04,0,3.93,.37,2);T('taper',.82*b,.85,.06,0,2.92,-.36,1,Math.PI,.18)}
     // head: neck, skull, crown, cheek guards, chin, visor glass with three lit slits
-    H('box',.22,.26,.24,0,.06,0,4);H('taper',.44,.62,.5,0,.5,0,0);H('bevel',.47,.14,.53,0,.82,-.01,1);
+    H('box',.22,.26,.24,0,.06,0,4);H('shell',.44,.62,.5,0,.5,0,0);H('bevel',.47,.14,.53,0,.82,-.01,1);
     for(const s of S)H('bevel',.07,.46,.44,s*.235,.48,0,1);
     H('bevel',.34,.12,.1,0,.2,.2,1);H('box',.3,.4,.04,0,.52,.24,6);for(const x of [-.09,0,.09])H('box',.035,.32,.02,x,.53,.265,2);
     if(f==='jr')H('bevel',.06,.22,.4,0,.98,0,1);
@@ -2445,17 +2454,17 @@ const Identity=(()=>{
     // arms and legs, mirrored
     for(const s of S){
       const A=add('arm'+side(s)),L=add('leg'+side(s));
-      A('bevel',.3,.3,.3,s*.04,0,0,4);A('taper',.23,.7,.25,s*.08,-.42,0,0);A('bevel',.07,.5,.22,s*.22,-.4,0,1);
-      A('bevel',.2,.16,.22,s*.08,-.84,0,4);A('taper',.27,.7,.29,s*.08,-1.22,.02,1);A('box',.03,.48,.02,s*.08,-1.2,.18,2);
+      A('bevel',.3,.3,.3,s*.04,0,0,4);A('shell',.25,.7,.27,s*.08,-.42,0,0);A('bevel',.07,.5,.22,s*.22,-.4,0,1);
+      A('bevel',.2,.16,.22,s*.08,-.84,0,4);A('shell',.29,.7,.31,s*.08,-1.22,.02,1);A('box',.03,.48,.02,s*.08,-1.2,.18,2);
       A('bevel',.18,.24,.2,s*.08,-1.7,.02,4);A('box',.15,.13,.07,s*.08,-1.87,.07,4);
       A('bevel',.12,.2,.26,s*.2,-.84,0,1);A('box',.2,.025,.03,s*.08,-1.05,.17,4);A('box',.2,.025,.03,s*.08,-1.4,.17,4);
       for(let i=0;i<3;i++)A('box',.03,.1,.02,s*.08+(i-1)*.045,-1.95,.11,4);A('box',.16,.03,.03,s*.08,-1.82,.11,2);
       if(opt.owner&&s>0)A('bevel',.33,.13,.35,s*.08,-.98,.02,3);
       if(f==='member')A('box',.31,.05,.33,s*.08,-1.53,.02,2);
       if(f==='ahmad')A('bevel',.08,.5,.3,s*.25,-1.2,0,1);
-      L('bevel',.27,.27,.29,0,-.02,0,4);L('taper',.33,1.1,.37,0,-.6,0,0);L('taper',.27,.72,.08,0,-.55,.2,1);
+      L('bevel',.27,.27,.29,0,-.02,0,4);L('shell',.35,1.1,.39,0,-.6,0,0);L('taper',.27,.72,.08,0,-.55,.2,1);
       L('bevel',.25,.24,.3,0,-1.24,.03,4);L('bevel',.22,.22,.1,0,-1.22,.19,1);
-      L('taper',.31,1.12,.35,0,-1.9,0,0);L('taper',.23,.84,.08,0,-1.86,.18,1);L('box',.03,.56,.02,0,-1.86,.225,2);
+      L('shell',.33,1.12,.37,0,-1.9,0,0);L('taper',.23,.84,.08,0,-1.86,.18,1);L('box',.03,.56,.02,0,-1.86,.225,2);
       L('bevel',.28,.2,.14,0,-1.23,.2,1);L('box',.2,.03,.02,0,-1.18,.28,2);L('box',.24,.025,.03,0,-.3,.21,4);L('box',.24,.025,.03,0,-.85,.21,4);
       L('box',.03,.5,.02,s*.11,-1.9,.18,4);L('box',.22,.025,.03,0,-2.25,.19,4);
       L('bevel',.2,.18,.22,0,-2.56,0,4);L('bevel',.31,.3,.56,0,-2.8,.08,1);L('box',.27,.12,.16,0,-2.89,.38,4);
@@ -2497,17 +2506,40 @@ const Identity=(()=>{
       L('bevel',.24,.38,.06,s*.05,-.12,.22,1,0,-.12);                                      // tasset
       L('cap',.05,.2,.2,s*.14,-1.24,0,4);L('box',.012,.06,.06,s*.168,-1.24,0,2);           // knee hinge, lit pin
       L('bevel',.24,.6,.1,0,-1.75,-.2,1);L('bevel',.16,.14,.12,0,-2.86,-.22,1)}            // calf plate, heel spur
+    // Expedition equipment gives every role a readable profile from behind and in motion.
+    // All hardware is baked into the existing five skinned surfaces.
+    if(f==='jr'){
+      T('bevel',.19,1.35,.12,-.55,3.93,-.57,1,0,-.16);
+      T('bevel',.38,.13,.24,-.55,4.63,-.46,1);
+      T('box',.035,.94,.025,-.55,3.98,-.65,2,0,-.16);
+    }else if(f==='devon'){
+      T('bevel',.38,.7,.32,-.59,3.73,-.44,0);
+      for(let i=0;i<3;i++)T('cap',.12,.16,.16,-.82,3.5+i*.22,-.44,1);
+      add('armR')('bevel',.36,.38,.1,.08,-1.23,.23,0);
+      add('armR')('box',.22,.2,.025,.08,-1.23,.3,2);
+    }else if(f==='ahmad'){
+      T('bevel',.44,.65,.17,.55,3.09,-.03,1,-.12);
+      T('box',.29,.03,.025,.55,3.16,.065,2,-.12);
+      T('bevel',.17,.1,.2,.55,3.47,0,4);
+    }else if(f==='kenza'){
+      T('bevel',.08,1.25,.09,.57,4.77,-.4,1,0,-.1);
+      T('cap',.16,.26,.26,.57,5.4,-.46,1);
+      T('box',.04,.13,.13,.66,5.4,-.46,2);
+    }else{
+      T('bevel',.23,.43,.18,-.47,3.34,-.03,0);
+      T('box',.17,.035,.025,-.47,3.43,.075,1);
+    }
     // Traveler cloak. k=5 is cloth on the body mesh, so it costs no extra draw call.
     // Upper panels sit on the spine (y>=3.38). The hem sits on the hips (y<3.38) so a bow does not drive cloth through the thighs.
     // The power core backs up to about z=-0.64; every cloth face stays behind z=-0.70.
     const cloak={jr:1.08,devon:.96,ahmad:1.02,kenza:.74,member:.68,agent:.86}[f];
     const cw=.98*b*cloak;
     T('bevel',cw*1.08,.24,.2,0,4.78,-.82,5,0,.18);
-    T('taper',cw*.9,.78,.1,0,4.22,-.88,5,0,.05);
-    T('taper',cw*1.02,1.35,.09,0,3.05,-.9,5,0,.03);
-    T('taper',cw*.7,1.1,.06,0,3.18,-.78,5,0,.02);
-    T('taper',cw*.48,.95,.07,-cw*.34,3.02,-.8,5,.16,.06);
-    T('taper',cw*.48,.95,.07,cw*.34,3.02,-.8,5,-.16,.06);
+    T('mantle',cw*.9,.78,.1,0,4.22,-.88,5,0,.05);
+    T('mantle',cw*1.02,1.35,.09,0,3.05,-.9,5,0,.03);
+    T('mantle',cw*.7,1.1,.06,0,3.18,-.78,5,0,.02);
+    T('mantle',cw*.48,.95,.07,-cw*.34,3.02,-.8,5,.16,.06);
+    T('mantle',cw*.48,.95,.07,cw*.34,3.02,-.8,5,-.16,.06);
     if(f==='jr'||f==='devon'||f==='ahmad')T('bevel',cw*.62,.14,.12,0,4.62,-.74,1);
     if(f==='kenza'||f==='member'||f==='agent')H('bevel',.48*cloak,.16,.34,0,.9,-.28,5,0,-.22);
     // ---- cosmetic tier from level: more lit trim per tier; the mesh adds the aura ring from tier 2.
@@ -2524,14 +2556,15 @@ const Identity=(()=>{
   const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
   const hex=c=>'#'+c.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('').toUpperCase();
   const mix=(a,b,t)=>{const x=rgb(a),y=rgb(b);return hex(x.map((v,i)=>v+(y[i]-v)*t))};
-  function tones(pal,owner){return [pal[0],pal[1],pal[2],owner&&HEX.test(owner)?owner.toUpperCase():pal[2],mix(pal[0],'#000000',.45),mix(pal[2],pal[0],.4),mix(pal[0],'#000000',.7)]}
+  function tones(pal,owner){return [pal[0],pal[1],pal[2],owner&&HEX.test(owner)?owner.toUpperCase():pal[2],mix(pal[0],'#000000',.45),mix(pal[0],pal[1],.16),mix(pal[0],'#000000',.7)]}
 
   // ---- 2D preview: an orthographic front projection of the blueprint, shaded per material.
   let uid=0;
   function preview(p){const lvl=p&&p.level|0;p=profile(p);const pal=p.palette,f=p.form,bp=blueprint(f,{level:lvl}),tone=tones(pal),id='sp'+(++uid);
     const X=u=>70+u*31.6,Y=v=>202-v*31.6;
     const shapes=bp.parts.map(q=>{const pv=bp.pivots[q.slot]||[0,0,0],cx=pv[0]+q.x,cy=pv[1]+q.y,hw=q.w/2,hh=q.h/2,bw=q.shape==='taper'?hw*.72:hw;
-      const pts=[[-hw,hh],[hw,hh],[bw,-hh],[-bw,-hh]].map(([x,y])=>[x*Math.cos(q.rz)-y*Math.sin(q.rz),x*Math.sin(q.rz)+y*Math.cos(q.rz)]);
+      const outline=q.shape==='shell'?[[-hw*.8,hh],[hw*.8,hh],[hw,hh*.62],[hw*.86,-hh*.74],[hw*.7,-hh],[-hw*.7,-hh],[-hw*.86,-hh*.74],[-hw,hh*.62]]:q.shape==='mantle'?[[-hw*.7,hh],[hw*.7,hh],[hw,-hh],[-hw,-hh]]:[[-hw,hh],[hw,hh],[bw,-hh],[-bw,-hh]];
+      const pts=outline.map(([x,y])=>[x*Math.cos(q.rz)-y*Math.sin(q.rz),x*Math.sin(q.rz)+y*Math.cos(q.rz)]);
       return {z:pv[2]+q.z+q.d/2,k:q.k,pts:pts.map(([x,y])=>X(cx+x).toFixed(1)+','+Y(cy+y).toFixed(1)).join(' ')}}).sort((a,b)=>a.z-b.z);
     const grad=(k,c)=>`<linearGradient id="${id}g${k}" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="${mix(c,'#FFFFFF',k===1?.28:.12)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${mix(c,'#000000',.45)}"/></linearGradient>`;
     const fill=k=>k===2||k===3?pal[2]:`url(#${id}g${k})`;
@@ -2594,6 +2627,29 @@ function chamfer(c,taper){
     pos.push(...a,...b,...d);const e=i>=36?1:0;edge.push(e,e,e)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('edge',new THREE.Float32BufferAttribute(edge,1));g.computeVertexNormals();return g;
 }
+// Authored profile shells: elliptical sections with a pulled-in waist and softened shoulders.
+// These remain part of the existing surface batches and use the same rigid bone attachments.
+function shellGeometry(){
+  const p=[],n=12,rings=[[-.5,.7],[-.37,.86],[.31,1],[.5,.8]];
+  const point=(r,i)=>[Math.cos(i/n*Math.PI*2)*.5*r[1],r[0],Math.sin(i/n*Math.PI*2)*.5*r[1]];
+  for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++){
+    const a=point(rings[j],i),b=point(rings[j],i+1),c=point(rings[j+1],i+1),d=point(rings[j+1],i);
+    p.push(...a,...d,...c,...a,...c,...b);
+  }
+  for(let i=0;i<n;i++){p.push(0,-.5,0,...point(rings[0],i),...point(rings[0],i+1));p.push(0,.5,0,...point(rings[3],i+1),...point(rings[3],i))}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('edge',new THREE.Float32BufferAttribute(new Float32Array(p.length/3),1));g.computeVertexNormals();return g;
+}
+// Folded textile panels have a flared hem and actual thickness. Back-facing triangles make the
+// inside readable without double-sided rendering all of the figure's body material.
+function mantleGeometry(){
+  const p=[],nx=6,ny=5;
+  const point=(x,y,back)=>{const u=x/nx,v=y/ny,flare=.7+.3*(1-v);return [(u-.5)*flare,v-.5,(Math.cos(u*Math.PI*6)*.3+.12*Math.sin(v*Math.PI))+(back?-.035:.035)]};
+  for(let y=0;y<ny;y++)for(let x=0;x<nx;x++)for(const back of [false,true]){
+    const a=point(x,y,back),b=point(x+1,y,back),c=point(x+1,y+1,back),d=point(x,y+1,back);
+    if(back)p.push(...a,...c,...b,...a,...d,...c);else p.push(...a,...b,...c,...a,...c,...d);
+  }
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('edge',new THREE.Float32BufferAttribute(new Float32Array(p.length/3),1));g.computeVertexNormals();return g;
+}
 function plain(g){g=g.toNonIndexed();g.setAttribute('edge',new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count),1));return g}
 // Compass ring under each Sentinel: a lit band, 36 ticks and four cardinal chevrons, laid flat. hi adds a dashed inner band and eight chevrons.
 function ringGeometry(hi){
@@ -2619,9 +2675,9 @@ function auraAlpha(){const n=32,d=new Uint8Array(n*4);for(let i=0;i<n;i++){const
 function shared(){
   if(G.box)return G;
   G.box=plain(new THREE.BoxGeometry(1,1,1));G.bevel=chamfer(.14);G.taper=chamfer(.14,.72);G.cap=plain(new THREE.CylinderGeometry(.5,.5,1,10).rotateZ(Math.PI/2));
-  G.ring=ringGeometry(false);G.ringHi=ringGeometry(true);G.aura=new THREE.CylinderGeometry(1.02,1.12,1.5,48,1,true).translate(0,.75,0);G.auraTex=auraAlpha();
+  G.shell=shellGeometry();G.mantle=mantleGeometry();G.ring=ringGeometry(false);G.ringHi=ringGeometry(true);G.aura=new THREE.CylinderGeometry(1.02,1.12,1.5,48,1,true).translate(0,.75,0);G.auraTex=auraAlpha();
   G.slate=new THREE.PlaneGeometry(1,.62);G.orb=new THREE.SphereGeometry(.07,8,6);G.beam=new THREE.CylinderGeometry(.12,.12,1,8,1,true);G.link=new THREE.CylinderGeometry(.05,.05,1,5,1,true);
-  G.set=new Set([G.box,G.bevel,G.taper,G.cap,G.ring,G.ringHi,G.aura,G.slate,G.orb,G.beam,G.link]);
+  G.set=new Set([G.box,G.bevel,G.taper,G.cap,G.shell,G.mantle,G.ring,G.ringHi,G.aura,G.slate,G.orb,G.beam,G.link]);
   loadTextures();
   return G;
 }
@@ -2771,7 +2827,7 @@ function makeSentinel(a){
   const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},sway:{value:.28},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0},forge:{value:0},forgeY:{value:-1}};
   // Each plate gets its own shade (0.86 to 1.08) so neighboring panels read as separate pieces of metal.
   bp.parts.forEach((q,i)=>{
-    const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
+    const geo=q.shape==='mantle'||q.shape==='shell'?g[q.shape]:q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
     const shade=lit?1:.86+.22*hash(seed+i),col=kind==='armor'?white:tone[q.k],origin=bp.pivots[q.slot]||[0,0,0];
     if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],wear:[],bone:[],weight:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
   });
@@ -3368,6 +3424,130 @@ const DistrictAssets=(()=>{
 })();
 
 
+// A planted understory and branching grove. All geometry is batched; no downloaded
+// models, transparent sorting, per-tree tick loop or extra renderer is required.
+const VaultLandscape=(()=>{
+  function random(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+  function build({THREE:T,trees=[],districts=[],buildings=[],side=500,world=null,treeStyle=null,high=true,reducedMotion=false}){
+    const group=new T.Group();group.name='Living gardens';
+    const rng=random(0x5641554c),clock={value:0};
+    const colour=hex=>new T.Color(hex).convertSRGBToLinear();
+    const mats=[],textures=[],geometries=[];
+    const material=opts=>{const m=new T.MeshStandardMaterial(opts);mats.push(m);return m};
+    const bark=material({color:colour('#77624a'),roughness:1});
+    const grassMat=material({color:0xffffff,roughness:1,side:T.DoubleSide});
+    const flowerMat=material({color:0xffffff,roughness:.95,side:T.DoubleSide});
+    const stoneMat=material({color:0xffffff,roughness:1});
+    const soilMat=material({color:0xffffff,roughness:1,polygonOffset:true,polygonOffsetFactor:-1});
+    // Leaf silhouettes, veins and small gaps keep the canopy airy at walking height.
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=256;
+    const ctx=canvas.getContext('2d');
+    for(let i=0;i<108;i++){
+      const a=rng()*Math.PI*2,r=Math.sqrt(rng())*101,x=128+Math.cos(a)*r,y=128+Math.sin(a)*r;
+      ctx.save();ctx.translate(x,y);ctx.rotate(rng()*6.28);
+      ctx.fillStyle=['#b5c58b','#91ab65','#688750','#d0d399','#a0b773'][i%5];
+      ctx.beginPath();ctx.ellipse(0,0,7+rng()*8,3+rng()*4,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(60,87,36,.4)';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(8,0);ctx.stroke();ctx.restore();
+    }
+    const leafTex=new T.CanvasTexture(canvas);leafTex.encoding=T.sRGBEncoding;textures.push(leafTex);
+    const leafMat=material({map:leafTex,color:0xffffff,alphaTest:.46,roughness:.93,side:T.DoubleSide});
+    function wind(mat,strength){
+      mat.onBeforeCompile=shader=>{
+        shader.uniforms.uGardenTime=clock;
+        shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uGardenTime;');
+        shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+          #ifdef USE_INSTANCING
+          vec3 gardenOrigin=instanceMatrix[3].xyz;
+          float gardenWave=sin(uGardenTime*1.2+gardenOrigin.x*.19+gardenOrigin.z*.14)+.35*sin(uGardenTime*2.1+gardenOrigin.z*.41);
+          transformed.x+=gardenWave*${strength.toFixed(3)}*max(0.,position.y+.25);
+          #endif`);
+      };mat.customProgramCacheKey=()=>`garden-wind-${strength}`;
+    }
+    wind(leafMat,.065);wind(grassMat,.13);wind(flowerMat,.055);
+    function geometry(points,indices){const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(points,3));if(indices)g.setIndex(indices);g.computeVertexNormals();return g}
+    // Three intersecting leafy sprays. The texture is cut out, not blended.
+    const lp=[],lu=[],li=[];
+    for(let k=0;k<3;k++){
+      const a=k*Math.PI/3,dx=Math.cos(a),dz=Math.sin(a),o=lp.length/3;
+      lp.push(-dx,-.8,-dz,dx,-.8,dz,dx,1.2,dz,-dx,1.2,-dz);lu.push(0,0,1,0,1,1,0,1);li.push(o,o+1,o+2,o,o+2,o+3);
+    }
+    const leafGeo=geometry(lp,li);leafGeo.setAttribute('uv',new T.Float32BufferAttribute(lu,2));
+    const trunkGeo=new T.CylinderGeometry(.56,1,1,7,2);trunkGeo.translate(0,.5,0);
+    // Bent tapered blades have real silhouette and an exposed center ridge.
+    const gp=[];
+    for(let j=0;j<9;j++){
+      const a=j*2.399,h=.45+rng()*.6,w=.028+rng()*.026,lean=.17+rng()*.18;
+      const x=Math.cos(a)*.16,z=Math.sin(a)*.16,dx=Math.cos(a),dz=Math.sin(a);
+      gp.push(x-dz*w,0,z+dx*w,x+dz*w,0,z-dx*w,x+dx*lean*.45,h*.55,z+dz*lean*.45,
+        x+dz*w,0,z-dx*w,x+dx*lean,h,z+dz*lean,x+dx*lean*.45,h*.55,z+dz*lean*.45);
+    }
+    const grassGeo=geometry(gp);
+    const fp=[];
+    for(let k=0;k<5;k++){
+      const y=.4+k*.09,r=.10*(1-k*.1);
+      for(let p=0;p<5;p++){const a=p*6.283/5,b=a+.8;fp.push(0,y,0,Math.cos(a)*r,y+.035,Math.sin(a)*r,Math.cos(b)*r,y+.075,Math.sin(b)*r)}
+    }
+    const flowerGeo=geometry(fp);
+    const rockGeo=new T.IcosahedronGeometry(1,1),rp=rockGeo.attributes.position;
+    for(let i=0;i<rp.count;i++){const x=rp.getX(i),y=rp.getY(i),z=rp.getZ(i),n=1+.17*Math.sin(x*13+z*11+y*7);rp.setXYZ(i,x*n,y*n,z*n)}rockGeo.computeVertexNormals();
+    const sp=[0,.015,0],si=[];
+    for(let j=0;j<16;j++){const a=j*6.283/16,r=1+.12*Math.sin(j*4.3);sp.push(Math.cos(a)*r,.014,Math.sin(a)*r);si.push(0,1+j,1+(j+1)%16)}
+    // Reverse winding for an upward facing ground patch.
+    for(let i=0;i<si.length;i+=3){const n=si[i+1];si[i+1]=si[i+2];si[i+2]=n}
+    const soilGeo=geometry(sp,si);
+    const trunks=[],leaves=[],grass=[],flowers=[],rocks=[],soil=[];
+    const yAxis=new T.Vector3(0,1,0),q=new T.Quaternion(),direction=new T.Vector3();
+    const buildingGrid=new Map(),cell=24;
+    for(const b of buildings){if(!b)continue;for(let x=Math.floor((b.cx-b.fw/2-3)/cell);x<=Math.floor((b.cx+b.fw/2+3)/cell);x++)for(let z=Math.floor((b.cz-b.fd/2-3)/cell);z<=Math.floor((b.cz+b.fd/2+3)/cell);z++){const key=x+','+z;if(!buildingGrid.has(key))buildingGrid.set(key,[]);buildingGrid.get(key).push(b)}}
+    function clear(x,z){return !(buildingGrid.get(Math.floor(x/cell)+','+Math.floor(z/cell))||[]).some(b=>Math.abs(x-b.cx)<b.fw/2+2.2&&Math.abs(z-b.cz)<b.fd/2+2.2)}
+    const inGarden=(x,z)=>districts.some(d=>x>d.x+.8&&x<d.x+d.w-.8&&z>d.z+.8&&z<d.z+d.d-.8)||(world&&(Math.abs(x)>world.W/2+6||Math.abs(z)>world.H/2+6)&&Math.abs(x)<side/2-15&&Math.abs(z)<side/2-15)||Math.max(Math.abs(x),Math.abs(z))>side/2-13;
+    const leafColours=['#77944a','#658445','#8c9a53','#587647','#939d59'].map(colour);
+    const grassColours=['#627f3f','#83964e','#9aab62','#526f3f'].map(colour);
+    const flowerColours=['#dbc992','#b9abc2','#cbb5d9','#efe5b9'].map(colour);
+    const usable=trees.filter(t=>Number.isFinite(t.x)&&Number.isFinite(t.z)&&clear(t.x,t.z)).slice(0,high?2200:700);
+    usable.forEach((t,index)=>{
+      const k=Number.isFinite(t.k)?t.k:rng(),style=treeStyle?treeStyle(t.x,t.z,k):null,scale=t.greenbelt?1.6:1,h=(5.7+k*3.7)*scale*(style?.sy||1),width=(1.7+k*1.1)*scale*(style?.sx||1),angle=rng()*6.283;
+      const leafColour=style?new T.Color().setHSL(style.h,style.s,style.l).convertSRGBToLinear():leafColours[index%5];
+      trunks.push({x:t.x,y:0,z:t.z,sx:.25+k*.13,sy:h*.73,sz:.25+k*.13,ry:angle});
+      const branchCount=high?5:3;
+      for(let j=0;j<branchCount;j++){
+        const a=angle+j*2.4,by=h*(.32+j*.075),length=1.5+k*.8;
+        direction.set(Math.cos(a)*.65,.75,Math.sin(a)*.65).normalize();q.setFromUnitVectors(yAxis,direction);
+        trunks.push({x:t.x,y:by,z:t.z,sx:.10,sy:length,sz:.10,q:q.clone()});
+      }
+      for(let j=0;j<(high?8:5);j++){
+        const a=angle+j*2.399,r=j===0?0:width*.58,y=h*.7+Math.sin(j*1.3)*h*.14;
+        leaves.push({x:t.x+Math.cos(a)*r,y,z:t.z+Math.sin(a)*r,sx:width*(.83+rng()*.3),sy:width*(.73+rng()*.2),sz:width*(.83+rng()*.3),ry:a,c:leafColour});
+      }
+      const radius=(1.3+k*.4)*scale;
+      soil.push({x:t.x,y:.028,z:t.z,sx:radius,sy:1,sz:radius*.88,ry:angle,c:colour(index%3?'#65734a':'#777450')});
+      const n=high?18:9;
+      for(let j=0;j<n;j++){
+        if(grass.length>=(high?14000:4300))break;
+        const a=rng()*6.283,r=.25+Math.sqrt(rng())*2.2,x=t.x+Math.cos(a)*r,z=t.z+Math.sin(a)*r;
+        if(!clear(x,z)||!inGarden(x,z))continue;
+        const s=(.5+rng()*.65)*(t.greenbelt?1.35:1);grass.push({x,y:.04,z,sx:s,sy:s,sz:s,ry:a,c:grassColours[j%4]});
+        if(j%4===0&&index%3===0)flowers.push({x,y:.04,z,sx:.85,sy:.8+rng()*.6,sz:.85,ry:a,c:flowerColours[index%4]});
+      }
+      if(index%3===0){const a=angle+1,x=t.x+Math.cos(a)*1.1,z=t.z+Math.sin(a)*1.1;if(clear(x,z)&&inGarden(x,z))rocks.push({x,y:.18,z,sx:.4+k*.4,sy:.23+k*.3,sz:.45,ry:a,c:colour(index%2?'#9b9d87':'#7e8771')})}
+    });
+    function batch(geo,mat,list,name,shadow){
+      geometries.push(geo);if(!list.length)return;
+      const mesh=new T.InstancedMesh(geo,mat,list.length),o=new T.Object3D(),white=new T.Color(1,1,1);
+      list.forEach((p,i)=>{o.position.set(p.x,p.y,p.z);o.rotation.set(0,p.ry||0,0);if(p.q)o.quaternion.copy(p.q);o.scale.set(p.sx||1,p.sy||1,p.sz||1);o.updateMatrix();mesh.setMatrixAt(i,o.matrix);mesh.setColorAt(i,p.c||white)});
+      mesh.name=name;mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;mesh.frustumCulled=false;mesh.castShadow=shadow;mesh.receiveShadow=true;group.add(mesh);
+    }
+    batch(trunkGeo,bark,trunks,'Branching hardwood trunks',high);batch(leafGeo,leafMat,leaves,'Layered leaf sprays',high);
+    batch(soilGeo,soilMat,soil,'Irregular moss beds',false);batch(grassGeo,grassMat,grass,'Meadow blades',false);
+    batch(flowerGeo,flowerMat,flowers,'Lavender and cream wildflowers',false);batch(rockGeo,stoneMat,rocks,'Weathered garden stones',high);
+    group.userData.landscape={clock,reducedMotion,materials:mats,textures,geometries,counts:{trees:usable.length,grass:grass.length,flowers:flowers.length,drawCalls:group.children.length}};
+    return group;
+  }
+  function update(group,time){const data=group?.userData.landscape;if(data)data.clock.value=data.reducedMotion?0:time}
+  function dispose(group){const d=group?.userData.landscape;if(!d)return;d.materials.forEach(m=>m.dispose());d.textures.forEach(t=>t.dispose());d.geometries.forEach(g=>g.dispose());if(group.parent)group.parent.remove(group);delete group.userData.landscape}
+  return {build,update,dispose};
+})();
+
 // =====================================================================
 // Facades: what a building says about its note.
 // Every building is a note. Its windows, door, awning, sign, balconies, scaffolding and roof stubs read the note's
@@ -3501,6 +3681,57 @@ const Facades=(()=>{
       }
     }
   }
+  // Street-level tectonics: stone reveals and cornices give the skyline real depth.
+  // All parts stay within the existing facade pad. The doorway remains unobstructed.
+  function architecture(out,b,s,detail=false){
+    const t=b.tiers[0],f=faceOf(t,b.door),stone=s.archived?'#69675e':'#b0ab97';
+    const trim=mixHex('#687474',b.color||'#D4A843',.14);
+    if(!detail){
+      // Full-width entablature with two recessed jambs reads from the street and aerial view.
+      const span=2*f.half,center=-f.along*(Math.abs(f.nx)>0?-f.nx:f.nz);
+      part(out,f,center,Math.min(t.y1-.18,3.5),.14,span,.24,.28,stone,0,'cornice',b.id);
+      for(const side of [-1,1])part(out,f,center+side*(f.half-.18),Math.min(t.y1,3.5)/2,.12,.26,Math.min(t.y1,3.5),.24,stone,0,'pier',b.id);
+      return;
+    }
+    for(let k=0;k<b.tiers.length;k++){
+      const q=b.tiers[k],height=q.y1-q.y0;
+      if(height<2||q.w<1||q.d<1)continue;
+      const ff=faceOf(q,{x:q.x+f.nx*100,z:q.z+f.nz*100});
+      // Deep overhangs articulate setbacks without touching road cells.
+      part(out,ff,0,q.y1-.12,.1,ff.half*2+.2,.2,.35,trim,0,'cornice',b.id);
+      const n=b.style===3?4:b.style===4?3:2;
+      for(let i=0;i<n;i++){
+        const lx=(i/(n-1)-.5)*(ff.half*2-.55);
+        part(out,ff,lx,q.y0+height*.55,.1,b.style===3?.23:.1,height*.72,.18,b.style===3?stone:trim,0,'mullion',b.id);
+      }
+      if(b.style===1||b.style===2){
+        for(let j=1;j<=2;j++)part(out,ff,0,q.y0+height*j/3,.2,ff.half*2,.1,.42,trim,0,'sunshade',b.id);
+      }
+    }
+    // Warm wall sconces, sheltered below the canopy; no extra point lights.
+    if(!s.archived)for(const side of [-1,1]){
+      part(out,f,side*.92,2,.2,.16,.38,.16,'#4b5350',0,'sconce',b.id);
+      part(out,f,side*.92,2,.3,.1,.23,.05,'#f6d4a0',.55,'sconce-glass',b.id);
+    }
+  }
+  // Occupied setback terraces: contained planting and timber seats, deterministically varied.
+  // Use lower flat setback surfaces only; never float furniture on a pitched roof.
+  function terraces(out,b,s){
+    if(s.archived||b.tiers.length<2)return;
+    for(let k=0;k<b.tiers.length-1;k++){
+      const t=b.tiers[k],upper=b.tiers[k+1],gap=t.z+t.d/2-(upper.z+upper.d/2);
+      if(gap<1.25||t.w<4)continue;
+      const z=t.z+t.d/2-.55,y=t.y1,w=Math.min(2.1,t.w*.3),x=t.x-t.w*.25;
+      const add=(xx,yy,zz,sx,sy,sz,col,kind)=>out.push({x:xx,y:yy,z:zz,sx,sy,sz,rx:0,ry:0,col,glow:0,kind,id:b.id});
+      add(x,y+.2,z,w,.4,.72,'#8c8877','planter');
+      add(x,y+.42,z,w-.14,.06,.58,'#493f2e','soil');
+      // Staggered low planting catches light instead of a single flat green slab.
+      for(let j=0;j<3;j++)add(x+(j-1)*w*.27,y+.55+h01(b.id+':plant:'+j)*.14,z,.4,.25,.46,j===1?'#81946a':'#506b50','plant');
+      add(t.x+t.w*.23,y+.4,z,Math.min(1.6,t.w*.28),.14,.55,'#998365','seat');
+      for(const side of [-1,1])add(t.x+t.w*.23+side*.45,y+.18,z,.1,.36,.4,'#4d5958','seat-leg');
+      break;
+    }
+  }
   function roofStubs(out,b,s,surf){
     const t=b.tiers[b.tiers.length-1],y=(x,z)=>surf?surf(x,z):t.y1;
     if(s.orphan){const x=t.x+t.w*.3,z=t.z-t.d*.3,y0=y(x,z);
@@ -3541,6 +3772,9 @@ const Facades=(()=>{
     take(it=>{const before=out.length;const di=doorway(out,it.b,it.s);if(out.length>cap)out.length=before;else if(di>=0)doors.set(it.b.id,di)});
     take(it=>{const before=out.length;roofStubs(out,it.b,it.s,it.surf);if(out.length>cap)out.length=before});
     take(it=>{const before=out.length;storefront(out,it.b,it.s);if(out.length>cap)out.length=before});
+    take(it=>{const before=out.length;architecture(out,it.b,it.s);if(out.length>cap)out.length=before});
+    take(it=>{const before=out.length;architecture(out,it.b,it.s,true);if(out.length>cap)out.length=before});
+    take(it=>{const before=out.length;terraces(out,it.b,it.s);if(out.length>cap)out.length=before});
     take(it=>{const before=out.length;balconies(out,it.b,it.s);if(out.length>cap)out.length=before});
     return {parts:out,doors,scaffolds:sc};
   }
@@ -3564,24 +3798,27 @@ const Facades=(()=>{
     MAT=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.72,metalness:.18});
     MAT.onBeforeCompile=sh=>{
       sh.uniforms.uLamp=SH&&SH.uLamp?SH.uLamp:{value:0};
-      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float aGlow;varying float vGlow;')
-        .replace('#include <begin_vertex>','#include <begin_vertex>\nvGlow=aGlow;');
-      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uLamp;varying float vGlow;')
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float aGlow;attribute float aFinish;varying float vGlow;varying float vFinish;')
+        .replace('#include <begin_vertex>','#include <begin_vertex>\nvGlow=aGlow;vFinish=aFinish;');
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uLamp;varying float vGlow;varying float vFinish;')
+        .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=vFinish;')
+        .replace('#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\nmetalnessFactor=vFinish<0.5?0.48:0.06;')
         .replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=diffuseColor.rgb*vGlow*(0.22+uLamp*1.9);');
     };
     return MAT;
   }
   function build(items,opt={}){
     const L=layout(items,opt),n=Math.max(1,L.parts.length);
-    const geo=new THREE.BoxGeometry(1,1,1),glow=new Float32Array(n);
+    const geo=new THREE.BoxGeometry(1,1,1),glow=new Float32Array(n),finish=new Float32Array(n);
     const mesh=new THREE.InstancedMesh(geo,opt.material||material(opt.SH),n);mesh.count=L.parts.length;
     const o=new THREE.Object3D(),c=new THREE.Color(),cache=new Map();
     o.rotation.order='YXZ';
     L.parts.forEach((p,i)=>{
       o.position.set(p.x,p.y,p.z);o.rotation.set(p.rx||0,p.ry||0,0);o.scale.set(p.sx,p.sy,p.sz);o.updateMatrix();mesh.setMatrixAt(i,o.matrix);
-      if(!cache.has(p.col))cache.set(p.col,new THREE.Color(p.col).convertSRGBToLinear());mesh.setColorAt(i,cache.get(p.col));glow[i]=p.glow||0;
+      if(!cache.has(p.col))cache.set(p.col,new THREE.Color(p.col).convertSRGBToLinear());mesh.setColorAt(i,cache.get(p.col));glow[i]=p.glow||0;finish[i]=['rail','mullion','sunshade','sconce','seat-leg','scaffold'].includes(p.kind)?.38:['door','sconce-glass'].includes(p.kind)?.25:.86;
     });
     if(!L.parts.length){mesh.setColorAt(0,c.set(0xffffff))}
+    geo.setAttribute('aFinish',new THREE.InstancedBufferAttribute(finish,1));
     geo.setAttribute('aGlow',new THREE.InstancedBufferAttribute(glow,1));
     mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
     mesh.castShadow=!!opt.shadow;mesh.receiveShadow=true;mesh.frustumCulled=false;mesh.name='facade-dressing';
@@ -4035,7 +4272,7 @@ let districtAssets=null;
 // state uploads, the busy set cached by setAgents, the pending aState range, and the walker's nearest door.
 const FACADES=typeof Facades!=="undefined";
 let facade=null,FSIG=[],bRange=[],busyIds=new Set(),stRange=null,doorNear=-1,lastDoorScan=0,taskOf=new Map();
-let decor=null,roofProps=null,roofAnim=[],drones=null,motes=null,lampHalo=null,water=null,lastAmb=0;
+let landscape=null,decor=null,roofProps=null,roofAnim=[],drones=null,motes=null,lampHalo=null,water=null,lastAmb=0;
 const _c1=new THREE.Color(),_c2=new THREE.Color();
 const cam={tx:0,ty:0,tz:0,yaw:.5,pitch:.62,dist:700},goal=Object.assign({},cam);
 const shiftNow={x:0,y:0},shiftGoal={x:0,y:0};
@@ -4051,7 +4288,7 @@ const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 const MODES={
   dusk:{top:"#0f1733",mid:"#3a4577",bot:"#8a6a86",haze:"#c98a6e",sun:"#ff9a4d",sunI:3.6,dir:[.74,.3,.46],hSky:"#6f7fba",hGnd:"#3a2d3c",hI:.95,fog:"#6c5b7c",fogD:.00062,exp:1.1,win:1.5,ui:"dark",stars:.25,bloom:.55,cloud:.62,csh:.12},
   night:{top:"#03050d",mid:"#0b1230",bot:"#1b2650",haze:"#243052",sun:"#8fa8ff",sunI:.35,dir:[.5,.36,.5],hSky:"#283252",hGnd:"#0a0c16",hI:.7,fog:"#0a1024",fogD:.00105,exp:1.2,win:2.1,ui:"dark",stars:1,bloom:1,cloud:.4,csh:0},
-  day:{top:"#6ea4d6",mid:"#d7e7f4",bot:"#f6efe2",haze:"#f4e6cf",sun:"#fff6d8",sunI:1.8,dir:[.38,.78,.36],hSky:"#e7f1fb",hGnd:"#7ea15c",hI:.65,fog:"#e7f0e4",fogD:.00018,exp:.92,win:.34,ui:"light",stars:0,bloom:.28,cloud:.28,csh:.16},
+  day:{top:"#638aab",mid:"#b8cfcf",bot:"#dce0ce",haze:"#e4dfc5",sun:"#fff0d5",sunI:1.8,dir:[.58,.63,.36],hSky:"#c0d6e0",hGnd:"#536a43",hI:.5,fog:"#c7d4c5",fogD:.00018,exp:.68,win:.34,ui:"light",stars:0,bloom:.12,cloud:.34,csh:.22},
   dawn:{top:"#2a3a6e",mid:"#7a86b4",bot:"#e2a98c",haze:"#f0b08a",sun:"#ffc08a",sunI:2.6,dir:[.74,.3,.46],hSky:"#8c9ccc",hGnd:"#4a3d3c",hI:.9,fog:"#9a8a98",fogD:.0007,exp:1.05,win:1.0,ui:"dark",stars:.1,bloom:.4,cloud:.58,csh:.15}
 };
 const MODE_ORDER=["auto","dawn","day","dusk","night"];
@@ -4239,10 +4476,20 @@ function groundMaterial(tex){
   lawn*=mix(0.86,1.1,vn(wp*0.06+3.1))*(1.0+0.035*step(0.5,fract(wp.x*0.11+vn(wp*0.01)*0.6)));
   float trail=1.0-smoothstep(0.0,0.03,abs(vn(wp*0.012+7.3)-0.5));
   lawn=mix(lawn,plan*vec3(1.12,0.98,0.82)*0.92,trail*0.5);
-  vec3 court=plan*vec3(1.06,1.0,0.9);
+  // Meter-scale staggered limestone courses. The albedo tile and joints remain
+  // visible at walking height instead of collapsing to the flat plan colour.
+  vec2 stoneUV=wp/vec2(2.4,1.25);
+  stoneUV.x+=mod(floor(stoneUV.y),2.0)*0.5;
+  vec2 stoneF=fract(stoneUV),stoneId=floor(stoneUV);
+  float joint=min(min(stoneF.x,1.0-stoneF.x)*2.4,min(stoneF.y,1.0-stoneF.y)*1.25);
+  float mortar=1.0-smoothstep(0.025,0.065,joint);
+  float stoneTone=0.9+0.16*h21(stoneId);
+  float mineral=mix(0.92,1.08,clamp(dot(pav,vec3(0.333))*3.0,0.0,1.0));
+  vec3 court=plan*vec3(1.06,1.0,0.9)*stoneTone*mineral;
+  court*=mix(1.0,0.58,mortar);
   diffuseColor.rgb=mix(lawn,court,m)*drift*mix(0.78,1.0,ao)*cloudSh(wp);
   // after dark the plazas read slightly damp: lower roughness catches the lamp pools and window glow
-  roughnessFactor=mix(0.92,0.78,m)-uNight*0.22*m;
+  roughnessFactor=mix(0.92,mix(0.78,0.96,mortar),m)-uNight*0.22*m;
 ${VFXOK?VFX.GROUND_GLSL:""}
 }`).replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
 { vec3 lm=texture2D(t_light,vec2(vGPos.x/uSide+0.5,0.5-vGPos.z/uSide)).rgb;totalEmissiveRadiance+=lm*lm*uLamp*1.3;
@@ -4590,7 +4837,7 @@ function pushSky(dir,sunUp,moonI){
   bloomNow=CUR.bloom;
   worldColors();SH.uOcc.value=occupancy();if(stars)skyRotate();
   // shadows re-render only when the light moves more than about half a degree
-  if(shadowDir.dot(dir)<0.99996){shadowDir.copy(dir);sun.position.copy(dir).multiplyScalar(1100);renderer.shadowMap.needsUpdate=true}
+  if(shadowDir.dot(dir)<0.99996){shadowDir.copy(dir);sun.position.copy(dir).multiplyScalar(1100).add(sun.target.position);renderer.shadowMap.needsUpdate=true}
   if(document.documentElement.dataset.theme!==CUR.ui){const de=document.documentElement;de.classList.add("theme-swap");de.dataset.theme=CUR.ui;store.set("vault.theme",CUR.ui);requestAnimationFrame(()=>requestAnimationFrame(()=>de.classList.remove("theme-swap")))} // review fix: no dark-on-dark flash on .btn
   if(window.HUD)HUD.phase(mode==="auto"?LIGHT.elev:mode,CUR.ui); // UI hook: golden/dusk/night HUD tint (b_hud.js); only touches the DOM when the phase changes
   dirty=true;
@@ -4661,8 +4908,24 @@ function tipTime(){
   b.setAttribute("data-tip",`Time of day: ${mode}${mode==="auto"?" · "+clock:""}`);
 }
 function skyTick(){if(C.ok&&mode==="auto"&&!document.hidden)applyMode("auto")}
-function fitShadow(){
-  const S=GSIDE*.62;const c=sun.shadow.camera;c.left=-S;c.right=S;c.top=S;c.bottom=-S;c.near=20;c.far=2600;c.updateProjectionMatrix();renderer.shadowMap.needsUpdate=true;
+// Concentrate the existing shadow map around the visitor at street level. A city-wide
+// map spreads each texel over whole doorways; this keeps foliage and feet grounded.
+// Snapped 24-unit cells avoid re-rendering the static map for every camera motion.
+const shadowFocus={x:NaN,z:NaN,span:0};
+function fitShadow(force=true){
+  if(!sun||!renderer)return;
+  const local=walk||cam.dist<260;
+  const S=local?(walk?144:320):GSIDE*.62;
+  const x=local?Math.round(cam.tx/24)*24:0,z=local?Math.round(cam.tz/24)*24:0;
+  if(!force&&shadowFocus.x===x&&shadowFocus.z===z&&shadowFocus.span===S)return;
+  shadowFocus.x=x;shadowFocus.z=z;shadowFocus.span=S;
+  const c=sun.shadow.camera;c.left=-S;c.right=S;c.top=S;c.bottom=-S;c.near=20;c.far=2600;c.updateProjectionMatrix();
+  sun.target.position.set(x,0,z);sun.target.updateMatrixWorld();
+  // Preserve the active sky's direction when the map follows the camera.
+  if(shadowDir.lengthSq()>0)sun.position.copy(shadowDir).multiplyScalar(1100).add(sun.target.position);
+  sun.shadow.bias=local?-.00012:-.00045;
+  sun.shadow.normalBias=local?.24:.9;
+  renderer.shadowMap.needsUpdate=true;
 }
 
 // ---------- post: multisampled scene, bloom for windows and lamps, then one grade pass (light shafts, split tone, grain, sRGB)
@@ -4677,7 +4940,7 @@ function loadPost(){
   next(0);
 }
 const GradeShader={
-  uniforms:{tDiffuse:{value:null},uSun:{value:new THREE.Vector2(.5,.5)},uShaft:{value:0},uSunCol:{value:new THREE.Color(1,.8,.6)},uTime:{value:0},uRes:{value:new THREE.Vector2(1,1)},uGrain:{value:.018}},
+  uniforms:{tDiffuse:{value:null},uSun:{value:new THREE.Vector2(.5,.5)},uShaft:{value:0},uSunCol:{value:new THREE.Color(1,.8,.6)},uTime:{value:0},uRes:{value:new THREE.Vector2(1,1)},uGrain:{value:.004}},
   vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
   fragmentShader:`uniform sampler2D tDiffuse;uniform vec2 uSun;uniform float uShaft;uniform vec3 uSunCol;uniform float uTime;uniform vec2 uRes;uniform float uGrain;varying vec2 vUv;
 float hh(vec2 p){p=fract(p*vec2(443.897,441.423));p+=dot(p,p.yx+19.19);return fract((p.x+p.y)*p.x);}
@@ -4692,10 +4955,10 @@ void main(){
   }
   // grade in linear light: a touch more colour, cool shadows, warm highlights
   float lum=dot(c,vec3(0.2126,0.7152,0.0722));
-  c=max(mix(vec3(lum),c,1.07),0.0);
-  c*=mix(vec3(0.93,0.98,1.07),vec3(1.05,1.0,0.92),smoothstep(0.04,0.55,lum));
+  c=max(mix(vec3(lum),c,1.025),0.0);
+  c*=mix(vec3(0.96,0.99,1.025),vec3(1.025,1.0,0.96),smoothstep(0.04,0.55,lum));
   c=clamp(toSRGB(c),0.0,1.0);
-  c=mix(c,c*c*(3.0-2.0*c),0.14);
+  c=mix(c,c*c*(3.0-2.0*c),0.08);
   c+=(hh(vUv*uRes+fract(uTime*7.31)*91.0)-0.5)*uGrain;
   gl_FragColor=vec4(c,1.0);
 }`};
@@ -4823,6 +5086,7 @@ function instMesh(geo,mat,list,shadow){const m=new THREE.InstancedMesh(geo,mat,M
   m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.castShadow=!!shadow;m.receiveShadow=true;m.frustumCulled=false;return m}
 function disposeGroup(gp){if(!gp)return;gp.traverse(o=>{if(o.geometry)o.geometry.dispose()});scene.remove(gp)}
 function buildDecor(){
+  if(landscape){VaultLandscape.dispose(landscape);landscape=null}
   disposeGroup(decor);disposeGroup(roofProps);decor=new THREE.Group();roofProps=new THREE.Group();scene.add(decor,roofProps);
   const M=decorMaterials(),R=(s)=>hash01(s);
   // street lamps: on the kerb just outside each district plot, every 20 units, switching on one by one at dusk
@@ -4847,11 +5111,26 @@ function buildDecor(){
     per.forEach(([x0,z0,x1,z1],e)=>{const L=Math.hypot(x1-x0,z1-z0),n=Math.floor(L/9);for(let i=1;i<n;i++){const t=(i+(R(d.top+"t"+e+i)-.5)*.4)/n,x=x0+(x1-x0)*t,z=z0+(z1-z0)*t;if(okCell(x,z,1))trees.push({x,z,k:R(d.top+"s"+e+i)})}})});
   const qt=GSIDE/2-8.5;[[-qt,-qt,qt,-qt],[qt,-qt,qt,qt],[qt,qt,-qt,qt],[-qt,qt,-qt,-qt]].forEach(([x0,z0,x1,z1],e)=>{const n=Math.floor(GSIDE/11);for(let i=1;i<n;i++){const t=i/n,x=x0+(x1-x0)*t,z=z0+(z1-z0)*t;if(okCell(x,z,1))trees.push({x,z,k:R("qt"+e+i)})}});
   for(let i=0;i<9000&&trees.length<cap;i++){const d=DIST[i%DIST.length],x=d.x+4+R("x"+i)*(d.w-8),z=d.z+4+R("z"+i)*(d.d-8);if(okCell(x,z,2))trees.push({x,z,k:R("k"+i)})}
+  // Reserve two fifths of the shared tree budget for clustered outer groves.
+  // Existing city anchors are sampled across all districts rather than truncating
+  // the final districts. Keep the waterfront promenade and cardinal walks clear.
+  const groveBudget=Math.floor(cap*.4),cityBudget=cap-groveBudget;
+  if(trees.length>cityBudget){const city=trees.slice();trees.length=0;for(let i=0;i<cityBudget;i++)trees.push(city[Math.floor(i*city.length/cityBudget)])}
+  const grove=[],groveCells=new Set(),centres=[],edge=GSIDE/2-19;
+  const green=(x,z)=>(Math.abs(x)>WORLD.W/2+8||Math.abs(z)>WORLD.H/2+8)&&Math.abs(x)<edge&&Math.abs(z)<edge&&Math.abs(x)>5&&Math.abs(z)>5;
+  for(let i=0;i<1600&&centres.length<70;i++){const x=(R('grove-centre-x'+i)*2-1)*edge,z=(R('grove-centre-z'+i)*2-1)*edge;if(green(x,z))centres.push({x,z})}
+  for(let i=0;i<groveBudget*45&&grove.length<groveBudget&&centres.length;i++){
+    const c=centres[i%centres.length],a=R('grove-angle'+i)*Math.PI*2,r=Math.sqrt(R('grove-radius'+i))*(12+R('grove-spread'+i%centres.length)*15),x=c.x+Math.cos(a)*r,z=c.z+Math.sin(a)*r;
+    if(!green(x,z))continue;const key=Math.floor(x/4)+','+Math.floor(z/4);if(groveCells.has(key))continue;groveCells.add(key);grove.push({x,z,k:R('grove-species'+i),greenbelt:true});
+  }
+  // Interleave to share the bounded understory allocation with interior gardens.
+  const city=trees.splice(0);for(let i=0;i<Math.max(city.length,grove.length);i++){if(city[i])trees.push(city[i]);if(grove[i])trees.push(grove[i])}
   const trunkG=new THREE.CylinderGeometry(.16,.24,1,5);trunkG.translate(0,.5,0);
   const canG=new THREE.IcosahedronGeometry(1,1);canG.translate(0,1,0);
   const tc=new THREE.Color();
-  decor.add(instMesh(trunkG,M.trunk,trees.map(t=>({x:t.x,z:t.z,sy:1.6+t.k*1.4})),false));
-  decor.add(instMesh(canG,M.canopy,trees.map(t=>{const s=1.45+t.k*1.45,lk=typeof DistrictLook!=="undefined"?DistrictLook.tree(t.x,t.z,t.k):null;/* tree species per district */if(lk)return{x:t.x,y:1.35+t.k*1.15,z:t.z,ry:t.k*6,sx:s*lk.sx,sy:s*(1.12+t.k*.3)*lk.sy,sz:s*(.95+t.k*.18)*lk.sx,c:tc.setHSL(lk.h,lk.s,lk.l).clone()};return{x:t.x,y:1.35+t.k*1.15,z:t.z,ry:t.k*6,sx:s,sy:s*(1.12+t.k*.3),sz:s*(.95+t.k*.18),c:tc.setHSL(.28+t.k*.07,.5+t.k*.16,.42+t.k*.12).clone()}}),HI));
+  trunkG.dispose();
+  landscape=VaultLandscape.build({THREE,trees,districts:DIST,buildings:B,side:GSIDE,world:WORLD,treeStyle:typeof DistrictLook!=="undefined"?DistrictLook.tree:null,high:HI,reducedMotion:reduced||!HI});
+  decor.add(landscape);
   // planters: low stone boxes with a shrub, at plot corners
   // Furniture remains outside building pads and uses three draw calls for the entire city.
   const seats=[],rails=[],wayfinding=[];
@@ -4863,7 +5142,7 @@ function buildDecor(){
     }
     // Paired gate blades face each district entrance; colors match the explorer legend.
     const x=d.x+d.w*.5,z=d.z-2.5;
-    [-1,1].forEach(side=>{wayfinding.push({x:x+side*2.1,y:2.6,z,sx:.22,sy:5.2,sz:.6,c:color,top:d.top});rails.push({x:x+side*2.1,y:2.6,z:z+.36,sx:.5,sy:5.6,sz:.22})});
+    [-1,1].forEach(side=>{wayfinding.push({x:x+side*2.1,y:1.25,z,sx:.48,sy:2.4,sz:.18,c:color,top:d.top});rails.push({x:x+side*2.1,y:1.25,z:z+.15,sx:.64,sy:2.55,sz:.2})});
   });
   const furnitureG=new THREE.BoxGeometry(1,1,1);
   decor.add(instMesh(furnitureG,M.planter,seats,false));
@@ -5839,6 +6118,11 @@ window.addEventListener("blur",()=>keys.clear());
 
 // ---------- frame
 function applyCamera(){
+  // Wider street-level framing and a closer near plane let the visitor approach
+  // doors and garden details without clipping; the overview keeps its original lens.
+  const fov=walk?58:48,near=walk?.35:2;
+  if(camera.fov!==fov||camera.near!==near){camera.fov=fov;camera.near=near;camera.updateProjectionMatrix()}
+  fitShadow(false);
   const cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch),sy=Math.sin(cam.yaw),cy=Math.cos(cam.yaw),dx=sy*cp,dy=sp,dz=cy*cp;
   if(walk){camera.position.set(cam.tx,cam.ty,cam.tz);camera.lookAt(cam.tx-dx,cam.ty-dy,cam.tz-dz)}
   else{const want=eyeClear(dx,dy,dz,cam.dist);eyeDist=eyeDist<0||want<eyeDist?want:eyeDist+(want-eyeDist)*.18;const d=Math.min(cam.dist,eyeDist);
@@ -5914,6 +6198,7 @@ function frame(t){
   dirty=false;lastAmb=time;
   if(AMB||MID||introRun)SH.uTime.value=time;
   applyCamera();
+  VaultLandscape.update(landscape,time);
   skyMesh.position.copy(camera.position);if(stars)stars.position.copy(camera.position);
   if(AMB)stepDrones();
   if(motes&&(AMB||MID))motes.material.uniforms.uCenter.value.set(cam.tx,0,cam.tz);
@@ -5980,7 +6265,7 @@ function init(){
     scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x000000,.0008);
     camera=new THREE.PerspectiveCamera(48,1,2,5000);rc=new THREE.Raycaster();
     hemi=new THREE.HemisphereLight(0xffffff,0x222222,.6);scene.add(hemi);
-    sun=new THREE.DirectionalLight(0xffffff,2);sun.castShadow=true;sun.shadow.mapSize.set(HI?4096:2048,HI?4096:2048);sun.shadow.bias=-.0015;sun.shadow.normalBias=2.4;scene.add(sun,sun.target);
+    sun=new THREE.DirectionalLight(0xffffff,2);sun.castShadow=true;sun.shadow.mapSize.set(HI?4096:2048,HI?4096:2048);sun.shadow.bias=-.00045;sun.shadow.normalBias=.9;scene.add(sun,sun.target);
     skyMat=skyMaterial();skyMesh=new THREE.Mesh(new THREE.SphereGeometry(2400,32,16),skyMat);skyMesh.renderOrder=-10;skyMesh.frustumCulled=false;scene.add(skyMesh);
     bridgeGroup=new THREE.Group();scene.add(bridgeGroup);markerGroup=new THREE.Group();scene.add(markerGroup);agentGroup=new THREE.Group();scene.add(agentGroup);
     ringMesh=new THREE.Mesh(new THREE.RingGeometry(.94,1,64),new THREE.MeshBasicMaterial({color:lin("#F2B85B"),transparent:true,opacity:.85,side:THREE.DoubleSide,fog:false}));ringMesh.rotation.x=-Math.PI/2;ringMesh.visible=false;scene.add(ringMesh);
@@ -5999,8 +6284,18 @@ function init(){
     // the real sun moves: once a minute, and again when the tab comes back
     skyTimer=setInterval(skyTick,60000);document.addEventListener("visibilitychange",skyTick);window.addEventListener("focus",skyTick);
     loadPost();
-    // opening shot: high above the plan, then a slow drift
-    cam.tx=goal.tx=0;cam.tz=goal.tz=0;cam.ty=goal.ty=0;cam.dist=GSIDE*1.05;goal.dist=GSIDE*.8;cam.pitch=.95;goal.pitch=.62;cam.yaw=goal.yaw=.5;
+    // Arrive along a district avenue at neighbourhood scale. The full city remains
+    // one Campus/overview action away; the first frame should show doors and gardens.
+    const arrival=DIST.find(d=>/ZenFlow/i.test(d.name)&&d.count>0)||DIST.find(d=>d.count>0)||DIST[0];
+    if(arrival){
+      cam.tx=goal.tx=arrival.x+Math.min(arrival.w*.6,65);
+      cam.tz=goal.tz=arrival.z-3.5;cam.ty=goal.ty=5;
+      cam.dist=reduced?95:125;goal.dist=95;
+      cam.pitch=reduced?.22:.28;goal.pitch=.22;cam.yaw=goal.yaw=-Math.PI/2;
+      auto=false;
+    }else{
+      cam.tx=goal.tx=0;cam.tz=goal.tz=0;cam.ty=goal.ty=0;cam.dist=goal.dist=GSIDE*.8;cam.pitch=goal.pitch=.62;cam.yaw=goal.yaw=.5;
+    }
     C.ok=true;
     $("#plateP").textContent=`${NOTES.length} notes in ${DIST.length} districts. ${TOUCH?"Tap":"Click"} a building to read it. Open a note and the camera flies to it and draws its links.`;
     requestAnimationFrame(frame);
@@ -6082,7 +6377,7 @@ return {boot,skipIntro,setAgents,setLevels,pulse,ink,say,floater,emote,celebrate
 // viewer to a landmark on request (Campus.route). Reduced motion keeps them on their spot and flies the camera instead.
 // =====================================================================
 const Guides=(()=>{
-  const BOUNTY={high:120,medium:80,low:50},NEAR=60,TALK_R=28,LEAVE_R=110,WEEK=7*864e5,KIT_REV=2;
+  const BOUNTY={high:120,medium:80,low:50},NEAR=60,TALK_R=28,LEAVE_R=110,WEEK=7*864e5,KIT_REV=3;
   const RM=matchMedia("(prefers-reduced-motion: reduce)"),COARSE=matchMedia("(pointer:coarse)");
   let G=[],lastDist=null,curTop=null,booted=false,memo=new Map();
   const two=name=>{const w=String(name).replace(/[^A-Za-z ]/g," ").trim().split(/\s+/).filter(Boolean);return (w.length>=2?w[0][0]+w[1][0]:(w[0]||"GD").slice(0,2)).toUpperCase()};
@@ -6136,7 +6431,8 @@ const Guides=(()=>{
     if(KIT)return KIT;
     const top=g=>{g.translate(0,-.5,0);return g};
     KIT={
-      robe:top(new THREE.CylinderGeometry(.62,1,1,20,1,true)),
+      // Vertical pleats broaden toward the hem; the cross section reads as cloth at walking distance.
+      robe:(()=>{const g=top(new THREE.CylinderGeometry(.62,1,1,48,8,true)),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),v=-p.getY(i),a=Math.atan2(z,x),fold=1+Math.cos(a*12)*(.015+.045*v);p.setXYZ(i,x*fold,p.getY(i)+Math.sin(a*6)*.024*v*v,z*fold)}g.computeVertexNormals();return g})(),
       hem:top(new THREE.CylinderGeometry(1,1,1,20,1,true)),
       mantle:top(new THREE.CylinderGeometry(.56,.94,1,20,1,true)),
       // Tailored cloth with scalloped shoulders and a folded cross section, built once.
@@ -6155,6 +6451,9 @@ const Guides=(()=>{
       mote:new THREE.OctahedronGeometry(.06,0),
       marker:new THREE.OctahedronGeometry(.3,0),
       markerRing:new THREE.TorusGeometry(.5,.025,6,40),
+      fabric:(()=>{const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d");x.fillStyle="#929292";x.fillRect(0,0,64,64);for(let i=0;i<64;i+=2){x.fillStyle=i%4?"#858585":"#ababab";x.fillRect(i,0,1,64);x.fillStyle="#777777";x.fillRect(0,i,64,1)}const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(5,8);return t})(),
+      leather:new THREE.MeshStandardMaterial({color:0x37281e,roughness:.88,metalness:0}),
+      brass:new THREE.MeshStandardMaterial({color:0xb99a59,roughness:.43,metalness:.72}),
       metal:new THREE.MeshStandardMaterial({color:new THREE.Color(0x2a2f3d).convertSRGBToLinear(),roughness:.35,metalness:.85}),
       paper:new THREE.MeshStandardMaterial({color:new THREE.Color(0xF1EADB).convertSRGBToLinear(),roughness:.9,metalness:0,emissive:0x4a4436,emissiveIntensity:.25}),
       gold:new THREE.MeshBasicMaterial({color:0xF5C04A,fog:false}),
@@ -6169,8 +6468,8 @@ const Guides=(()=>{
     if(MATS.has(hex))return MATS.get(hex);
     const lin=h=>new THREE.Color(h).convertSRGBToLinear(),c=lin(hex),dark=lin("#0B1020").lerp(c,.09);
     const m={
-      cloth:new THREE.MeshStandardMaterial({color:dark,roughness:.86,metalness:.05,side:THREE.DoubleSide}),
-      lining:new THREE.MeshStandardMaterial({color:lin("#0B1020").lerp(c,.22),roughness:.7,metalness:.1,side:THREE.DoubleSide}),
+      cloth:new THREE.MeshStandardMaterial({color:dark,roughness:.96,metalness:0,bumpMap:kit().fabric,bumpScale:.035,side:THREE.DoubleSide}),
+      lining:new THREE.MeshStandardMaterial({color:lin("#22232a").lerp(c,.4),roughness:.92,metalness:0,bumpMap:kit().fabric,bumpScale:.025,side:THREE.DoubleSide}),
       trim:new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:1.1,roughness:.4,metalness:.3}),
       glow:new THREE.SpriteMaterial({map:kit().glowTex,color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.75,fog:false})
     };
@@ -6178,9 +6477,44 @@ const Guides=(()=>{
   }
   const mesh=(geo,mat,x,y,z,sx,sy,sz)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x||0,y||0,z||0);if(sx!=null)o.scale.set(sx,sy,sz);o.castShadow=true;return o};
 
+  // Bake static tailoring by archetype/material. Shared buffers keep close-up detail bounded
+  // to three extra draws per guide; no per-frame allocations or unique textures.
+  const TAILOR=new Map();
+  function tailoring(arch){
+    if(TAILOR.has(arch))return TAILOR.get(arch);
+    const K=kit(),buckets={leather:[],brass:[],lining:[]};
+    const add=(mat,geo,x,y,z,sx,sy,sz,rz=0)=>{const o=mesh(geo,K.metal,x,y,z,sx,sy,sz);o.rotation.z=rz;o.updateMatrix();const b=geo.clone().applyMatrix4(o.matrix);buckets[mat].push(b)};
+    // Belt, crossed harness, satchel, flap and stitched edging follow the body.
+    add("leather",K.hem,0,3.52,0,.67,.23,.61);
+    add("leather",K.strip,-.1,4.1,.47,.16,1.52,.075,-.38);
+    add("leather",K.strip,-.67,3.04,.28,.5,.62,.29);
+    add("leather",K.strip,-.67,3.32,.31,.54,.16,.34);
+    add("brass",K.strip,0,3.39,.625,.26,.24,.035);
+    add("leather",K.strip,0,3.39,.648,.16,.14,.02);
+    add("brass",K.strip,-.67,3.11,.467,.08,.18,.025);
+    for(const side of [-1,1]){
+      // Sculpted layered shoulder guards and cloth seam strips.
+      add("lining",K.hood,side*.6,4.91,-.025,.77,.6,.92);
+      add("brass",K.strip,side*.53,4.68,.47,.05,.31,.032,side*.2);
+      add("lining",K.strip,side*.36,4.1,.44,.17,1.02,.04,side*.07);
+      for(let i=0;i<4;i++)add("brass",K.gem,side*.38,4.5-i*.18,.48,.09,.09,.065);
+    }
+    if(arch==="archivist")for(let i=0;i<3;i++)add("leather",K.strip,.61+i*.095,3.05,.35,.06,.46,.06);
+    if(arch==="vanguard")for(const side of [-1,1])add("brass",K.hood,side*.71,4.94,0,.92,.55,1.05);
+    const out={};
+    for(const [key,parts] of Object.entries(buckets)){
+      const ps=[],ns=[],uv=[];
+      for(const indexed of parts){const geo=indexed.index?indexed.toNonIndexed():indexed;ps.push(...geo.attributes.position.array);ns.push(...geo.attributes.normal.array);uv.push(...geo.attributes.uv.array);if(geo!==indexed)geo.dispose();indexed.dispose()}
+      const geo=new THREE.BufferGeometry();geo.setAttribute("position",new THREE.Float32BufferAttribute(ps,3));geo.setAttribute("normal",new THREE.Float32BufferAttribute(ns,3));geo.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2));geo.computeBoundingSphere();out[key]=geo;K.geos.add(geo);
+    }
+    TAILOR.set(arch,out);return out;
+  }
+
   // Dress a Sentinel as a Warden. Everything hangs off two roots (kit on the body, cap on the head) so it can be detached before disposal.
   function dress(g){
     const K=kit(),M=mats(g.color),A=ARCH[g.arch],m=g.m,root=new THREE.Group(),cap=new THREE.Group();
+    const tailored=tailoring(g.arch);
+    root.add(mesh(tailored.leather,K.leather),mesh(tailored.brass,K.brass),mesh(tailored.lining,M.lining));
     // robe from the waist, with a lit hem
     const long=A.robe>2.5,rx=long?1:.86,rz=long?.86:.78;
     root.add(mesh(K.robe,M.cloth,0,3.45,0,rx,A.robe,rz));
@@ -6510,7 +6844,7 @@ const Guides=(()=>{
 #wd .wd-por{position:relative;width:128px;height:128px;border-radius:14px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,color-mix(in srgb,var(--c) 30%,#0B1020),#05070F);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 55%,transparent),0 10px 30px -10px var(--c)}
 #wd .wd-por canvas,#wd .wd-por img,#wd .wd-por svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 #wd .wd-por img{opacity:0;transition:opacity .3s}#wd .wd-por img.ok{opacity:1}
-#wd .wd-por::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),linear-gradient(180deg,transparent 55%,rgba(5,7,15,.65));pointer-events:none}
+#wd .wd-por::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 65%,rgba(5,7,15,.7));pointer-events:none}
 #wd .wd-arch{position:absolute;left:8px;bottom:7px;z-index:1;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
 #wd .wd-plate{position:absolute;left:162px;top:-15px;display:flex;align-items:baseline;gap:10px;padding:5px 14px 6px;border-radius:9px;background:linear-gradient(180deg,#151C33,#0C1122);border:1px solid color-mix(in srgb,var(--c) 70%,transparent);box-shadow:0 8px 20px -8px var(--c)}
 #wd .wd-plate b{font-family:var(--display);font-size:15px;letter-spacing:.01em}
@@ -8241,6 +8575,7 @@ const CSS=`
 #title.out .wm,#title.out .mm,#title.out .foot{opacity:0;transition:opacity .35s}
 #title.out .tbars::before,#title.out .tbars::after{transform:none;transition:transform .55s var(--t-ease)}
 @media (max-width:640px){#title.cine .tbars::before,#title.cine .tbars::after{height:7vh}#title .tcap{bottom:calc(7vh + 18px);font-size:10.5px;letter-spacing:.24em}#title .tsnd{bottom:14px;left:14px}#title .word{letter-spacing:.04em;font-size:clamp(30px,10.5vw,52px)}#title .word span.sp{display:block;height:0;width:0}#title .word span.sp+span{margin-left:0}#title{--wm-up:21vh}#title .mm button{font-size:15px;padding:10px 22px}#title .mm button.pri{padding:12px 32px}#title .foot{font-size:9.5px;letter-spacing:.12em}#title .foot .hintk{display:none}#title .skip{bottom:14px;right:14px}}
+@media (max-height:620px){#title{--wm-up:31vh}#title .wm{gap:6px}#title .word{font-size:clamp(26px,6vw,48px)}#title .tag{display:none}#title .mm{top:43%;padding:10px 16px;gap:2px;max-height:48vh;overflow:auto}#title .mm button{min-height:44px;padding:8px 18px;font-size:14px}#title .mm button.pri{padding:10px 20px;margin-bottom:2px}#title .panel{max-height:calc(100dvh - 24px);overflow:auto}}
 @media (prefers-reduced-motion: reduce){#title *{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 `;
 // ---- shot list. One table drives the camera rigs, the crossfades, the score's cut pulses, the cue timeline and the tests.
@@ -8331,7 +8666,8 @@ function makeCity(canvas,quality,opt){
   opt=opt||{};const hi=quality==="high",REDUCED=opt.reduced!=null?!!opt.reduced:reduced();
   const HASV=typeof VFX!=="undefined",tier=HASV?VFX.tierFor(quality==="low"?"low":"high",innerWidth||1024):hi?"high":"low",phone=tier==="medium";
   let r;try{r=new THREE.WebGLRenderer({canvas,antialias:hi&&!phone,alpha:false,powerPreference:"high-performance"})}catch(e){return null}
-  r.setPixelRatio(Math.min(window.devicePixelRatio||1,phone?1.5:hi?2:1));// phone tier: 1.5x is enough under grain and letterboxr.setClearColor(0x05070e,1);
+  r.setPixelRatio(Math.min(window.devicePixelRatio||1,phone?1.5:hi?2:1));// phone tier: 1.5x is enough under grain and letterbox
+  r.setClearColor(0x05070e,1);
   // GPU reset (b_vfx.js guard): skip frames while the context is gone and show the dusk backdrop; three restores the rest
   let ctxLost=false,ctxDone=false;const unguard=HASV?VFX.guardContext(canvas,{onLost:()=>{if(ctxDone)return;ctxLost=true;canvas.style.background="radial-gradient(ellipse at 50% 70%,#2a2030,#05070e 70%)"},onRestored:()=>{ctxLost=false;canvas.style.background=""}}):()=>{};
   const scene=new THREE.Scene();const FOG_N=new THREE.Color(0x05070e);scene.fog=new THREE.FogExp2(0x05070e,.016);
@@ -8518,6 +8854,15 @@ function makeCity(canvas,quality,opt){
   let landmark=null,look=null;
   if(typeof DistrictAssets!=="undefined"&&typeof Districts!=="undefined")try{landmark=DistrictAssets.build([cdist],[{id:0,tiers:[{x:36,z:52,w:20,d:20,y0:0,y1:3}]}],[{id:0,name:"title:landmark",folder:CT,fm:{},out:new Set(),back:new Set()}],null);court.add(landmark)}catch(e){landmark=null}
   if(typeof DistrictLook!=="undefined")try{DistrictLook.bind([cdist],{},[]);look=DistrictLook.build({HI:hi,reduced:REDUCED,SH:{uLamp:lampU}});court.add(look)}catch(e){look=null}
+  // The arrival court shares the live world's planted geometry, with a clear central promenade.
+  // Keep this group local to the title: disposing it must not touch the live campus gardens.
+  let arrivalGarden=null;
+  if(typeof VaultLandscape!=="undefined")try{
+    const trees=[];
+    for(const x of [23,49])for(const z of [10,25,40,66,82,91])trees.push({x,z,k:seed(x,z)});
+    arrivalGarden=VaultLandscape.build({THREE,trees,districts:[cdist],buildings:CB.map(b=>({cx:b.x,cz:b.z,fw:b.w,fd:b.d})),side:220,high:hi&&!phone,reducedMotion:REDUCED});
+    arrivalGarden.position.y=.07/KS;court.add(arrivalGarden);
+  }catch(e){arrivalGarden=null}
   // ---- sentinels: small figures with a warm head light, walking the avenues (fallback when SentinelMesh is absent)
   const roadsI=[],roadsJ=[];for(let i=0;i<G;i++){if(roadI(i))roadsI.push(X(i));if(roadJ(i))roadsJ.push(X(i))}
   const SNT=hi?72:34,sent=[];for(let k=0;k<SNT;k++){const main=k<SNT*.45;const alongZ=main||k%2===0;
@@ -8625,7 +8970,7 @@ function makeCity(canvas,quality,opt){
       tgt.copy(shoreP).addScaledVector(tanV,80).addScaledVector(outV,lerp(10,18,u));tgt.y=lerp(4,8,u);c.fov=fovFor(lerp(52,46,u));keyAt(0,0,0,0)},
     gate(c,t){const u=ease(uOf(SHOT.gate,t));c.position.set(gate.x+lerp(2.6,1.1,u),lerp(1.0,1.3,u),gate.z-lerp(9.5,5.2,u));
       tgt.set(gate.x,lerp(1.7,2.1,u),gate.z+lerp(6,11,u));c.fov=fovFor(lerp(50,46,u));keyAt(gate.x,3.2,gate.z+4,1.2,16)},
-    facades(c,t){const u=ease(uOf(SHOT.facades,t)),p=toW(lerp(33,30,u),lerp(5,6.5,u),lerp(4,34,u));c.position.copy(p);toW(lerp(10,13,u),lerp(7,12,u),lerp(30,62,u));tgt.copy(tmpV);
+    facades(c,t){const u=ease(uOf(SHOT.facades,t)),p=toW(lerp(34,30,u),lerp(5.2,6.2,u),lerp(10,31,u));c.position.copy(p);toW(lerp(15,17,u),lerp(5.5,8,u),lerp(27,49,u));tgt.copy(tmpV);
       c.fov=fovFor(lerp(56,50,u));toW(24,10,lerp(22,50,u));keyAt(tmpV.x,tmpV.y,tmpV.z,1.4,22)},
     sentinels(c,t){const u=uOf(S5,t),e=u*u*(3-2*u)*.35+u*.65,z=streetZ(t);
       const rail=typeof VaultEngine!=="undefined"&&VaultEngine.sampleRoute?VaultEngine.sampleRoute([[RX,2.5,SPAN*.44],[RX+.3,2.8,SPAN*.34],[RX+.5,3.5,SPAN*.18],[RX+.4,4.3,SPAN*.04]],e):null;
@@ -8639,8 +8984,13 @@ function makeCity(canvas,quality,opt){
       tgt.set(WT.x+WT.w*.5,Math.max(2.5,Math.min(WT.h,hy+1.5)),WT.z);c.fov=fovFor(58);keyAt(WT.x+6,3,WT.z+6,1.2,20)},
     warden(c,t){const u=ease(uOf(SHOT.warden,t));const wz=cz0+9*KS;c.position.set(gate.x+lerp(1.8,1.1,u),lerp(.95,1.15,u),wz-lerp(9.5,7,u));
       tgt.set(gate.x,lerp(1.75,1.85,u),wz);c.fov=fovFor(lerp(40,36,u));keyAt(gate.x+.8,2.6,wz-2.2,1.8,10)},
-    dawn(c,t,orbit){const u=ease(clamp((t-CUT.dawn)/6.6,0,1));const a=-1.02+u*.3+orbit;const d=SPAN*lerp(.86,.78,u)*wide;
-      c.position.set(Math.sin(a)*d,SPAN*lerp(.2,.27,u),Math.cos(a)*d);tgt.set(0,lerp(9,14,u),0);c.fov=lerp(40,36,u);keyAt(0,0,0,0)}};
+    dawn(c,t,orbit){const u=ease(clamp((t-CUT.dawn)/6.6,0,1));
+      // Settle into a human-scale district reveal. The menu breathes along a short rail;
+      // its camera never drifts around the back of the city or loses the arrival court.
+      const drift=REDUCED?0:Math.sin(orbit*.65)*2.2;
+      c.position.copy(toW(lerp(32,36,u)+drift,lerp(8,13,u),lerp(-32,-15,u)*Math.min(wide,1.2)));
+      tgt.copy(toW(36,lerp(8,11,u),43));c.fov=fovFor(lerp(57,52,u));
+      toW(36,15,21);keyAt(tmpV.x,tmpV.y,tmpV.z,.65,35)}};
   function place(c,s,t,orbit){RIGS[s.id](c,t,orbit||0);c.lookAt(tgt);c.updateProjectionMatrix();if(atmos)atmos.material.uniforms.uCenter.value.copy(c.position)}
   // ---- beats: one-shot picture events, fired from the cue timeline so picture and sound land together
   let vclk=0,lastWall=-1,lastNight=-1,doorLit=false;
@@ -8660,7 +9010,7 @@ function makeCity(canvas,quality,opt){
     const L=liveAt(t);
     const wv=clamp((t-2.5)/2,0,1)*(onS("sentinels")||onS("write")||t<SHOT.facades.a?1:0),s2=onS("sentinels")?1:0;
     if(FIG.length)walkFig(t,time,wv,s2);else walk(time,wv);
-    specials(t,time,!!s2,onS("gate")||onS("facades")||onS("warden"));
+    specials(t,time,!!s2,onS("gate")||onS("facades")||onS("warden")||onS("dawn"));
     if(SPECIAL.lift&&s2&&vfxOn&&t>BEATS.lift&&t<BEATS.land)VFX.trail(SPECIAL.lift,LT.x+LT.w/2+.45,liftY(t)+.4,LT.z,"#9CD3FF");
     if(t<BEATS.gate&&typeof DistrictLook!=="undefined")DistrictLook.near(null);
     if(doorLit&&t<BEATS.door&&facade&&typeof Facades!=="undefined"){Facades.setDoor(facade,0,0);doorLit=false}
@@ -8683,11 +9033,13 @@ function makeCity(canvas,quality,opt){
     pts.material.opacity=clamp((t-2)/3,0,1)*.65;const pos=pgeo.attributes.position.array;for(let q=0;q<PN;q++){pos[q*3+1]+=pv[q]*.06*(REDUCED?0:1);if(pos[q*3+1]>70)pos[q*3+1]=0}pgeo.attributes.position.needsUpdate=true;
     if(Math.abs(night-lastNight)>.02&&HASV){lastNight=night;const g=VFX.grade(night,lerp(-.2,.35,dawn));postU.uGain.value.set(g.gain[0],g.gain[1],g.gain[2]);postU.uLift.value.set(g.lift[0],g.lift[1],g.lift[2])}
     if(vfxOn)VFX.step(dt,vclk);
+    if(arrivalGarden)VaultLandscape.update(arrivalGarden,vclk);
     if(typeof DistrictLook!=="undefined")DistrictLook.tick(vclk,REDUCED);
     if(L.B){const A=L.A,B=L.B;place(camA,A,t,orbit);flash(camA);r.setRenderTarget(rtA);r.render(scene,camA);place(camB,B,t,orbit);flash(camB);postU.f.value=L.k;
       r.setRenderTarget(rtB);r.render(scene,camB);r.setRenderTarget(null);r.render(post,ortho)}
     else{place(camA,L.A,t,orbit);flash(camA);if(hi){postU.f.value=0;r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(null);r.render(post,ortho)}else{r.setRenderTarget(null);r.render(scene,camA)}}}
   function dispose(){ctxDone=true;unguard();
+    if(arrivalGarden){VaultLandscape.dispose(arrivalGarden);arrivalGarden=null}
     if(costume&&costume.undress)try{costume.undress()}catch(e){}
     FIG.forEach(f=>{scene.remove(f.m.grp);try{SentinelMesh.dispose(f.m.grp)}catch(e){}});FIG.length=0;
     Object.keys(SPECIAL).forEach(k=>{const m=SPECIAL[k];if(m.grp.parent)m.grp.parent.remove(m.grp);try{SentinelMesh.dispose(m.grp)}catch(e){}});
@@ -8696,7 +9048,7 @@ function makeCity(canvas,quality,opt){
     if(look&&look.parent)look.parent.remove(look);if(typeof DistrictLook!=="undefined"&&DistrictLook.reset)try{DistrictLook.reset()}catch(e){}
     scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}});
     post.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});rtA.dispose();rtB.dispose();glow.dispose();r.dispose();try{r.forceContextLoss()}catch(e){}}
-  return{render,dispose,beat,wardenLine,info:()=>({tier,weather:WX.kind,court:CT,shots:SHOT_IDS.slice(),vfx:vfxOn,facade:!!facade,landmark:!!landmark,gate:!!look,warden:!!costume,figures:FIG.length+Object.keys(SPECIAL).length})};
+  return{render,dispose,beat,wardenLine,info:()=>({tier,weather:WX.kind,court:CT,shots:SHOT_IDS.slice(),vfx:vfxOn,facade:!!facade,garden:!!arrivalGarden,landmark:!!landmark,gate:!!look,warden:!!costume,figures:FIG.length+Object.keys(SPECIAL).length})};
 }
 // ---- the overlay
 function start(){
@@ -8770,7 +9122,7 @@ function start(){
     function toMenu(){if(inMenu)return;inMenu=true;menuT=0;cue.forEach(c=>{if(c[0]!=="menu"&&!c[0].startsWith("fx:")&&!c[0].startsWith("cap:"))fire(c[0])});cap.classList.remove("on");$t("#tSlate").classList.remove("on");cueI=cue.length;
       root.classList.add("menu");snd.classList.remove("on");S.set(K.seen,today());setSel(0);setTimeout(()=>{if(!done)mbtns[0].focus({preventScroll:true})},700)}
     function setSel(i){sel=(i+mbtns.length)%mbtns.length;mbtns.forEach((b,j)=>b.classList.toggle("on",j===sel))}
-    // the picture runs on its own clock: the sting and the menu show the finished dawn shot, the menu slowly orbits it
+    // the picture runs on its own clock: the sting and the menu show the finished dawn shot, the menu drifts on a bounded court rail
     const sceneT=()=>cue===FULL&&!inMenu?clock:CUT.end+(inMenu?menuT:0);
     function frame(now){raf=requestAnimationFrame(frame);if(document.hidden){last=now;return}const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
       if(inMenu)menuT+=dt;else if(!held)clock+=dt;

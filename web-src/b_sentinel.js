@@ -34,6 +34,29 @@ function chamfer(c,taper){
     pos.push(...a,...b,...d);const e=i>=36?1:0;edge.push(e,e,e)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('edge',new THREE.Float32BufferAttribute(edge,1));g.computeVertexNormals();return g;
 }
+// Authored profile shells: elliptical sections with a pulled-in waist and softened shoulders.
+// These remain part of the existing surface batches and use the same rigid bone attachments.
+function shellGeometry(){
+  const p=[],n=12,rings=[[-.5,.7],[-.37,.86],[.31,1],[.5,.8]];
+  const point=(r,i)=>[Math.cos(i/n*Math.PI*2)*.5*r[1],r[0],Math.sin(i/n*Math.PI*2)*.5*r[1]];
+  for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++){
+    const a=point(rings[j],i),b=point(rings[j],i+1),c=point(rings[j+1],i+1),d=point(rings[j+1],i);
+    p.push(...a,...d,...c,...a,...c,...b);
+  }
+  for(let i=0;i<n;i++){p.push(0,-.5,0,...point(rings[0],i),...point(rings[0],i+1));p.push(0,.5,0,...point(rings[3],i+1),...point(rings[3],i))}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('edge',new THREE.Float32BufferAttribute(new Float32Array(p.length/3),1));g.computeVertexNormals();return g;
+}
+// Folded textile panels have a flared hem and actual thickness. Back-facing triangles make the
+// inside readable without double-sided rendering all of the figure's body material.
+function mantleGeometry(){
+  const p=[],nx=6,ny=5;
+  const point=(x,y,back)=>{const u=x/nx,v=y/ny,flare=.7+.3*(1-v);return [(u-.5)*flare,v-.5,(Math.cos(u*Math.PI*6)*.3+.12*Math.sin(v*Math.PI))+(back?-.035:.035)]};
+  for(let y=0;y<ny;y++)for(let x=0;x<nx;x++)for(const back of [false,true]){
+    const a=point(x,y,back),b=point(x+1,y,back),c=point(x+1,y+1,back),d=point(x,y+1,back);
+    if(back)p.push(...a,...c,...b,...a,...d,...c);else p.push(...a,...b,...c,...a,...c,...d);
+  }
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('edge',new THREE.Float32BufferAttribute(new Float32Array(p.length/3),1));g.computeVertexNormals();return g;
+}
 function plain(g){g=g.toNonIndexed();g.setAttribute('edge',new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count),1));return g}
 // Compass ring under each Sentinel: a lit band, 36 ticks and four cardinal chevrons, laid flat. hi adds a dashed inner band and eight chevrons.
 function ringGeometry(hi){
@@ -59,9 +82,9 @@ function auraAlpha(){const n=32,d=new Uint8Array(n*4);for(let i=0;i<n;i++){const
 function shared(){
   if(G.box)return G;
   G.box=plain(new THREE.BoxGeometry(1,1,1));G.bevel=chamfer(.14);G.taper=chamfer(.14,.72);G.cap=plain(new THREE.CylinderGeometry(.5,.5,1,10).rotateZ(Math.PI/2));
-  G.ring=ringGeometry(false);G.ringHi=ringGeometry(true);G.aura=new THREE.CylinderGeometry(1.02,1.12,1.5,48,1,true).translate(0,.75,0);G.auraTex=auraAlpha();
+  G.shell=shellGeometry();G.mantle=mantleGeometry();G.ring=ringGeometry(false);G.ringHi=ringGeometry(true);G.aura=new THREE.CylinderGeometry(1.02,1.12,1.5,48,1,true).translate(0,.75,0);G.auraTex=auraAlpha();
   G.slate=new THREE.PlaneGeometry(1,.62);G.orb=new THREE.SphereGeometry(.07,8,6);G.beam=new THREE.CylinderGeometry(.12,.12,1,8,1,true);G.link=new THREE.CylinderGeometry(.05,.05,1,5,1,true);
-  G.set=new Set([G.box,G.bevel,G.taper,G.cap,G.ring,G.ringHi,G.aura,G.slate,G.orb,G.beam,G.link]);
+  G.set=new Set([G.box,G.bevel,G.taper,G.cap,G.shell,G.mantle,G.ring,G.ringHi,G.aura,G.slate,G.orb,G.beam,G.link]);
   loadTextures();
   return G;
 }
@@ -211,7 +234,7 @@ function makeSentinel(a){
   const U={glow:{value:1},rim:{value:.3},rimColor:{value:tone[2]},time:{value:0},sway:{value:.28},scan:{value:5.3},circuit:{value:tier>=4?.24:tier>=3?.18:tier>=2?.12:0},forge:{value:0},forgeY:{value:-1}};
   // Each plate gets its own shade (0.86 to 1.08) so neighboring panels read as separate pieces of metal.
   bp.parts.forEach((q,i)=>{
-    const geo=q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
+    const geo=q.shape==='mantle'||q.shape==='shell'?g[q.shape]:q.shape==='box'||Math.min(q.w,q.h,q.d)<.09?g.box:g[q.shape]||g.box,kind=SURF[q.k]||'body',lit=q.k===2?1:q.k===3?.6:q.k===6?.08:0;
     const shade=lit?1:.86+.22*hash(seed+i),col=kind==='armor'?white:tone[q.k],origin=bp.pivots[q.slot]||[0,0,0];
     if(!buf[kind])buf[kind]={pos:[],nrm:[],col:[],glow:[],cloth:[],wear:[],bone:[],weight:[]};put(buf[kind],geo,q,origin,col,lit,shade,boneOf(q));
   });

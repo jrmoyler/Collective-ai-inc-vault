@@ -543,6 +543,15 @@ kbd{font-family:var(--mono);font-size:10.5px;line-height:1.3;display:inline-grid
 .idhex{display:grid;grid-template-columns:40px minmax(0,1fr);gap:8px}
 .frm .idhex input[type=color]{padding:3px;height:36px;cursor:pointer}
 .frm .idhex input[type=text],.frm .idhex input:not([type]){font-family:var(--mono);letter-spacing:.04em}
+/* Field instruments: restrained metal edges leave the inhabited world visible. */
+.hudbtn,.crumb,.mini,.hint{box-shadow:0 6px 18px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.06)}
+.mini{border-radius:12px;overflow:hidden;border-color:color-mix(in srgb,var(--accent) 36%,var(--line));box-shadow:0 8px 26px rgba(0,0,0,.24),0 0 0 3px color-mix(in srgb,var(--panel) 65%,transparent)}
+.plate{border-radius:3px 12px 12px 3px;box-shadow:0 14px 38px rgba(0,0,0,.24)}
+.plate h2{letter-spacing:-.035em;line-height:1.18}
+.lbl:not(.dl):not(.sel):not(.hov):not(.xp){box-shadow:0 3px 12px rgba(0,0,0,.24)}
+.chip2{transition:background var(--dur-2),border-color var(--dur-2),color var(--dur-2)}
+.chip2.on{background:var(--panel);box-shadow:inset 0 -2px var(--accent)}
+@media (pointer:coarse){.hudtop .hudbtn{min-width:40px;min-height:40px}.plate .x{width:36px;height:36px}.plate h2{padding-right:20px}}
 /* guides */
 .lbl.guide{background:linear-gradient(180deg,var(--panel2),var(--panel));color:var(--fg);border:1px solid var(--c);border-left-width:3px;border-radius:8px;padding:5px 9px;font-weight:600;box-shadow:0 0 0 1px rgba(0,0,0,.35),0 8px 24px -8px var(--c)}
 .lbl.guide small{color:var(--muted)}

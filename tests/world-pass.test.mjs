@@ -94,3 +94,25 @@ test('world pass is wired into the build, tiers, sky and frame loop with a bound
  assert.match(src,/perf:perfStats/);assert.match(src,/addShadowCaster:/);
  const names=[...src.matchAll(/mesh\.name="(horizon|boats|birds|contact-shadows)"|b\.name="birds"/g)];assert.ok(names.length>=3);
 });
+
+test('street shadows follow the visitor without rotating the sun or refreshing a stationary map',()=>{
+ const sun=new THREE.DirectionalLight(),renderer={shadowMap:{needsUpdate:false}};
+ const shadowDir=new THREE.Vector3(.58,.63,.36).normalize();
+ const cam={tx:310,tz:-190,dist:800};
+ const c=vm.createContext({sun,renderer,shadowDir,cam,walk:false,GSIDE:1800,Math});
+ vm.runInContext(between('const shadowFocus=','// ---------- post:')+'\nthis.fit=fitShadow;',c);
+ c.fit();const overviewSpan=sun.shadow.camera.right;
+ c.walk=true;c.fit(false);
+ assert.ok(sun.shadow.camera.right<overviewSpan/3,'street mode spends shadow resolution on the visible neighbourhood');
+ const direction=()=>sun.position.clone().sub(sun.target.position).normalize();
+ assert.ok(direction().distanceTo(shadowDir)<1e-9,'recentring retains the active solar direction');
+ renderer.shadowMap.needsUpdate=false;c.fit(false);
+ assert.equal(renderer.shadowMap.needsUpdate,false,'a stationary camera reuses the map');
+ const oldTarget=sun.target.position.clone();cam.tx+=48;c.fit(false);
+ assert.ok(oldTarget.distanceTo(sun.target.position)>0,'moving out of the cell recentres the map');
+ assert.ok(direction().distanceTo(shadowDir)<1e-9);
+ assert.equal(renderer.shadowMap.needsUpdate,true);
+ c.walk=false;cam.dist=800;c.fit(false);
+ assert.equal(sun.target.position.length(),0,'overview restores city-centred coverage');
+ assert.equal(sun.shadow.camera.right,overviewSpan);
+});
