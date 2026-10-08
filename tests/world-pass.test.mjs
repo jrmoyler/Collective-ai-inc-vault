@@ -76,7 +76,7 @@ test('far shore geometry: three hill rings, towns and a lighthouse, inside the s
  for(let i=0;i<p.length;i+=3){maxR=Math.max(maxR,Math.hypot(p[i],p[i+2]));minY=Math.min(minY,p[i+1])}
  assert.ok(maxR<=2150+1e-6,'within the 2400 sky dome: '+maxR);assert.ok(minY<-.9,'skirts reach below the water line');
  const kinds=new Set(k);for(const want of [0,1,2,3])assert.ok(kinds.has(want),'kind '+want);
- assert.ok(p.length/9<4000,'bounded triangle count');assert.ok(Number.isFinite(g.userData.lamp[0]));
+ assert.ok(p.length/9<10000,'bounded sculpted ridge triangle count');assert.ok(Number.isFinite(g.userData.lamp[0]));
 });
 
 test('world pass is wired into the build, tiers, sky and frame loop with a bounded draw budget',()=>{

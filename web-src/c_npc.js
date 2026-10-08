@@ -68,15 +68,23 @@ const Guides=(()=>{
   function kit(){
     if(KIT)return KIT;
     const top=g=>{g.translate(0,-.5,0);return g};
+    // An open profile loft gives clothing a designed silhouette and real thickness at folds.
+    const clothLoft=(profile,start=0,sweep=Math.PI*2,folds=0)=>{
+      const p=[],uv=[],idx=[],n=48;
+      profile.forEach(([y,rx,rz,back],row)=>{for(let i=0;i<=n;i++){const u=i/n,a=start+u*sweep,f=1+Math.sin(a*10+row*.28)*folds*(row/(profile.length-1));p.push(Math.sin(a)*rx*f,y,Math.cos(a)*rz*f+(back||0));uv.push(u,row/(profile.length-1))}});
+      for(let row=0;row<profile.length-1;row++)for(let i=0;i<n;i++){const a=row*(n+1)+i,b=a+n+1;idx.push(a,b,a+1,b,b+1,a+1)}
+      const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(p,3));g.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g;
+    };
     KIT={
       // Vertical pleats broaden toward the hem; the cross section reads as cloth at walking distance.
       robe:(()=>{const g=top(new THREE.CylinderGeometry(.62,1,1,48,8,true)),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),v=-p.getY(i),a=Math.atan2(z,x),fold=1+Math.cos(a*12)*(.015+.045*v);p.setXYZ(i,x*fold,p.getY(i)+Math.sin(a*6)*.024*v*v,z*fold)}g.computeVertexNormals();return g})(),
       hem:top(new THREE.CylinderGeometry(1,1,1,20,1,true)),
-      mantle:top(new THREE.CylinderGeometry(.56,.94,1,20,1,true)),
+      mantle:clothLoft([[0,.46,.48,0],[-.18,.6,.56,0],[-.44,.89,.63,-.025],[-.74,1,.68,-.035],[-1,.91,.63,-.02]],.12,Math.PI*2-.24,.055),
       // Tailored cloth with scalloped shoulders and a folded cross section, built once.
       cape:(()=>{const p=[],idx=[],w=12,h=10;for(let y=0;y<=h;y++)for(let x=0;x<=w;x++){const u=x/w,v=y/h,edge=Math.abs(u-.5)*2;p.push((u-.5)*(1-.12*(1-v)),-v+.055*edge*edge*(1-v),Math.sin(u*Math.PI*6)*.045*(.35+.65*v)+v*v*.075)}for(let y=0;y<h;y++)for(let x=0;x<w;x++){const a=y*(w+1)+x,b=a+w+1;idx.push(a,b,a+1,b,b+1,a+1)}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(p,3));g.setIndex(idx);g.computeVertexNormals();return g})(),
       strip:new THREE.BoxGeometry(1,1,1),
-      hood:new THREE.SphereGeometry(.5,16,10,Math.PI*.85,Math.PI*1.3,0,Math.PI*.64),
+      hood:clothLoft([[-.4,.43,.45,-.08],[-.23,.52,.53,-.055],[0,.56,.57,-.04],[.24,.51,.52,-.045],[.43,.37,.4,-.08],[.53,.035,.08,-.13]],.69,Math.PI*2-1.38,.045),
+      shoulder:clothLoft([[.24,.03,.06,0],[.2,.29,.27,0],[.06,.45,.38,0],[-.13,.49,.4,-.035],[-.25,.4,.35,-.04]],0,Math.PI*2,.02),
       peak:new THREE.ConeGeometry(.26,.8,10,1,true),
       halo:new THREE.TorusGeometry(.62,.035,8,44),
       haloIn:new THREE.TorusGeometry(.44,.018,6,36),
@@ -108,7 +116,7 @@ const Guides=(()=>{
     const m={
       cloth:new THREE.MeshStandardMaterial({color:dark,roughness:.96,metalness:0,bumpMap:kit().fabric,bumpScale:.035,side:THREE.DoubleSide}),
       lining:new THREE.MeshStandardMaterial({color:lin("#22232a").lerp(c,.4),roughness:.92,metalness:0,bumpMap:kit().fabric,bumpScale:.025,side:THREE.DoubleSide}),
-      trim:new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:1.1,roughness:.4,metalness:.3}),
+      trim:new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.22,roughness:.6,metalness:.25}),
       glow:new THREE.SpriteMaterial({map:kit().glowTex,color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.75,fog:false})
     };
     MATS.set(hex,m);return m;
@@ -132,13 +140,13 @@ const Guides=(()=>{
     add("brass",K.strip,-.67,3.11,.467,.08,.18,.025);
     for(const side of [-1,1]){
       // Sculpted layered shoulder guards and cloth seam strips.
-      add("lining",K.hood,side*.6,4.91,-.025,.77,.6,.92);
+      add("lining",K.shoulder,side*.6,4.91,-.025,.77,.6,.92);
       add("brass",K.strip,side*.53,4.68,.47,.05,.31,.032,side*.2);
       add("lining",K.strip,side*.36,4.1,.44,.17,1.02,.04,side*.07);
       for(let i=0;i<4;i++)add("brass",K.gem,side*.38,4.5-i*.18,.48,.09,.09,.065);
     }
     if(arch==="archivist")for(let i=0;i<3;i++)add("leather",K.strip,.61+i*.095,3.05,.35,.06,.46,.06);
-    if(arch==="vanguard")for(const side of [-1,1])add("brass",K.hood,side*.71,4.94,0,.92,.55,1.05);
+    if(arch==="vanguard")for(const side of [-1,1])add("brass",K.shoulder,side*.71,4.94,0,.92,.55,1.05);
     const out={};
     for(const [key,parts] of Object.entries(buckets)){
       const ps=[],ns=[],uv=[];
@@ -224,12 +232,12 @@ const Guides=(()=>{
     lastDist=Campus.districts();index(true);
     lastDist.forEach((d,i)=>{
       const p=spot(d),m=SentinelMesh.create({id:"guide:"+d.top,form:"member",palette:["#0B1020",d.color,"#F4EFE6"],symbol:two(d.name),level:0});
-      m.pos.set(p.x,.25,p.z);m.grp.position.copy(m.pos);m.grp.rotation.y=Math.atan2(d.x+d.w/2-p.x,d.z+d.d/2-p.z)+Math.PI;m.ring.scale.setScalar(2.2);
+      m.grp.scale.setScalar(.6);m.pos.set(p.x,.25,p.z);m.grp.position.copy(m.pos);m.grp.rotation.y=Math.atan2(d.x+d.w/2-p.x,d.z+d.d/2-p.z)+Math.PI;m.ring.scale.setScalar(2.2);
       scene.add(m.grp);
       const g={top:d.top,name:d.name,color:d.color,x:p.x,z:p.z,hx:p.x,hz:p.z,rect:{x:d.x,z:d.z,w:d.w,d:d.d},m,near:false,home:m.grp.rotation.y,arch:archOf(d.top,i),
         hy:0,hp:0,yawVel:0,gest:null,gt:0,gdur:1.9,beat:-9,speakUntil:0,bark:null,barkUntil:0,nextBark:0,barkI:0,stats:null,
         posts:posts(d,p.x,p.z),post:0,nextPatrol:8+(i%5)*3,path:null,leg:0,speed:0,onArrive:null,face:0,mode:"home",returnAt:0,inside:false,greetAt:-1e9,escort:null,poseT:-1,camT:0,
-        lbl:{x:p.x,y:9.5,z:p.z,t:"",s:"",cls:"guide",prio:105,c:d.color},blb:{x:p.x,y:9.3,z:p.z,t:"",s:"",cls:"say",prio:120,c:d.color,guide:true}};
+        lbl:{x:p.x,y:5.7,z:p.z,t:"",s:"",cls:"guide",prio:105,c:d.color},blb:{x:p.x,y:5.58,z:p.z,t:"",s:"",cls:"say",prio:120,c:d.color,guide:true}};
       dress(g);G.push(g);
     });
     refreshStats(true);
@@ -330,7 +338,7 @@ const Guides=(()=>{
     const L=Campus.labelCands;if(!L)return;
     for(let i=L.length-1;i>=0;i--)if(L[i].cls==="guide"||L[i].guide)L.splice(i,1);
     for(let i=0;i<G.length;i++){const g=G[i],dCam=Math.hypot(cp.x-g.x,cp.z-g.z),talking=D.open&&D.g===g;
-      if(dCam<280)L.push(g.lbl);if(frameT<g.barkUntil&&!talking&&dCam<520)L.push(g.blb)}
+      if(dCam<(walking?72:180)||talking)L.push(g.lbl);if(frameT<g.barkUntil&&!talking&&dCam<(walking?48:120))L.push(g.blb)}
   }
   // The viewer crossed into a district and stayed a second (a camera flight passing over does not count): its Warden
   // greets once per visit, at most every 90 s, and walks out a few steps.
@@ -409,7 +417,7 @@ const Guides=(()=>{
           else if(g.gest==="tome"){A[0].rotation.x+=(-1.05-A[0].rotation.x)*k;A[0].rotation.z+=(-.25-A[0].rotation.z)*k;if(g.tome)g.tome.position.y=3.35+.9*k}
           else if(g.gest==="bow"){m.head.rotation.x+=.5*k;A[0].rotation.x+=(.18-A[0].rotation.x)*k;A[1].rotation.x+=(.18-A[1].rotation.x)*k}}}
       else if(g.glow&&g.glow.scale.x!==1.9)g.glow.scale.setScalar(1.9);
-      if(speaking&&!reduced){const p=.5+.5*Math.sin(time*7);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=1.1+.9*p}else g.trim.emissiveIntensity=1.1;
+      if(speaking&&!reduced){const p=.5+.5*Math.sin(time*7);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=.22+.2*p}else g.trim.emissiveIntensity=.22;
       // cloth and props
       if(g.cape){const sw=reduced?0:Math.sin(time*1.1+m.phase)*.035,tr=clamp(Math.abs(g.yawVel)*.25,0,.5),side=clamp(-g.yawVel*.15,-.25,.25),run=g.path?.18:0;
         g.cape[0].rotation.x=.2+sw+tr+run;g.cape[1].rotation.x=.05+sw*1.4+tr*.5+run*.6;g.cape[2].rotation.x=.04+sw*1.8+run*.3;g.cape[0].rotation.z=side;g.cape[1].rotation.z=side*.6}

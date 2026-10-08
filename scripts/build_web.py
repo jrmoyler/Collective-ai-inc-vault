@@ -9,7 +9,7 @@ def _need(f):
     if not os.path.exists(os.path.join(src, f)):
         raise SystemExit(f"build_web: web-src/{f} is listed but missing")
     return True
-js = "".join(open(os.path.join(src, f), encoding="utf-8").read() + "\n" for f in ["b_data.js", "b_districts.js", "b_hud.js", "b_engine.js", "b_audio.js", "b_identity.js", "b_sentinel.js", "b_world_assets.js", "b_landscape.js", "b_buildings.js","b_vfx.js", "c_campus.js", "c_npc.js", "d_live.js", "d_reader.js","g_journey.js", "g_ux.js", "f_title.js", "e_boot.js"] if _need(f))
+js = "".join(open(os.path.join(src, f), encoding="utf-8").read() + "\n" for f in ["b_data.js", "b_districts.js", "b_hud.js", "b_engine.js", "b_audio.js", "b_identity.js", "b_sentinel.js", "b_world_assets.js", "b_landscape.js", "b_terrain.js", "b_buildings.js","b_vfx.js", "c_campus.js", "c_npc.js", "d_live.js", "d_reader.js","g_journey.js", "g_ux.js", "f_title.js", "e_boot.js"] if _need(f))
 # One version source: package.json. The title footer and the shortcut sheet read VAULT_BUILD.version.
 import json
 version = json.load(open(os.path.join(R, "package.json"), encoding="utf-8")).get("version", "0.0.0")

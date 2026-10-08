@@ -42,7 +42,7 @@ float cloudSh(vec2 p){p=p*0.0032+uTime*vec2(0.0055,0.0027);float n=vn(p)*0.62+vn
 const FOG_GLSL=p=>`#ifdef USE_FOG
 {vec3 fp=${p}-cameraPosition;float fd=max(length(fp),0.001);
  float hf=exp(-max(${p}.y,0.0)/(uFogH*(1.0+uMist*0.7)));float dens=fogDensity*(0.55+0.95*hf)*(1.0+uMist*(0.75-0.45*uNight)+uWet*0.08*(1.0-uNight));
- float ff=1.0-exp(-dens*dens*fd*fd);float sa=pow(max(dot(fp/fd,uSunDir),0.0),5.0);
+ float air=max(fd-45.0,0.0);float ff=1.0-exp(-dens*dens*air*air);float sa=pow(max(dot(fp/fd,uSunDir),0.0),5.0);
  gl_FragColor.rgb=mix(gl_FragColor.rgb,mix(fogColor,uSunFog,sa*0.8),ff);}
 #endif`;
 let districtAssets=null;
@@ -66,7 +66,7 @@ const lin=h=>new THREE.Color(h).convertSRGBToLinear();
 const MODES={
   dusk:{top:"#0f1733",mid:"#3a4577",bot:"#8a6a86",haze:"#c98a6e",sun:"#ff9a4d",sunI:3.6,dir:[.74,.3,.46],hSky:"#6f7fba",hGnd:"#3a2d3c",hI:.95,fog:"#6c5b7c",fogD:.00062,exp:1.1,win:1.5,ui:"dark",stars:.25,bloom:.55,cloud:.62,csh:.12},
   night:{top:"#03050d",mid:"#0b1230",bot:"#1b2650",haze:"#243052",sun:"#8fa8ff",sunI:.35,dir:[.5,.36,.5],hSky:"#283252",hGnd:"#0a0c16",hI:.7,fog:"#0a1024",fogD:.00105,exp:1.2,win:2.1,ui:"dark",stars:1,bloom:1,cloud:.4,csh:0},
-  day:{top:"#638aab",mid:"#b8cfcf",bot:"#dce0ce",haze:"#e4dfc5",sun:"#fff0d5",sunI:1.8,dir:[.58,.63,.36],hSky:"#c0d6e0",hGnd:"#536a43",hI:.5,fog:"#c7d4c5",fogD:.00018,exp:.68,win:.34,ui:"light",stars:0,bloom:.12,cloud:.34,csh:.22},
+  day:{top:"#638aab",mid:"#b8cfcf",bot:"#dce0ce",haze:"#e4dfc5",sun:"#fff0d5",sunI:1.8,dir:[.58,.63,.36],hSky:"#d7e4ec",hGnd:"#838b78",hI:.65,fog:"#c7d4c5",fogD:.00018,exp:.76,win:.34,ui:"light",stars:0,bloom:.12,cloud:.34,csh:.22},
   dawn:{top:"#2a3a6e",mid:"#7a86b4",bot:"#e2a98c",haze:"#f0b08a",sun:"#ffc08a",sunI:2.6,dir:[.74,.3,.46],hSky:"#8c9ccc",hGnd:"#4a3d3c",hI:.9,fog:"#9a8a98",fogD:.0007,exp:1.05,win:1.0,ui:"dark",stars:.1,bloom:.4,cloud:.58,csh:.15}
 };
 const MODE_ORDER=["auto","dawn","day","dusk","night"];
@@ -158,6 +158,9 @@ function layout(){
         if(ty==="division")h+=14;else if(ty==="moc")h+=10;else if(ty==="home")h+=30;else if(ty==="agent-blueprint")h-=1.5;
         if(note.top==="10 - Archive")h*=.7;
         h=clamp(h*.86,4,56);
+        // Ordinary notes form a human-scale neighborhood; major knowledge hubs
+        // remain the skyline landmarks without turning every paragraph into a tower.
+        h=['division','moc','home'].includes(ty)?Math.min(34,12+Math.sqrt(h)*2.8):6+Math.sqrt(Math.max(0,h-4))*2.3;
         const mf=Math.min(cw,cd)*(.7+.16*rnd);
         const fw=clamp(Math.min(cw*.84,mf*(.9+.2*hash01(note.name+"w"))),3.5,16),fd=clamp(Math.min(cd*.84,mf*(.9+.2*hash01(note.name+"d"))),3.5,16);
         B[note.id]={id:note.id,cx,cz,fw,fd,h,rnd,worldTop:d.top,style:districtStyle(d.top),tiers:tiersFor(cx,cz,fw,fd,h,rnd,districtStyle(d.top))};
@@ -222,38 +225,56 @@ function tile(name,url,r,g,b){
   const t=new THREE.DataTexture(new Uint8Array([r,g,b,255]),1,1,THREE.RGBAFormat);t.needsUpdate=true;TEX[name]=t;
   const img=new Image();img.onload=()=>{
     const tt=new THREE.Texture(img);tt.wrapS=tt.wrapT=THREE.MirroredRepeatWrapping;tt.anisotropy=renderer.capabilities.getMaxAnisotropy();tt.minFilter=THREE.LinearMipmapLinearFilter;tt.needsUpdate=true;
-    TEX[name]=tt;[uni,groundUni].forEach(u=>{if(u&&u["t_"+name])u["t_"+name].value=tt});dirty=true};
+    const previous=TEX[name],previousSRGB=TEX[name+"SRGB"];
+    TEX[name]=tt;[uni,groundUni].forEach(u=>{if(u&&u["t_"+name])u["t_"+name].value=tt});
+    // Custom shaders decode their raw albedo explicitly. Standard facade materials
+    // need an sRGB companion and must be rebound when the neutral texel is replaced.
+    if(name==="stone"||name==="roof"){
+      const mapped=tt.clone();mapped.encoding=THREE.sRGBEncoding;mapped.needsUpdate=true;TEX[name+"SRGB"]=mapped;
+      if(facade)facade.traverse(o=>{if(!o.material)return;[].concat(o.material).forEach(m=>{if(m.map&&(m.map===previous||m.map===previousSRGB)){m.map=mapped;m.needsUpdate=true}})});
+    }
+    dirty=true};
   img.onerror=()=>console.warn("texture missing:",url);img.src=url;
   return t;
 }
 function loadTiles(){
   proceduralTiles();
-  tile("asphalt","assets/ground-asphalt.jpg",46,47,49);tile("pavers","assets/ground-pavers.jpg",150,146,138);
-  tile("glass","assets/facade-glass.jpg",70,82,100);tile("stone","assets/facade-stone.jpg",190,172,140);tile("steel","assets/facade-steel.jpg",140,146,156);tile("roof","assets/roof-gravel.jpg",120,120,118);
+  tile("asphalt","assets/world/pbr/forest-color.jpg",96,88,62);tile("pavers","assets/world/pbr/paving-color.jpg",150,146,138);
+  tile("glass","assets/facade-glass.jpg",70,82,100);tile("stone","assets/world/pbr/plaster-color.jpg",190,172,140);tile("steel","assets/world/pbr/stone-color.jpg",140,146,156);tile("roof","assets/roof-gravel.jpg",120,120,118);
+  for(const name of ["forest","paving","plaster","stone"]){tile(name+"Normal","assets/world/pbr/"+name+"-normal.jpg",128,128,255);tile(name+"Rough","assets/world/pbr/"+name+"-rough.jpg",200,200,200);}
 }
+const SURFACE_NORMAL_GLSL=`
+vec3 mappedSurfaceNormal(vec3 eye,vec3 n,vec3 sampled,vec2 uv){
+ vec3 q0=dFdx(eye),q1=dFdy(eye);vec2 s0=dFdx(uv),s1=dFdy(uv);
+ vec3 a=cross(q1,n),b=cross(n,q0),t=a*s0.x+b*s1.x,bt=a*s0.y+b*s1.y;
+ float det=max(dot(t,t),dot(bt,bt)),scale=det>0.0?inversesqrt(det):0.0;
+ return normalize(t*(sampled.x*scale)+bt*(sampled.y*scale)+n*sampled.z);
+}`;
 // ground: plan colour as an overlay on asphalt and pavers, picked by the mask, in world space so the tiles never stretch
 function groundMaterial(tex){
-  const m=new THREE.MeshStandardMaterial({map:tex,roughness:.9,metalness:0});
+  const m=new THREE.MeshStandardMaterial({map:tex,roughness:.9,metalness:0});m.extensions={derivatives:true};
   m.onBeforeCompile=sh=>{
+    for(const name of ["forestNormal","pavingNormal","forestRough","pavingRough"])sh.uniforms["t_"+name]={value:TEX[name]};
     sh.uniforms.t_asphalt={value:TEX.asphalt};sh.uniforms.t_pavers={value:TEX.pavers};sh.uniforms.t_mask={value:tex.userData.mask};sh.uniforms.t_ao={value:tex.userData.ao};sh.uniforms.t_light={value:tex.userData.light||tex.userData.ao};sh.uniforms.uSide={value:GSIDE};Object.assign(sh.uniforms,SH);groundUni=sh.uniforms;
     sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\nvarying vec3 vGPos;").replace("#include <begin_vertex>","#include <begin_vertex>\nvGPos=(modelMatrix*vec4(transformed,1.0)).xyz;");
-    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nuniform sampler2D t_asphalt;uniform sampler2D t_pavers;uniform sampler2D t_mask;uniform sampler2D t_ao;uniform sampler2D t_light;uniform float uSide;varying vec3 vGPos;\n"+SH_DECL+NOISE_GLSL+"vec3 srgb(vec3 c){return pow(c,vec3(2.2));}")
+    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nuniform sampler2D t_forestNormal;uniform sampler2D t_pavingNormal;uniform sampler2D t_forestRough;uniform sampler2D t_pavingRough;uniform sampler2D t_asphalt;uniform sampler2D t_pavers;uniform sampler2D t_mask;uniform sampler2D t_ao;uniform sampler2D t_light;uniform float uSide;varying vec3 vGPos;\n"+SH_DECL+NOISE_GLSL+SURFACE_NORMAL_GLSL+"vec3 srgb(vec3 c){return pow(c,vec3(2.2));}")
       .replace("#include <roughnessmap_fragment>",`#include <roughnessmap_fragment>
 {
   vec2 wp=vGPos.xz;
-  vec3 asp=srgb(texture2D(t_asphalt,wp/18.0).rgb);
-  vec3 pav=srgb(texture2D(t_pavers,wp/9.0).rgb);
+  vec3 asp=srgb(texture2D(t_asphalt,wp/4.0).rgb);
+  vec3 pav=srgb(texture2D(t_pavers,wp/5.0).rgb);
   vec2 puv=vec2(wp.x/uSide+0.5,0.5-wp.y/uSide);
   float m=texture2D(t_mask,puv).r;
   float ao=texture2D(t_ao,puv).r;
   // large-scale tonal drift so the paving never reads as one repeated tile
   float drift=0.96+0.08*vn(wp*0.018);
   vec3 plan=diffuseColor.rgb;
-  vec3 lawn=plan*vec3(0.9,1.08,0.8);
+  float grassMask=step(plan.r*1.08,plan.g);
+  vec3 lawn=asp*mix(vec3(1.3,1.14,.89),vec3(.74,1.06,.58),grassMask);
   // world pass: meadow patches, faint mowing bands, and worn footpaths that wander across the lawns (noise contours)
   lawn*=mix(0.86,1.1,vn(wp*0.06+3.1))*(1.0+0.035*step(0.5,fract(wp.x*0.11+vn(wp*0.01)*0.6)));
   float trail=1.0-smoothstep(0.0,0.03,abs(vn(wp*0.012+7.3)-0.5));
-  lawn=mix(lawn,plan*vec3(1.12,0.98,0.82)*0.92,trail*0.5);
+  lawn=mix(lawn,asp*vec3(1.12,0.98,0.82),trail*0.32);
   // Meter-scale staggered limestone courses. The albedo tile and joints remain
   // visible at walking height instead of collapsing to the flat plan colour.
   vec2 stoneUV=wp/vec2(2.4,1.25);
@@ -263,15 +284,19 @@ function groundMaterial(tex){
   float mortar=1.0-smoothstep(0.025,0.065,joint);
   float stoneTone=0.9+0.16*h21(stoneId);
   float mineral=mix(0.92,1.08,clamp(dot(pav,vec3(0.333))*3.0,0.0,1.0));
-  vec3 court=plan*vec3(1.06,1.0,0.9)*stoneTone*mineral;
-  court*=mix(1.0,0.58,mortar);
+  vec3 court=pav*vec3(1.0,.97,.88)*stoneTone;
+  court*=mix(1.0,0.86,mortar);
   diffuseColor.rgb=mix(lawn,court,m)*drift*mix(0.78,1.0,ao)*cloudSh(wp);
   // after dark the plazas read slightly damp: lower roughness catches the lamp pools and window glow
-  roughnessFactor=mix(0.92,mix(0.78,0.96,mortar),m)-uNight*0.22*m;
+  roughnessFactor=mix(texture2D(t_forestRough,wp/4.0).r,texture2D(t_pavingRough,wp/5.0).r,m)-uNight*0.15*m;
 ${VFXOK?VFX.GROUND_GLSL:""}
 }`).replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
 { vec3 lm=texture2D(t_light,vec2(vGPos.x/uSide+0.5,0.5-vGPos.z/uSide)).rgb;totalEmissiveRadiance+=lm*lm*uLamp*1.3;
-${VFXOK?VFX.GROUND_EM_GLSL:""} }`).replace("#include <fog_fragment>",FOG_GLSL("vGPos"));
+${VFXOK?VFX.GROUND_EM_GLSL:""} }`).replace("#include <normal_fragment_maps>",`{
+ vec2 uvn=vGPos.xz/4.0;float plaza=texture2D(t_mask,vec2(vGPos.x/uSide+0.5,0.5-vGPos.z/uSide)).r;
+ vec3 mapN=mix(texture2D(t_forestNormal,uvn).xyz,texture2D(t_pavingNormal,vGPos.xz/5.0).xyz,plaza)*2.0-1.0;
+ mapN.xy*=0.65;normal=mappedSurfaceNormal(-vViewPosition,normal,mapN,uvn);
+}`).replace("#include <fog_fragment>",FOG_GLSL("vGPos"));
     if(typeof DistrictLook!=="undefined")DistrictLook.patchGround(sh); // active-district inlay and entry sweep
   };
   return m;
@@ -279,14 +304,20 @@ ${VFXOK?VFX.GROUND_EM_GLSL:""} }`).replace("#include <fog_fragment>",FOG_GLSL("v
 
 // ---------- scene
 function makeMaterial(){
-  const m=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.72,metalness:.1});
+  const m=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.72,metalness:.1});m.extensions={derivatives:true};
   m.onBeforeCompile=sh=>{
+    for(const name of ["plasterNormal","stoneNormal","plasterRough","stoneRough"])sh.uniforms["t_"+name]={value:TEX[name]};
     sh.uniforms.uWin={value:CUR.win||MODES.dusk.win};sh.uniforms.t_glass={value:TEX.glass};sh.uniforms.t_stone={value:TEX.stone};sh.uniforms.t_steel={value:TEX.steel};sh.uniforms.t_roof={value:TEX.roof};sh.uniforms.t_leaf={value:TEX.leaf};Object.assign(sh.uniforms,SH);uni=sh.uniforms;
     sh.vertexShader=sh.vertexShader
       .replace("#include <common>","#include <common>\nattribute vec3 aCol;attribute vec4 aTint;attribute vec4 aState;attribute vec4 aExt;varying vec3 vBCol;varying vec4 vBTint;varying vec4 vBSt;varying vec4 vBExt;varying vec3 vWPos;varying vec3 vBN;varying vec3 vLoc;varying vec3 vScl;")
       .replace("#include <begin_vertex>","#include <begin_vertex>\nvWPos=(modelMatrix*instanceMatrix*vec4(transformed,1.0)).xyz;vBN=normal;vBCol=aCol;vBTint=aTint;vBSt=aState;vBExt=aExt;vLoc=position;vScl=vec3(instanceMatrix[0][0],instanceMatrix[1][1],instanceMatrix[2][2]);");
     sh.fragmentShader=sh.fragmentShader
-      .replace("#include <common>","#include <common>\nuniform float uWin;uniform sampler2D t_glass;uniform sampler2D t_stone;uniform sampler2D t_steel;uniform sampler2D t_roof;uniform sampler2D t_leaf;varying vec3 vBCol;varying vec4 vBTint;varying vec4 vBSt;varying vec4 vBExt;varying vec3 vWPos;varying vec3 vBN;varying vec3 vLoc;varying vec3 vScl;\n"+SH_DECL+NOISE_GLSL+(VFXOK?VFX.INK_GLSL:"")+"vec3 srgb(vec3 c){return pow(c,vec3(2.2));}")
+      .replace("#include <common>","#include <common>\nuniform sampler2D t_plasterNormal;uniform sampler2D t_stoneNormal;uniform sampler2D t_plasterRough;uniform sampler2D t_stoneRough;uniform float uWin;uniform sampler2D t_glass;uniform sampler2D t_stone;uniform sampler2D t_steel;uniform sampler2D t_roof;uniform sampler2D t_leaf;varying vec3 vBCol;varying vec4 vBTint;varying vec4 vBSt;varying vec4 vBExt;varying vec3 vWPos;varying vec3 vBN;varying vec3 vLoc;varying vec3 vScl;\n"+SH_DECL+NOISE_GLSL+SURFACE_NORMAL_GLSL+(VFXOK?VFX.INK_GLSL:"")+"vec3 srgb(vec3 c){return pow(c,vec3(2.2));}")
+      .replace("#include <normal_fragment_maps>",`{
+ float sideX=step(0.5,abs(vBN.x));vec2 uvn=vec2(mix(vWPos.x,vWPos.z,sideX),vWPos.y)/4.0;
+ vec3 nm=mix(texture2D(t_plasterNormal,uvn).xyz,texture2D(t_stoneNormal,uvn).xyz,step(0.667,vBSt.z))*2.0-1.0;
+ nm.xy*=0.38*(1.0-step(0.5,abs(vBN.y)));normal=mappedSurfaceNormal(-vViewPosition,normal,nm,uvn);
+}`)
       .replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
 {
   vec3 N=normalize(vBN);
@@ -349,12 +380,12 @@ function makeMaterial(){
   float w=wall*inW*(1.0-lobbyZ);
   float hi=vBSt.y;
   // facade albedo: one of three tiles per building (hash), sampled triplanar-style on the wall axis
-  vec2 fuv=vec2(u,vWPos.y)/vec2(10.0,13.2);
+  vec2 fuv=vec2(u,vWPos.y)/vec2(4.0,4.0);
   float variant=floor(vBSt.z*2.999);
   float glassV=1.0-step(0.5,variant);
-  vec3 ft=srgb(texture2D(t_glass,fuv).rgb)*3.2;
-  ft=mix(ft,srgb(texture2D(t_stone,fuv*1.4).rgb)*1.25,step(0.5,variant));
-  ft=mix(ft,srgb(texture2D(t_steel,fuv*1.2).rgb)*1.9,step(1.5,variant));
+  vec3 ft=srgb(texture2D(t_stone,fuv).rgb);
+  ft=mix(ft,srgb(texture2D(t_stone,fuv).rgb),step(0.5,variant));
+  ft=mix(ft,srgb(texture2D(t_steel,fuv).rgb),step(1.5,variant));
   // roof: coping ring, ballast that darkens toward the parapet, green terraces on setbacks and some crowns
   float rEdge=min(vScl.x*0.5-abs(L.x),vScl.z*0.5-abs(L.z));
   float parapet=top*(1.0-step(0.42,rEdge));
@@ -373,16 +404,16 @@ function makeMaterial(){
   vec3 base=tex*(0.42+vBCol*3.4)*mix(1.0,0.9,top)*seam;
   base*=mix(1.0,1.6,coping)*(1.0+0.4*bev)*ao*cloudSh(vWPos.xz)*mix(1.0,0.72,uNight);
   float dayL=1.0-uNight;
-  float timber=max(smoothstep(0.40,0.48,abs(fract(u/pit.x)-0.5)),smoothstep(0.44,0.49,abs(fract(vWPos.y/pit.y)-0.5)));
-  vec3 plaster=mix(vec3(0.84,0.76,0.64),vBTint.rgb,0.26);
-  vec3 wallDay=mix(plaster,vec3(0.30,0.16,0.08),timber*0.92);
-  base=mix(base,wallDay,dayL*0.88*wall);
-  base=mix(base,mix(vec3(0.64,0.24,0.12),vBTint.rgb,0.16),dayL*0.92*top*(1.0-green));
+  // Scanned mineral surfaces remain visible in daylight. District tint belongs
+  // on signs and trim, not as a flat pastel wash over every wall.
+  vec3 mineralBase=ft*mix(vec3(0.72,0.68,0.59),vec3(0.98,0.94,0.85),h21(vec2(bs,9.0)));
+  base=mix(base,mineralBase*ao*cloudSh(vWPos.xz),wall*0.86);
+  base=mix(base,rt,top*(1.0-green));
   // glass: punched windows, the lobby, and on curtain-wall towers most of the face
   float glassM=max(w,lw);
   float reflM=wall*max(glassM,glassV*0.55*solid*(1.0-lobbyZ));
-  glassM*=mix(1.0,0.2,dayL);
-  reflM*=mix(1.0,0.08,dayL);
+  glassM*=mix(1.0,0.94,dayL);
+  reflM*=mix(1.0,0.78,dayL);
   diffuseColor.rgb=mix(base,vec3(0.010,0.013,0.024),glassM*mix(0.7,1.0,wk));
   // archived and superseded notes weather: grey, streaked under the sills, windows boarded, roofs mossed over
   float streak=smoothstep(0.42,0.86,vn(vec2(u*1.9,vWPos.y*0.07+bs)));
@@ -395,7 +426,8 @@ function makeMaterial(){
   metalnessFactor=mix(metalnessFactor,0.35*step(1.5,variant)+0.12*glassV,wall);
   roughnessFactor=mix(roughnessFactor,0.14,reflM);
   metalnessFactor=mix(metalnessFactor,0.05,glassM);
-  roughnessFactor=mix(roughnessFactor,0.9,dayL*wall*(1.0-glassM));
+  float mineralRough=mix(texture2D(t_plasterRough,fuv).r,texture2D(t_stoneRough,fuv).r,step(1.5,variant));
+  roughnessFactor=mix(roughnessFactor,mineralRough,wall*(1.0-glassM));
   metalnessFactor=mix(metalnessFactor,0.02,dayL*wall);
   // sky in the glass: Fresnel-weighted, each pane a touch different so the grid reads
   vec3 V=normalize(cameraPosition-vWPos);
@@ -530,7 +562,7 @@ void main(){
     vec3 cc=mix(shade,litc,clamp(0.55+0.45*pow(s,2.0)-thick*0.35,0.0,1.0));
     cc=mix(cc,(mid*1.4+top*0.6)*mix(1.25,0.8,thick)+vec3(0.010,0.012,0.022),uNight*0.9);
     // silver lining where thin cloud crosses the sun
-    cc+=sunCol*pow(s,24.0)*(1.0-thick)*1.6*sunDisc;
+    cc+=sunCol*pow(s,24.0)*(1.0-thick)*0.6*sunDisc;
     c=mix(c,cc,cov*0.92);
   }
   // sun: sharp disc with a soft glow, plus a wide warm wash low on the sky; clouds dim the disc
@@ -606,7 +638,7 @@ function pushSky(dir,sunUp,moonI){
   u.uCloud.value=CUR.cloud;
   // shared world uniforms: in-scatter colour toward the light, sky colour for glass, cloud shadow, lamps, night
   const night=clamp((CUR.win-.35)/1.75,0,1);
-  SH.uSunDir.value.copy(u.sunDir.value);SH.uSunFog.value.copy(CUR.fog).lerp(CUR.sun,sunUp?.55:.2);
+  SH.uSunDir.value.copy(u.sunDir.value);SH.uSunFog.value.copy(CUR.fog).lerp(CUR.sun,sunUp?.22:.12);
   SH.uSkyRef.value.copy(CUR.mid).lerp(CUR.haze,.35).multiplyScalar(.55);
   SH.uCloudSh.value=sunUp?CUR.csh:0;SH.uLamp.value=clamp((CUR.win-.45)/1.1,0,1);SH.uNight.value=night;
   LIGHT.up=sunUp;LIGHT.elev=Math.asin(clamp(u.sunDir.value.y,-1,1))*180/Math.PI;LIGHT.col.copy(CUR.sun);
@@ -709,7 +741,7 @@ function fitShadow(force=true){
 // ---------- post: multisampled scene, bloom for windows and lamps, then one grade pass (light shafts, split tone, grain, sRGB)
 // Postprocessing is bundled locally from the exact city renderer version.
 const POST_SRC="vendor/three/examples/js/";
-const POST_FILES=["shaders/CopyShader.js","shaders/LuminosityHighPassShader.js","postprocessing/EffectComposer.js","postprocessing/RenderPass.js","postprocessing/ShaderPass.js","postprocessing/UnrealBloomPass.js"];
+const POST_FILES=["shaders/CopyShader.js","shaders/LuminosityHighPassShader.js","postprocessing/EffectComposer.js","postprocessing/RenderPass.js","postprocessing/ShaderPass.js","postprocessing/UnrealBloomPass.js","shaders/SSAOShader.js","math/SimplexNoise.js","postprocessing/SSAOPass.js"];
 function wantPost(){readQuality();return HI&&!reduced}
 function loadPost(){
   if(postState!=="off"||!wantPost())return;postState="loading";
@@ -717,8 +749,9 @@ function loadPost(){
     const s=document.createElement("script");s.src=POST_SRC+POST_FILES[i];s.crossOrigin="anonymous";s.onload=()=>next(i+1);s.onerror=()=>{postState="failed";console.warn("post unavailable:",POST_FILES[i])};document.head.appendChild(s)};
   next(0);
 }
+let contactPass=null;
 const GradeShader={
-  uniforms:{tDiffuse:{value:null},uSun:{value:new THREE.Vector2(.5,.5)},uShaft:{value:0},uSunCol:{value:new THREE.Color(1,.8,.6)},uTime:{value:0},uRes:{value:new THREE.Vector2(1,1)},uGrain:{value:.004}},
+  uniforms:{tDiffuse:{value:null},uSun:{value:new THREE.Vector2(.5,.5)},uShaft:{value:0},uSunCol:{value:new THREE.Color(1,.8,.6)},uTime:{value:0},uRes:{value:new THREE.Vector2(1,1)},uGrain:{value:0}},
   vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
   fragmentShader:`uniform sampler2D tDiffuse;uniform vec2 uSun;uniform float uShaft;uniform vec3 uSunCol;uniform float uTime;uniform vec2 uRes;uniform float uGrain;varying vec2 vUv;
 float hh(vec2 p){p=fract(p*vec2(443.897,441.423));p+=dot(p,p.yx+19.19);return fract((p.x+p.y)*p.x);}
@@ -740,13 +773,54 @@ void main(){
   c+=(hh(vUv*uRes+fract(uTime*7.31)*91.0)-0.5)*uGrain;
   gl_FragColor=vec4(c,1.0);
 }`};
+// Contact occlusion is generated from real scene depth/normals. Reuse the full-
+// resolution multisampled beauty RenderPass; only the AO buffers are half size.
+// No duplicate beauty draw, no tint, no bloom on ordinary plaster and foliage.
+function makeContactPass(){
+  if(!THREE.SSAOPass||!renderer.capabilities.isWebGL2)return null;
+  const p=new THREE.SSAOPass(scene,camera,1,1);
+  p.normalRenderTarget.depthTexture.type=THREE.UnsignedIntType;
+  p.needsSwap=false;p.kernelSize=16;p.kernel=[];p.generateSampleKernel();
+  p.ssaoMaterial.defines.KERNEL_SIZE=16;p.ssaoMaterial.uniforms.kernel.value=p.kernel;
+  p.kernelRadius=1.8;p.minDistance=.00002;p.maxDistance=.0006;
+  p.copyMaterial.fragmentShader=p.copyMaterial.fragmentShader.replace('gl_FragColor = opacity * texel;',
+    'gl_FragColor = vec4(mix(vec3(1.0), texel.rgb, 0.55), 1.0);');
+  p.setSize=function(w,h){
+    const scale=Math.min(.5,900/Math.max(w,h));
+    THREE.SSAOPass.prototype.setSize.call(this,Math.max(1,Math.round(w*scale)),Math.max(1,Math.round(h*scale)));
+    this.beautyRenderTarget.setSize(1,1); // the existing RenderPass supplies beauty
+  };
+  p.render=function(r,writeBuffer,readBuffer){
+    // Camera lens, near plane and view offset can change while walking or reading.
+    const u=this.ssaoMaterial.uniforms;
+    u.cameraNear.value=camera.near;u.cameraFar.value=camera.far;
+    u.cameraProjectionMatrix.value.copy(camera.projectionMatrix);
+    u.cameraInverseProjectionMatrix.value.copy(camera.projectionMatrixInverse);
+    u.kernelRadius.value=this.kernelRadius;u.minDistance.value=this.minDistance;u.maxDistance.value=this.maxDistance;
+    this.overrideVisibility();
+    scene.traverse(o=>{if(o===skyMesh||o===water||(o.material&&[].concat(o.material).some(m=>m.transparent)))o.visible=false});
+    try{this.renderOverride(r,this.normalMaterial,this.normalRenderTarget,0x7777ff,1)}
+    finally{scene.overrideMaterial=null;this.restoreVisibility()}
+    this.renderPass(r,this.ssaoMaterial,this.ssaoRenderTarget);
+    this.renderPass(r,this.blurMaterial,this.blurRenderTarget);
+    this.copyMaterial.uniforms.tDiffuse.value=this.blurRenderTarget.texture;
+    this.copyMaterial.blending=THREE.CustomBlending;
+    this.renderPass(r,this.copyMaterial,readBuffer);
+  };
+  const dispose=p.dispose.bind(p);
+  p.dispose=()=>{dispose();p.ssaoMaterial.dispose();p.noiseTexture.dispose()};
+  return p;
+}
 function setupPost(){
   if(!THREE.EffectComposer||!THREE.UnrealBloomPass||!THREE.ShaderPass)throw new Error("examples missing");
   // MSAA survives the composer on WebGL2; on WebGL1 the scene goes through without it
   let rt;const pr=renderer.getPixelRatio();
   if(renderer.capabilities.isWebGL2&&THREE.WebGLMultisampleRenderTarget){rt=new THREE.WebGLMultisampleRenderTarget(W*pr,H*pr,{format:THREE.RGBAFormat});rt.samples=4}
+  if(contactPass){contactPass.dispose();contactPass=null}
+  if(composer){composer.renderTarget1.dispose();composer.renderTarget2.dispose()}
   composer=new THREE.EffectComposer(renderer,rt);composer.setPixelRatio(pr);composer.setSize(W,H);
   composer.addPass(new THREE.RenderPass(scene,camera));
+  contactPass=makeContactPass();if(contactPass)composer.addPass(contactPass);
   bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(W,H),.6,.5,.84);composer.addPass(bloomPass);
   if(VFXOK)VFX.patchGrade(GradeShader); // per-time colour balance and a light vignette (b_vfx.js)
   gradePass=new THREE.ShaderPass(GradeShader);composer.addPass(gradePass);
@@ -754,12 +828,13 @@ function setupPost(){
 }
 const _sp=new THREE.Vector3();
 function updateGrade(){
+  if(contactPass)contactPass.enabled=HI&&renderBudget.scale>=.85&&(walk||cam.dist<420);
   const g=gradePass.uniforms;g.uTime.value=time;g.uRes.value.set(W,H);
   // shafts only when the sun is up, low, and on or near the screen
   let k=0;
   if(LIGHT.up){_sp.copy(skyMat.uniforms.sunDir.value).multiplyScalar(1500).add(camera.position).project(camera);
     if(_sp.z<1){const off=Math.max(Math.abs(_sp.x),Math.abs(_sp.y));k=clamp(1.35-off,0,1)*(1-clamp((LIGHT.elev-8)/40,0,1)*.65);g.uSun.value.set(_sp.x*.5+.5,_sp.y*.5+.5)}}
-  g.uShaft.value=k*.85;g.uSunCol.value.copy(LIGHT.col);
+  g.uShaft.value=k*.22;g.uSunCol.value.copy(LIGHT.col);
 }
 
 // ---------- world dressing: procedural textures, water, street lamps, trees, roof plant, drones and motes.
@@ -903,11 +978,21 @@ function buildDecor(){
   }
   // Interleave to share the bounded understory allocation with interior gardens.
   const city=trees.splice(0);for(let i=0;i<Math.max(city.length,grove.length);i++){if(city[i])trees.push(city[i]);if(grove[i])trees.push(grove[i])}
+  // Low botanical shoulders break the paved district edges into planted beds.
+  // Entrances and building pads are filtered again by the landscape module.
+  const underCap=HI?1800:500;let under=0;
+  DIST.forEach(d=>{for(const axis of [0,1]){const length=axis?d.d:d.w;
+    for(let i=2;i<length-2&&under<underCap;i+=HI?2.4:5.5){
+      for(const side of [0,1]){const x=axis?d.x+(side?d.w-1.7:1.7):d.x+i,z=axis?d.z+i:d.z+(side?d.d-1.7:1.7);
+        if(okCell(x,z,0)){trees.push({x,z,k:R(d.top+'bed'+axis+side+i),understoryOnly:true});under++}
+      }
+    }
+  }});
   const trunkG=new THREE.CylinderGeometry(.16,.24,1,5);trunkG.translate(0,.5,0);
   const canG=new THREE.IcosahedronGeometry(1,1);canG.translate(0,1,0);
   const tc=new THREE.Color();
   trunkG.dispose();
-  landscape=VaultLandscape.build({THREE,trees,districts:DIST,buildings:B,side:GSIDE,world:WORLD,treeStyle:typeof DistrictLook!=="undefined"?DistrictLook.tree:null,high:HI,reducedMotion:reduced||!HI});
+  landscape=VaultLandscape.build({THREE,trees,districts:DIST,buildings:B,side:GSIDE,world:WORLD,heightAt:(x,z)=>VaultTerrain.height(x,z,WORLD,GSIDE),onChange:()=>{dirty=true},treeStyle:typeof DistrictLook!=="undefined"?DistrictLook.tree:null,high:HI,reducedMotion:reduced||!HI});
   decor.add(landscape);
   // planters: low stone boxes with a shrub, at plot corners
   // Furniture remains outside building pads and uses three draw calls for the entire city.
@@ -946,7 +1031,7 @@ function buildDecor(){
       crownDetails(t,b.style).forEach(p=>{p.id=b.id;p.c=p.kind==="metal"?lin(col).lerp(lin("#b8ab8c"),.65):undefined;(p.kind==="stone"?crownStone:p.kind==="solar"?crownSolar:crownMetal).push(p)});
       return;
     }
-    gables.push({id:b.id,x:t.x,y:t.y1,z:t.z,ry:along?0:Math.PI/2,sx:span*1.04,sy:rise,sz:depth*1.06,c:clay.clone().lerp(tint.copy(lin(col)),.28)});
+    gables.push({id:b.id,x:t.x,y:t.y1,z:t.z,ry:along?0:Math.PI/2,sx:span*1.04,sy:rise,sz:depth*1.06,c:clay.clone().lerp(tint.copy(lin(col)),.045)});
     // ridge cap: a dark tile line along the apex so short pitched notes read as roofs, not boxes, from overview distance
     ridges.push({id:b.id,x:t.x,y:t.y1+rise-.06,z:t.z,ry:along?0:Math.PI/2,sx:span*1.08,sy:.2,sz:.3});
     const nm=NOTES[b.id].name;
@@ -954,7 +1039,22 @@ function buildDecor(){
       chimneys.push({id:b.id,x:t.x+(along?ox:oz),y:t.y1+pitchedRoofHeight(rise,depth,oz)-.06,z:t.z+(along?oz:-ox),sx:.42,sy:ch,sz:.42})}
     if(b.h>28&&R(nm+"m")>.55){const mh=3+R(nm+"mh")*4;ms.push({id:b.id,x:t.x,y:t.y1+rise,z:t.z,sx:1,sy:mh,sz:1});halo.push(t.x,t.y1+rise+mh+.15,t.z);hTh.push(R(nm+"ph"));hK.push(1)}
   });
-  if(!DMAT.thatch)DMAT.thatch=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:0});
+  if(!DMAT.thatch){
+    DMAT.thatch=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:0});
+    DMAT.thatch.onBeforeCompile=sh=>{
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vTileWorld; varying vec3 vTileNormal;')
+        .replace('#include <begin_vertex>','#include <begin_vertex>\nvTileWorld=(modelMatrix*instanceMatrix*vec4(transformed,1.0)).xyz;vTileNormal=normal;');
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vTileWorld; varying vec3 vTileNormal;')
+        .replace('#include <color_fragment>',`#include <color_fragment>
+          float turn=step(.5,abs(vTileNormal.x));
+          vec2 tileUV=vec2(mix(vTileWorld.x,vTileWorld.z,turn)/.42,vTileWorld.y/.31);
+          tileUV.x+=mod(floor(tileUV.y),2.0)*.5;vec2 tf=fract(tileUV);
+          float bevel=sin(tf.x*3.14159)*.22+.78;
+          float lip=smoothstep(.02,.12,tf.y)*(1.0-.24*smoothstep(.83,1.0,tf.y));
+          float fleck=fract(sin(dot(floor(tileUV),vec2(12.9898,78.233)))*43758.5453);
+          diffuseColor.rgb*=bevel*lip*(.86+fleck*.24);`);
+    };
+  }
   if(!DMAT.brick)DMAT.brick=new THREE.MeshStandardMaterial({color:lin("#7a4030"),roughness:.94,metalness:0});
   const gableMesh=instMesh(gableGeometry(),DMAT.thatch,gables,HI);
   const chimG=new THREE.BoxGeometry(1,1,1);chimG.translate(0,.5,0);
@@ -1067,16 +1167,16 @@ const WORLDX={horizon:null,boats:null,birds:null,piers:null,blobs:null,casters:[
 // Far shore: three rings of low-poly hills, two distant towns on the near ring, and a lighthouse on a headland.
 // Aerial perspective and night windows are in the shader; geometry is built once per layout.
 function horizonGeometry(){
-  const pos=[],kind=[],layer=[],R0=GSIDE*.5+Math.max(320,GSIDE*.5),SEG=HI?120:72;
+  const pos=[],kind=[],layer=[],R0=GSIDE*.5+Math.max(320,GSIDE*.5),SEG=HI?256:128;
   const tri=(a,b,c,k,l)=>{pos.push(...a,...b,...c);kind.push(k,k,k);layer.push(l,l,l)};
   const quad=(a,b,c,d,k,l)=>{tri(a,b,c,k,l);tri(a,c,d,k,l)};
   const hillH=(a,l)=>{let h=0,amp=1,f=1;for(let o=0;o<4;o++){h+=amp*(.5+.5*Math.sin(a*f*(3+l*2)+hash01("hz"+l+":"+o)*6.28));amp*=.5;f*=2.13}return h};
   for(let l=0;l<3;l++){
-    const R=Math.min(2150,R0+l*(GSIDE*.3+180)),base=18+l*26,amp=26+l*44;
-    for(let i=0;i<SEG;i++){
-      const a0=i/SEG*Math.PI*2,a1=(i+1)/SEG*Math.PI*2,h0=base+amp*hillH(a0,l),h1=base+amp*hillH(a1,l);
-      const p=(a,r,y)=>[Math.cos(a)*r,y,Math.sin(a)*r];
-      quad(p(a0,R,-3),p(a1,R,-3),p(a1,R,h1),p(a0,R,h0),0,l/2);
+    const R=Math.min(1840,R0+l*(GSIDE*.18+110)),width=210,base=18+l*22,amp=24+l*34,bands=6;
+    const point=(a,t)=>{const r=R+width*t,h=(base+amp*hillH(a,l))*Math.pow(Math.sin(Math.PI*t),.82)-3;return[Math.cos(a)*r,h,Math.sin(a)*r]};
+    for(let i=0;i<SEG;i++)for(let j=0;j<bands;j++){
+      const a0=i/SEG*Math.PI*2,a1=(i+1)/SEG*Math.PI*2,t0=j/bands,t1=(j+1)/bands;
+      quad(point(a0,t0),point(a1,t0),point(a1,t1),point(a0,t1),0,l/2);
     }
   }
   // towns: clusters of flat skyline cards facing the island, on the near ring; windows are drawn by the shader
@@ -1089,18 +1189,18 @@ function horizonGeometry(){
   quad(lp(-tw*.9,46),lp(tw*.9,46),lp(tw*.9,53),lp(-tw*.9,53),2,0);
   const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
   g.setAttribute("aKind",new THREE.Float32BufferAttribute(kind,1));g.setAttribute("aLayer",new THREE.Float32BufferAttribute(layer,1));
-  g.userData.lamp=lp(0,49.5);return g;
+  g.computeVertexNormals();g.userData.lamp=lp(0,49.5);return g;
 }
 function makeHorizon(){
   const u=THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{uHaze:{value:new THREE.Color()},uLand:{value:new THREE.Color()},uLampPos:{value:new THREE.Vector3()}}]);Object.assign(u,SH);
   const m=new THREE.ShaderMaterial({uniforms:u,fog:true,side:THREE.DoubleSide,
-    vertexShader:"attribute float aKind;attribute float aLayer;varying float vK;varying float vL;varying vec3 vW;\n#include <fog_pars_vertex>\nvoid main(){vK=aKind;vL=aLayer;vec4 w=modelMatrix*vec4(position,1.0);vW=w.xyz;vec4 mvPosition=viewMatrix*w;gl_Position=projectionMatrix*mvPosition;\n#include <fog_vertex>\n}",
-    fragmentShader:"uniform vec3 uHaze;uniform vec3 uLand;uniform vec3 uLampPos;varying float vK;varying float vL;varying vec3 vW;\n#include <common>\n#include <fog_pars_fragment>\n"+SH_DECL+NOISE_GLSL+`
+    vertexShader:"attribute float aKind;attribute float aLayer;varying float vK;varying float vL;varying vec3 vW;varying vec3 vHN;\n#include <fog_pars_vertex>\nvoid main(){vHN=normal;vK=aKind;vL=aLayer;vec4 w=modelMatrix*vec4(position,1.0);vW=w.xyz;vec4 mvPosition=viewMatrix*w;gl_Position=projectionMatrix*mvPosition;\n#include <fog_vertex>\n}",
+    fragmentShader:"uniform vec3 uHaze;uniform vec3 uLand;uniform vec3 uLampPos;varying float vK;varying float vL;varying vec3 vW;varying vec3 vHN;\n#include <common>\n#include <fog_pars_fragment>\n"+SH_DECL+NOISE_GLSL+`
 void main(){
   float k=vK;
   // aerial perspective: far ridges sink into the haze, near ones keep a little land colour
-  vec3 land=mix(uLand,uHaze,0.42+0.4*vL);
-  float shade=0.82+0.18*vn(vW.xz*0.02+vW.y*0.05);
+  vec3 land=mix(uLand*vec3(.66,.87,.65),uHaze,0.26+0.32*vL);
+  float shade=(.75+.25*max(0.0,dot(normalize(vHN),normalize(uSunDir))))*(.94+.06*vn(vW.xz*.065));
   vec3 c=land*shade*mix(1.0,0.82,smoothstep(0.0,40.0,vW.y)*(1.0-uNight));
   c=mix(c,uHaze*0.9,(1.0-smoothstep(-3.0,22.0,vW.y))*0.55);   // a low mist line where the shore meets the sea
   float town=step(0.5,k)*(1.0-step(1.5,k));
@@ -1288,6 +1388,7 @@ function photoBar(){
 }
 function setPhoto(on){
   on=!!on;if(!C.ok||on===PHOTO.on)return PHOTO.on;PHOTO.on=on;
+  AG.forEach(m=>{if(m.local&&m.info?.position)m.grp.visible=!(on||m.info.position.walking)});
   if(on){
     // hide every sibling on the path from the canvas up to <body>; the canvas and the bar stay
     PHOTO.hidden=[];let node=cv;
@@ -1375,7 +1476,7 @@ function build(prev){
   if(ground){scene.remove(ground);const ud=groundMat.map.userData;ud.mask.dispose();ud.ao.dispose();if(ud.light)ud.light.dispose();groundMat.map.dispose();groundMat.dispose();ground.geometry.dispose();groundUni=null}
   const tex=paintGround();
   groundMat=groundMaterial(tex);
-  ground=new THREE.Mesh(new THREE.PlaneGeometry(GSIDE,GSIDE),groundMat);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+  ground=new THREE.Mesh(VaultTerrain.geometry(THREE,GSIDE,WORLD,HI),groundMat);ground.receiveShadow=true;scene.add(ground);
   if(!water){water=makeWater();scene.add(water)}water.material.uniforms.uSide.value=GSIDE;
   buildInstances(prev);buildNav();
   if(typeof DistrictAssets!=="undefined"){
@@ -1397,9 +1498,9 @@ function buildFacades(){
     const items=[];
     B.forEach(b=>{if(!b||!FSIG[b.id])return;
       const color=(typeof Districts!=="undefined"?Districts.get(b.worldTop)?.color:null)||FOLDER_COLORS[b.worldTop]||"#D4A843";
-      items.push({b:{id:b.id,tiers:b.tiers,door:b.door,h:b.h,style:b.style,color},s:FSIG[b.id],surf:(x,z)=>roofSurfaceAt(b,x,z)})});
+      items.push({b:{id:b.id,tiers:b.tiers,door:b.door,h:b.h,style:b.style,color,roofSupports:b.roofSupports},s:FSIG[b.id],surf:(x,z)=>roofSurfaceAt(b,x,z)})});
     // stale-first ordering is the caller's job: newest edits and link problems are laid out first inside the budget
-    facade=Facades.build(items,{SH,cap:HI?Facades.LIMIT.high:QUALITY==="low"?Facades.LIMIT.low:Facades.LIMIT.medium,shadow:false});
+    facade=Facades.build(items,{SH,stoneMap:TEX.stoneSRGB||TEX.stone,roofMap:TEX.roofSRGB||TEX.roof,cap:HI?Facades.LIMIT.high:QUALITY==="low"?Facades.LIMIT.low:Facades.LIMIT.medium,shadow:false});
     scene.add(facade);doorNear=-1;refreshDoors();facade.visible=introStart<0;
   }catch(e){console.warn("facade dressing unavailable:",e);facade=null}
 }
@@ -1481,7 +1582,7 @@ function walkDistrict(top){
   const d=DIST.find(x=>x.top===top);if(!d||!C.ok)return false;
   if(!walk)enterWalk();
   goal.tx=d.x+2;goal.tz=d.z-2.5;goal.yaw=-1.9;goal.pitch=.06;collide();
-  cam.tx=goal.tx;cam.tz=goal.tz;cam.yaw=goal.yaw;cam.pitch=goal.pitch;cam.ty=goal.ty=3.4;dirty=true;showDistrict(d,false);
+  cam.tx=goal.tx;cam.tz=goal.tz;cam.yaw=goal.yaw;cam.pitch=goal.pitch;cam.ty=goal.ty=2.1;dirty=true;showDistrict(d,false);
   return true;
 }
 
@@ -1492,7 +1593,7 @@ function enterWalk(){
   const D=Math.min(cam.dist,45),cp=Math.cos(cam.pitch);
   const px=cam.tx+Math.sin(cam.yaw)*cp*D,pz=cam.tz+Math.cos(cam.yaw)*cp*D,py=Math.max(3.4,cam.ty+Math.sin(cam.pitch)*D);
   cam.tx=goal.tx=clamp(px,-GSIDE/2+20,GSIDE/2-20);cam.tz=goal.tz=clamp(pz,-GSIDE/2+20,GSIDE/2-20);cam.ty=py;cam.dist=goal.dist=0;
-  goal.ty=3.4;goal.pitch=.1;goal.yaw=cam.yaw;collide();cam.tx=goal.tx;cam.tz=goal.tz;
+  goal.ty=2.1;goal.pitch=.1;goal.yaw=cam.yaw;collide();cam.tx=goal.tx;cam.tz=goal.tz;
   $("#rbWalk").classList.add("on");$("#hint").firstElementChild.textContent="Drag · look   WASD · walk   Shift · run";stage.classList.add("walking");bannerTop=null;dirty=true;
 }
 function exitWalk(){
@@ -1736,11 +1837,11 @@ function setAgents(list){
     const signature=JSON.stringify([Identity.form(a.form||'agent'),Identity.palette(a.palette||['#111827',a.color||'#C97B54','#E6E9F2'],a.form||'agent'),a.symbol,a.ownerColor,a.ownerBadge,level]);
     if(m&&m.signature!==signature){const keep={pos:m.pos.clone(),noteId:m.noteId,path:m.path,leg:m.leg,phaseName:m.phaseName,lift:m.lift,home:m.home,roof:m.roof,pathT:m.pathT,from:m.from?.clone()};const prevM=m;disposeSentinel(m);AG.delete(a.id);m=null;m=SentinelMesh.create({...a,level});Object.assign(m,keep);/* sentinel continuity: pose, emote, LOD, talks and forge sweep carry over (b_sentinel.js) */if(SentinelMesh.carry)SentinelMesh.carry(prevM,m,time);agentGroup.add(m.grp);AG.set(a.id,m)}
     if(!m){m=SentinelMesh.create({...a,level});agentGroup.add(m.grp);AG.set(a.id,m);m.phaseName='new'}
-    m.info=a;
+    m.info=a;m.local=!!a.local;m.grp.scale.setScalar(.6);
     if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){
       // a person walking: positions come from their own browser
       m.pos.set(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0;m.noteId=-2;m.path=null;m.phaseName='placed';
-      m.grp.visible=!(a.local&&a.position.walking);m.ring.scale.setScalar(1.6);
+      m.grp.visible=!(a.local&&(a.position.walking||PHOTO.on));m.ring.scale.setScalar(1.6);
     }else if(b){
       const slot=slots.get(n.id)||0;slots.set(n.id,slot+1);const tgt=roofSlot(n,slot,counts.get(n.id)||1);
       if(m.noteId!==n.id){
@@ -1923,6 +2024,7 @@ function step(dt){
   if(auto&&!walk&&!sheet.open){goal.yaw+=dt*.04;dirty=true}
   stepEntry();
   if(stepFlight()){dirty=true}else{
+  if(walk)goal.ty=2.1+VaultTerrain.height(goal.tx,goal.tz,WORLD,GSIDE);
   const k=reduced?1:1-Math.exp(-dt*(walk?13:5.5));
   let dyaw=((goal.yaw-cam.yaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
   let mv=Math.abs(dyaw)+Math.abs(goal.pitch-cam.pitch)+Math.abs(goal.dist-cam.dist)*.01+Math.abs(goal.tx-cam.tx)*.01+Math.abs(goal.ty-cam.ty)*.01+Math.abs(goal.tz-cam.tz)*.01;
@@ -2128,7 +2230,7 @@ return {boot,skipIntro,setAgents,setLevels,pulse,ink,say,floater,emote,celebrate
   // integration points for other modules (guides, title, world): read-only handles plus hooks
   /* UX hook (g_ux.js): apply a quality change from the Go-to palette without a reload */applyQuality:()=>{const t=applyQuality();if(renderer)resize();return t},
   /* world pass */photo:on=>on===undefined?PHOTO.on:setPhoto(on),savePhoto,perf:perfStats,addShadowCaster:f=>{if(typeof f==="function")WORLDX.casters.push(f)},
-  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;fly();dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;fly();dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},/* audio hook: world position of a visible Sentinel, for spatial work sounds */agentPos:id=>{const m=AG.get(id);return m&&m.grp.visible?[m.pos.x,m.pos.y+1.5,m.pos.z]:null},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk,dist:cam.dist}),debug:()=>({cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,tier:tierNow,glLost,vfx:VFXOK?VFX.stats():null,weather:VFXOK?VFX.weather():null,tex:TEX,landmarks:districtAssets?.userData.records||[],renderBudget:{...renderBudget},perf:perfStats(),flight:!!flight,
+  scene:()=>scene,camera:()=>camera,renderer:()=>renderer,districts:()=>DIST,buildings:()=>B,world:()=>({GSIDE,WORLD,NAV}),labelCands:[],addPicker:f=>pickers.push(f),onFrame:f=>frameHooks.push(f),route,gate,flyAt:(x,z,y=0,dist=40,pitch=.4)=>{if(!C.ok)return;if(walk)exitWalk();auto=false;goal.tx=x;goal.tz=z;goal.ty=y;goal.dist=dist;goal.pitch=pitch;fly();dirty=true},mode:()=>mode,flyTo:id=>{const m=AG.get(id);if(!m||!C.ok)return false;if(walk)exitWalk();auto=false;goal.tx=m.pos.x;goal.tz=m.pos.z;goal.ty=m.pos.y;goal.dist=34;goal.pitch=.32;fly();dirty=true;return true},pause:b=>{paused=!!b;if(!b)dirty=true},/* audio hook: world position of a visible Sentinel, for spatial work sounds */agentPos:id=>{const m=AG.get(id);return m&&m.grp.visible?[m.pos.x,m.pos.y+1.5,m.pos.z]:null},ok:()=>C.ok,selectedName:()=>sel>=0?NOTES[sel].name:null,position:()=>({x:cam.tx,z:cam.tz,yaw:cam.yaw,walking:walk,dist:cam.dist}),debug:()=>({setCamera:pose=>{if(walk)exitWalk();flight=null;auto=false;Object.assign(cam,pose);Object.assign(goal,pose);eyeDist=-1;dirty=true},cam,goal,walk,mode,W,H,N:inst.length,districts:DIST.length,world:WORLD,sol:SOL,post:postState,contactAO:!!(contactPass&&contactPass.enabled),tier:tierNow,glLost,vfx:VFXOK?VFX.stats():null,weather:VFXOK?VFX.weather():null,tex:TEX,landmarks:districtAssets?.userData.records||[],renderBudget:{...renderBudget},perf:perfStats(),flight:!!flight,
     // testing only: pin the local clock to a decimal hour (null restores the real clock) and recompute the sky
     setClock:h=>{SOL.clockOverride=h==null?null:+h;if(C.ok)applyMode("auto")},
     // testing only: force today's weather ("clear", "mist", "drizzle", "rain"; null restores the daily seed)

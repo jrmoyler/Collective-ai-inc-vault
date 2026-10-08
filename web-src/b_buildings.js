@@ -19,7 +19,7 @@ const Facades=(()=>{
   const OWNER=['#E8A33D','#9CD3FF','#7FC8A9','#E07AA0','#C9A4E0','#F2B85B','#6FA8DC','#D9734E'];
   const TASK={open:'#9CD3FF',claimed:'#F2B85B',review:'#22D3EE',blocked:'#E5534B'};
   const LIMIT=Object.freeze({high:16000,medium:9000,low:6000,scaffoldBuildings:48,balconiesPerBuilding:4});
-  const contract=Object.freeze({drawCalls:1,patterns:PATTERNS.length,maxPack:539,streetObstacles:0});
+  const contract=Object.freeze({drawCalls:1,maxDrawCalls:4,patterns:PATTERNS.length,maxPack:539,streetObstacles:0});
 
   function time(v){const t=typeof v==='number'?v:Date.parse(v||'');return Number.isFinite(t)?t:NaN}
   // Last real edit: the frontmatter date or a non-sync write, whichever is newer. A bulk repo sync is not an edit.
@@ -241,6 +241,78 @@ const Facades=(()=>{
     return {col:'#D9A066',glow:.35};
   }
 
+  // Curved joinery is a separate, bounded instancing layer: bevelled stone surrounds,
+  // deeply inset arched glass and individually overlapping barrel tiles. No billboards.
+  const CRAFT_LIMIT=Object.freeze({high:7000,medium:4200,low:2400,tilesHigh:18000,tilesLow:6000});
+  function archGeometry(glass=false){
+    const shape=new THREE.Shape();
+    shape.moveTo(-.5,0);shape.lineTo(-.5,.7);shape.absarc(0,.7,.5,Math.PI,0,true);shape.lineTo(.5,0);shape.closePath();
+    if(!glass){const hole=new THREE.Path();hole.moveTo(-.35,.11);hole.lineTo(.35,.11);hole.lineTo(.35,.7);hole.absarc(0,.7,.35,0,Math.PI,false);hole.lineTo(-.35,.11);shape.holes.push(hole)}
+    const geometry=new THREE.ExtrudeGeometry(shape,{depth:glass?.045:.2,steps:1,curveSegments:12,bevelEnabled:!glass,bevelThickness:.025,bevelSize:.025,bevelSegments:2});
+    geometry.computeVertexNormals();return geometry;
+  }
+  function tileGeometry(){
+    // Crown across x, downhill lap along z. The rounded lower lip casts an actual shadow.
+    const p=[],uv=[],ix=[],nx=6,nz=3;
+    for(let z=0;z<=nz;z++)for(let x=0;x<=nx;x++){
+      const u=x/nx,v=z/nz;
+      p.push(u-.5,.13*Math.sin(u*Math.PI)+.035*(1-v)+.025*Math.sin(v*Math.PI),v-.5);uv.push(u,v);
+    }
+    for(let z=0;z<nz;z++)for(let x=0;x<nx;x++){const a=z*(nx+1)+x;ix.push(a,a+nx+1,a+1,a+1,a+nx+1,a+nx+2)}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ix);g.computeVertexNormals();return g;
+  }
+  function craftLayout(items,opt={}){
+    const high=(opt.cap??LIMIT.high)>LIMIT.medium,low=(opt.cap??LIMIT.high)<=LIMIT.low;
+    const cap=opt.craftCap??(high?CRAFT_LIMIT.high:low?CRAFT_LIMIT.low:CRAFT_LIMIT.medium),tileCap=opt.tileCap??(high?CRAFT_LIMIT.tilesHigh:CRAFT_LIMIT.tilesLow);
+    const frames=[],tiles=[];
+    const stone=['#b4aa91','#aaa394','#c2b59c','#969b91','#b5a186'];
+    const add=(b,f,x,y,width,height,door=false)=>{if(frames.length>=cap)return;const p=at(f,x,y,.18);frames.push({...p,ry:f.ry,sx:width,sy:height/1.2,sz:1,id:b.id,door,col:stone[Math.floor(h01(b.id+':stone')*stone.length)]})};
+    // First pass gives every active entrance a dimensional arch before spending on windows.
+    for(const {b,s} of items){if(s.archived||b.tiers[0].y1<3.1)continue;add(b,faceOf(b.tiers[0],b.door),0,0,1.7,2.9,true)}
+    for(const {b,s} of items){
+      if(s.archived)continue;
+      const t=b.tiers[0],f=faceOf(t,b.door),center=-f.along*(Math.abs(f.nx)>0?-f.nx:f.nz);
+      const sideCenters=[center-f.half*.56,center+f.half*.56];
+      for(const x of sideCenters){
+        if(Math.abs(x)<1.7||f.half<2.1)continue;
+        for(let y=1;y<Math.min(t.y1-2.4,11);y+=3.25)add(b,f,x,y,Math.min(1.35,f.half*.32),2.05);
+      }
+      // These supports are the actual gables made by the campus, excluding authored crowns.
+      for(const roof of b.roofSupports||[]){
+        if(roof.kind!=='gable'||tiles.length>=tileCap)continue;
+        const nx=Math.max(2,Math.ceil(roof.sx/.6)),nr=Math.max(2,Math.ceil(roof.sz/.95));
+        const dx=roof.sx/nx,run=roof.sz/2,nz=Math.ceil(nr/2),dz=run/nz,slant=Math.atan2(roof.sy,run);
+        const c=Math.cos(roof.ry||0),sn=Math.sin(roof.ry||0),palette=['#735346','#82614e','#956c50','#777567','#5f706e'];
+        const base=palette[Math.floor(h01(b.id+':clay')*palette.length)];
+        // Only admit a complete tiled roof. A hard cap never leaves a half-painted gable.
+        if(tiles.length+nx*nz*2>tileCap)continue;
+        for(const side of [-1,1])for(let row=0;row<nz;row++)for(let col=0;col<nx;col++){
+          const x=-roof.sx/2+(col+.5)*dx,z=side*(row+.5)*dz;
+          tiles.push({x:roof.x+c*x+sn*z,y:roof.y+roof.sy*(1-Math.abs(z)/run)+.025,z:roof.z-sn*x+c*z,rx:side*slant,ry:roof.ry||0,sx:dx*.98,sy:.8,sz:dz/Math.cos(slant)*1.15,col:mixHex(base,'#c2b294',h01(b.id+':'+row+':'+col)*.16),id:b.id});
+        }
+      }
+    }
+    return {frames,tiles,cap,tileCap};
+  }
+  function buildCraft(parent,items,opt){
+    const layout=craftLayout(items,opt),o=new THREE.Object3D();o.rotation.order='YXZ';
+    const batch=(name,geo,mat,parts,glass=false)=>{
+      if(!parts.length){geo.dispose();mat.dispose();return}
+      const m=new THREE.InstancedMesh(geo,mat,parts.length);m.name=name;m.frustumCulled=false;
+      const ids=[];for(let i=0;i<parts.length;i++){
+        const p=parts[i],offset=glass?.035:0;
+        o.position.set(p.x+Math.sin(p.ry)*offset,p.y,p.z+Math.cos(p.ry)*offset);o.rotation.set(p.rx||0,p.ry||0,0);o.scale.set(p.sx*(glass?.69:1),p.sy*(glass?.88:1),p.sz);o.updateMatrix();m.setMatrixAt(i,o.matrix);
+        m.setColorAt(i,new THREE.Color(glass?(p.door?'#9c865f':'#4e696b'):p.col).convertSRGBToLinear());ids.push(p.id);
+      }
+      m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;m.castShadow=false;m.receiveShadow=true;m.userData.ids=ids;m.userData.craft=true;parent.add(m);
+    };
+    batch('Carved arch surrounds',archGeometry(),new THREE.MeshStandardMaterial({color:0xffffff,map:opt.stoneMap||null,roughness:.89,metalness:.02}),layout.frames);
+    // Entrance apertures retain the existing signal-driven door light; glass is for upper windows only.
+    batch('Recessed arch glazing',archGeometry(true),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.27,metalness:.28}),layout.frames.filter(p=>!p.door),true);
+    batch('Overlapping barrel roof tiles',tileGeometry(),new THREE.MeshStandardMaterial({color:0xffffff,map:opt.roofMap||null,roughness:.92,metalness:0,side:THREE.DoubleSide}),layout.tiles);
+    parent.userData.craft={frames:layout.frames.length,tiles:layout.tiles.length,drawCalls:parent.children.length,cap:layout.cap,tileCap:layout.tileCap};
+  }
+
   // ---- three.js side
   let MAT=null;
   function material(SH){
@@ -273,6 +345,7 @@ const Facades=(()=>{
     mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
     mesh.castShadow=!!opt.shadow;mesh.receiveShadow=true;mesh.frustumCulled=false;mesh.name='facade-dressing';
     mesh.userData={doors:L.doors,scaffolds:L.scaffolds,kinds:L.parts.map(p=>p.kind),ids:L.parts.map(p=>p.id),doorState:new Map()};
+    buildCraft(mesh,items,opt);
     return mesh;
   }
   // Light one building's door. Returns true when something changed (caller marks the frame dirty).
@@ -287,6 +360,6 @@ const Facades=(()=>{
       a.needsUpdate=true});
     return true;
   }
-  function dispose(mesh){if(!mesh)return;mesh.geometry.dispose();if(mesh.parent)mesh.parent.remove(mesh)}
-  return {contract,PATTERNS,LIMIT,TASK,signal,pack,unpack,windowLight,caption,lastEdit,unresolvedLinks,faceOf,layout,doorLight,material,build,setDoor,dispose,mixHex};
+  function dispose(mesh){if(!mesh)return;mesh.children.slice().forEach(child=>{if(child.userData.craft){child.geometry.dispose();child.material.dispose();mesh.remove(child)}});mesh.geometry.dispose();if(mesh.parent)mesh.parent.remove(mesh)}
+  return {contract,PATTERNS,LIMIT,CRAFT_LIMIT,craftLayout,archGeometry,tileGeometry,TASK,signal,pack,unpack,windowLight,caption,lastEdit,unresolvedLinks,faceOf,layout,doorLight,material,build,setDoor,dispose,mixHex};
 })();

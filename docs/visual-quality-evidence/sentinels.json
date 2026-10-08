@@ -1,0 +1,47 @@
+{
+  "stats": [
+    {
+      "form": "jr",
+      "draws": 6,
+      "verts": 57052,
+      "materials": 8,
+      "bones": 15
+    },
+    {
+      "form": "devon",
+      "draws": 6,
+      "verts": 55672,
+      "materials": 8,
+      "bones": 15
+    },
+    {
+      "form": "ahmad",
+      "draws": 6,
+      "verts": 52996,
+      "materials": 8,
+      "bones": 15
+    },
+    {
+      "form": "kenza",
+      "draws": 6,
+      "verts": 55036,
+      "materials": 8,
+      "bones": 15
+    },
+    {
+      "form": "member",
+      "draws": 6,
+      "verts": 54712,
+      "materials": 8,
+      "bones": 15
+    },
+    {
+      "form": "agent",
+      "draws": 6,
+      "verts": 54748,
+      "materials": 8,
+      "bones": 15
+    }
+  ],
+  "errors": []
+}

@@ -5,6 +5,7 @@ import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
+import {captureVisualQuality} from '../scripts/visual-quality-capture.mjs';
 const root=new URL('../web/',import.meta.url).pathname;
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.wav':'audio/wav','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml','.json':'application/json'};
 // Production headers (vercel.json) on every response, so a Content-Security-Policy regression fails here and not in production.
@@ -18,9 +19,9 @@ const out=new URL('file://'+(process.env.VAULT_QA_OUT?(fs.mkdirSync(process.env.
 const browser=await chromium.launch({headless:true,args:['--autoplay-policy=no-user-gesture-required','--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const results=[];
 const thematic=JSON.parse(fs.readFileSync(new URL('../docs/source-district-definitions.json',import.meta.url),'utf8')).map(d=>({...d,kind:'thematic'}));
-for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],['mobile',{width:390,height:844},true]]){
- const page=await browser.newPage({viewport,colorScheme:'dark',reducedMotion:reduced?'reduce':'no-preference',...(name==='mobile'?{hasTouch:true,isMobile:true,deviceScaleFactor:2}:{})});const errors=[],warnings=[];page.on('requestfailed',r=>console.log(name,'RESOURCE',r.url(),r.failure()?.errorText));
- page.on('pageerror',e=>{errors.push(e.message);console.log(name,'PAGEERROR',e.message)});page.on('console',m=>{if(m.type()==='error')errors.push(m.text());else if(m.type()==='warning')warnings.push(m.text())});
+for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],['mobile',{width:390,height:844},true]].filter(v=>!process.env.VAULT_VISUAL_ONLY||v[0]==='desktop')){
+ const page=await browser.newPage({viewport,colorScheme:'dark',reducedMotion:reduced?'reduce':'no-preference',...(name==='mobile'?{hasTouch:true,isMobile:true,deviceScaleFactor:2}:{})});page.setDefaultTimeout(90000);const errors=[],warnings=[];page.on('requestfailed',r=>console.log(name,'RESOURCE',r.url(),r.failure()?.errorText));
+ page.on('pageerror',e=>{errors.push(e.message);console.log(name,'PAGEERROR',e.message)});page.on('console',m=>{if(m.type()==='error'){errors.push(m.text());console.log(name,'CONSOLEERROR',m.text())}else if(m.type()==='warning'){warnings.push(m.text());console.log(name,'WARNING',m.text())}});
  // CSP: every violation becomes a console error, which the errors list already fails on
  await page.addInitScript(()=>document.addEventListener('securitypolicyviolation',e=>console.error('CSP violation: '+e.violatedDirective+' blocked '+(e.blockedURI||'inline'))));
  page.on('console',m=>{if(/Refused to|Content Security Policy/i.test(m.text())&&m.type()!=='error')errors.push('CSP: '+m.text())});
@@ -38,10 +39,17 @@ for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],
  await page.waitForSelector('#title.menu',{timeout:30000});await page.screenshot({path:new URL(name+'-title.png',out).pathname});
  console.log(name,'entering');await page.getByRole('button',{name:'Enter the Vault',exact:true}).click({timeout:10000});console.log(name,'entered');
  // Software WebGL compiles the full city on CPU; this is a functional bound, not a frame-time claim.
- await page.waitForSelector('#districtNavigator',{timeout:90000});await page.waitForFunction(()=>Campus.ok(),{timeout:30000});
+ await page.waitForSelector('#districtNavigator',{timeout:90000});await page.waitForFunction(()=>Campus.ok()||document.querySelector('.nogl'),null,{timeout:90000});
+ if(!await page.evaluate(()=>Campus.ok())){await page.screenshot({path:new URL(name+'-initialization-failure.png',out).pathname});await browser.close();server.close();throw new Error('3D initialization failed: '+[...errors,...warnings].join('\n'))}
  console.log(name,'campus ready');await page.evaluate(()=>{Campus.skipIntro();Campus.debug().setClock(13);});await page.waitForTimeout(3000);
  const campus=await page.evaluate(()=>({notes:NOTES.length,districts:Campus.districts().length,gpu:Campus.ok(),drawCalls:Campus.renderer().info.render.calls,audio:VaultAudio.status(),versions:VaultEngine.versions,landmarks:Campus.debug().landmarks.length,buildings:Campus.buildings().filter(Boolean).length}));
+ if(process.env.VAULT_VISUAL_CAPTURE)await page.evaluate(()=>Campus.pause(true));
  await page.screenshot({path:new URL(name+'-world.png',out).pathname});
+ if(name==='desktop'&&process.env.VAULT_VISUAL_CAPTURE){
+  const visuals=await captureVisualQuality(page,path.join(out.pathname,'closeups'),{video:!!process.env.VAULT_VISUAL_VIDEO,only:process.env.VAULT_VISUAL_SHOTS||null});
+  console.log('Visual evidence:',JSON.stringify(visuals));
+  if(process.env.VAULT_VISUAL_ONLY){results.push({name,visuals,errors,warnings});await page.close();continue}
+ }
  // HUD panels that share the screen must not cover each other (the first-walk coach once sat on top of the live floor).
  const overlaps=await page.evaluate(()=>{const sel=['#floor','#uxCoach','#plate','.mini','#hint','#chips','#crumb','#uxGo'];const r=sel.map(q=>{const e=document.querySelector(q);if(!e)return null;const cs=getComputedStyle(e),b=e.getBoundingClientRect();return cs.display==='none'||cs.visibility==='hidden'||+cs.opacity===0||!b.width?null:[q,b]}).filter(Boolean);const o=[];for(let i=0;i<r.length;i++)for(let j=i+1;j<r.length;j++){const a=r[i][1],b=r[j][1];if(a.left<b.right-1&&b.left<a.right-1&&a.top<b.bottom-1&&b.top<a.bottom-1)o.push(r[i][0]+' x '+r[j][0])}return o});
  // Frame a deterministic evidence camera; software WebGL timing is not a fly-animation benchmark.
@@ -89,5 +97,5 @@ for(const [name,viewport,reduced] of [['desktop',{width:1440,height:900},false],
  results.push({name,viewport,reduced,travel,title:await page.title(),campus,overlaps,districtCount,saved,reader,touch,sound,errors,warnings});await page.close();
 }
 await browser.close();server.close();fs.writeFileSync(new URL('results.json',out),JSON.stringify(results,null,2));console.log(JSON.stringify(results,null,2));console.log('Evidence directory:',out.pathname);
-if(results.some(r=>r.errors.length||r.overlaps.length||r.travel.length!==19||r.travel.some(d=>!d.flew||!d.walked)||r.districtCount!==19||r.campus.districts!==19||r.campus.landmarks!==19||r.campus.buildings!==r.campus.notes||!r.campus.gpu||r.reader.inlineTransform||r.reader.viewportX||r.reader.viewportY||(r.name==='mobile'&&!(r.touch?.floorFolded&&r.touch.walked>1))||(r.name==='desktop'&&!(r.campus.audio.loaded===7&&r.sound?.loaded===7&&r.sound.running&&r.sound.loops>=2&&r.sound.played===r.sound.names))))process.exitCode=1;
+if(results.some(r=>r.errors.length||(!r.visuals&&(r.overlaps.length||r.travel.length!==19||r.travel.some(d=>!d.flew||!d.walked)||r.districtCount!==19||r.campus.districts!==19||r.campus.landmarks!==19||r.campus.buildings!==r.campus.notes||!r.campus.gpu||r.reader.inlineTransform||r.reader.viewportX||r.reader.viewportY||(r.name==='mobile'&&!(r.touch?.floorFolded&&r.touch.walked>1))||(r.name==='desktop'&&!(r.campus.audio.loaded===7&&r.sound?.loaded===7&&r.sound.running&&r.sound.loops>=2&&r.sound.played===r.sound.names))))))process.exitCode=1;
 

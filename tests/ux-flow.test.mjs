@@ -64,6 +64,15 @@ test('the first walk advances Warden, note, cable, task and finishes once',()=>{
   for(const s of UX._test.STEPS)for(const t of [s.title,s.body,s.act])assert.ok(!/\b(delve|leverage|robust|seamless|transformative|empower|elevate|game-changing|cutting-edge|innovative|tapestry)\b/i.test(t),t);
 });
 
+test('arrival keeps the objective compact until the user chooses to expand it',()=>{
+  for(const innerWidth of [390,1440]){
+    const {UX,store}=sandbox({innerWidth});
+    assert.equal(UX.walk().min,true,'compact first arrival at '+innerWidth);
+    store.set('vault.ux.walk',{done:{},minUser:true,min:false});
+    assert.equal(UX.walk().min,false,'explicit expanded preference is retained');
+  }
+});
+
 test('district kit progress is per district and survives reloads',()=>{
   const {UX,store}=sandbox();
   assert.deepEqual([...UX.kitState('00 - MOCs',3)],[false,false,false]);
