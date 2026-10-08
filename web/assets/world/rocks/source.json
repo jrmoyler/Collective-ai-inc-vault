@@ -1,0 +1,38 @@
+{
+  "asset": "Rock Moss Set 01",
+  "author": {
+    "Kless Gyzen": "All"
+  },
+  "source": "https://polyhaven.com/a/rock_moss_set_01",
+  "license": "CC0-1.0",
+  "license_url": "https://polyhaven.com/license",
+  "metadata_url": "https://api.polyhaven.com/info/rock_moss_set_01",
+  "files_url": "https://api.polyhaven.com/files/rock_moss_set_01",
+  "model": {
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/rock_moss_set_01/rock_moss_set_01_1k.gltf",
+    "md5": "75113cc1c21806cca5d8badad4737af7",
+    "buffer_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/rock_moss_set_01/rock_moss_set_01.bin",
+    "buffer_md5": "207a51c9f56d34732e9814bbf9cc07b1",
+    "source_mesh": 2,
+    "triangles": 5000,
+    "vertices": 2741,
+    "modification": "Extract rock03, shift minimum y to zero, round attributes to six decimals; original topology/UVs/normals retained."
+  },
+  "textures": {
+    "moss-rock-color.jpg": {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/rock_moss_set_01/rock_moss_set_01_diff_1k.jpg",
+      "md5": "b8742301e6b4bc5683d2de712e83f772",
+      "bytes": 168099
+    },
+    "moss-rock-normal.jpg": {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/rock_moss_set_01/rock_moss_set_01_nor_gl_1k.jpg",
+      "md5": "eb7ebd31ad08e78d0497900652ff1568",
+      "bytes": 209975
+    },
+    "moss-rock-roughness.jpg": {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/rock_moss_set_01/rock_moss_set_01_rough_1k.jpg",
+      "md5": "ed9d8a2c863262f76f881346e8047c6a",
+      "bytes": 82624
+    }
+  }
+}

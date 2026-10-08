@@ -16,6 +16,9 @@ function referenced(){
  const base=campus.match(/const POST_SRC="([^"]+)"/)[1];
  const files=JSON.parse(campus.match(/const POST_FILES=(\[[^\]]+\])/)[1]);
  files.forEach(p=>refs.set(base+p,'web-src/c_campus.js'));
+ // Physically based surfaces compose normal/roughness paths at runtime.
+ for(const name of ['forest','paving','plaster','stone'])for(const channel of ['normal','rough'])
+  refs.set('assets/world/pbr/'+name+'-'+channel+'.jpg','web-src/c_campus.js');
  const sentinel=fs.readFileSync('web-src/b_sentinel.js','utf8'),sb=sentinel.match(/base:'([^']+)'/);
  if(sb){const ks=(sentinel.match(/for\(const k of (\[[^\]]+\]\))L\.load\(TEX\.base\+k\+'\.webp'/)||[])[1];
   (ks?JSON.parse(ks.slice(0,-1).replace(/'/g,'"')):[]).forEach(k=>refs.set(sb[1]+k+'.webp','web-src/b_sentinel.js'));
@@ -31,7 +34,13 @@ test('every asset, audio and vendor path referenced in web-src ships in web/',()
 test('sentinel surface textures and the facade set are all covered by the scan',()=>{
  const refs=[...referenced().keys()];
  for(const k of ['plating','carbon','circuit','iridescence'])assert.ok(refs.includes('assets/sentinels/'+k+'.webp'),k);
- for(const k of ['facade-glass','facade-steel','facade-stone','roof-gravel','ground-asphalt','ground-pavers'])assert.ok(refs.includes('assets/'+k+'.jpg'),k);
+ for(const k of ['facade-glass','roof-gravel'])assert.ok(refs.includes('assets/'+k+'.jpg'),k);
+ const sources=JSON.parse(fs.readFileSync('web/assets/world/pbr/sources.json','utf8'));
+ assert.equal(sources.length,4);
+ for(const surface of sources){assert.equal(surface.license,'CC0');for(const map of surface.maps){
+  assert.ok(refs.includes('assets/world/pbr/'+map.file),map.file);
+  assert.equal(fs.statSync('web/assets/world/pbr/'+map.file).size,map.shippedBytes);
+ }}
  assert.ok(refs.includes('vendor/three-r128.min.js'));
 });
 test('warden portrait manifest: every file exists, one entry per district, no duplicate files or slugs',()=>{

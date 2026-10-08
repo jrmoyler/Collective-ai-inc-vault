@@ -134,12 +134,12 @@ test('portrait chain: exact slug art, then live render, then painted bust, then 
   const {T}=sandbox({districts});
   const g3={top:'03 - Products',name:'Products',color:'#14B8A6',arch:'herald',speakUntil:0},g13={top:'13 - Learning and Curriculum',name:'Learning and Curriculum',color:'#14B8A6',arch:'keeper',speakUntil:0};
   assert.equal(T.slug(g13.top),'13-learning-and-curriculum');
-  T.setArt({kit:2,portraits:[{slug:'03-products',file:'warden-03-products.webp',arch:'herald',symbol:'PR',color:'#14B8A6'}]});
+  T.setArt({kit:3,portraits:[{slug:'03-products',file:'warden-03-products.webp',arch:'herald',symbol:'PR',color:'#14B8A6'}]});
   assert.equal(T.artFor(g3),'assets/guides/warden-03-products.webp');
   assert.equal(T.artFor(g13),null,'a district sharing a colour never borrows another Warden');
   assert.equal(T.artFor({...g3,arch:'vanguard'}),null,'archetype drift drops the art');
   T.setArt({kit:1,portraits:[{slug:'03-products',arch:'herald',symbol:'PR',color:'#14B8A6'}]});assert.equal(T.artFor(g3),null,'stale kit revision');
-  T.setArt({kit:2,portraits:[{slug:'03-products',file:'warden-03-products.webp',arch:'herald',symbol:'PR',color:'#14B8A6'}]});
+  T.setArt({kit:3,portraits:[{slug:'03-products',file:'warden-03-products.webp',arch:'herald',symbol:'PR',color:'#14B8A6'}]});
   const {ctx,calls}=fakeCtx(),el=fakeEls(ctx);
   assert.equal(T.portraitSetup(g3,el),'art');assert.equal(el.img.src,'assets/guides/warden-03-products.webp');assert.ok(calls.length>0,'bust painted at once under the art');
   el.img.onload();assert.ok(el.cls.has('ok'));

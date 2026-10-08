@@ -7,7 +7,7 @@ await copyFile('node_modules/three/build/three.min.js', 'web/vendor/three-r128.m
 
 await build({ entryPoints: ['scripts/supabase-entry.mjs'], outfile: 'web/vendor/supabase.js', bundle: true, minify: true, format: 'iife', globalName: 'supabase', target: 'es2020', legalComments: 'linked' });
 
-const postFiles=['shaders/CopyShader.js','shaders/LuminosityHighPassShader.js','postprocessing/EffectComposer.js','postprocessing/RenderPass.js','postprocessing/ShaderPass.js','postprocessing/UnrealBloomPass.js'];
+const postFiles=['shaders/CopyShader.js','shaders/LuminosityHighPassShader.js','postprocessing/EffectComposer.js','postprocessing/RenderPass.js','postprocessing/ShaderPass.js','postprocessing/UnrealBloomPass.js','shaders/SSAOShader.js','math/SimplexNoise.js','postprocessing/SSAOPass.js'];
 for(const file of postFiles){await mkdir('web/vendor/three/examples/js/'+file.split('/')[0],{recursive:true});await copyFile('node_modules/three/examples/js/'+file,'web/vendor/three/examples/js/'+file)}
 const fonts=[['space-grotesk','Space Grotesk',[500,600,700]],['ibm-plex-sans','IBM Plex Sans',[400,500,600]],['jetbrains-mono','JetBrains Mono',[400,500]]];
 await mkdir('web/vendor/fonts',{recursive:true});let css='';

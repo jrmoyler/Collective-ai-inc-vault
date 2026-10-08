@@ -100,6 +100,7 @@ const CSS=`
 #title.out .wm,#title.out .mm,#title.out .foot{opacity:0;transition:opacity .35s}
 #title.out .tbars::before,#title.out .tbars::after{transform:none;transition:transform .55s var(--t-ease)}
 @media (max-width:640px){#title.cine .tbars::before,#title.cine .tbars::after{height:7vh}#title .tcap{bottom:calc(7vh + 18px);font-size:10.5px;letter-spacing:.24em}#title .tsnd{bottom:14px;left:14px}#title .word{letter-spacing:.04em;font-size:clamp(30px,10.5vw,52px)}#title .word span.sp{display:block;height:0;width:0}#title .word span.sp+span{margin-left:0}#title{--wm-up:21vh}#title .mm button{font-size:15px;padding:10px 22px}#title .mm button.pri{padding:12px 32px}#title .foot{font-size:9.5px;letter-spacing:.12em}#title .foot .hintk{display:none}#title .skip{bottom:14px;right:14px}}
+@media (max-height:620px){#title{--wm-up:31vh}#title .wm{gap:6px}#title .word{font-size:clamp(26px,6vw,48px)}#title .tag{display:none}#title .mm{top:43%;padding:10px 16px;gap:2px;max-height:48vh;overflow:auto}#title .mm button{min-height:44px;padding:8px 18px;font-size:14px}#title .mm button.pri{padding:10px 20px;margin-bottom:2px}#title .panel{max-height:calc(100dvh - 24px);overflow:auto}}
 @media (prefers-reduced-motion: reduce){#title *{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 `;
 // ---- shot list. One table drives the camera rigs, the crossfades, the score's cut pulses, the cue timeline and the tests.
@@ -190,7 +191,8 @@ function makeCity(canvas,quality,opt){
   opt=opt||{};const hi=quality==="high",REDUCED=opt.reduced!=null?!!opt.reduced:reduced();
   const HASV=typeof VFX!=="undefined",tier=HASV?VFX.tierFor(quality==="low"?"low":"high",innerWidth||1024):hi?"high":"low",phone=tier==="medium";
   let r;try{r=new THREE.WebGLRenderer({canvas,antialias:hi&&!phone,alpha:false,powerPreference:"high-performance"})}catch(e){return null}
-  r.setPixelRatio(Math.min(window.devicePixelRatio||1,phone?1.5:hi?2:1));// phone tier: 1.5x is enough under grain and letterboxr.setClearColor(0x05070e,1);
+  r.setPixelRatio(Math.min(window.devicePixelRatio||1,phone?1.5:hi?2:1));// phone tier: 1.5x is enough under grain and letterbox
+  r.setClearColor(0x05070e,1);
   // GPU reset (b_vfx.js guard): skip frames while the context is gone and show the dusk backdrop; three restores the rest
   let ctxLost=false,ctxDone=false;const unguard=HASV?VFX.guardContext(canvas,{onLost:()=>{if(ctxDone)return;ctxLost=true;canvas.style.background="radial-gradient(ellipse at 50% 70%,#2a2030,#05070e 70%)"},onRestored:()=>{ctxLost=false;canvas.style.background=""}}):()=>{};
   const scene=new THREE.Scene();const FOG_N=new THREE.Color(0x05070e);scene.fog=new THREE.FogExp2(0x05070e,.016);
@@ -377,6 +379,15 @@ function makeCity(canvas,quality,opt){
   let landmark=null,look=null;
   if(typeof DistrictAssets!=="undefined"&&typeof Districts!=="undefined")try{landmark=DistrictAssets.build([cdist],[{id:0,tiers:[{x:36,z:52,w:20,d:20,y0:0,y1:3}]}],[{id:0,name:"title:landmark",folder:CT,fm:{},out:new Set(),back:new Set()}],null);court.add(landmark)}catch(e){landmark=null}
   if(typeof DistrictLook!=="undefined")try{DistrictLook.bind([cdist],{},[]);look=DistrictLook.build({HI:hi,reduced:REDUCED,SH:{uLamp:lampU}});court.add(look)}catch(e){look=null}
+  // The arrival court shares the live world's planted geometry, with a clear central promenade.
+  // Keep this group local to the title: disposing it must not touch the live campus gardens.
+  let arrivalGarden=null;
+  if(typeof VaultLandscape!=="undefined")try{
+    const trees=[];
+    for(const x of [23,49])for(const z of [10,25,40,66,82,91])trees.push({x,z,k:seed(x,z)});
+    arrivalGarden=VaultLandscape.build({THREE,trees,districts:[cdist],buildings:CB.map(b=>({cx:b.x,cz:b.z,fw:b.w,fd:b.d})),side:220,high:hi&&!phone,reducedMotion:REDUCED});
+    arrivalGarden.position.y=.07/KS;court.add(arrivalGarden);
+  }catch(e){arrivalGarden=null}
   // ---- sentinels: small figures with a warm head light, walking the avenues (fallback when SentinelMesh is absent)
   const roadsI=[],roadsJ=[];for(let i=0;i<G;i++){if(roadI(i))roadsI.push(X(i));if(roadJ(i))roadsJ.push(X(i))}
   const SNT=hi?72:34,sent=[];for(let k=0;k<SNT;k++){const main=k<SNT*.45;const alongZ=main||k%2===0;
@@ -484,7 +495,7 @@ function makeCity(canvas,quality,opt){
       tgt.copy(shoreP).addScaledVector(tanV,80).addScaledVector(outV,lerp(10,18,u));tgt.y=lerp(4,8,u);c.fov=fovFor(lerp(52,46,u));keyAt(0,0,0,0)},
     gate(c,t){const u=ease(uOf(SHOT.gate,t));c.position.set(gate.x+lerp(2.6,1.1,u),lerp(1.0,1.3,u),gate.z-lerp(9.5,5.2,u));
       tgt.set(gate.x,lerp(1.7,2.1,u),gate.z+lerp(6,11,u));c.fov=fovFor(lerp(50,46,u));keyAt(gate.x,3.2,gate.z+4,1.2,16)},
-    facades(c,t){const u=ease(uOf(SHOT.facades,t)),p=toW(lerp(33,30,u),lerp(5,6.5,u),lerp(4,34,u));c.position.copy(p);toW(lerp(10,13,u),lerp(7,12,u),lerp(30,62,u));tgt.copy(tmpV);
+    facades(c,t){const u=ease(uOf(SHOT.facades,t)),p=toW(lerp(34,30,u),lerp(5.2,6.2,u),lerp(10,31,u));c.position.copy(p);toW(lerp(15,17,u),lerp(5.5,8,u),lerp(27,49,u));tgt.copy(tmpV);
       c.fov=fovFor(lerp(56,50,u));toW(24,10,lerp(22,50,u));keyAt(tmpV.x,tmpV.y,tmpV.z,1.4,22)},
     sentinels(c,t){const u=uOf(S5,t),e=u*u*(3-2*u)*.35+u*.65,z=streetZ(t);
       const rail=typeof VaultEngine!=="undefined"&&VaultEngine.sampleRoute?VaultEngine.sampleRoute([[RX,2.5,SPAN*.44],[RX+.3,2.8,SPAN*.34],[RX+.5,3.5,SPAN*.18],[RX+.4,4.3,SPAN*.04]],e):null;
@@ -498,8 +509,13 @@ function makeCity(canvas,quality,opt){
       tgt.set(WT.x+WT.w*.5,Math.max(2.5,Math.min(WT.h,hy+1.5)),WT.z);c.fov=fovFor(58);keyAt(WT.x+6,3,WT.z+6,1.2,20)},
     warden(c,t){const u=ease(uOf(SHOT.warden,t));const wz=cz0+9*KS;c.position.set(gate.x+lerp(1.8,1.1,u),lerp(.95,1.15,u),wz-lerp(9.5,7,u));
       tgt.set(gate.x,lerp(1.75,1.85,u),wz);c.fov=fovFor(lerp(40,36,u));keyAt(gate.x+.8,2.6,wz-2.2,1.8,10)},
-    dawn(c,t,orbit){const u=ease(clamp((t-CUT.dawn)/6.6,0,1));const a=-1.02+u*.3+orbit;const d=SPAN*lerp(.86,.78,u)*wide;
-      c.position.set(Math.sin(a)*d,SPAN*lerp(.2,.27,u),Math.cos(a)*d);tgt.set(0,lerp(9,14,u),0);c.fov=lerp(40,36,u);keyAt(0,0,0,0)}};
+    dawn(c,t,orbit){const u=ease(clamp((t-CUT.dawn)/6.6,0,1));
+      // Settle into a human-scale district reveal. The menu breathes along a short rail;
+      // its camera never drifts around the back of the city or loses the arrival court.
+      const drift=REDUCED?0:Math.sin(orbit*.65)*2.2;
+      c.position.copy(toW(lerp(32,36,u)+drift,lerp(8,13,u),lerp(-32,-15,u)*Math.min(wide,1.2)));
+      tgt.copy(toW(36,lerp(8,11,u),43));c.fov=fovFor(lerp(57,52,u));
+      toW(36,15,21);keyAt(tmpV.x,tmpV.y,tmpV.z,.65,35)}};
   function place(c,s,t,orbit){RIGS[s.id](c,t,orbit||0);c.lookAt(tgt);c.updateProjectionMatrix();if(atmos)atmos.material.uniforms.uCenter.value.copy(c.position)}
   // ---- beats: one-shot picture events, fired from the cue timeline so picture and sound land together
   let vclk=0,lastWall=-1,lastNight=-1,doorLit=false;
@@ -519,7 +535,7 @@ function makeCity(canvas,quality,opt){
     const L=liveAt(t);
     const wv=clamp((t-2.5)/2,0,1)*(onS("sentinels")||onS("write")||t<SHOT.facades.a?1:0),s2=onS("sentinels")?1:0;
     if(FIG.length)walkFig(t,time,wv,s2);else walk(time,wv);
-    specials(t,time,!!s2,onS("gate")||onS("facades")||onS("warden"));
+    specials(t,time,!!s2,onS("gate")||onS("facades")||onS("warden")||onS("dawn"));
     if(SPECIAL.lift&&s2&&vfxOn&&t>BEATS.lift&&t<BEATS.land)VFX.trail(SPECIAL.lift,LT.x+LT.w/2+.45,liftY(t)+.4,LT.z,"#9CD3FF");
     if(t<BEATS.gate&&typeof DistrictLook!=="undefined")DistrictLook.near(null);
     if(doorLit&&t<BEATS.door&&facade&&typeof Facades!=="undefined"){Facades.setDoor(facade,0,0);doorLit=false}
@@ -542,11 +558,13 @@ function makeCity(canvas,quality,opt){
     pts.material.opacity=clamp((t-2)/3,0,1)*.65;const pos=pgeo.attributes.position.array;for(let q=0;q<PN;q++){pos[q*3+1]+=pv[q]*.06*(REDUCED?0:1);if(pos[q*3+1]>70)pos[q*3+1]=0}pgeo.attributes.position.needsUpdate=true;
     if(Math.abs(night-lastNight)>.02&&HASV){lastNight=night;const g=VFX.grade(night,lerp(-.2,.35,dawn));postU.uGain.value.set(g.gain[0],g.gain[1],g.gain[2]);postU.uLift.value.set(g.lift[0],g.lift[1],g.lift[2])}
     if(vfxOn)VFX.step(dt,vclk);
+    if(arrivalGarden)VaultLandscape.update(arrivalGarden,vclk);
     if(typeof DistrictLook!=="undefined")DistrictLook.tick(vclk,REDUCED);
     if(L.B){const A=L.A,B=L.B;place(camA,A,t,orbit);flash(camA);r.setRenderTarget(rtA);r.render(scene,camA);place(camB,B,t,orbit);flash(camB);postU.f.value=L.k;
       r.setRenderTarget(rtB);r.render(scene,camB);r.setRenderTarget(null);r.render(post,ortho)}
     else{place(camA,L.A,t,orbit);flash(camA);if(hi){postU.f.value=0;r.setRenderTarget(rtA);r.render(scene,camA);r.setRenderTarget(null);r.render(post,ortho)}else{r.setRenderTarget(null);r.render(scene,camA)}}}
   function dispose(){ctxDone=true;unguard();
+    if(arrivalGarden){VaultLandscape.dispose(arrivalGarden);arrivalGarden=null}
     if(costume&&costume.undress)try{costume.undress()}catch(e){}
     FIG.forEach(f=>{scene.remove(f.m.grp);try{SentinelMesh.dispose(f.m.grp)}catch(e){}});FIG.length=0;
     Object.keys(SPECIAL).forEach(k=>{const m=SPECIAL[k];if(m.grp.parent)m.grp.parent.remove(m.grp);try{SentinelMesh.dispose(m.grp)}catch(e){}});
@@ -555,7 +573,7 @@ function makeCity(canvas,quality,opt){
     if(look&&look.parent)look.parent.remove(look);if(typeof DistrictLook!=="undefined"&&DistrictLook.reset)try{DistrictLook.reset()}catch(e){}
     scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}});
     post.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});rtA.dispose();rtB.dispose();glow.dispose();r.dispose();try{r.forceContextLoss()}catch(e){}}
-  return{render,dispose,beat,wardenLine,info:()=>({tier,weather:WX.kind,court:CT,shots:SHOT_IDS.slice(),vfx:vfxOn,facade:!!facade,landmark:!!landmark,gate:!!look,warden:!!costume,figures:FIG.length+Object.keys(SPECIAL).length})};
+  return{render,dispose,beat,wardenLine,info:()=>({tier,weather:WX.kind,court:CT,shots:SHOT_IDS.slice(),vfx:vfxOn,facade:!!facade,garden:!!arrivalGarden,landmark:!!landmark,gate:!!look,warden:!!costume,figures:FIG.length+Object.keys(SPECIAL).length})};
 }
 // ---- the overlay
 function start(){
@@ -629,7 +647,7 @@ function start(){
     function toMenu(){if(inMenu)return;inMenu=true;menuT=0;cue.forEach(c=>{if(c[0]!=="menu"&&!c[0].startsWith("fx:")&&!c[0].startsWith("cap:"))fire(c[0])});cap.classList.remove("on");$t("#tSlate").classList.remove("on");cueI=cue.length;
       root.classList.add("menu");snd.classList.remove("on");S.set(K.seen,today());setSel(0);setTimeout(()=>{if(!done)mbtns[0].focus({preventScroll:true})},700)}
     function setSel(i){sel=(i+mbtns.length)%mbtns.length;mbtns.forEach((b,j)=>b.classList.toggle("on",j===sel))}
-    // the picture runs on its own clock: the sting and the menu show the finished dawn shot, the menu slowly orbits it
+    // the picture runs on its own clock: the sting and the menu show the finished dawn shot, the menu drifts on a bounded court rail
     const sceneT=()=>cue===FULL&&!inMenu?clock:CUT.end+(inMenu?menuT:0);
     function frame(now){raf=requestAnimationFrame(frame);if(document.hidden){last=now;return}const dt=Math.min(.1,Math.max(0,(now-last)/1000));last=now;
       if(inMenu)menuT+=dt;else if(!held)clock+=dt;

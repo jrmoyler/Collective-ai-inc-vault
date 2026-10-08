@@ -86,7 +86,7 @@ const UX=window.UX=(()=>{
     {id:"cable",title:"Follow a link cable",body:"Gold cables lead out of the open note, blue ones lead in. Open a linked note to follow one.",act:"Follow a link"},
     {id:"task",title:"Find work to claim",body:"The live board lists open tasks. Claim one there, or point an agent at it.",act:"Open the task board"}
   ];
-  const walkState=()=>{const w=S.get(K.walk,null);const narrow=typeof innerWidth!=="undefined"&&innerWidth<=760;/* phones start folded to one 48 px row until the user opens it */return w&&typeof w==="object"?{done:w.done||{},hidden:!!w.hidden,finished:!!w.finished,minUser:!!w.minUser,min:w.minUser?!!w.min:narrow}:{done:{},hidden:false,finished:false,minUser:false,min:narrow}};
+  const walkState=()=>{const w=S.get(K.walk,null);const narrow=true;/* Every arrival starts with a compact, expandable objective. Explicit user choices persist. */return w&&typeof w==="object"?{done:w.done||{},hidden:!!w.hidden,finished:!!w.finished,minUser:!!w.minUser,min:w.minUser?!!w.min:narrow}:{done:{},hidden:false,finished:false,minUser:false,min:narrow}};
   const saveWalk=w=>S.set(K.walk,w);
   const nextStep=w=>STEPS.find(s=>!w.done[s.id])||null;
   let coach=null,coachPoll=0;
@@ -437,9 +437,17 @@ const UX=window.UX=(()=>{
     const crumb=q("#crumb");if(crumb&&crumb.parentElement===top)crumb.after(b);else top.append(b);
     if(crumb){crumb.setAttribute("role","navigation");crumb.setAttribute("aria-label","You are here")}
   }
+  function addWorldInfo(){
+    const top=q(".hudtop"),plate=q("#plate");if(!top||!plate||q("#uxWorldInfo"))return;
+    const b=el("button","hudbtn");b.id="uxWorldInfo";b.type="button";b.title="About this city";b.setAttribute("aria-label","About this city");b.setAttribute("aria-controls","plate");b.setAttribute("aria-expanded",String(!plate.hidden));
+    b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v7M12 6v1"/></svg>';
+    b.onclick=()=>{plate.hidden=!plate.hidden;b.setAttribute("aria-expanded",String(!plate.hidden))};top.append(b);
+    // Existing Dismiss and navigation actions also update this disclosure state.
+    if(typeof MutationObserver!=="undefined")new MutationObserver(()=>b.setAttribute("aria-expanded",String(!plate.hidden))).observe(plate,{attributes:true,attributeFilter:["hidden"]});
+  }
   // Called by e_boot once the city is up: the first walk, the canvas hint and the HUD button.
   function afterEnter(){
-    if(afterEntered)return;afterEntered=true;wire();addGoButton();patchKeys();netState();
+    if(afterEntered)return;afterEntered=true;wire();addGoButton();addWorldInfo();patchKeys();netState();
     const gl=q("#gl");if(gl){gl.setAttribute("aria-label","3D campus. Drag to orbit, scroll to zoom, click a building to open its note. Square brackets step through nearby buildings, Enter opens one, Ctrl K goes anywhere.");gl.addEventListener("focus",()=>{if(!TOUCH())hint("canvas","[ and ] step through nearby buildings. Enter opens one. Shift [ ] steps through districts.")},{once:false})}
     // the walk needs the 3D city (Wardens, cables); without WebGL the reader-first layout stays uncluttered
     const w=walkState();if(campusOk()&&!w.hidden&&!w.finished)setTimeout(()=>{if(!q("#title"))showWalk(false)},RM()?200:1400);

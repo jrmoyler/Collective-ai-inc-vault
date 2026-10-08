@@ -1,0 +1,130 @@
+[
+  {
+    "name": "forest",
+    "asset": "forest_ground_04",
+    "page": "https://polyhaven.com/a/forest_ground_04",
+    "license": "CC0",
+    "maps": [
+      {
+        "channel": "color",
+        "file": "forest-color.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_ground_04/forest_ground_04_diff_1k.jpg",
+        "bytes": 1113899,
+        "shippedBytes": 383923,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      },
+      {
+        "channel": "normal",
+        "file": "forest-normal.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_ground_04/forest_ground_04_nor_gl_1k.jpg",
+        "bytes": 1326812,
+        "shippedBytes": 506534,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      },
+      {
+        "channel": "rough",
+        "file": "forest-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_ground_04/forest_ground_04_rough_1k.jpg",
+        "bytes": 627507,
+        "shippedBytes": 179090,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      }
+    ]
+  },
+  {
+    "name": "paving",
+    "asset": "cobblestone_floor_08",
+    "page": "https://polyhaven.com/a/cobblestone_floor_08",
+    "license": "CC0",
+    "maps": [
+      {
+        "channel": "color",
+        "file": "paving-color.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cobblestone_floor_08/cobblestone_floor_08_diff_1k.jpg",
+        "bytes": 585727,
+        "shippedBytes": 271808,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      },
+      {
+        "channel": "normal",
+        "file": "paving-normal.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cobblestone_floor_08/cobblestone_floor_08_nor_gl_1k.jpg",
+        "bytes": 1002410,
+        "shippedBytes": 360914,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      },
+      {
+        "channel": "rough",
+        "file": "paving-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cobblestone_floor_08/cobblestone_floor_08_rough_1k.jpg",
+        "bytes": 408718,
+        "shippedBytes": 222143,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      }
+    ]
+  },
+  {
+    "name": "plaster",
+    "asset": "plastered_wall_02",
+    "page": "https://polyhaven.com/a/plastered_wall_02",
+    "license": "CC0",
+    "maps": [
+      {
+        "channel": "color",
+        "file": "plaster-color.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_02/plastered_wall_02_diff_1k.jpg",
+        "bytes": 436395,
+        "shippedBytes": 69653,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      },
+      {
+        "channel": "normal",
+        "file": "plaster-normal.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_02/plastered_wall_02_nor_gl_1k.jpg",
+        "bytes": 960241,
+        "shippedBytes": 282502,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      },
+      {
+        "channel": "rough",
+        "file": "plaster-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_02/plastered_wall_02_rough_1k.jpg",
+        "bytes": 173930,
+        "shippedBytes": 8569,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      }
+    ]
+  },
+  {
+    "name": "stone",
+    "asset": "sandstone_brick_wall_01",
+    "page": "https://polyhaven.com/a/sandstone_brick_wall_01",
+    "license": "CC0",
+    "maps": [
+      {
+        "channel": "color",
+        "file": "stone-color.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sandstone_brick_wall_01/sandstone_brick_wall_01_diff_1k.jpg",
+        "bytes": 956416,
+        "shippedBytes": 281658,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      },
+      {
+        "channel": "normal",
+        "file": "stone-normal.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sandstone_brick_wall_01/sandstone_brick_wall_01_nor_gl_1k.jpg",
+        "bytes": 1073062,
+        "shippedBytes": 359359,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      },
+      {
+        "channel": "rough",
+        "file": "stone-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sandstone_brick_wall_01/sandstone_brick_wall_01_rough_1k.jpg",
+        "bytes": 658216,
+        "shippedBytes": 202319,
+        "processing": "Resampled to at most 1024x1024 and JPEG optimized for browser delivery"
+      }
+    ]
+  }
+]

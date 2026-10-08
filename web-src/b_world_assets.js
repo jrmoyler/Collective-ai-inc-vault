@@ -68,7 +68,10 @@ const DistrictAssets=(()=>{
     // Each setting has its own skyline. None places a collider in a street.
     const portal=(name,x,z,h,w,angle=0)=>{
       for(const side of [-1,1])box(name+'-jamb-'+side,[.17,h,.22],[x+Math.cos(angle)*side*w/2,.48+h/2,z-Math.sin(angle)*side*w/2],'stone',[0,angle,0]);
-      box(name+'-lintel',[w+.17,.19,.24],[x,.48+h,z],'metal',[0,angle,0]);
+      if(['navigation','council','commons','chamber','stacks','academy','governance','synergy'].includes(theme)){
+        add(name+'-vaulted-head','arch',[w+.17,Math.min(1.35,w*.24),.3],[x,.48+h,z],'stone',[0,angle,0]);
+        add(name+'-arch-inlay','arch',[w+.17,Math.min(1.35,w*.24),.07],[x,.48+h,z+.17],'metal',[0,angle,0]);
+      }else box(name+'-lintel',[w+.17,.19,.24],[x,.48+h,z],'metal',[0,angle,0]);
       box(name+'-light',[w-.2,.035,.04],[x,.36+h,z+.13],'accent',[0,angle,0]);
     };
     const fins=(name,count,h,z,spread=7)=>{for(let i=0;i<count;i++){const x=-spread/2+i*spread/(count-1);box(name+'-'+i,[.14,h,.45],[x,.48+h/2,z],'stone');box(name+'-cap-'+i,[.17,.06,.49],[x,.51+h,z],'metal')}};
@@ -77,7 +80,7 @@ const DistrictAssets=(()=>{
       case 'navigation':
         arc('atlas-colonnade',3.15,2.4,Math.PI,Math.PI*2,11);portal('atlas-entry',0,2.7,2.7,3.1);break;
       case 'council':
-        arc('council-chamber',3.4,3.6,Math.PI*.95,Math.PI*2.05,13);box('council-entablature',[7.5,.24,.8],[0,4.18,-2.4],'stone');break;
+        arc('council-chamber',3.4,3.6,Math.PI*.95,Math.PI*2.05,13);box('council-entablature',[7.5,.24,.8],[0,4.18,-2.4],'stone');add('council-vault','arch',[7.5,1.8,.8],[0,4.3,-2.4],'stone');break;
       case 'foundry':
         for(const z of [-2.3,2.3])portal('compute-vault-'+z,0,z,5.2,7.2);for(const x of [-3.6,3.6])box('foundry-trunk-'+x,[.12,.18,4.6],[x,5.74,0],'accent');break;
       case 'workshop':
@@ -92,7 +95,7 @@ const DistrictAssets=(()=>{
       case 'atelier':
         for(let i=0;i<4;i++)box('atelier-floating-roof-'+i,[1.55,.1,2.7],[-2.7+i*1.8,4.8+i*.12,-1.6],'stone',[0,0,.1]);for(const x of [-3.7,3.7])box('atelier-thin-support-'+x,[.12,4.6,.14],[x,2.78,-2.7],'metal');break;
       case 'observatory':
-        arc('observatory-windbreak',3.3,1.65,Math.PI*.85,Math.PI*2.15,15);for(const x of [-3.4,3.4])box('instrument-bench-'+x,[.7,.55,2.4],[x,.76,.9],'stone');break;
+        arc('observatory-windbreak',3.3,1.65,Math.PI*.85,Math.PI*2.15,15);add('observatory-shell','shell',[3.3,1.9,3.3],[0,2.12,-.1],'stone');for(const x of [-3.4,3.4])box('instrument-bench-'+x,[.7,.55,2.4],[x,.76,.9],'stone');break;
       case 'yard':
         for(const x of [-3.7,3.7]){box('yard-service-rail-'+x,[.12,.15,6],[x,.58,0],'metal');for(let i=0;i<6;i++)box('yard-sleeper-'+x+'-'+i,[.55,.07,.2],[x,.49,-2.5+i],'stone')}
         portal('delivery-yard-gate',0,-2.7,3.8,7.5);break;
@@ -116,6 +119,11 @@ const DistrictAssets=(()=>{
         for(let i=0;i<3;i++)portal('utility-pipe-bridge-'+i,0,-2.5+i*.45,4.3+i*.12,7.8);for(const x of [-3.9,3.9])box('utility-service-bank-'+x,[.6,1.25,3.4],[x,1.105,.5],'stone');break;
       case 'synergy':
         for(let i=0;i<3;i++){const a=i*Math.PI*2/3,x=Math.cos(a)*3.2,z=Math.sin(a)*3.2;portal('synergy-participant-'+i,x,z,3.7,1.5,-a+Math.PI/2)}break;
+    }
+    // Layered fluted capitals and small stone base courses give the exhibit a scale cue.
+    for(const x of [-4.15,4.15]){
+      cylinder('terrace-bollard-'+x,[.17,.23,.75],[x,.855,2.7],'stone');
+      cylinder('terrace-cap-'+x,[.25,.22,.09],[x,1.275,2.7],'metal');
     }
     return parts;
   }
@@ -158,12 +166,25 @@ const DistrictAssets=(()=>{
   }
   // Called from the render loop only when a frame is already being drawn; reduced motion holds every part at rest.
   function tick(t,reduced){U.uLmTime.value=t%3600;U.uLmMotion.value=reduced?0:1}
-  function geometry(part){const s=part.size;switch(part.shape){case'box':return new THREE.BoxGeometry(...s);case'cylinder':return new THREE.CylinderGeometry(s[0],s[1],s[2],16);case'torus':return new THREE.TorusGeometry(s[0],s[1],6,32);default:throw new Error('Unsupported landmark part')}}
+  function geometry(part){const s=part.size;switch(part.shape){
+    case'box':return new THREE.BoxGeometry(...s);
+    case'cylinder':return new THREE.CylinderGeometry(s[0],s[1],s[2],20);
+    case'torus':return new THREE.TorusGeometry(s[0],s[1],8,36);
+    case'arch':{
+      const p=new THREE.Shape();p.moveTo(-.5,0);p.absarc(0,0,.5,Math.PI,0,true);p.lineTo(.445,0);p.absarc(0,0,.445,0,Math.PI,false);p.closePath();
+      const g=new THREE.ExtrudeGeometry(p,{depth:s[2],steps:1,curveSegments:20,bevelEnabled:true,bevelThickness:.012,bevelSize:.006,bevelSegments:2});g.scale(s[0],s[1]*2,1);g.translate(0,0,-s[2]/2);return g;
+    }
+    case'shell':{
+      // An open-backed half cupola shelters the instrument without hiding the working front.
+      const g=new THREE.SphereGeometry(1,24,12,0,Math.PI,0,Math.PI/2);g.scale(s[0],s[1],s[2]);g.rotateY(Math.PI);return g;
+    }
+    default:throw new Error('Unsupported landmark part')
+  }}
   function build(districts,buildings,notes,renderer){
     // Metal and accent parts reflect the Sentinels' prefiltered env map; without one they fall back to a lighter, less metallic finish.
     const env=renderer&&typeof SentinelMesh!=='undefined'&&SentinelMesh.environment?(()=>{try{return SentinelMesh.environment(renderer)}catch(e){return null}})():null;
     const group=new THREE.Group();group.name='Knowledge district landmarks';const buckets=new Map(),records=[];
-    const colors={stone:'#8D867A',metal:env?'#303B4B':'#4A5568'};
+    const colors={stone:'#aba48f',metal:env?'#394441':'#4b5651'};
     districts.forEach(d=>{
       const identity=typeof Districts!=='undefined'?Districts.get(d.top):null;if(!identity)return;
       const choices=buildings.filter(b=>b&&notes[b.id]&&(Districts.worldTop?Districts.worldTop(notes[b.id]):notes[b.id].top)===d.top).sort((a,b)=>{const ta=a.tiers.at(-1),tb=b.tiers.at(-1);return tb.w*tb.d-ta.w*ta.d});
@@ -182,7 +203,7 @@ const DistrictAssets=(()=>{
       const record={folder:d.top,title:identity.title,theme:identity.theme,noteId:anchor.id,sourceNotes:sources,x:roof.x,y:roof.y1+.04,z:roof.z,scale,height:bounds.max.y*scale,partCount:0};records.push(record);
       assembly.forEach(({part,geo})=>{
         geo.scale(scale,scale,scale);geo.translate(record.x,record.y,record.z);
-        const color=new THREE.Color(part.material==='accent'?d.color:colors[part.material]).convertSRGBToLinear();
+        const color=new THREE.Color(part.material==='accent'?d.color:colors[part.material]);if(part.material==='accent')color.lerp(new THREE.Color('#b59d6d'),.42);color.convertSRGBToLinear();
         const mo=motion(identity.theme,part.name);if(mo){mo.pivot=[mo.pivot[0]*scale+record.x,mo.pivot[1]*scale+record.y,mo.pivot[2]*scale+record.z];if(mo.kind===6)mo.amp*=scale;record.moving=(record.moving||0)+1}
         if(!buckets.has(part.material))buckets.set(part.material,[]);buckets.get(part.material).push({geo,color,record,name:part.name,mo});record.partCount++;
       });
@@ -193,7 +214,7 @@ const DistrictAssets=(()=>{
       const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(norm,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('aMot',new THREE.BufferAttribute(mot,4));g.setAttribute('aPiv',new THREE.BufferAttribute(piv,3));g.computeBoundingSphere();
       const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:key==='stone'?.82:.4,metalness:key==='stone'?.08:env?.65:.3});
       if(env&&key!=='stone'){m.envMap=env;m.envMapIntensity=.8;if(SentinelMesh.useEnvironment)SentinelMesh.useEnvironment(m)}
-      if(key==='accent'){m.emissive.set('#ffffff');m.emissiveIntensity=.32}
+      if(key==='accent'){m.emissive.set('#ffffff');m.emissiveIntensity=.1}
       m.onBeforeCompile=sh=>patchMotion(sh,key==='accent');
       const mesh=new THREE.Mesh(g,m);mesh.name='District landmark '+key;mesh.userData.landmarkRanges=ranges;mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);
     });

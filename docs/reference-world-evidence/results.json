@@ -1,0 +1,325 @@
+[
+  {
+    "name": "desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "reduced": false,
+    "travel": [
+      {
+        "district": "11 - Physical AI",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "03 - Products",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "09 - Projects",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "02 - ZenFlow",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "12 - Tools and Integrations",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "16 - Facilities and Infrastructure",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "17 - Synergy Nodes",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "13 - Learning and Curriculum",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "05 - Operations",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "14 - Governance and Decisions",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "01 - Divisions",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "04 - People",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "15 - Clients and Delivery",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "00 - MOCs",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "07 - Brand",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "10 - Archive",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "06 - Finance",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "08 - Research",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "Daily",
+        "flew": true,
+        "walked": true
+      }
+    ],
+    "title": "Collective AI Vault",
+    "campus": {
+      "notes": 1405,
+      "districts": 19,
+      "gpu": true,
+      "drawCalls": 493,
+      "audio": {
+        "unlocked": true,
+        "enabled": true,
+        "loaded": 7,
+        "steps": 12,
+        "voices": 0,
+        "loops": 2,
+        "district": "",
+        "under": "",
+        "theme": "atelier",
+        "night": 1,
+        "rain": 0,
+        "running": true,
+        "mix": {
+          "master": 1,
+          "music": 1,
+          "effects": 1
+        }
+      },
+      "versions": {
+        "rail": "catmull-rom-48",
+        "reveal": "waapi"
+      },
+      "landmarks": 19,
+      "buildings": 1405
+    },
+    "overlaps": [],
+    "districtCount": 19,
+    "saved": 3,
+    "reader": {
+      "inlineTransform": "",
+      "hasContent": true,
+      "viewportX": 0,
+      "viewportY": 0
+    },
+    "touch": null,
+    "sound": {
+      "unlocked": true,
+      "enabled": true,
+      "loaded": 7,
+      "steps": 12,
+      "voices": 4,
+      "loops": 2,
+      "district": "00 - MOCs",
+      "under": "02 - ZenFlow",
+      "theme": "foundry",
+      "night": 1,
+      "rain": 0,
+      "running": true,
+      "mix": {
+        "master": 1,
+        "music": 1,
+        "effects": 1
+      },
+      "played": 15,
+      "names": 15
+    },
+    "errors": [],
+    "warnings": []
+  },
+  {
+    "name": "mobile",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "reduced": true,
+    "travel": [
+      {
+        "district": "11 - Physical AI",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "03 - Products",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "09 - Projects",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "02 - ZenFlow",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "12 - Tools and Integrations",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "16 - Facilities and Infrastructure",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "17 - Synergy Nodes",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "13 - Learning and Curriculum",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "05 - Operations",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "14 - Governance and Decisions",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "01 - Divisions",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "04 - People",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "15 - Clients and Delivery",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "00 - MOCs",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "07 - Brand",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "10 - Archive",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "06 - Finance",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "08 - Research",
+        "flew": true,
+        "walked": true
+      },
+      {
+        "district": "Daily",
+        "flew": true,
+        "walked": true
+      }
+    ],
+    "title": "Collective AI Vault",
+    "campus": {
+      "notes": 1405,
+      "districts": 19,
+      "gpu": true,
+      "drawCalls": 131,
+      "audio": {
+        "unlocked": true,
+        "enabled": false,
+        "loaded": 7,
+        "steps": 12,
+        "voices": 0,
+        "loops": 0,
+        "district": "",
+        "under": "",
+        "theme": null,
+        "night": 0,
+        "rain": 0,
+        "running": true,
+        "mix": {
+          "master": 1,
+          "music": 1,
+          "effects": 1
+        }
+      },
+      "versions": {
+        "rail": "catmull-rom-48",
+        "reveal": "waapi"
+      },
+      "landmarks": 19,
+      "buildings": 1405
+    },
+    "overlaps": [],
+    "districtCount": 19,
+    "saved": 3,
+    "reader": {
+      "inlineTransform": "",
+      "hasContent": true,
+      "viewportX": 0,
+      "viewportY": 0
+    },
+    "touch": {
+      "floorFolded": true,
+      "walked": 36.1029531366186
+    },
+    "sound": null,
+    "errors": [],
+    "warnings": []
+  }
+]

@@ -116,3 +116,21 @@ test('hover updates only the touched buildings and merge into one pending range'
  c.hov=12;c.applyState([10,12]);assert.equal(attr.array[30*4+1],0);assert.equal(attr.updateRange.offset,30*4);assert.equal(attr.updateRange.count,9*4);
  c.stRange=null;c.sel=4;c.applyState();assert.equal(attr.updateRange.offset,0);assert.equal(attr.updateRange.count,inst.length*4);assert.equal(attr.array[0*4+3],.5);
 });
+
+test('architectural trim respects door orientation and terraces stay on exposed setbacks',()=>{
+ for(const door of [{x:7,z:1},{x:-7,z:-1},{x:2,z:5},{x:-2,z:-5}]){
+  const b=building(12,{door,tiers:[tier(0,0,10,10,0,8),tier(0,0,6,5,8,24)]}),s=F.signal(note({out:new Set([1])}),{now:NOW});
+  const L=F.layout([{b,s}]);
+  const piers=L.parts.filter(p=>p.kind==='pier');assert.equal(piers.length,2);
+  const mid={x:(piers[0].x+piers[1].x)/2,z:(piers[0].z+piers[1].z)/2};
+  assert.ok(Math.abs(door.x)>Math.abs(door.z)?Math.abs(mid.z)<1e-8:Math.abs(mid.x)<1e-8,'piers center on facade, independently of offset doorway');
+  for(const p of L.parts.filter(p=>['planter','soil','plant','seat','seat-leg'].includes(p.kind))){
+   assert.ok(p.y-p.sy/2>=8-1e-8,'terrace rests on lower tier');
+   assert.ok(Math.abs(p.x)+p.sx/2<=5&&Math.abs(p.z)+p.sz/2<=5,'furnishings remain inside lower footprint');
+   assert.ok(p.z-p.sz/2>2.5,'furnishings do not intersect upper tier');
+  }
+ }
+ const b=building(13),s=F.signal(note(),{now:NOW});const mesh=F.build([{b,s}]);
+ const finishes=mesh.geometry.attributes.aFinish.array;assert.ok([...finishes].every(v=>v>=.2&&v<=.9));
+ assert.ok(new Set(finishes).size>=3,'glass, metal and masonry have separate physical finishes');F.dispose(mesh);
+});

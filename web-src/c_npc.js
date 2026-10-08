@@ -15,7 +15,7 @@
 // viewer to a landmark on request (Campus.route). Reduced motion keeps them on their spot and flies the camera instead.
 // =====================================================================
 const Guides=(()=>{
-  const BOUNTY={high:120,medium:80,low:50},NEAR=60,TALK_R=28,LEAVE_R=110,WEEK=7*864e5,KIT_REV=2;
+  const BOUNTY={high:120,medium:80,low:50},NEAR=60,TALK_R=28,LEAVE_R=110,WEEK=7*864e5,KIT_REV=3;
   const RM=matchMedia("(prefers-reduced-motion: reduce)"),COARSE=matchMedia("(pointer:coarse)");
   let G=[],lastDist=null,curTop=null,booted=false,memo=new Map();
   const two=name=>{const w=String(name).replace(/[^A-Za-z ]/g," ").trim().split(/\s+/).filter(Boolean);return (w.length>=2?w[0][0]+w[1][0]:(w[0]||"GD").slice(0,2)).toUpperCase()};
@@ -68,14 +68,23 @@ const Guides=(()=>{
   function kit(){
     if(KIT)return KIT;
     const top=g=>{g.translate(0,-.5,0);return g};
+    // An open profile loft gives clothing a designed silhouette and real thickness at folds.
+    const clothLoft=(profile,start=0,sweep=Math.PI*2,folds=0)=>{
+      const p=[],uv=[],idx=[],n=48;
+      profile.forEach(([y,rx,rz,back],row)=>{for(let i=0;i<=n;i++){const u=i/n,a=start+u*sweep,f=1+Math.sin(a*10+row*.28)*folds*(row/(profile.length-1));p.push(Math.sin(a)*rx*f,y,Math.cos(a)*rz*f+(back||0));uv.push(u,row/(profile.length-1))}});
+      for(let row=0;row<profile.length-1;row++)for(let i=0;i<n;i++){const a=row*(n+1)+i,b=a+n+1;idx.push(a,b,a+1,b,b+1,a+1)}
+      const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(p,3));g.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g;
+    };
     KIT={
-      robe:top(new THREE.CylinderGeometry(.62,1,1,20,1,true)),
+      // Vertical pleats broaden toward the hem; the cross section reads as cloth at walking distance.
+      robe:(()=>{const g=top(new THREE.CylinderGeometry(.62,1,1,48,8,true)),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),v=-p.getY(i),a=Math.atan2(z,x),fold=1+Math.cos(a*12)*(.015+.045*v);p.setXYZ(i,x*fold,p.getY(i)+Math.sin(a*6)*.024*v*v,z*fold)}g.computeVertexNormals();return g})(),
       hem:top(new THREE.CylinderGeometry(1,1,1,20,1,true)),
-      mantle:top(new THREE.CylinderGeometry(.56,.94,1,20,1,true)),
+      mantle:clothLoft([[0,.46,.48,0],[-.18,.6,.56,0],[-.44,.89,.63,-.025],[-.74,1,.68,-.035],[-1,.91,.63,-.02]],.12,Math.PI*2-.24,.055),
       // Tailored cloth with scalloped shoulders and a folded cross section, built once.
       cape:(()=>{const p=[],idx=[],w=12,h=10;for(let y=0;y<=h;y++)for(let x=0;x<=w;x++){const u=x/w,v=y/h,edge=Math.abs(u-.5)*2;p.push((u-.5)*(1-.12*(1-v)),-v+.055*edge*edge*(1-v),Math.sin(u*Math.PI*6)*.045*(.35+.65*v)+v*v*.075)}for(let y=0;y<h;y++)for(let x=0;x<w;x++){const a=y*(w+1)+x,b=a+w+1;idx.push(a,b,a+1,b,b+1,a+1)}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(p,3));g.setIndex(idx);g.computeVertexNormals();return g})(),
       strip:new THREE.BoxGeometry(1,1,1),
-      hood:new THREE.SphereGeometry(.5,16,10,Math.PI*.85,Math.PI*1.3,0,Math.PI*.64),
+      hood:clothLoft([[-.4,.43,.45,-.08],[-.23,.52,.53,-.055],[0,.56,.57,-.04],[.24,.51,.52,-.045],[.43,.37,.4,-.08],[.53,.035,.08,-.13]],.69,Math.PI*2-1.38,.045),
+      shoulder:clothLoft([[.24,.03,.06,0],[.2,.29,.27,0],[.06,.45,.38,0],[-.13,.49,.4,-.035],[-.25,.4,.35,-.04]],0,Math.PI*2,.02),
       peak:new THREE.ConeGeometry(.26,.8,10,1,true),
       halo:new THREE.TorusGeometry(.62,.035,8,44),
       haloIn:new THREE.TorusGeometry(.44,.018,6,36),
@@ -88,6 +97,9 @@ const Guides=(()=>{
       mote:new THREE.OctahedronGeometry(.06,0),
       marker:new THREE.OctahedronGeometry(.3,0),
       markerRing:new THREE.TorusGeometry(.5,.025,6,40),
+      fabric:(()=>{const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d");x.fillStyle="#929292";x.fillRect(0,0,64,64);for(let i=0;i<64;i+=2){x.fillStyle=i%4?"#858585":"#ababab";x.fillRect(i,0,1,64);x.fillStyle="#777777";x.fillRect(0,i,64,1)}const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(5,8);return t})(),
+      leather:new THREE.MeshStandardMaterial({color:0x37281e,roughness:.88,metalness:0}),
+      brass:new THREE.MeshStandardMaterial({color:0xb99a59,roughness:.43,metalness:.72}),
       metal:new THREE.MeshStandardMaterial({color:new THREE.Color(0x2a2f3d).convertSRGBToLinear(),roughness:.35,metalness:.85}),
       paper:new THREE.MeshStandardMaterial({color:new THREE.Color(0xF1EADB).convertSRGBToLinear(),roughness:.9,metalness:0,emissive:0x4a4436,emissiveIntensity:.25}),
       gold:new THREE.MeshBasicMaterial({color:0xF5C04A,fog:false}),
@@ -102,18 +114,53 @@ const Guides=(()=>{
     if(MATS.has(hex))return MATS.get(hex);
     const lin=h=>new THREE.Color(h).convertSRGBToLinear(),c=lin(hex),dark=lin("#0B1020").lerp(c,.09);
     const m={
-      cloth:new THREE.MeshStandardMaterial({color:dark,roughness:.86,metalness:.05,side:THREE.DoubleSide}),
-      lining:new THREE.MeshStandardMaterial({color:lin("#0B1020").lerp(c,.22),roughness:.7,metalness:.1,side:THREE.DoubleSide}),
-      trim:new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:1.1,roughness:.4,metalness:.3}),
+      cloth:new THREE.MeshStandardMaterial({color:dark,roughness:.96,metalness:0,bumpMap:kit().fabric,bumpScale:.035,side:THREE.DoubleSide}),
+      lining:new THREE.MeshStandardMaterial({color:lin("#22232a").lerp(c,.4),roughness:.92,metalness:0,bumpMap:kit().fabric,bumpScale:.025,side:THREE.DoubleSide}),
+      trim:new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.22,roughness:.6,metalness:.25}),
       glow:new THREE.SpriteMaterial({map:kit().glowTex,color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.75,fog:false})
     };
     MATS.set(hex,m);return m;
   }
   const mesh=(geo,mat,x,y,z,sx,sy,sz)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x||0,y||0,z||0);if(sx!=null)o.scale.set(sx,sy,sz);o.castShadow=true;return o};
 
+  // Bake static tailoring by archetype/material. Shared buffers keep close-up detail bounded
+  // to three extra draws per guide; no per-frame allocations or unique textures.
+  const TAILOR=new Map();
+  function tailoring(arch){
+    if(TAILOR.has(arch))return TAILOR.get(arch);
+    const K=kit(),buckets={leather:[],brass:[],lining:[]};
+    const add=(mat,geo,x,y,z,sx,sy,sz,rz=0)=>{const o=mesh(geo,K.metal,x,y,z,sx,sy,sz);o.rotation.z=rz;o.updateMatrix();const b=geo.clone().applyMatrix4(o.matrix);buckets[mat].push(b)};
+    // Belt, crossed harness, satchel, flap and stitched edging follow the body.
+    add("leather",K.hem,0,3.52,0,.67,.23,.61);
+    add("leather",K.strip,-.1,4.1,.47,.16,1.52,.075,-.38);
+    add("leather",K.strip,-.67,3.04,.28,.5,.62,.29);
+    add("leather",K.strip,-.67,3.32,.31,.54,.16,.34);
+    add("brass",K.strip,0,3.39,.625,.26,.24,.035);
+    add("leather",K.strip,0,3.39,.648,.16,.14,.02);
+    add("brass",K.strip,-.67,3.11,.467,.08,.18,.025);
+    for(const side of [-1,1]){
+      // Sculpted layered shoulder guards and cloth seam strips.
+      add("lining",K.shoulder,side*.6,4.91,-.025,.77,.6,.92);
+      add("brass",K.strip,side*.53,4.68,.47,.05,.31,.032,side*.2);
+      add("lining",K.strip,side*.36,4.1,.44,.17,1.02,.04,side*.07);
+      for(let i=0;i<4;i++)add("brass",K.gem,side*.38,4.5-i*.18,.48,.09,.09,.065);
+    }
+    if(arch==="archivist")for(let i=0;i<3;i++)add("leather",K.strip,.61+i*.095,3.05,.35,.06,.46,.06);
+    if(arch==="vanguard")for(const side of [-1,1])add("brass",K.shoulder,side*.71,4.94,0,.92,.55,1.05);
+    const out={};
+    for(const [key,parts] of Object.entries(buckets)){
+      const ps=[],ns=[],uv=[];
+      for(const indexed of parts){const geo=indexed.index?indexed.toNonIndexed():indexed;ps.push(...geo.attributes.position.array);ns.push(...geo.attributes.normal.array);uv.push(...geo.attributes.uv.array);if(geo!==indexed)geo.dispose();indexed.dispose()}
+      const geo=new THREE.BufferGeometry();geo.setAttribute("position",new THREE.Float32BufferAttribute(ps,3));geo.setAttribute("normal",new THREE.Float32BufferAttribute(ns,3));geo.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2));geo.computeBoundingSphere();out[key]=geo;K.geos.add(geo);
+    }
+    TAILOR.set(arch,out);return out;
+  }
+
   // Dress a Sentinel as a Warden. Everything hangs off two roots (kit on the body, cap on the head) so it can be detached before disposal.
   function dress(g){
     const K=kit(),M=mats(g.color),A=ARCH[g.arch],m=g.m,root=new THREE.Group(),cap=new THREE.Group();
+    const tailored=tailoring(g.arch);
+    root.add(mesh(tailored.leather,K.leather),mesh(tailored.brass,K.brass),mesh(tailored.lining,M.lining));
     // robe from the waist, with a lit hem
     const long=A.robe>2.5,rx=long?1:.86,rz=long?.86:.78;
     root.add(mesh(K.robe,M.cloth,0,3.45,0,rx,A.robe,rz));
@@ -185,12 +232,12 @@ const Guides=(()=>{
     lastDist=Campus.districts();index(true);
     lastDist.forEach((d,i)=>{
       const p=spot(d),m=SentinelMesh.create({id:"guide:"+d.top,form:"member",palette:["#0B1020",d.color,"#F4EFE6"],symbol:two(d.name),level:0});
-      m.pos.set(p.x,.25,p.z);m.grp.position.copy(m.pos);m.grp.rotation.y=Math.atan2(d.x+d.w/2-p.x,d.z+d.d/2-p.z)+Math.PI;m.ring.scale.setScalar(2.2);
+      m.grp.scale.setScalar(.6);m.pos.set(p.x,.25,p.z);m.grp.position.copy(m.pos);m.grp.rotation.y=Math.atan2(d.x+d.w/2-p.x,d.z+d.d/2-p.z)+Math.PI;m.ring.scale.setScalar(2.2);
       scene.add(m.grp);
       const g={top:d.top,name:d.name,color:d.color,x:p.x,z:p.z,hx:p.x,hz:p.z,rect:{x:d.x,z:d.z,w:d.w,d:d.d},m,near:false,home:m.grp.rotation.y,arch:archOf(d.top,i),
         hy:0,hp:0,yawVel:0,gest:null,gt:0,gdur:1.9,beat:-9,speakUntil:0,bark:null,barkUntil:0,nextBark:0,barkI:0,stats:null,
         posts:posts(d,p.x,p.z),post:0,nextPatrol:8+(i%5)*3,path:null,leg:0,speed:0,onArrive:null,face:0,mode:"home",returnAt:0,inside:false,greetAt:-1e9,escort:null,poseT:-1,camT:0,
-        lbl:{x:p.x,y:9.5,z:p.z,t:"",s:"",cls:"guide",prio:105,c:d.color},blb:{x:p.x,y:9.3,z:p.z,t:"",s:"",cls:"say",prio:120,c:d.color,guide:true}};
+        lbl:{x:p.x,y:5.7,z:p.z,t:"",s:"",cls:"guide",prio:105,c:d.color},blb:{x:p.x,y:5.58,z:p.z,t:"",s:"",cls:"say",prio:120,c:d.color,guide:true}};
       dress(g);G.push(g);
     });
     refreshStats(true);
@@ -291,7 +338,7 @@ const Guides=(()=>{
     const L=Campus.labelCands;if(!L)return;
     for(let i=L.length-1;i>=0;i--)if(L[i].cls==="guide"||L[i].guide)L.splice(i,1);
     for(let i=0;i<G.length;i++){const g=G[i],dCam=Math.hypot(cp.x-g.x,cp.z-g.z),talking=D.open&&D.g===g;
-      if(dCam<280)L.push(g.lbl);if(frameT<g.barkUntil&&!talking&&dCam<520)L.push(g.blb)}
+      if(dCam<(walking?72:180)||talking)L.push(g.lbl);if(frameT<g.barkUntil&&!talking&&dCam<(walking?48:120))L.push(g.blb)}
   }
   // The viewer crossed into a district and stayed a second (a camera flight passing over does not count): its Warden
   // greets once per visit, at most every 90 s, and walks out a few steps.
@@ -370,7 +417,7 @@ const Guides=(()=>{
           else if(g.gest==="tome"){A[0].rotation.x+=(-1.05-A[0].rotation.x)*k;A[0].rotation.z+=(-.25-A[0].rotation.z)*k;if(g.tome)g.tome.position.y=3.35+.9*k}
           else if(g.gest==="bow"){m.head.rotation.x+=.5*k;A[0].rotation.x+=(.18-A[0].rotation.x)*k;A[1].rotation.x+=(.18-A[1].rotation.x)*k}}}
       else if(g.glow&&g.glow.scale.x!==1.9)g.glow.scale.setScalar(1.9);
-      if(speaking&&!reduced){const p=.5+.5*Math.sin(time*7);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=1.1+.9*p}else g.trim.emissiveIntensity=1.1;
+      if(speaking&&!reduced){const p=.5+.5*Math.sin(time*7);m.glow.value*=1+.6*p;g.trim.emissiveIntensity=.22+.2*p}else g.trim.emissiveIntensity=.22;
       // cloth and props
       if(g.cape){const sw=reduced?0:Math.sin(time*1.1+m.phase)*.035,tr=clamp(Math.abs(g.yawVel)*.25,0,.5),side=clamp(-g.yawVel*.15,-.25,.25),run=g.path?.18:0;
         g.cape[0].rotation.x=.2+sw+tr+run;g.cape[1].rotation.x=.05+sw*1.4+tr*.5+run*.6;g.cape[2].rotation.x=.04+sw*1.8+run*.3;g.cape[0].rotation.z=side;g.cape[1].rotation.z=side*.6}
@@ -443,7 +490,7 @@ const Guides=(()=>{
 #wd .wd-por{position:relative;width:128px;height:128px;border-radius:14px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,color-mix(in srgb,var(--c) 30%,#0B1020),#05070F);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 55%,transparent),0 10px 30px -10px var(--c)}
 #wd .wd-por canvas,#wd .wd-por img,#wd .wd-por svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 #wd .wd-por img{opacity:0;transition:opacity .3s}#wd .wd-por img.ok{opacity:1}
-#wd .wd-por::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),linear-gradient(180deg,transparent 55%,rgba(5,7,15,.65));pointer-events:none}
+#wd .wd-por::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 65%,rgba(5,7,15,.7));pointer-events:none}
 #wd .wd-arch{position:absolute;left:8px;bottom:7px;z-index:1;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
 #wd .wd-plate{position:absolute;left:162px;top:-15px;display:flex;align-items:baseline;gap:10px;padding:5px 14px 6px;border-radius:9px;background:linear-gradient(180deg,#151C33,#0C1122);border:1px solid color-mix(in srgb,var(--c) 70%,transparent);box-shadow:0 8px 20px -8px var(--c)}
 #wd .wd-plate b{font-family:var(--display);font-size:15px;letter-spacing:.01em}

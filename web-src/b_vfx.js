@@ -131,7 +131,7 @@ function weatherTarget(now){
 function snapWeather(){Object.assign(cur,tgt);pushWeather()}
 function pushWeather(){U.uRain.value=cur.rain;U.uWet.value=cur.wet;U.uMist.value=cur.mist;U.uWind.value=cur.wind}
 
-// ---------- atmosphere: dust by day, fireflies after dark, rain streaks when it rains. One Points draw.
+// ---------- atmosphere: sparse fireflies after dark; visible rain, no glowing daytime dust.
 function atmosphere(SH,glow,count){
   if(!HAS3)return null;
   const N=ATMOS,seed=new Float32Array(N*3),k=new Float32Array(N);
@@ -154,9 +154,9 @@ void main(){vec3 s=position;vec3 p;
   p.xz=mod(p.xz-uCenter.xz+box.xz*0.5,box.xz)+uCenter.xz-box.xz*0.5;p.y=0.8+mod(p.y,box.y);
  }
  vec4 mv=modelViewMatrix*vec4(p,1.0);float fl=0.5+0.5*sin(uTime*(1.3+s.z*2.0)+s.x*40.0);
- float mote=mix(0.34*(1.0-uMist*0.5),0.28+0.72*fl*fl,uNight)*(1.0-uRain*0.75);
+ float mote=smoothstep(0.3,0.85,uNight)*(0.12+0.42*fl*fl)*step(0.72,aK)*(1.0-uRain*0.75);
  vA=mix(mote*smoothstep(260.0,60.0,-mv.z),0.5*smoothstep(95.0,6.0,-mv.z),isR);vR=isR;
- gl_PointSize=clamp(mix(mix(0.85,0.45,uNight),3.2,isR)*uScale/-mv.z,0.0,mix(18.0,48.0,isR));gl_Position=projectionMatrix*mv;}`,
+ gl_PointSize=clamp(mix(0.18,1.4,isR)*uScale/-mv.z,0.0,mix(3.5,28.0,isR));gl_Position=projectionMatrix*mv;}`,
     fragmentShader:`uniform sampler2D map;uniform float uNight;uniform vec3 uSkyRef;varying float vA;varying float vR;
 void main(){vec2 pc=gl_PointCoord;float a;vec3 col;
  if(vR>0.5){a=smoothstep(0.09,0.0,abs(pc.x-0.5))*smoothstep(0.0,0.35,pc.y)*smoothstep(1.0,0.75,pc.y);col=mix(vec3(0.62,0.7,0.82),uSkyRef*2.2+vec3(0.12,0.1,0.08),0.5);}
@@ -333,7 +333,7 @@ function grade(night,sunY){
   const up=night<.5,gold=up?1-clamp((sunY-.05)/.4,0,1):0;
   const gain=[1+.05*gold-.03*night,1-.005*gold,1-.08*gold+.04*night];
   const lift=[.004*gold,.004*night,.02*night+.004*cur.mist];
-  return{gain,lift,vig:.09+.06*night,threshold:.86-.15*night-.05*cur.wet,radius:.36+.28*night+.14*cur.mist,shaft:1+cur.mist*.9};
+  return{gain,lift,vig:.09+.06*night,threshold:.96-.22*night-.025*cur.wet,radius:.22+.3*night+.08*cur.mist,shaft:1+cur.mist*.3};
 }
 function post(bloomPass,g){
   if(!S.SH)return;const n=S.SH.uNight.value,y=S.SH.uSunDir.value.y,k=grade(n,y);
