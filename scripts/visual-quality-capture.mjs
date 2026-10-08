@@ -51,10 +51,11 @@ export async function captureVisualQuality(page,outDir,{video=false,only=null}={
  }
  for(const shot of shots){
   console.log('Capturing scene:',shot.name);
+  if(shot.name==='garden-ground')await page.waitForFunction(()=>{const a=Campus.scene().getObjectByName('Living gardens')?.userData.landscape?.plantAssets;return a?.fern_02==='ready'&&a?.shrub_sorrel_01==='ready'},null,{timeout:90000});
   await aim(shot);await page.waitForTimeout(450);
   await page.evaluate(()=>Campus.pause(true));
   const file=shot.name+'.png';await page.screenshot({path:path.join(outDir,file),timeout:90000});
-  const actual=await page.evaluate(()=>{const garden=Campus.scene().getObjectByName('Living gardens')?.userData.landscape;return {camera:Campus.camera().position.toArray(),target:{...Campus.debug().cam},performance:Campus.perf(),landscape:garden?{counts:garden.counts,rockAsset:garden.rockAsset,rockTriangles:garden.rockTriangles}:null}});
+  const actual=await page.evaluate(()=>{const garden=Campus.scene().getObjectByName('Living gardens')?.userData.landscape;return {camera:Campus.camera().position.toArray(),target:{...Campus.debug().cam},performance:Campus.perf(),landscape:garden?{counts:garden.counts,rockAsset:garden.rockAsset,rockTriangles:garden.rockTriangles,plantAssets:garden.plantAssets}:null}});
   evidence.push({...shot,file,...actual});
  }
  let videoResult=null;

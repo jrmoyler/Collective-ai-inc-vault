@@ -309,7 +309,13 @@ const Facades=(()=>{
     batch('Carved arch surrounds',archGeometry(),new THREE.MeshStandardMaterial({color:0xffffff,map:opt.stoneMap||null,roughness:.89,metalness:.02}),layout.frames);
     // Entrance apertures retain the existing signal-driven door light; glass is for upper windows only.
     batch('Recessed arch glazing',archGeometry(true),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.27,metalness:.28}),layout.frames.filter(p=>!p.door),true);
-    batch('Overlapping barrel roof tiles',tileGeometry(),new THREE.MeshStandardMaterial({color:0xffffff,map:opt.roofMap||null,roughness:.92,metalness:0,side:THREE.DoubleSide}),layout.tiles);
+    // Barrel tiles are fired clay, never multiplied by the flat-roof gravel map.
+    const clay=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:0,side:THREE.DoubleSide});
+    clay.onBeforeCompile=sh=>{
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vClayP;').replace('#include <begin_vertex>','#include <begin_vertex>\nvClayP=position;');
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vClayP;').replace('#include <color_fragment>','#include <color_fragment>\nfloat clayGrain=fract(sin(dot(floor(vClayP*120.0),vec3(12.9898,78.233,37.719)))*43758.5453);diffuseColor.rgb*=0.96+clayGrain*0.08;');
+    };
+    batch('Overlapping barrel roof tiles',tileGeometry(),clay,layout.tiles);
     parent.userData.craft={frames:layout.frames.length,tiles:layout.tiles.length,drawCalls:parent.children.length,cap:layout.cap,tileCap:layout.tileCap};
   }
 

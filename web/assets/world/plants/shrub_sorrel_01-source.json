@@ -1,0 +1,36 @@
+{
+  "asset": "shrub_sorrel_01",
+  "authors": {
+    "Rico Cilliers": "All"
+  },
+  "source": "https://polyhaven.com/a/shrub_sorrel_01",
+  "license": "CC0-1.0",
+  "license_url": "https://polyhaven.com/license",
+  "model": {
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/shrub_sorrel_01/shrub_sorrel_01_1k.gltf",
+    "md5": "d56d50a8492bd7d7c7a0a571f42239c6",
+    "buffer_url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/shrub_sorrel_01/shrub_sorrel_01.bin",
+    "buffer_md5": "5b6481fc43f4dc36ab4e80d79a19119f",
+    "mesh": 2,
+    "triangles": 353,
+    "conversion": "Center x/z, seat y=0, uniformly normalize width; retain topology, UVs and normals."
+  },
+  "textures": {
+    "shrub_sorrel_01-diff.jpg": {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_sorrel_01/shrub_sorrel_01_diff_1k.jpg",
+      "md5": "bef299def81bd55c2b378d53dad803b5"
+    },
+    "shrub_sorrel_01-normal.jpg": {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_sorrel_01/shrub_sorrel_01_nor_gl_1k.jpg",
+      "md5": "71c6c432b91a8d64f2c480366fd61dfb"
+    },
+    "shrub_sorrel_01-alpha.jpg": {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_sorrel_01/shrub_sorrel_01_alpha_1k.jpg",
+      "md5": "a8022b63e90a15f0f52e44675c972c07"
+    },
+    "shrub_sorrel_01-arm.jpg": {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_sorrel_01/shrub_sorrel_01_arm_1k.jpg",
+      "md5": "6230445a48867ef8196ee1ab052d346d"
+    }
+  }
+}

@@ -2,6 +2,7 @@
 // models, transparent sorting, per-tree tick loop or extra renderer is required.
 const VaultLandscape=(()=>{
   let scannedRockData=null;
+  const botanicalData=new Map();
   function random(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
   function build({THREE:T,trees=[],districts=[],buildings=[],side=500,world=null,treeStyle=null,heightAt=()=>0,onChange=()=>{},high=true,reducedMotion=false}){
     const group=new T.Group();group.name='Living gardens';
@@ -22,6 +23,8 @@ const VaultLandscape=(()=>{
     };
     bark.customProgramCacheKey=()=> 'garden-fissured-bark';
     const grassMat=material({color:0xffffff,roughness:1,side:T.DoubleSide});
+    const fernMat=material({color:0xffffff,roughness:.9,side:T.DoubleSide,alphaTest:.4});
+    const broadMat=material({color:0xffffff,roughness:.85,side:T.DoubleSide,alphaTest:.4});
     const flowerMat=material({color:0xffffff,roughness:.95,side:T.DoubleSide});
     const stoneMat=material({color:0xffffff,roughness:1});
     const soilMat=material({color:0xffffff,roughness:1,polygonOffset:true,polygonOffsetFactor:-1});
@@ -52,21 +55,24 @@ const VaultLandscape=(()=>{
           #endif`);
       };mat.customProgramCacheKey=()=>`garden-wind-${strength}`;
     }
-    wind(leafMat,.045);wind(leafDepth,.045);wind(grassMat,.13);wind(flowerMat,.055);
+    wind(leafMat,.045);wind(leafDepth,.045);wind(grassMat,.13);wind(flowerMat,.055);wind(fernMat,.035);wind(broadMat,.035);
     function geometry(points,indices){const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(points,3));if(indices)g.setIndex(indices);g.computeVertexNormals();return g}
     // Foliage is an irregular volume of inclined branch sprays, not a stack of
     // vertical billboard crosses. Rounded normals give a soft canopy light field.
     const lp=[],lu=[],li=[],ln=[];
-    for(let k=0;k<7;k++){
-      const a=k*2.399,tilt=.22+(k%3)*.31,cx=Math.cos(a)*.33,cy=(k%3-1)*.19,cz=Math.sin(a)*.33;
+    for(let k=0;k<5;k++){
+      const a=k*2.399,tilt=.18+(k%3)*.35,cx=Math.cos(a)*.39,cy=(k%3-1)*.23,cz=Math.sin(a)*.39;
       const right=new T.Vector3(Math.cos(a),0,Math.sin(a));
       const up=new T.Vector3(-Math.sin(a)*Math.sin(tilt),Math.cos(tilt),Math.cos(a)*Math.sin(tilt));
-      const o=lp.length/3;
-      for(const [u,v] of [[-1,-.65],[1,-.65],[1,.85],[-1,.85]]){
-        const x=cx+right.x*u+up.x*v,y=cy+up.y*v,z=cz+right.z*u+up.z*v;
-        lp.push(x,y,z);const normal=new T.Vector3(x*.45,.85+y*.25,z*.45).normalize();ln.push(normal.x,normal.y,normal.z);
+      const forward=new T.Vector3().crossVectors(right,up).normalize(),base=lp.length/3;
+      // A 3x3 bowed surface: leaf sprays curve both along and across the twig.
+      // Different twists remove the rigid flat-card silhouette at eye level.
+      for(let row=0;row<3;row++)for(let col=0;col<3;col++){
+        const u=col-1,v=(row-1)*.8,bend=.38*(1-u*u)+.19*v*v,twist=u*v*.22;
+        const x=cx+right.x*u+up.x*v+forward.x*bend,y=cy+up.y*v+forward.y*bend+twist,z=cz+right.z*u+up.z*v+forward.z*bend;
+        lp.push(x,y,z);lu.push(col/2,row/2);const normal=new T.Vector3(x*.38,.65+y*.3,z*.38).normalize();ln.push(normal.x,normal.y,normal.z);
       }
-      lu.push(0,0,1,0,1,1,0,1);li.push(o,o+1,o+2,o,o+2,o+3);
+      for(let row=0;row<2;row++)for(let col=0;col<2;col++){const o=base+row*3+col;li.push(o,o+1,o+4,o,o+4,o+3)}
     }
     const leafGeo=geometry(lp,li);leafGeo.setAttribute('uv',new T.Float32BufferAttribute(lu,2));leafGeo.setAttribute('normal',new T.Float32BufferAttribute(ln,3));
     const trunkGeo=new T.CylinderGeometry(.48,1,1,7,2);trunkGeo.translate(0,.5,0);
@@ -197,7 +203,7 @@ const VaultLandscape=(()=>{
     batch(trunkGeo,bark,trunks,'Branching hardwood trunks',high);batch(leafGeo,leafMat,leaves,'Layered leaf sprays',high);
     batch(soilGeo,soilMat,soil,'Irregular moss beds',false);batch(grassGeo,grassMat,grass,'Meadow blades',false);
     batch(flowerGeo,flowerMat,flowers,'Lavender and cream wildflowers',false);batch(rockGeo,stoneMat,rocks.filter((_,i)=>i%Math.max(1,Math.ceil(rocks.length/(high?96:32)))===0),'Weathered garden stones',high);
-    batch(fernGeo,grassMat,ferns,'Arching fern fronds',false);batch(broadGeo,grassMat,broadleaves,'Folded broadleaf plants',false);
+    batch(fernGeo,fernMat,ferns.filter((_,i)=>i%Math.max(1,Math.ceil(ferns.length/(high?640:180)))===0),'Arching fern fronds',false);batch(broadGeo,broadMat,broadleaves.filter((_,i)=>i%Math.max(1,Math.ceil(broadleaves.length/(high?1000:320)))===0),'Folded broadleaf plants',false);
     group.userData.landscape={clock,reducedMotion,materials:mats,textures,geometries,counts:{trees:treeCount,understory:understoryCount,grass:grass.length,flowers:flowers.length,ferns:ferns.length,broadleaves:broadleaves.length,drawCalls:group.children.length}};
     // One photographed moss-rock scan, instanced at 96/32 placements. Local
     // assets total < 0.75 MB; no glTF parser or network service at runtime.
@@ -225,6 +231,28 @@ const VaultLandscape=(()=>{
         load('moss-rock-color.jpg','map',true);load('moss-rock-normal.jpg','normalMap',false);load('moss-rock-roughness.jpg','roughnessMap',false);
         stoneMat.normalScale.set(.7,.7);state.rockAsset='geometry ready';state.rockTriangles=data.index.length/3;onChange();
       }).catch(()=>{if(group.userData.landscape===state)state.rockAsset='procedural fallback'});
+    }
+    // Photograph-derived fern and wood-sorrel geometry replace the angular
+    // fallback leaves in-place. Both variants have original UVs and alpha maps.
+    const plantState=group.userData.landscape;plantState.plantAssets={};
+    for(const [name,meshName,plantMat] of [['fern_02','Arching fern fronds',fernMat],['shrub_sorrel_01','Folded broadleaf plants',broadMat]]){
+      const mesh=group.children.find(m=>m.name===meshName);if(!mesh||typeof fetch!=='function')continue;
+      plantState.plantAssets[name]='loading';
+      if(!botanicalData.has(name))botanicalData.set(name,fetch('assets/world/plants/'+name+'.json').then(r=>{if(!r.ok)throw Error('Plant geometry unavailable');return r.json()}).catch(e=>{botanicalData.delete(name);throw e}));
+      botanicalData.get(name).then(data=>{
+        if(group.userData.landscape!==plantState)return;
+        if(data.version!==1||!data.position?.length||data.position.length%3||data.normal?.length!==data.position.length||data.uv?.length!==data.position.length/3*2||!data.index?.length||data.index.length%3||![...data.position,...data.normal,...data.uv].every(Number.isFinite)||!data.index.every(i=>Number.isInteger(i)&&i>=0&&i<data.position.length/3))throw Error('Invalid botanical geometry');
+        const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(data.position,3));g.setAttribute('normal',new T.Float32BufferAttribute(data.normal,3));g.setAttribute('uv',new T.Float32BufferAttribute(data.uv,2));g.setIndex(data.index);g.computeBoundingSphere();
+        const previous=mesh.geometry;mesh.geometry=g;const at=geometries.indexOf(previous);if(at>=0)geometries.splice(at,1);previous.dispose();geometries.push(g);
+        const white=new T.Color(1,1,1);for(let i=0;i<mesh.count;i++)mesh.setColorAt(i,white);mesh.instanceColor.needsUpdate=true;
+        let pending=4;const loader=new T.TextureLoader();
+        for(const [suffix,slot,srgb] of [['diff','map',true],['normal','normalMap',false],['alpha','alphaMap',false],['arm','roughnessMap',false]]){
+          const tex=loader.load('assets/world/plants/'+name+'-'+suffix+'.jpg',t=>{
+            if(group.userData.landscape!==plantState)return;t.flipY=false;if(srgb)t.encoding=T.sRGBEncoding;t.anisotropy=2;t.needsUpdate=true;plantMat[slot]=t;plantMat.needsUpdate=true;if(--pending===0)plantState.plantAssets[name]='ready';onChange();
+          },undefined,()=>{if(group.userData.landscape===plantState)plantState.plantAssets[name]='texture fallback'});textures.push(tex);
+        }
+        plantMat.normalScale.set(.6,.6);plantState.plantAssets[name]='geometry ready';onChange();
+      }).catch(()=>{if(group.userData.landscape===plantState)plantState.plantAssets[name]='procedural fallback'});
     }
     return group;
   }

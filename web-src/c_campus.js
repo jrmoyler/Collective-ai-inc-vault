@@ -229,7 +229,7 @@ function tile(name,url,r,g,b){
     TEX[name]=tt;[uni,groundUni].forEach(u=>{if(u&&u["t_"+name])u["t_"+name].value=tt});
     // Custom shaders decode their raw albedo explicitly. Standard facade materials
     // need an sRGB companion and must be rebound when the neutral texel is replaced.
-    if(name==="stone"||name==="roof"){
+    if(name==="stone"){
       const mapped=tt.clone();mapped.encoding=THREE.sRGBEncoding;mapped.needsUpdate=true;TEX[name+"SRGB"]=mapped;
       if(facade)facade.traverse(o=>{if(!o.material)return;[].concat(o.material).forEach(m=>{if(m.map&&(m.map===previous||m.map===previousSRGB)){m.map=mapped;m.needsUpdate=true}})});
     }
@@ -415,6 +415,33 @@ function makeMaterial(){
   glassM*=mix(1.0,0.94,dayL);
   reflM*=mix(1.0,0.78,dayL);
   diffuseColor.rgb=mix(base,vec3(0.010,0.013,0.024),glassM*mix(0.7,1.0,wk));
+  // Every bay receives a metric reveal, even beyond the physical arch-instance cap.
+  // Signed distances preserve ribbon, pier, civic arch and curtain patterns. These
+  // material details do not alter lit-room probability or the live note signal masks.
+  vec2 openingDist=min(f-pb.xz,pb.yw-f)*pit;
+  float revealD=min(openingDist.x,openingDist.y);
+  float archD=(1.0-length(vec2((f.x-0.5)/0.3,(f.y-0.66)/0.18)))*min(pit.x*0.3,pit.y*0.18);
+  revealD=min(revealD,mix(100.0,archD,civ*step(0.66,f.y)));
+  float detailAA=clamp(fwidth(revealD),0.004,0.045);
+  float detailOn=wall*solid*(1.0-lobbyZ)*(1.0-far);
+  float opening=smoothstep(-detailAA,detailAA,revealD);
+  float carvedBand=(smoothstep(-0.145-detailAA,-0.145+detailAA,revealD)-smoothstep(0.015-detailAA,0.015+detailAA,revealD))*detailOn;
+  float leftReveal=1.0-smoothstep(0.0,0.16,(f.x-pb.x)*pit.x);
+  float lowerReveal=1.0-smoothstep(0.0,0.18,(f.y-pb.z)*pit.y);
+  vec3 limestone=ft*mix(vec3(0.96,0.91,0.8),vec3(1.3,1.22,1.04),lowerReveal)+vec3(0.017);
+  limestone*=mix(0.68,1.0,smoothstep(-0.145,-0.045,revealD))*(1.0-leftReveal*0.19);
+  diffuseColor.rgb=mix(diffuseColor.rgb,limestone,carvedBand);
+  float recessShadow=mix(0.43,1.0,smoothstep(0.015,0.22,revealD));
+  float roomShade=mix(0.7,1.2,h21(id+bs*0.021+vec2(37.0,9.0)));
+  float blind=step(0.78,r)*step(mix(pb.z+0.14,pb.w-0.08,fl),f.y)*opening;
+  vec3 room=diffuseColor.rgb*recessShadow*roomShade;
+  room=mix(room,vec3(0.085,0.084,0.071)*mix(0.8,1.0,step(0.5,fract(vWPos.y*9.0))),blind*0.48);
+  diffuseColor.rgb=mix(diffuseColor.rgb,room,detailOn*opening);
+  float barWidth=mix(0.033,0.019,step(3.5,pat));
+  float transom=1.0-smoothstep(barWidth,barWidth+detailAA,abs(f.y-mix(0.55,0.67,step(2.5,pat)))*pit.y);
+  float vertical=1.0-smoothstep(barWidth,barWidth+detailAA,abs(f.x-0.5)*pit.x);
+  float joinery=max(transom,vertical)*opening*detailOn;
+  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.043,0.052,0.047)+ft*0.055,joinery*0.84);
   // archived and superseded notes weather: grey, streaked under the sills, windows boarded, roofs mossed over
   float streak=smoothstep(0.42,0.86,vn(vec2(u*1.9,vWPos.y*0.07+bs)));
   vec3 grey=vec3(dot(diffuseColor.rgb,vec3(0.3,0.59,0.11)));
@@ -1500,7 +1527,7 @@ function buildFacades(){
       const color=(typeof Districts!=="undefined"?Districts.get(b.worldTop)?.color:null)||FOLDER_COLORS[b.worldTop]||"#D4A843";
       items.push({b:{id:b.id,tiers:b.tiers,door:b.door,h:b.h,style:b.style,color,roofSupports:b.roofSupports},s:FSIG[b.id],surf:(x,z)=>roofSurfaceAt(b,x,z)})});
     // stale-first ordering is the caller's job: newest edits and link problems are laid out first inside the budget
-    facade=Facades.build(items,{SH,stoneMap:TEX.stoneSRGB||TEX.stone,roofMap:TEX.roofSRGB||TEX.roof,cap:HI?Facades.LIMIT.high:QUALITY==="low"?Facades.LIMIT.low:Facades.LIMIT.medium,shadow:false});
+    facade=Facades.build(items,{SH,stoneMap:TEX.stoneSRGB||TEX.stone,cap:HI?Facades.LIMIT.high:QUALITY==="low"?Facades.LIMIT.low:Facades.LIMIT.medium,shadow:false});
     scene.add(facade);doorNear=-1;refreshDoors();facade.visible=introStart<0;
   }catch(e){console.warn("facade dressing unavailable:",e);facade=null}
 }
@@ -1840,7 +1867,7 @@ function setAgents(list){
     m.info=a;m.local=!!a.local;m.grp.scale.setScalar(.6);
     if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){
       // a person walking: positions come from their own browser
-      m.pos.set(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0;m.noteId=-2;m.path=null;m.phaseName='placed';
+      m.pos.set(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));if(typeof VaultTerrain!=="undefined")m.pos.y=VaultTerrain.height(m.pos.x,m.pos.z,WORLD,GSIDE);m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0;m.noteId=-2;m.path=null;m.phaseName='placed';
       m.grp.visible=!(a.local&&(a.position.walking||PHOTO.on));m.ring.scale.setScalar(1.6);
     }else if(b){
       const slot=slots.get(n.id)||0;slots.set(n.id,slot+1);const tgt=roofSlot(n,slot,counts.get(n.id)||1);

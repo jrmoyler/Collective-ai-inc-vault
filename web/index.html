@@ -809,7 +809,7 @@ body:has(.sheet.open) .brief,body:has(#wd.on) .brief{visibility:hidden;pointer-e
 
 
 <script>
-const VAULT_BUILD=Object.freeze({version:"2.0.0",hash:"6efa9638be7f"});
+const VAULT_BUILD=Object.freeze({version:"2.0.0",hash:"fbf3c3b2c722"});
 // Notes load from Supabase after sign-in (see e_boot.js) and stay live through Realtime.
 let BASE = [];
 const FOLDER_COLORS = {"00 - MOCs":"#E8A33D","01 - Divisions":"#7C3AED","02 - ZenFlow":"#3B82F6","03 - Products":"#14B8A6","04 - People":"#F43F5E","05 - Operations":"#A3E635","06 - Finance":"#C9A84C","07 - Brand":"#FF85C2","08 - Research":"#5B9BF0","09 - Projects":"#FB923C","10 - Archive":"#6B7280","11 - Physical AI":"#22D3EE","Daily":"#E6E9F2","Root":"#E8A33D"};
@@ -3469,6 +3469,7 @@ const DistrictAssets=(()=>{
 // models, transparent sorting, per-tree tick loop or extra renderer is required.
 const VaultLandscape=(()=>{
   let scannedRockData=null;
+  const botanicalData=new Map();
   function random(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
   function build({THREE:T,trees=[],districts=[],buildings=[],side=500,world=null,treeStyle=null,heightAt=()=>0,onChange=()=>{},high=true,reducedMotion=false}){
     const group=new T.Group();group.name='Living gardens';
@@ -3489,6 +3490,8 @@ const VaultLandscape=(()=>{
     };
     bark.customProgramCacheKey=()=> 'garden-fissured-bark';
     const grassMat=material({color:0xffffff,roughness:1,side:T.DoubleSide});
+    const fernMat=material({color:0xffffff,roughness:.9,side:T.DoubleSide,alphaTest:.4});
+    const broadMat=material({color:0xffffff,roughness:.85,side:T.DoubleSide,alphaTest:.4});
     const flowerMat=material({color:0xffffff,roughness:.95,side:T.DoubleSide});
     const stoneMat=material({color:0xffffff,roughness:1});
     const soilMat=material({color:0xffffff,roughness:1,polygonOffset:true,polygonOffsetFactor:-1});
@@ -3519,21 +3522,24 @@ const VaultLandscape=(()=>{
           #endif`);
       };mat.customProgramCacheKey=()=>`garden-wind-${strength}`;
     }
-    wind(leafMat,.045);wind(leafDepth,.045);wind(grassMat,.13);wind(flowerMat,.055);
+    wind(leafMat,.045);wind(leafDepth,.045);wind(grassMat,.13);wind(flowerMat,.055);wind(fernMat,.035);wind(broadMat,.035);
     function geometry(points,indices){const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(points,3));if(indices)g.setIndex(indices);g.computeVertexNormals();return g}
     // Foliage is an irregular volume of inclined branch sprays, not a stack of
     // vertical billboard crosses. Rounded normals give a soft canopy light field.
     const lp=[],lu=[],li=[],ln=[];
-    for(let k=0;k<7;k++){
-      const a=k*2.399,tilt=.22+(k%3)*.31,cx=Math.cos(a)*.33,cy=(k%3-1)*.19,cz=Math.sin(a)*.33;
+    for(let k=0;k<5;k++){
+      const a=k*2.399,tilt=.18+(k%3)*.35,cx=Math.cos(a)*.39,cy=(k%3-1)*.23,cz=Math.sin(a)*.39;
       const right=new T.Vector3(Math.cos(a),0,Math.sin(a));
       const up=new T.Vector3(-Math.sin(a)*Math.sin(tilt),Math.cos(tilt),Math.cos(a)*Math.sin(tilt));
-      const o=lp.length/3;
-      for(const [u,v] of [[-1,-.65],[1,-.65],[1,.85],[-1,.85]]){
-        const x=cx+right.x*u+up.x*v,y=cy+up.y*v,z=cz+right.z*u+up.z*v;
-        lp.push(x,y,z);const normal=new T.Vector3(x*.45,.85+y*.25,z*.45).normalize();ln.push(normal.x,normal.y,normal.z);
+      const forward=new T.Vector3().crossVectors(right,up).normalize(),base=lp.length/3;
+      // A 3x3 bowed surface: leaf sprays curve both along and across the twig.
+      // Different twists remove the rigid flat-card silhouette at eye level.
+      for(let row=0;row<3;row++)for(let col=0;col<3;col++){
+        const u=col-1,v=(row-1)*.8,bend=.38*(1-u*u)+.19*v*v,twist=u*v*.22;
+        const x=cx+right.x*u+up.x*v+forward.x*bend,y=cy+up.y*v+forward.y*bend+twist,z=cz+right.z*u+up.z*v+forward.z*bend;
+        lp.push(x,y,z);lu.push(col/2,row/2);const normal=new T.Vector3(x*.38,.65+y*.3,z*.38).normalize();ln.push(normal.x,normal.y,normal.z);
       }
-      lu.push(0,0,1,0,1,1,0,1);li.push(o,o+1,o+2,o,o+2,o+3);
+      for(let row=0;row<2;row++)for(let col=0;col<2;col++){const o=base+row*3+col;li.push(o,o+1,o+4,o,o+4,o+3)}
     }
     const leafGeo=geometry(lp,li);leafGeo.setAttribute('uv',new T.Float32BufferAttribute(lu,2));leafGeo.setAttribute('normal',new T.Float32BufferAttribute(ln,3));
     const trunkGeo=new T.CylinderGeometry(.48,1,1,7,2);trunkGeo.translate(0,.5,0);
@@ -3664,7 +3670,7 @@ const VaultLandscape=(()=>{
     batch(trunkGeo,bark,trunks,'Branching hardwood trunks',high);batch(leafGeo,leafMat,leaves,'Layered leaf sprays',high);
     batch(soilGeo,soilMat,soil,'Irregular moss beds',false);batch(grassGeo,grassMat,grass,'Meadow blades',false);
     batch(flowerGeo,flowerMat,flowers,'Lavender and cream wildflowers',false);batch(rockGeo,stoneMat,rocks.filter((_,i)=>i%Math.max(1,Math.ceil(rocks.length/(high?96:32)))===0),'Weathered garden stones',high);
-    batch(fernGeo,grassMat,ferns,'Arching fern fronds',false);batch(broadGeo,grassMat,broadleaves,'Folded broadleaf plants',false);
+    batch(fernGeo,fernMat,ferns.filter((_,i)=>i%Math.max(1,Math.ceil(ferns.length/(high?640:180)))===0),'Arching fern fronds',false);batch(broadGeo,broadMat,broadleaves.filter((_,i)=>i%Math.max(1,Math.ceil(broadleaves.length/(high?1000:320)))===0),'Folded broadleaf plants',false);
     group.userData.landscape={clock,reducedMotion,materials:mats,textures,geometries,counts:{trees:treeCount,understory:understoryCount,grass:grass.length,flowers:flowers.length,ferns:ferns.length,broadleaves:broadleaves.length,drawCalls:group.children.length}};
     // One photographed moss-rock scan, instanced at 96/32 placements. Local
     // assets total < 0.75 MB; no glTF parser or network service at runtime.
@@ -3692,6 +3698,28 @@ const VaultLandscape=(()=>{
         load('moss-rock-color.jpg','map',true);load('moss-rock-normal.jpg','normalMap',false);load('moss-rock-roughness.jpg','roughnessMap',false);
         stoneMat.normalScale.set(.7,.7);state.rockAsset='geometry ready';state.rockTriangles=data.index.length/3;onChange();
       }).catch(()=>{if(group.userData.landscape===state)state.rockAsset='procedural fallback'});
+    }
+    // Photograph-derived fern and wood-sorrel geometry replace the angular
+    // fallback leaves in-place. Both variants have original UVs and alpha maps.
+    const plantState=group.userData.landscape;plantState.plantAssets={};
+    for(const [name,meshName,plantMat] of [['fern_02','Arching fern fronds',fernMat],['shrub_sorrel_01','Folded broadleaf plants',broadMat]]){
+      const mesh=group.children.find(m=>m.name===meshName);if(!mesh||typeof fetch!=='function')continue;
+      plantState.plantAssets[name]='loading';
+      if(!botanicalData.has(name))botanicalData.set(name,fetch('assets/world/plants/'+name+'.json').then(r=>{if(!r.ok)throw Error('Plant geometry unavailable');return r.json()}).catch(e=>{botanicalData.delete(name);throw e}));
+      botanicalData.get(name).then(data=>{
+        if(group.userData.landscape!==plantState)return;
+        if(data.version!==1||!data.position?.length||data.position.length%3||data.normal?.length!==data.position.length||data.uv?.length!==data.position.length/3*2||!data.index?.length||data.index.length%3||![...data.position,...data.normal,...data.uv].every(Number.isFinite)||!data.index.every(i=>Number.isInteger(i)&&i>=0&&i<data.position.length/3))throw Error('Invalid botanical geometry');
+        const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(data.position,3));g.setAttribute('normal',new T.Float32BufferAttribute(data.normal,3));g.setAttribute('uv',new T.Float32BufferAttribute(data.uv,2));g.setIndex(data.index);g.computeBoundingSphere();
+        const previous=mesh.geometry;mesh.geometry=g;const at=geometries.indexOf(previous);if(at>=0)geometries.splice(at,1);previous.dispose();geometries.push(g);
+        const white=new T.Color(1,1,1);for(let i=0;i<mesh.count;i++)mesh.setColorAt(i,white);mesh.instanceColor.needsUpdate=true;
+        let pending=4;const loader=new T.TextureLoader();
+        for(const [suffix,slot,srgb] of [['diff','map',true],['normal','normalMap',false],['alpha','alphaMap',false],['arm','roughnessMap',false]]){
+          const tex=loader.load('assets/world/plants/'+name+'-'+suffix+'.jpg',t=>{
+            if(group.userData.landscape!==plantState)return;t.flipY=false;if(srgb)t.encoding=T.sRGBEncoding;t.anisotropy=2;t.needsUpdate=true;plantMat[slot]=t;plantMat.needsUpdate=true;if(--pending===0)plantState.plantAssets[name]='ready';onChange();
+          },undefined,()=>{if(group.userData.landscape===plantState)plantState.plantAssets[name]='texture fallback'});textures.push(tex);
+        }
+        plantMat.normalScale.set(.6,.6);plantState.plantAssets[name]='geometry ready';onChange();
+      }).catch(()=>{if(group.userData.landscape===plantState)plantState.plantAssets[name]='procedural fallback'});
     }
     return group;
   }
@@ -4036,7 +4064,13 @@ const Facades=(()=>{
     batch('Carved arch surrounds',archGeometry(),new THREE.MeshStandardMaterial({color:0xffffff,map:opt.stoneMap||null,roughness:.89,metalness:.02}),layout.frames);
     // Entrance apertures retain the existing signal-driven door light; glass is for upper windows only.
     batch('Recessed arch glazing',archGeometry(true),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.27,metalness:.28}),layout.frames.filter(p=>!p.door),true);
-    batch('Overlapping barrel roof tiles',tileGeometry(),new THREE.MeshStandardMaterial({color:0xffffff,map:opt.roofMap||null,roughness:.92,metalness:0,side:THREE.DoubleSide}),layout.tiles);
+    // Barrel tiles are fired clay, never multiplied by the flat-roof gravel map.
+    const clay=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:0,side:THREE.DoubleSide});
+    clay.onBeforeCompile=sh=>{
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vClayP;').replace('#include <begin_vertex>','#include <begin_vertex>\nvClayP=position;');
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vClayP;').replace('#include <color_fragment>','#include <color_fragment>\nfloat clayGrain=fract(sin(dot(floor(vClayP*120.0),vec3(12.9898,78.233,37.719)))*43758.5453);diffuseColor.rgb*=0.96+clayGrain*0.08;');
+    };
+    batch('Overlapping barrel roof tiles',tileGeometry(),clay,layout.tiles);
     parent.userData.craft={frames:layout.frames.length,tiles:layout.tiles.length,drawCalls:parent.children.length,cap:layout.cap,tileCap:layout.tileCap};
   }
 
@@ -4701,7 +4735,7 @@ function tile(name,url,r,g,b){
     TEX[name]=tt;[uni,groundUni].forEach(u=>{if(u&&u["t_"+name])u["t_"+name].value=tt});
     // Custom shaders decode their raw albedo explicitly. Standard facade materials
     // need an sRGB companion and must be rebound when the neutral texel is replaced.
-    if(name==="stone"||name==="roof"){
+    if(name==="stone"){
       const mapped=tt.clone();mapped.encoding=THREE.sRGBEncoding;mapped.needsUpdate=true;TEX[name+"SRGB"]=mapped;
       if(facade)facade.traverse(o=>{if(!o.material)return;[].concat(o.material).forEach(m=>{if(m.map&&(m.map===previous||m.map===previousSRGB)){m.map=mapped;m.needsUpdate=true}})});
     }
@@ -4887,6 +4921,33 @@ function makeMaterial(){
   glassM*=mix(1.0,0.94,dayL);
   reflM*=mix(1.0,0.78,dayL);
   diffuseColor.rgb=mix(base,vec3(0.010,0.013,0.024),glassM*mix(0.7,1.0,wk));
+  // Every bay receives a metric reveal, even beyond the physical arch-instance cap.
+  // Signed distances preserve ribbon, pier, civic arch and curtain patterns. These
+  // material details do not alter lit-room probability or the live note signal masks.
+  vec2 openingDist=min(f-pb.xz,pb.yw-f)*pit;
+  float revealD=min(openingDist.x,openingDist.y);
+  float archD=(1.0-length(vec2((f.x-0.5)/0.3,(f.y-0.66)/0.18)))*min(pit.x*0.3,pit.y*0.18);
+  revealD=min(revealD,mix(100.0,archD,civ*step(0.66,f.y)));
+  float detailAA=clamp(fwidth(revealD),0.004,0.045);
+  float detailOn=wall*solid*(1.0-lobbyZ)*(1.0-far);
+  float opening=smoothstep(-detailAA,detailAA,revealD);
+  float carvedBand=(smoothstep(-0.145-detailAA,-0.145+detailAA,revealD)-smoothstep(0.015-detailAA,0.015+detailAA,revealD))*detailOn;
+  float leftReveal=1.0-smoothstep(0.0,0.16,(f.x-pb.x)*pit.x);
+  float lowerReveal=1.0-smoothstep(0.0,0.18,(f.y-pb.z)*pit.y);
+  vec3 limestone=ft*mix(vec3(0.96,0.91,0.8),vec3(1.3,1.22,1.04),lowerReveal)+vec3(0.017);
+  limestone*=mix(0.68,1.0,smoothstep(-0.145,-0.045,revealD))*(1.0-leftReveal*0.19);
+  diffuseColor.rgb=mix(diffuseColor.rgb,limestone,carvedBand);
+  float recessShadow=mix(0.43,1.0,smoothstep(0.015,0.22,revealD));
+  float roomShade=mix(0.7,1.2,h21(id+bs*0.021+vec2(37.0,9.0)));
+  float blind=step(0.78,r)*step(mix(pb.z+0.14,pb.w-0.08,fl),f.y)*opening;
+  vec3 room=diffuseColor.rgb*recessShadow*roomShade;
+  room=mix(room,vec3(0.085,0.084,0.071)*mix(0.8,1.0,step(0.5,fract(vWPos.y*9.0))),blind*0.48);
+  diffuseColor.rgb=mix(diffuseColor.rgb,room,detailOn*opening);
+  float barWidth=mix(0.033,0.019,step(3.5,pat));
+  float transom=1.0-smoothstep(barWidth,barWidth+detailAA,abs(f.y-mix(0.55,0.67,step(2.5,pat)))*pit.y);
+  float vertical=1.0-smoothstep(barWidth,barWidth+detailAA,abs(f.x-0.5)*pit.x);
+  float joinery=max(transom,vertical)*opening*detailOn;
+  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.043,0.052,0.047)+ft*0.055,joinery*0.84);
   // archived and superseded notes weather: grey, streaked under the sills, windows boarded, roofs mossed over
   float streak=smoothstep(0.42,0.86,vn(vec2(u*1.9,vWPos.y*0.07+bs)));
   vec3 grey=vec3(dot(diffuseColor.rgb,vec3(0.3,0.59,0.11)));
@@ -5972,7 +6033,7 @@ function buildFacades(){
       const color=(typeof Districts!=="undefined"?Districts.get(b.worldTop)?.color:null)||FOLDER_COLORS[b.worldTop]||"#D4A843";
       items.push({b:{id:b.id,tiers:b.tiers,door:b.door,h:b.h,style:b.style,color,roofSupports:b.roofSupports},s:FSIG[b.id],surf:(x,z)=>roofSurfaceAt(b,x,z)})});
     // stale-first ordering is the caller's job: newest edits and link problems are laid out first inside the budget
-    facade=Facades.build(items,{SH,stoneMap:TEX.stoneSRGB||TEX.stone,roofMap:TEX.roofSRGB||TEX.roof,cap:HI?Facades.LIMIT.high:QUALITY==="low"?Facades.LIMIT.low:Facades.LIMIT.medium,shadow:false});
+    facade=Facades.build(items,{SH,stoneMap:TEX.stoneSRGB||TEX.stone,cap:HI?Facades.LIMIT.high:QUALITY==="low"?Facades.LIMIT.low:Facades.LIMIT.medium,shadow:false});
     scene.add(facade);doorNear=-1;refreshDoors();facade.visible=introStart<0;
   }catch(e){console.warn("facade dressing unavailable:",e);facade=null}
 }
@@ -6312,7 +6373,7 @@ function setAgents(list){
     m.info=a;m.local=!!a.local;m.grp.scale.setScalar(.6);
     if(a.position&&[a.position.x,a.position.z].every(Number.isFinite)){
       // a person walking: positions come from their own browser
-      m.pos.set(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0;m.noteId=-2;m.path=null;m.phaseName='placed';
+      m.pos.set(clamp(a.position.x,-GSIDE/2,GSIDE/2),0,clamp(a.position.z,-GSIDE/2,GSIDE/2));if(typeof VaultTerrain!=="undefined")m.pos.y=VaultTerrain.height(m.pos.x,m.pos.z,WORLD,GSIDE);m.grp.rotation.y=Number.isFinite(a.position.yaw)?a.position.yaw:0;m.noteId=-2;m.path=null;m.phaseName='placed';
       m.grp.visible=!(a.local&&(a.position.walking||PHOTO.on));m.ring.scale.setScalar(1.6);
     }else if(b){
       const slot=slots.get(n.id)||0;slots.set(n.id,slot+1);const tgt=roofSlot(n,slot,counts.get(n.id)||1);

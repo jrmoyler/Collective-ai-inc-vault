@@ -127,7 +127,7 @@ test('physical material factories initialize derivative support on the shipped T
 test('campus figure scale and photo visibility preserve remote people while hiding the local camera avatar',()=>{
  const source=fs.readFileSync('web-src/c_campus.js','utf8');
  const create=()=>({grp:new THREE.Group(),ring:new THREE.Object3D(),pos:new THREE.Vector3(),from:new THREE.Vector3(),noteId:-1});
- const c=vm.createContext({THREE,AG:new Map(),B:[],byName:new Map(),levels:new Map(),agentGroup:new THREE.Group(),lastAgents:[],GSIDE:500,
+ const c=vm.createContext({THREE,AG:new Map(),B:[],byName:new Map(),levels:new Map(),agentGroup:new THREE.Group(),lastAgents:[],GSIDE:500,WORLD:{W:300,H:260},VaultTerrain:terrain,
   PHOTO:{on:false},Identity:{form:x=>x,palette:x=>x},SentinelMesh:{create},disposeSentinel:()=>{},clamp:(n,a,b)=>Math.max(a,Math.min(b,n)),iMesh:null,dirty:false,time:0});
  vm.runInContext(source.slice(source.indexOf('function setAgents('),source.indexOf('function gate(')),c);
  const avatars=[{id:'local',local:true,position:{x:20,z:15,walking:false}},{id:'remote',local:false,position:{x:30,z:15,walking:true}}];
@@ -136,6 +136,9 @@ test('campus figure scale and photo visibility preserve remote people while hidi
  c.PHOTO.on=true;c.setAgents(avatars);assert.equal(c.AG.get('local').grp.visible,false);assert.equal(c.AG.get('remote').grp.visible,true);
  c.PHOTO.on=false;c.setAgents(avatars);assert.equal(c.AG.get('local').grp.visible,true);
  avatars[0].position.walking=true;c.setAgents(avatars);assert.equal(c.AG.get('local').grp.visible,false,'first person still hides its own avatar');
+ avatars[1].position={x:200,z:100,walking:true};c.setAgents(avatars);
+ assert.equal(c.AG.get('remote').pos.y,terrain.height(200,100,c.WORLD,500));
+ assert.ok(c.AG.get('remote').pos.y>1,'remote walkers follow the same hills as local walkers');
  const guides=fs.readFileSync('web-src/c_npc.js','utf8');assert.match(guides,/m\.grp\.scale\.setScalar\(\.6\)/,'guides share the street scale');
 });
 
