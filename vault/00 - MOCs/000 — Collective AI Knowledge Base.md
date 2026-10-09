@@ -23,6 +23,7 @@ Root map of the vault. 20 chartered divisions: 9 operating and 11 not yet operat
 - [[009 — Projects MOC]]
 - [[010 — Clients MOC]]
 - [[2026-10-04]]
+- [[Daily Notes]] — one note per day, newest first
 
 ## Source documents
 - [[Master Product Catalog]]

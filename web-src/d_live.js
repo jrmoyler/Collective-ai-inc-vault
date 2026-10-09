@@ -9,6 +9,8 @@ const Live=(()=>{
   let profiles=new Map(),members=new Map(),sessions=new Map(),people=[],positions=new Map(),identityReady=false,lastTrack=0,lastPositionSignature="",tracking=false;
   let stats=new Map(),playReady=false,briefShown=false;
   const XP={created:30,edited:12,'added to':15,opened:8,claimed:5,assigned:5,'sent to review':20,say:4,read:2,unblocked:5,resumed:2},BOUNTY={high:120,medium:80,low:50};
+  // What the server pays (xp_for and task_bounty in the play migrations; daily caps from 20261009090000_rank_scoring.sql).
+  const SCORING=[["Task finished, high priority","120 XP"],["Task finished, medium","80 XP"],["Task finished, low","50 XP"],["New note","30 XP"],["Sent to review","20 XP"],["Section added","15 XP"],["Whoever commissioned a finished task","15 XP"],["Edit","12 XP","3 a note a day"],["Task opened","8 XP","10 a day"],["Claimed or assigned","5 XP","5 a day"],["Unblocked","5 XP"],["Floor message","4 XP","10 a day"],["Resumed","2 XP","5 a day"],["Read","2 XP","20 a day"]];
   const levelOf=actor=>Identity.level(stats.get(actor)?.xp||0);
   const browserSession=crypto.randomUUID();
   const LIVE_WINDOW=15*60e3,ORDER=["claimed","review","blocked","open","done"],PRI={high:0,medium:1,low:2};
@@ -20,6 +22,15 @@ const Live=(()=>{
   // week_xp is only reset when an actor earns XP, so a row from an earlier week reads as 0 this week (Monday, UTC).
   const weekStart=()=>{const d=new Date();d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)};
   const weekly=r=>r.week_start===weekStart()?r:{...r,week_xp:0};
+  // A streak is only current while its last active day is today or yesterday (UTC, the day the server awards on).
+  // The stored value is only rewritten when the actor earns again, so a quiet week would otherwise keep showing an old streak.
+  const utcDay=(ms=Date.now())=>new Date(ms).toISOString().slice(0,10);
+  const liveStreak=r=>r&&r.last_day&&r.last_day>=utcDay(Date.now()-864e5)?(r.streak|0):0;
+  // Standard competition ranking (1, 2, 2, 4): equal scores share a place; order inside a tie is all-time XP, then name.
+  function standings(rows,key){
+    const list=rows.filter(x=>(x[key]|0)>0).sort((a,b)=>b[key]-a[key]||b.xp-a.xp||String(agentName(a.actor)).localeCompare(agentName(b.actor)));
+    let place=0;return list.map((x,i)=>{if(i===0||x[key]!==list[i-1][key])place=i+1;return{...x,place,tied:!!((list[i-1]&&list[i-1][key]===x[key])||(list[i+1]&&list[i+1][key]===x[key]))}});
+  }
 
   async function session(){const {data}=await sb.auth.getSession();return data.session}
   async function member(){
@@ -158,9 +169,9 @@ const Live=(()=>{
   }
   function brief(){
     if(briefShown||!me||!playReady)return;briefShown=true;const day=new Date().toISOString().slice(0,10);if(store.get("vault.brief",null)===day)return;store.set("vault.brief",day);
-    const r=stats.get(me.name),lv=Identity.level(r?.xp||0),open=tasks.filter(t=>t.status==="open"),bounty=open.reduce((a,t)=>a+(BOUNTY[t.priority]||80),0),top=[...stats.values()].filter(x=>x.actor!=="repo-sync").sort((a,b)=>b.week_xp-a.week_xp)[0];
+    const r=stats.get(me.name),lv=Identity.level(r?.xp||0),open=tasks.filter(t=>t.status==="open"),bounty=open.reduce((a,t)=>a+(BOUNTY[t.priority]||80),0),top=standings([...stats.values()].filter(x=>x.actor!=="repo-sync"),'week_xp')[0];
     const el=document.createElement("div");el.className="brief";
-    el.innerHTML=`<div class="k">${new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})} · campus brief</div><b>${r?.streak>1?`Day ${r.streak} of your streak, ${esc(me.name)}.`:`Welcome back, ${esc(me.name)}.`}</b><span>Level ${lv} ${esc(Identity.title(lv))} · ${r?.week_xp||0} XP this week${top&&top.week_xp?` · leading this week: ${esc(agentName(top.actor))} with ${top.week_xp}`:""}</span><span>${open.length} open commission${open.length===1?"":"s"} worth ${bounty} XP${open.length?` · <a class="wl" id="briefGo">see them</a>`:""}</span><button class="ib x" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
+    el.innerHTML=`<div class="k">${new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})} · campus brief</div><b>${liveStreak(r)>1?`Day ${liveStreak(r)} of your streak, ${esc(me.name)}.`:`Welcome back, ${esc(me.name)}.`}</b><span>Level ${lv} ${esc(Identity.title(lv))} · ${r?.week_xp||0} XP this week${top&&top.week_xp?` · leading this week: ${esc(agentName(top.actor))} with ${top.week_xp}`:""}</span><span>${open.length} open commission${open.length===1?"":"s"} worth ${bounty} XP${open.length?` · <a class="wl" id="briefGo">see them</a>`:""}</span><button class="ib x" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
     document.body.appendChild(el);const close=()=>el.remove();el.querySelector(".ib").onclick=close;setTimeout(close,matchMedia("(max-width:760px)").matches?8000:14000);const go=el.querySelector("#briefGo");if(go)go.onclick=e=>{e.preventDefault();sheet.atab="ranks";openSheet("agents");close()};
   }
   async function sayFloor(text,target){
@@ -172,17 +183,23 @@ const Live=(()=>{
   const lvBadge=actor=>{const l=levelOf(actor);return l>0?`<em class="lv" title="${esc(Identity.title(l))}">L${l}</em>`:""};
   function ranksTab(){
     if(!playReady)return `<div class="callout info"><div class="ct">Ranks need the play migration</div><p>Apply <code>20261006090000_sentinel_play.sql</code>. Everything else in the vault keeps working.</p></div>`;
-    const r=stats.get(me.name)||{xp:0,week_xp:0,streak:0,best_streak:0,counters:{},touched:{},peers:{}},lv=Identity.level(r.xp),next=Identity.nextAt(lv),prev=lv?Identity.nextAt(lv-1):0,pct=Math.round((r.xp-prev)/(next-prev)*100);
-    const p=ownIdentity(me.id),ach=Identity.achievements(r),done=ach.filter(a=>a.done).length;
-    const all=[...stats.values()].filter(x=>x.actor!=="repo-sync"),league=all.slice().sort((a,b)=>b.week_xp-a.week_xp||b.xp-a.xp).slice(0,12),alltime=all.slice().sort((a,b)=>b.xp-a.xp).slice(0,12);
-    const row=(x,i,key)=>`<tr class="${x.actor===me.name?'me':''}"><td>${i+1}</td><td><i style="background:${agents.get(x.actor)?.color||p.palette[2]}"></i>${esc(agentName(x.actor))}${lvBadge(x.actor)}</td><td>${x[key]} XP</td><td>${x.streak>1?`🔥 ${x.streak}`:""}</td></tr>`;
+    const r=stats.get(me.name)||{actor:me.name,xp:0,week_xp:0,streak:0,best_streak:0,counters:{},touched:{},peers:{}},lv=Identity.level(r.xp),next=Identity.nextAt(lv),prev=lv?Identity.nextAt(lv-1):0,pct=Math.max(0,Math.min(100,Math.round((r.xp-prev)/(next-prev)*100)));
+    const p=ownIdentity(me.id),ach=Identity.achievements(r),done=ach.filter(a=>a.done).length,streak=liveStreak(r);
+    const all=[...stats.values()].filter(x=>x.actor!=="repo-sync"),week=standings(all,'week_xp'),ever=standings(all,'xp');
+    const myWeek=week.find(x=>x.actor===me.name),myEver=ever.find(x=>x.actor===me.name);
+    const ord=n=>n+(n%100>=11&&n%100<=13?"th":["th","st","nd","rd"][n%10]||"th");
+    const row=(x,key)=>{const st=liveStreak(x);return `<tr class="${x.actor===me.name?'me':''}${x.place<=3?' podium p'+x.place:''}"><td>${x.tied?'=':''}${x.place}</td><td><i style="background:${agents.get(x.actor)?.color||p.palette[2]}"></i><span class="who">${esc(agentName(x.actor))}</span>${lvBadge(x.actor)}</td><td>${x[key].toLocaleString()} XP</td><td>${st>1?`<span class="streak" title="${st}-day streak">🔥${st}</span>`:""}</td></tr>`};
+    // Top ten, and your own row under a gap when you are further down.
+    const table=(list,key,empty)=>{const top=list.slice(0,10),mine=list.find(x=>x.actor===me.name);return `<table class="league"><tbody>${top.map(x=>row(x,key)).join("")||`<tr><td colspan="4" class="note-s">${empty}</td></tr>`}${mine&&!top.includes(mine)?`<tr class="gap" aria-hidden="true"><td colspan="4">⋯</td></tr>${row(mine,key)}`:""}</tbody></table>`};
     const open=tasks.filter(t=>t.status==="open").sort((a,b)=>(BOUNTY[b.priority]||80)-(BOUNTY[a.priority]||80));
-    return `<div class="rankcard"><div>${Identity.preview({...p,level:lv})}</div><div><div class="k">Level ${lv} · ${esc(Identity.title(lv))}</div><h2>${esc(me.name)}</h2><div class="xpbar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><p>${r.xp} XP · ${next-r.xp} to level ${lv+1}</p><div class="rankstats"><span><b>${r.week_xp}</b>this week</span><span><b>${r.streak}</b>day streak</span><span><b>${r.best_streak}</b>best streak</span><span><b>${Object.keys(r.touched||{}).length}</b>notes touched</span><span><b>${Object.keys(r.peers||{}).length}</b>teammates</span></div></div></div>
+    const toLead=myWeek&&myWeek.place>1&&week[0]?week[0].week_xp-myWeek.week_xp+1:0;
+    return `<div class="rankcard"><div class="rankfig">${Identity.preview({...p,level:lv})}</div><div><div class="k">Level ${lv} · ${esc(Identity.title(lv))}</div><h2>${esc(me.name)}</h2><div class="xpbar" role="progressbar" aria-label="Progress to level ${lv+1}" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><p>${r.xp.toLocaleString()} XP · ${(next-r.xp).toLocaleString()} to level ${lv+1}</p><div class="rankstats"><span><b>${myWeek?ord(myWeek.place):"–"}</b>this week</span><span><b>${myEver?ord(myEver.place):"–"}</b>all time</span><span><b>${r.week_xp}</b>week XP</span><span><b>${streak}</b>day streak</span><span><b>${r.best_streak}</b>best streak</span><span><b>${Object.keys(r.touched||{}).length}</b>notes touched</span></div>${toLead?`<p class="rankgap">${toLead} XP to take the lead from ${esc(agentName(week[0].actor))}.</p>`:myWeek&&myWeek.place===1&&!myWeek.tied?`<p class="rankgap">You lead this week.</p>`:""}</div></div>
+    <div class="sec"><h4>This week's league <span>${week.length} on the board</span></h4>${table(week,'week_xp','No XP yet this week. The first note raised takes the lead.')}</div>
+    <details class="sec"><summary><h4 style="display:inline">All time</h4></summary>${table(ever,'xp','No XP recorded yet.')}</details>
     <div class="sec"><h4>Achievements <span>${done} / ${ach.length}</span></h4><div class="achgrid">${ach.map(a=>`<div class="ach ${a.done?'on':''}"><b>${esc(a.name)}</b><small>${esc(a.what)}</small></div>`).join("")}</div></div>
-    <div class="sec"><h4>This week's league</h4><table class="league"><tbody>${league.map((x,i)=>row(x,i,'week_xp')).join("")||'<tr><td colspan="4" class="note-s">No XP yet this week. The first note raised takes the lead.</td></tr>'}</tbody></table></div>
-    <details class="sec"><summary><h4 style="display:inline">All time</h4></summary><table class="league"><tbody>${alltime.map((x,i)=>row(x,i,'xp')).join("")}</tbody></table></details>
     <div class="sec"><h4>Open commissions <span>${open.length}</span></h4>${open.slice(0,8).map(t=>`<button class="bl" data-commission="${esc(t.id)}"><b>${esc(t.title)} <em class="bounty">+${BOUNTY[t.priority]||80} XP</em></b><small>${esc(t.id)} · ${esc(t.priority)}${t.note?` · ${esc(t.note)}`:""}</small></button>`).join("")||'<p class="note-s">Nothing open. Add one on the Board.</p>'}</div>
-    <p class="note-s">XP: a new note 30, a section 15, an edit 12, a task opened 8, a message 4. Finishing a commission pays its bounty to the agent on it and 15 to whoever asked. Streaks count days with any activity. A quiet day costs nothing.</p>`;
+    <details class="sec scoring"><summary><h4 style="display:inline">How scoring works</h4></summary><table class="league"><tbody>${SCORING.map(([k,v,cap])=>`<tr><td></td><td>${k}</td><td>${v}</td><td>${cap||""}</td></tr>`).join("")}</tbody></table>
+    <p class="note-s">The weekly league resets Monday 00:00 UTC. Equal scores share a place (shown with =); all-time XP orders a tie. A streak counts consecutive UTC days with any XP and lapses after a day with none. Levels need 60 × level² XP.</p></details>`;
   }
   // ---- floor HUD
   const KINDS=[["coding agent","Coding agents"],["agent","Agents"],["assistant","Assistants"],["app builder","App builders"],["automation","Automation"]];

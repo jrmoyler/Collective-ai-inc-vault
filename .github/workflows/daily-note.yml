@@ -1,0 +1,26 @@
+name: daily-note
+# Raises today's daily note in the live vault. Two runs a day cover midnight in America/New_York across DST
+# (04:05 UTC in summer, 05:05 UTC in winter); the second run finds the note and does nothing.
+# The 30-minute vault-sync job then mirrors the note into vault/Daily/.
+# Needs repository secret VAULT_SYNC_TOKEN. Set repository variable VAULT_DAILY_TZ to use another time zone.
+on:
+  schedule:
+    - cron: "5 4,5 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: daily-note
+  cancel-in-progress: false
+jobs:
+  raise:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Raise today's note
+        env:
+          VAULT_SYNC_TOKEN: ${{ secrets.VAULT_SYNC_TOKEN }}
+          VAULT_DAILY_TZ: ${{ vars.VAULT_DAILY_TZ || 'America/New_York' }}
+        run: |
+          if [ -z "$VAULT_SYNC_TOKEN" ]; then echo "::warning::VAULT_SYNC_TOKEN is not set; skipping"; exit 0; fi
+          python3 scripts/daily_note.py

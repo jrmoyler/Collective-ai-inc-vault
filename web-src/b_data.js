@@ -204,7 +204,11 @@ $("#rbCampus").onclick=()=>{closeSheet();Campus.overview()};
 $("#rbSwitch").onclick=()=>openSwitcher();
 $("#rbTree").onclick=()=>{$("#side").classList.toggle("open");$("#rbTree").classList.toggle("on",$("#side").classList.contains("open"))};
 $("#rbHome").onclick=()=>open(byName.get("🏠 Home"));
-$("#rbToday").onclick=()=>open(byName.get("2026-10-04"));
+// Today: the note named for the viewer's calendar day; until it is raised (scripts/daily_note.py, midnight), the latest dated note.
+const localDay=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+function todayNote(){const day=localDay(),hit=byName.get(day);if(hit)return hit;return NOTES.filter(n=>/^\d{4}-\d{2}-\d{2}$/.test(n.name)&&n.name<=day).sort((a,b)=>b.name.localeCompare(a.name))[0]||null}
+function openToday(){const n=todayNote();if(!n){toast("No daily note yet.");return}if(n.name!==localDay())toast(`Today's note is not raised yet. Opening ${n.name}.`);open(n)}
+$("#rbToday").onclick=openToday;
 $("#rbRandom").onclick=()=>open(NOTES[Math.floor(Math.random()*NOTES.length)]);
 $("#rbAgents").onclick=()=>{if(sheet.open&&sheet.view==="agents")closeSheet();else openSheet("agents")};
 $("#rbWalk").onclick=()=>Campus.toggleWalk();
