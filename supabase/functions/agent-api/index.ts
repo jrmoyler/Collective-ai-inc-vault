@@ -238,21 +238,26 @@ Deno.serve(async (req) => {
         return json({ ok: true });
       }
       case "rank": {
-        const [{ data: mine }, view] = await Promise.all([
-          db.from("agent_stats").select("*").eq("actor", A).maybeSingle(),
-          db.from("agent_league").select("actor,actor_kind,xp,week_xp,streak").order("week_xp", { ascending: false }).order("xp", { ascending: false }).limit(10),
-        ]);
-        let league = view.data;
-        if (view.error) {
-          // agent_league comes with the 20261006120000 migration. Until it exists, apply the same week rule here.
-          const wk = weekStart();
-          const { data: all } = await db.from("agent_stats").select("actor,actor_kind,xp,week_xp,week_start,streak");
-          league = (all || []).map(({ week_start, ...r }: any) => ({ ...r, week_xp: week_start === wk ? r.week_xp : 0 }))
-            .sort((a: any, b: any) => b.week_xp - a.week_xp || b.xp - a.xp).slice(0, 10);
-        }
+        // Same rules as the app's Ranks tab: week XP only in its own week, a streak only while it is current
+        // (last active day today or yesterday, UTC), equal scores share a place.
+        const wk = weekStart(), yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+        const { data: all, error } = await db.from("agent_stats").select("actor,actor_kind,xp,week_xp,week_start,streak,best_streak,last_day,touched,peers,counters");
+        if (error) throw error;
+        const rows = (all || []).filter((r: any) => r.actor !== "repo-sync").map((r: any) => ({
+          actor: r.actor, actor_kind: r.actor_kind, xp: r.xp, week_xp: r.week_start === wk ? r.week_xp : 0,
+          streak: r.last_day && r.last_day >= yesterday ? r.streak : 0, best_streak: r.best_streak, _r: r,
+        }));
+        const placed = (key: "week_xp" | "xp") => {
+          const list = rows.filter((r: any) => r[key] > 0).sort((a: any, b: any) => b[key] - a[key] || b.xp - a.xp || a.actor.localeCompare(b.actor));
+          let place = 0;
+          return list.map((r: any, i: number) => { if (i === 0 || r[key] !== list[i - 1][key]) place = i + 1; const { _r, ...out } = r; return { ...out, place }; });
+        };
+        const week = placed("week_xp"), ever = placed("xp");
+        const mine = rows.find((r: any) => r.actor === A);
         const xp = mine?.xp || 0, level = Math.floor(Math.sqrt(xp / 60));
         const titles = ["Initiate", "Surveyor", "Mason", "Drafter", "Builder", "Architect", "Keeper", "Warden", "Chancellor", "Luminary", "Sentinel Prime"];
-        return json({ ok: true, you: { actor: A, xp, level, title: titles[Math.min(level, 10)], next_level_at: 60 * (level + 1) ** 2, week_xp: mine && mine.week_start === weekStart() ? mine.week_xp : 0, streak: mine?.streak || 0, best_streak: mine?.best_streak || 0, notes_touched: Object.keys(mine?.touched || {}).length, peers: Object.keys(mine?.peers || {}), counters: mine?.counters || {} }, league: league || [] });
+        const m = mine?._r;
+        return json({ ok: true, you: { actor: A, xp, level, title: titles[Math.min(level, 10)], next_level_at: 60 * (level + 1) ** 2, week_xp: mine?.week_xp || 0, week_place: week.find((r: any) => r.actor === A)?.place ?? null, all_time_place: ever.find((r: any) => r.actor === A)?.place ?? null, streak: mine?.streak || 0, best_streak: mine?.best_streak || 0, notes_touched: Object.keys(m?.touched || {}).length, peers: Object.keys(m?.peers || {}), counters: m?.counters || {} }, league: week.slice(0, 10) });
       }
       case "activity.recent": {
         const { data } = await db.from("activity").select("*").order("ts", { ascending: false }).limit(Math.min(200, body.limit || 30));

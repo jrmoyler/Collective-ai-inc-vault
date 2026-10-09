@@ -562,6 +562,34 @@ kbd{font-family:var(--mono);font-size:10.5px;line-height:1.3;display:inline-grid
 .brief span:first-of-type{display:none}
 @media (min-width:761px){.stage.walking .chips{opacity:.5;transition:opacity var(--dur-2)}.stage.walking .chips:hover,.stage.walking .chips:focus-within{opacity:1}.floor.min{right:14px;top:12px}}
 @media (max-width:760px){.brief{bottom:calc(66px + env(safe-area-inset-bottom,0px));right:8px;width:min(280px,calc(100% - 16px))}.floor.min{min-width:0}}
+/* world clock: always on screen next to the breadcrumb (phones: its own chip under the top bar, left of the floor pill) */
+.wclock{flex:none;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px 0 8px;border-radius:9px;background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);color:var(--fg);font-family:var(--mono);box-sizing:border-box;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.06)}
+.wclock:hover,.wclock[aria-expanded="true"]{border-color:var(--accent)}
+.wclock:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wclock .wc-ph{display:grid;place-items:center;width:16px;height:16px;color:var(--accent-ink)}
+.wclock[data-phase="night"] .wc-ph{color:#9CB4FF}.wclock[data-phase="twilight"] .wc-ph{color:#E79A6B}
+.wclock svg,.wcpop li i svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.wclock .wc-t{font-size:13px;font-weight:600;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.wclock .wc-z{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.wcpop{position:absolute;left:14px;top:52px;z-index:30;box-sizing:border-box;width:min(300px,calc(100% - 28px));max-height:calc(100% - 120px);overflow:auto;overscroll-behavior:contain;padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--accent);box-shadow:0 24px 60px -18px rgba(0,0,0,.6);animation:vrise var(--dur-3,.25s) var(--ease-out,ease) both}
+.wcpop[hidden]{display:none}
+.wcpop header{display:grid;gap:1px;margin-bottom:8px}
+.wcpop header small{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
+.wcpop header b{font-family:var(--display);font-size:26px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.wcpop header b span{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.06em}
+.wcpop header em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.wcpop ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.wcpop li{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:36px;border-bottom:1px solid var(--line);font-size:13px}
+.wcpop li.here{font-weight:600}
+.wcpop li i{display:grid;place-items:center;color:var(--accent-ink)}
+.wcpop li[data-phase="night"] i{color:#7F96E0}.wcpop li[data-phase="twilight"] i{color:#D9895A}
+.wcpop li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wcpop li b{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.wcpop li b small{font-size:10px;color:var(--muted);margin-left:2px}
+.wcpop .wc-scene{margin:8px 0;font-size:12px;color:var(--muted)}
+.wcpop .wc-go{display:flex;gap:6px;flex-wrap:wrap}.wcpop .wc-go .btn{flex:1 1 auto}
+.stage.walking .wcpop{display:none}
+@media print{.wclock,.wcpop{display:none}}
 /* guides */
 .lbl.guide{background:linear-gradient(180deg,var(--panel2),var(--panel));color:var(--fg);border:1px solid var(--c);border-left-width:3px;border-radius:8px;padding:5px 9px;font-weight:600;box-shadow:0 0 0 1px rgba(0,0,0,.35),0 8px 24px -8px var(--c)}
 .lbl.guide small{color:var(--muted)}
@@ -599,7 +627,15 @@ kbd{font-family:var(--mono);font-size:10.5px;line-height:1.3;display:inline-grid
 .league td:last-child{width:52px;text-align:right}
 .league tr.me td{background:var(--accent-soft)}
 .league i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:0}
-.league tr:first-child td:first-child{color:var(--accent-ink);font-weight:700}
+.league tr.podium td:first-child{color:var(--accent-ink);font-weight:700}
+.league tr.p1 td:first-child::before{content:"";display:inline-block;width:6px;height:6px;margin-right:4px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);vertical-align:1px}
+.league td:nth-child(2){white-space:nowrap}
+.league .who{display:inline-block;max-width:min(220px,38vw);overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
+.league .streak{font-family:var(--mono);font-size:11.5px;white-space:nowrap}
+.league tr.gap td{border-bottom:0;text-align:center;color:var(--faint);padding:0;line-height:1}
+.rankgap{font-size:12px!important;color:var(--accent-ink)!important}
+.scoring td:first-child{width:0;padding:0}
+.scoring td:last-child{width:auto;font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
 .brief{position:fixed;left:50%;bottom:calc(66px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(520px,calc(100% - 32px));background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:14px;padding:12px 44px 12px 16px;z-index:45;display:grid;gap:2px;box-shadow:0 20px 50px -14px rgba(0,0,0,.6);animation:vtoast .4s var(--ease) both}
 .brief .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
 .brief b{font-family:var(--display);font-size:16px}
@@ -613,7 +649,19 @@ kbd{font-family:var(--mono);font-size:10.5px;line-height:1.3;display:inline-grid
 .lvcard p{margin:0 0 10px;color:var(--muted);font-size:13px}
 .toggle{display:flex;align-items:center;gap:8px;font-family:var(--body);text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--muted)}
 .toggle input{width:auto;accent-color:var(--accent)}
-@media (max-width:760px){.rankcard{grid-template-columns:1fr;justify-items:center;text-align:center}.rankstats{justify-content:center}.xpbar{margin-inline:auto}.sayrow select{max-width:84px}}
+@media (max-width:760px){
+  /* phones: a compact card, figure beside the numbers, so the league is one short scroll away */
+  .rankcard{grid-template-columns:84px minmax(0,1fr);gap:12px;padding:12px;text-align:left;align-items:start}
+  .rankfig svg{width:84px!important}
+  .rankcard h2{font-size:19px;margin:0 0 6px}
+  .rankstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 6px;margin-top:8px}
+  .rankstats span{font-size:9.5px;letter-spacing:.04em}
+  .rankstats b{font-size:16px}
+  .xpbar{max-width:none}
+  .league{font-size:13px}.league td{padding:9px 6px}
+  .achgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sayrow select{max-width:84px}
+}
 /* district card, navigator chip, touch walking */
 .navchip{color:var(--fg);border-color:var(--accent);background:var(--accent-soft);font-weight:600}
 .navchip svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}
@@ -721,6 +769,23 @@ button,a,.chip2{touch-action:manipulation}
   .ld-skel i:nth-child(2){left:8px;right:8px;top:auto;bottom:66px;width:auto;height:96px}
   .ld-skel i:nth-child(3){left:8px;right:8px;bottom:8px;height:44px}
   .keys{width:100vw;max-width:100vw;max-height:100dvh;height:100dvh;margin:0;border-radius:0;border:0}
+  /* world clock: its own chip in the lane under the top bar, opposite the floor pill */
+  .wclock{position:absolute;left:0;top:calc(100% + 8px);height:40px;min-width:44px;padding:0 10px;border-radius:10px}
+  .floor.min{max-width:calc(100% - 150px)}
+  .wcpop{left:8px;right:8px;width:auto;top:calc(max(6px,env(safe-area-inset-top,0px)) + 100px);max-height:calc(100% - 190px)}
+  .wcpop li{min-height:40px}
+  .wcpop .wc-go .btn{min-height:44px}
+}
+@media (max-width:359px){
+  .wclock .wc-z{display:none}
+  .floor.min{max-width:calc(100% - 110px)}
+  .stage:has(.floor:not(.min):not([hidden])) .wclock{visibility:hidden}
+}
+/* landscape phones put the floor in the left lane, so the clock rides in the top bar */
+@media (max-width:760px) and (max-height:540px){
+  .wclock{position:static;height:44px}
+  .floor.min{max-width:38%}
+  .wcpop{top:58px;left:auto;right:8px;width:min(300px,60%);max-height:calc(100% - 70px)}
 }
 body:has(.sheet.open) .brief,body:has(#wd.on) .brief{visibility:hidden;pointer-events:none}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
@@ -753,7 +818,9 @@ body:has(.sheet.open) .brief,body:has(#wd.on) .brief{visibility:hidden;pointer-e
       <button class="hudbtn" id="back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
       <button class="hudbtn" id="fwd" aria-label="Forward"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
       <div class="crumb" id="crumb"></div>
+      <button class="wclock" id="wclock" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="wcPop" aria-label="World clock"><i class="wc-ph"></i><b class="wc-t">--:--</b><small class="wc-z"></small></button>
     </div>
+    <div class="wcpop" id="wcPop" role="dialog" aria-label="World clock" hidden></div>
     <div class="plate" id="plate" hidden>
       <button class="ib x" id="plateX" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="k">Knowledge city<span id="districtCount"></span></div>
