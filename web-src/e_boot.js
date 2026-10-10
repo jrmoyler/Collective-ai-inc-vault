@@ -40,6 +40,8 @@
     Live.syncMarkers();Live.pushAgents();
     if(!done.sub){Live.subscribe();done.sub=true}
     Live.drawFloor();setTimeout(Live.brief,2500);
+    // Momentum chip: chain, runs and stakes (g_momentum.js)
+    if(typeof Momentum!=="undefined")Momentum.start();
     done.live=true;
     const want=decodeURIComponent(location.hash.slice(1));if(want&&byName.get(want))open(byName.get(want));
     }

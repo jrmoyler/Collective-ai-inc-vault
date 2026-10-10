@@ -142,7 +142,7 @@ const Live=(()=>{
   // every Sentinel id that stands for an actor: the autonomous agent, a person's walkers, and their owned tool sessions
   const sentinelIds=actor=>{const ids=[];if(agents.has(actor))ids.push(actor);members.forEach((mm,uid)=>{if(mm.display_name===actor)people.forEach(p=>{if(p.userId===uid)ids.push('member:'+uid+':'+p.session)})});sessions.forEach((p,key)=>{if(p.agent===actor&&isLive(p))ids.push('session:'+key)});return ids};
   function onActivity(a){
-    if(!a||a.actor==="repo-sync")return;const ids=sentinelIds(a.actor),fresh=Date.now()-Date.parse(a.ts)<20000;
+    if(!a||a.actor==="repo-sync")return;emit("activity",a);const ids=sentinelIds(a.actor),fresh=Date.now()-Date.parse(a.ts)<20000;
     if(a.kind==="say"){ids.forEach(id=>Campus.say(id,a.text));if(a.target&&me&&a.target===me.name&&fresh)toast(`${agentName(a.actor)} says: ${a.text}`);if(fresh)Sound.say(ids);if(a.target){const to=sentinelIds(a.target);/* directed say: speaker and listener face each other and a beam joins them (b_sentinel.js) */if(!(fresh&&typeof SentinelCrowd!=="undefined"&&SentinelCrowd.converse(ids,to)))to.forEach(id=>Campus.emote(id,'nod'))}return}
     const xp=XP[a.kind]||0;if(xp&&fresh){ids.forEach(id=>Campus.floater(id,`+${xp} XP`));if(a.kind==="created"||a.kind==="added to"||a.kind==="edited")Sound.chime(ids,a.note)}
     // VFX hook: a fresh write shows on its building (ring, light column, facade scanline) in the writer's color
@@ -150,11 +150,12 @@ const Live=(()=>{
     if(ids.length&&fresh){const short=a.kind==="created"?`Raised “${a.note}”`:a.kind==="added to"?`Extended “${a.note}”`:a.kind==="claimed"?`Took ${a.task}`:a.kind==="finished"?`Finished ${a.task}`:a.kind==="sent to review"?`${a.task} is ready for review`:a.kind==="blocked"?`Blocked on ${a.task}`:null;if(short)ids.forEach(id=>Campus.say(id,short,5));/* sentinel reacts to its own blocker (b_sentinel.js) */if(a.kind==="blocked")ids.forEach(id=>Campus.emote(id,'alert'))}
   }
   function onDone(t){
+    emit("done",t);
     const bounty=BOUNTY[t.priority]||80;if(t.note)Campus.celebrate(t.note,agents.get(t.agent)?.color);sentinelIds(t.agent).forEach(id=>{Campus.emote(id,'celebrate');Campus.floater(id,`+${bounty} XP`)});
     Sound.done(sentinelIds(t.agent),t.note);toast(`${agentName(t.agent||'')} finished ${t.id} · +${bounty} XP`);
   }
   function onStats(r,prev){
-    pushLevels();if(sheet.open&&sheet.view==="agents"&&(sheet.atab==="ranks"||sheet.atab==="floor"))renderSheet();
+    pushLevels();emit("stats",r);if(sheet.open&&sheet.view==="agents"&&(sheet.atab==="ranks"||sheet.atab==="floor"))renderSheet();
     if(!me||r.actor!==me.name)return;
     const lv=Identity.level(r.xp),seen=store.get("vault.level."+me.id,null);
     if(seen===null)store.set("vault.level."+me.id,lv);else if(lv>seen){store.set("vault.level."+me.id,lv);levelUp(lv)}
@@ -353,9 +354,11 @@ node scripts/agent.mjs update CV-001 review --result "Offer section drafted; pri
     setTimeout(()=>{const n=byName.get(name);if(n)open(n)},1200);
   }
   async function history(name){const {data}=await sb.from("note_revisions").select("version,edited_by,edited_at").eq("name",name).order("edited_at",{ascending:false}).limit(30);return (data||[]).map(r=>({...r,edited_by:agentName(r.edited_by)}))}
-  async function signOut(){await sb.auth.signOut();location.reload()}
+  async function signOut(){window.__vaultLeaving=true;await sb.auth.signOut();location.reload()}
+  // Momentum hook (g_momentum.js): live events go out as window "vault:<type>" events, so other modules never patch these handlers.
+  function emit(type,detail){try{window.dispatchEvent(new CustomEvent("vault:"+type,{detail}))}catch(e){}}
   if(typeof open==='function'){const _open=open;open=function(n,push){_open(n,push);Sound.tick()}}
-  return {session,member,join,loadAll,subscribe,render,bind,history,pushAgents,syncMarkers,drawFloor,signOut,brief,me:()=>me,snapshot:()=>({tasks:[...tasks],acts:[...acts],agents:[...agents.values()],presence:[...pres.values()],stats:[...stats.values()]}),debug:()=>({onStats,onDone,onActivity,levelUp,stats})};
+  return {session,member,join,loadAll,subscribe,render,bind,history,pushAgents,syncMarkers,drawFloor,signOut,brief,me:()=>me,streakOf:liveStreak,bounty:p=>BOUNTY[p]||80,agentName,snapshot:()=>({tasks:[...tasks],acts:[...acts],agents:[...agents.values()],presence:[...pres.values()],stats:[...stats.values()]}),debug:()=>({onStats,onDone,onActivity,levelUp,stats})};
 })();
 
 
