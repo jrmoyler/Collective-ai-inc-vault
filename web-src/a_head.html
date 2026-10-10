@@ -787,6 +787,53 @@ button,a,.chip2{touch-action:manipulation}
   .floor.min{max-width:38%}
   .wcpop{top:58px;left:auto;right:8px;width:min(300px,60%);max-height:calc(100% - 70px)}
 }
+/* Momentum (g_momentum.js): chain chip, run panel and the before-you-go card. --mo is the chain window left, 0..1 */
+.momo{flex:none;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px 0 6px;border-radius:9px;background:var(--hud);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);color:var(--fg);font-family:var(--mono);box-sizing:border-box;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.06);--mo:0;--heat:var(--muted)}
+.momo[hidden]{display:none}
+.momo:hover,.momo[aria-expanded="true"]{border-color:var(--accent)}
+.momo:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.momo[data-heat="warm"]{--heat:#E8A33D}.momo[data-heat="hot"]{--heat:#F07A3A}.momo[data-heat="blazing"]{--heat:#E5534B}.momo[data-heat="whitehot"]{--heat:#FFE2A8}
+.momo .mo-ring{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;color:var(--heat);background:conic-gradient(var(--heat) calc(var(--mo)*360deg),var(--line) 0);-webkit-mask:radial-gradient(circle,#000 0 7px,transparent 7.5px 8.5px,#000 9px);mask:radial-gradient(circle,#000 0 7px,transparent 7.5px 8.5px,#000 9px)}
+.momo .mo-ring svg{width:14px;height:14px;fill:currentColor;stroke:none}
+.momo:not([data-heat="cold"]) .mo-ring svg{animation:mo-flick 1.4s ease-in-out infinite alternate}
+@keyframes mo-flick{from{transform:scale(.92)}to{transform:scale(1.08)}}
+.momo .mo-n{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--heat)}
+.momo[data-heat="cold"] .mo-n{color:var(--muted)}
+.momo .mo-g{font-size:10px;letter-spacing:.08em;color:var(--muted);font-variant-numeric:tabular-nums}
+.mopop{position:absolute;left:14px;top:52px;z-index:30;box-sizing:border-box;width:min(330px,calc(100% - 28px));max-height:calc(100% - 120px);overflow:auto;overscroll-behavior:contain;padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--accent);box-shadow:0 24px 60px -18px rgba(0,0,0,.6);animation:vrise var(--dur-3,.25s) var(--ease-out,ease) both;font-size:13px}
+.mopop[hidden]{display:none}
+.mopop header{display:grid;gap:4px;margin-bottom:8px}
+.mopop small,.mo-card .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
+.mopop header b{font-family:var(--display);font-size:22px;font-weight:600}
+.mopop header b span{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.04em}
+.mo-bar{display:block;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.mo-bar>i{display:block;height:100%;background:var(--accent);transition:width .4s ease}
+.mo-goals{list-style:none;margin:0 0 8px;padding:0;border-top:1px solid var(--line)}
+.mo-goals li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.mo-goals li .mo-bar{grid-column:1/-1}
+.mo-goals li b{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.mo-goals li.ok span{color:var(--muted);text-decoration:line-through}.mo-goals li.ok .mo-bar>i{background:var(--ok)}
+.mo-stakes{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;margin:0 0 10px}
+.mo-stakes dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.mo-stakes dd{margin:0;display:grid;gap:4px}.mo-stakes dd.risk{color:var(--warn);font-weight:600}
+.mo-next{display:grid;gap:2px;padding:8px 10px;border-radius:10px;background:var(--accent-soft);margin-bottom:8px}
+.mo-next span,.mo-none{color:var(--muted);font-size:12px}.mo-none{margin:0 0 8px}
+.mo-go{display:flex;gap:6px;flex-wrap:wrap}.mo-go .btn{flex:1 1 auto}
+.mo-card{position:fixed;left:50%;top:72px;transform:translateX(-50%);z-index:60;box-sizing:border-box;width:min(380px,calc(100vw - 32px));padding:14px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--accent);box-shadow:0 30px 80px -20px rgba(0,0,0,.7);display:grid;gap:8px;animation:vrise var(--dur-3,.25s) var(--ease-out,ease) both;color:var(--fg)}
+.mo-card b{font-family:var(--display);font-size:18px}
+.mo-card ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:13px}
+.stage.walking .mopop{display:none}
+@media print{.momo,.mopop,.mo-card{display:none}}
+@media (max-width:760px){
+  .momo{position:absolute;left:0;top:calc(100% + 56px);height:40px;min-width:44px;border-radius:10px}
+  .mopop{left:8px;right:8px;width:auto;top:calc(max(6px,env(safe-area-inset-top,0px)) + 148px);max-height:calc(100% - 230px)}
+  .mo-go .btn{min-height:44px}
+  .stage:has(.floor:not(.min):not([hidden])) .momo{visibility:hidden}
+}
+@media (max-width:760px) and (max-height:540px){
+  .momo{position:static;height:44px}
+  .mopop{top:58px;left:auto;right:8px;width:min(330px,60%);max-height:calc(100% - 70px)}
+}
 body:has(.sheet.open) .brief,body:has(#wd.on) .brief{visibility:hidden;pointer-events:none}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style></head><body>
@@ -819,8 +866,10 @@ body:has(.sheet.open) .brief,body:has(#wd.on) .brief{visibility:hidden;pointer-e
       <button class="hudbtn" id="fwd" aria-label="Forward"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
       <div class="crumb" id="crumb"></div>
       <button class="wclock" id="wclock" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="wcPop" aria-label="World clock"><i class="wc-ph"></i><b class="wc-t">--:--</b><small class="wc-z"></small></button>
+      <button class="momo" id="momo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="moPop" aria-label="Momentum" hidden></button>
     </div>
     <div class="wcpop" id="wcPop" role="dialog" aria-label="World clock" hidden></div>
+    <div class="mopop" id="moPop" role="dialog" aria-label="Momentum" hidden></div>
     <div class="plate" id="plate" hidden>
       <button class="ib x" id="plateX" aria-label="Dismiss"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="k">Knowledge city<span id="districtCount"></span></div>
